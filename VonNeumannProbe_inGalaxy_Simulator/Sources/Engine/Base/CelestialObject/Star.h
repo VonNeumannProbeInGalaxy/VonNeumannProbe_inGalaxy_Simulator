@@ -3,12 +3,8 @@
 #include "CelestialObject.h"
 
 #include <string>
+#include "Engine/Base/CelestialObject/Constants.h"
 #include "Engine/Base/CelestialObject/StellarClass.h"
-
-constexpr inline double kSolarRadius = 695700;
-constexpr inline double kSolarMass   = 1.9884e30;
-constexpr inline double kSolarLum    = 3.828e26;
-constexpr inline double kSolarFeH    = 0.0;
 
 class Star : public CelestialBody {
 public:
@@ -33,7 +29,6 @@ public:
 
 public:
     // Setters
-public:
     // Setters for ExtendedProperties
     // ------------------------------
     void SetLuminosity(double Luminosity) {
@@ -81,6 +76,5 @@ public:
     }
 
 private:
-    CelestialBody::BaseProperties _StarBaseProperties;
-    ExtendedProperties            _StarExtraProperties;
+    ExtendedProperties _StarExtraProperties;
 };

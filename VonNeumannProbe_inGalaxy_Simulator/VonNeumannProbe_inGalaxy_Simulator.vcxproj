@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\Engine\Base\CelestialObject\Planet.cpp" />
     <ClCompile Include="Sources\Engine\Base\CelestialObject\CelestialObject.cpp" />
     <ClCompile Include="Sources\main.cpp" />
     <ClCompile Include="Sources\stdafx.cpp">
@@ -150,7 +151,9 @@
     <ClCompile Include="Sources\Engine\Base\CelestialObject\StellarClass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\Engine\Base\CelestialObject\Planet.h" />
     <ClInclude Include="Sources\Engine\Base\CelestialObject\CelestialObject.h" />
+    <ClInclude Include="Sources\Engine\Base\CelestialObject\Constants.h" />
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
     <ClInclude Include="Sources\stdafx.h" />
     <ClInclude Include="Sources\Engine\Base\CelestialObject\Star.h" />

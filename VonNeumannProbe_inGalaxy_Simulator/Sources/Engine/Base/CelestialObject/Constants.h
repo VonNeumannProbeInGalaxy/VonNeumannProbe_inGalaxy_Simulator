@@ -1,0 +1,10 @@
+#pragma once
+
+constexpr inline int    kSpeedOflightMps  = 299792458;
+constexpr inline double kSpeedOfLightKmps = 299792.458;
+
+constexpr inline double kSolarRadius      = 695700;
+constexpr inline double kSolarMass        = 1.9884e30;
+constexpr inline double kSolarLuminosity  = 3.828e26;
+constexpr inline double kSolarFeH         = 0.0;
+constexpr inline double kSolarEffTemp     = 5772;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include "Engine/Base/CelestialObject/Constants.h"
 
 class CelestialBody {
 public:
@@ -21,8 +23,10 @@ public:
         double Radius;
         double Mass;
         double RotateVelocity;
+        double RotationPeriod;
         double Oblateness;
         double AxisTilt;
+        double Albedo;
         double Age;
         double EscapeVelocity;
         double MagneticField;
@@ -63,12 +67,20 @@ public:
         _Properties.RotateVelocity = RotateVelocity;
     }
 
+    void SetRotationPeriod(double RotationPeriod) {
+        _Properties.RotationPeriod = RotationPeriod;
+    }
+
     void SetOblateness(double Oblateness) {
         _Properties.Oblateness = Oblateness;
     }
 
     void SetAxisTilt(double AxisTilt) {
         _Properties.AxisTilt = AxisTilt;
+    }
+
+    void SetAlbedo(double Albedo) {
+        _Properties.Albedo = Albedo;
     }
 
     void SetAge(double Age) {
@@ -120,6 +132,29 @@ public:
     void SetMeanAnomaly(double MeanAnomaly) {
         _Properties.Orbit.MeanAnomaly = MeanAnomaly;
     }
+
+private:
+    BaseProperties _Properties;
+};
+
+class MolecularCloud {
+public:
+    //struct CloudRegion {
+    //    double Radius;
+    //    double Density;
+    //};
+
+    struct BaseProperties {
+        double Radius;
+        double Mass;
+        double Temperature;
+        double Density;
+        double MagneticField;
+    };
+
+public:
+    MolecularCloud() = delete;
+    MolecularCloud(const BaseProperties& Properties);
 
 private:
     BaseProperties _Properties;
