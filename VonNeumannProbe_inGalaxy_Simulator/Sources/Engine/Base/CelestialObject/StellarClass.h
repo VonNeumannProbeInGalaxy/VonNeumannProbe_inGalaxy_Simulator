@@ -13,62 +13,62 @@ public:
     };
 
     enum class SpectralClass : std::int16_t {
+        kSpectral_Unknown   = 0,
         // 常规光谱型
         // ---------
-        kSpectral_O         = 0,
-        kSpectral_B         = 1,
-        kSpectral_A         = 2,
-        kSpectral_F         = 3,
-        kSpectral_G         = 4,
-        kSpectral_K         = 5,
-        kSpectral_M         = 6,
-        kSpectral_R         = 7,
-        kSpectral_N         = 8,
-        kSpectral_C         = 9,
-        kSpectral_S         = 10,
+        kSpectral_O         = 1,
+        kSpectral_B         = 2,
+        kSpectral_A         = 3,
+        kSpectral_F         = 4,
+        kSpectral_G         = 5,
+        kSpectral_K         = 6,
+        kSpectral_M         = 7,
+        kSpectral_R         = 8,
+        kSpectral_N         = 9,
+        kSpectral_C         = 10,
+        kSpectral_S         = 11,
         // 沃尔夫—拉叶星
         // -----------
-        kSpectral_WC        = 11,
-        kSpectral_WN        = 12,
-        kSpectral_WNxh      = 13,
-        kSpectral_WO        = 14,
+        kSpectral_WC        = 12,
+        kSpectral_WN        = 13,
+        kSpectral_WNxh      = 14,
+        kSpectral_WO        = 15,
         // 棕矮星
         // -----
-        kSpectral_L         = 15,
-        kSpectral_T         = 16,
-        kSpectral_Y         = 17,
+        kSpectral_L         = 16,
+        kSpectral_T         = 17,
+        kSpectral_Y         = 18,
         // 恒星残骸
         // -------
-        kSpectral_D         = 18, // 白矮星
-        kSpectral_DA        = 19,
-        kSpectral_DB        = 20,
-        kSpectral_DC        = 21,
-        kSpectral_DO        = 22,
-        kSpectral_DQ        = 23,
-        kSpectral_DX        = 24,
-        kSpectral_DZ        = 25,
-        kSpectral_DAB       = 26,
-        kSpectral_DAO       = 27,
-        kSpectral_DAZ       = 28,
-        kSpectral_DBZ       = 29,
-        kSpectral_Q         = 30, // 中子星
-        kSpectral_X         = 31, // 黑洞
-        kSpectral_Unknown   = 32
+        kSpectral_D         = 19, // 白矮星
+        kSpectral_DA        = 20,
+        kSpectral_DB        = 21,
+        kSpectral_DC        = 22,
+        kSpectral_DO        = 23,
+        kSpectral_DQ        = 24,
+        kSpectral_DX        = 25,
+        kSpectral_DZ        = 26,
+        kSpectral_DAB       = 27,
+        kSpectral_DAO       = 28,
+        kSpectral_DAZ       = 29,
+        kSpectral_DBZ       = 30,
+        kSpectral_Q         = 31, // 中子星
+        kSpectral_X         = 32, // 黑洞
     };
 
     enum class LuminosityClass : std::int16_t {
-        kLuminosity_0       = 0,
-        kLuminosity_IaPlus  = 1,
-        kLuminosity_Ia      = 2,
-        kLuminosity_Ib      = 3,
-        kLuminosity_Iab     = 4,
-        kLuminosity_I       = 5,
-        kLuminosity_II      = 6,
-        kLuminosity_III     = 7,
-        kLuminosity_IV      = 8,
-        kLuminosity_V       = 9,
-        kLuminosity_VI      = 10,
-        kLuminosity_Unknown = 11
+        kLuminosity_Unknown = 0,
+        kLuminosity_0       = 1,
+        kLuminosity_IaPlus  = 2,
+        kLuminosity_Ia      = 3,
+        kLuminosity_Ib      = 4,
+        kLuminosity_Iab     = 5,
+        kLuminosity_I       = 6,
+        kLuminosity_II      = 7,
+        kLuminosity_III     = 8,
+        kLuminosity_IV      = 9,
+        kLuminosity_V       = 10,
+        kLuminosity_VI      = 11
     };
 
 public:
@@ -98,8 +98,8 @@ public:
     }
 
 private:
-    StarType        _StarType;
-    SpectralClass   _SpectralClass;
-    double          _Subclass;
-    LuminosityClass _LuminosityClass;
+    StarType        _StarType{ StarType::kNormalStar };
+    SpectralClass   _SpectralClass{ SpectralClass::kSpectral_Unknown };
+    double          _Subclass = 0.0;
+    LuminosityClass _LuminosityClass{ LuminosityClass::kLuminosity_Unknown };
 };

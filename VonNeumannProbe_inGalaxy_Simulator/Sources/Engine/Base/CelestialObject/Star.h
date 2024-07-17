@@ -3,6 +3,7 @@
 #include "CelestialObject.h"
 
 #include <string>
+#include "Engine/Base/CelestialObject/StellarClass.h"
 
 constexpr inline double kSolarRadius = 695700;
 constexpr inline double kSolarMass   = 1.9884e30;
@@ -11,106 +12,75 @@ constexpr inline double kSolarFeH    = 0.0;
 
 class Star : public CelestialBody {
 public:
-    Star() = delete;
-    Star(double Radius, double Mass, double Oblateness, double AxisTilt,
-        double Age, double EscapeVelocity, double MagneticField,
-        double Luminosity, double AbsMagn, double FeH, double SurfFeH,
-        double EffTemp, double StellarWindSpeed, double StellarWindDensity,
-        double StellarWindMomentum, double StellarWindMassLossRate,
-        const std::string& SpectralType);
+    struct ExtendedProperties {
+        double Luminosity;
+        double AbsMagn;
+        double FeH;
+        double SurfFeH;
+        double EffTemp;
+        double StellarWindSpeed;
+        double StellarWindDensity;
+        double StellarWindMomentum;
+        double StellarWindMassLossRate;
+
+        std::string SpectralType;
+        StellarClass StellarClass;
+    };
 
 public:
+    Star() = delete;
+    Star(const CelestialBody::BaseProperties& StarBaseProperties, const ExtendedProperties& StarExtraProperties);
+
+public:
+    // Setters
+public:
+    // Setters for ExtendedProperties
+    // ------------------------------
     void SetLuminosity(double Luminosity) {
-        _Luminosity = Luminosity;
+        _StarExtraProperties.Luminosity = Luminosity;
     }
 
     void SetAbsMagn(double AbsMagn) {
-        _AbsMagn = AbsMagn;
+        _StarExtraProperties.AbsMagn = AbsMagn;
     }
 
     void SetFeH(double FeH) {
-        _FeH = FeH;
+        _StarExtraProperties.FeH = FeH;
     }
 
     void SetSurfFeH(double SurfFeH) {
-        _SurfFeH = SurfFeH;
+        _StarExtraProperties.SurfFeH = SurfFeH;
     }
 
     void SetEffTemp(double EffTemp) {
-        _EffTemp = EffTemp;
+        _StarExtraProperties.EffTemp = EffTemp;
     }
 
     void SetStellarWindSpeed(double StellarWindSpeed) {
-        _StellarWindSpeed = StellarWindSpeed;
+        _StarExtraProperties.StellarWindSpeed = StellarWindSpeed;
     }
 
     void SetStellarWindDensity(double StellarWindDensity) {
-        _StellarWindDensity = StellarWindDensity;
+        _StarExtraProperties.StellarWindDensity = StellarWindDensity;
     }
 
     void SetStellarWindMomentum(double StellarWindMomentum) {
-        _StellarWindMomentum = StellarWindMomentum;
+        _StarExtraProperties.StellarWindMomentum = StellarWindMomentum;
     }
 
     void SetStellarWindMassLossRate(double StellarWindMassLossRate) {
-        _StellarWindMassLossRate = StellarWindMassLossRate;
+        _StarExtraProperties.StellarWindMassLossRate = StellarWindMassLossRate;
     }
 
     void SetSpectralType(const std::string& SpectralType) {
-        _SpectralType = SpectralType;
+        _StarExtraProperties.SpectralType = SpectralType;
     }
 
-public:
-    double GetLuminosity() const {
-        return _Luminosity;
-    }
-
-    double GetAbsMagn() const {
-        return _AbsMagn;
-    }
-
-    double GetFeH() const {
-        return _FeH;
-    }
-
-    double GetSurfFeH() const {
-        return _SurfFeH;
-    }
-
-    double GetEffTemp() const {
-        return _EffTemp;
-    }
-
-    double GetStellarWindSpeed() const {
-        return _StellarWindSpeed;
-    }
-
-    double GetStellarWindDensity() const {
-        return _StellarWindDensity;
-    }
-
-    double GetStellarWindMomentum() const {
-        return _StellarWindMomentum;
-    }
-
-    double GetStellarWindMassLossRate() const {
-        return _StellarWindMassLossRate;
-    }
-
-    const std::string& GetSpectralType() const {
-        return _SpectralType;
+    void SetStellarClass(const StellarClass& StellarClass) {
+        _StarExtraProperties.StellarClass = StellarClass;
     }
 
 private:
-    double _Luminosity;
-    double _AbsMagn;
-    double _FeH;
-    double _SurfFeH;
-    double _EffTemp;
-    double _StellarWindSpeed;
-    double _StellarWindDensity;
-    double _StellarWindMomentum;
-    double _StellarWindMassLossRate;
-
-    std::string _SpectralType;
+    CelestialBody::BaseProperties _StarBaseProperties;
+    ExtendedProperties            _StarExtraProperties;
 };

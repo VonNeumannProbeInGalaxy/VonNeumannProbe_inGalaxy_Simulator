@@ -28,7 +28,8 @@ enum class ParseState {
 };
 
 StellarClass::StellarClass(StarType StarType, SpectralClass SpectralClass, double Subclass, LuminosityClass LuminosityClass)
-    : _StarType(StarType), _SpectralClass(SpectralClass), _Subclass(Subclass), _LuminosityClass(LuminosityClass) {}
+    : _StarType(StarType), _SpectralClass(SpectralClass), _Subclass(Subclass), _LuminosityClass(LuminosityClass)
+{}
 
 StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
     NpgsAssert(!StellarClassStr.empty(), "StellarClassStr is empty.");
@@ -405,10 +406,7 @@ StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
 
 std::uint16_t StellarClass::Data() const {
     // TODO
-    return static_cast<std::uint16_t>(_StarType)      << 12 |
-           static_cast<std::uint16_t>(_SpectralClass) << 8  |
-           static_cast<std::uint16_t>(_Subclass)      << 4  |
-           static_cast<std::uint16_t>(_LuminosityClass);
+    return 0;
 }
 
 bool StellarClass::Load(std::uint16_t PackagedSpectralType) {

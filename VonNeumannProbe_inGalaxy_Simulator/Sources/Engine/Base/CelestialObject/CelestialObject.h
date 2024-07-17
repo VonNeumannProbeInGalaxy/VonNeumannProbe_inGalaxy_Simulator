@@ -1,75 +1,126 @@
 #pragma once
 
+#include <string>
+
 class CelestialBody {
 public:
-    CelestialBody() = delete;
-    CelestialBody(double Radius, double Mass, double Oblateness, double AxisTilt,
-                  double Age, double EscapeVelocity, double MagneticField);
+    struct OrbitProperties {
+        std::string ParentBody;
+        double Epoch;
+        double Period;
+        double SemiMajorAxis;
+        double Eccentricity;
+        double Inclination;
+        double LongitudeOfAscendingNode;
+        double ArgumentOfPeriapsis;
+        double MeanAnomaly;
+    };
+
+    struct BaseProperties {
+        std::string Name;
+        double Radius;
+        double Mass;
+        double RotateVelocity;
+        double Oblateness;
+        double AxisTilt;
+        double Age;
+        double EscapeVelocity;
+        double MagneticField;
+
+        OrbitProperties Orbit;
+    };
 
 public:
+    CelestialBody() = delete;
+    CelestialBody(const BaseProperties& Properties);
+
+public:
+    void SetBaseProperties(const BaseProperties& Properties) {
+        _Properties = Properties;
+    }
+
+    BaseProperties GetBaseProperties() const {
+        return _Properties;
+    }
+
+public:
+    // Setters
+    // Setters for BaseProperties
+    // --------------------------
+    void SetName(const std::string& Name) {
+        _Properties.Name = Name;
+    }
+
     void SetRadius(double Radius) {
-        _Radius = Radius;
+        _Properties.Radius = Radius;
     }
 
     void SetMass(double Mass) {
-        _Mass = Mass;
+        _Properties.Mass = Mass;
+    }
+
+    void SetRotateVelocity(double RotateVelocity) {
+        _Properties.RotateVelocity = RotateVelocity;
     }
 
     void SetOblateness(double Oblateness) {
-        _Oblateness = Oblateness;
+        _Properties.Oblateness = Oblateness;
     }
 
     void SetAxisTilt(double AxisTilt) {
-        _AxisTilt = AxisTilt;
+        _Properties.AxisTilt = AxisTilt;
     }
 
     void SetAge(double Age) {
-        _Age = Age;
+        _Properties.Age = Age;
     }
 
     void SetEscapeVelocity(double EscapeVelocity) {
-        _EscapeVelocity = EscapeVelocity;
+        _Properties.EscapeVelocity = EscapeVelocity;
     }
 
     void SetMagneticField(double MagneticField) {
-        _MagneticField = MagneticField;
+        _Properties.MagneticField = MagneticField;
     }
 
-public:
-    double GetRadius() const {
-        return _Radius;
+    // Setters for OrbitProperties
+    // ---------------------------
+    void SetParentBody(const std::string& ParentBody) {
+        _Properties.Orbit.ParentBody = ParentBody;
     }
 
-    double GetMass() const {
-        return _Mass;
+    void SetEpoch(double Epoch) {
+        _Properties.Orbit.Epoch = Epoch;
     }
 
-    double GetOblateness() const {
-        return _Oblateness;
+    void SetPeriod(double Period) {
+        _Properties.Orbit.Period = Period;
     }
 
-    double GetAxisTilt() const {
-        return _AxisTilt;
+    void SetSemiMajorAxis(double SemiMajorAxis) {
+        _Properties.Orbit.SemiMajorAxis = SemiMajorAxis;
     }
 
-    double GetAge() const {
-        return _Age;
+    void SetEccentricity(double Eccentricity) {
+        _Properties.Orbit.Eccentricity = Eccentricity;
     }
 
-    double GetEscapeVelocity() const {
-        return _EscapeVelocity;
+    void SetInclination(double Inclination) {
+        _Properties.Orbit.Inclination = Inclination;
     }
 
-    double GetMagneticField() const {
-        return _MagneticField;
+    void SetLongitudeOfAscendingNode(double LongitudeOfAscendingNode) {
+        _Properties.Orbit.LongitudeOfAscendingNode = LongitudeOfAscendingNode;
+    }
+
+    void SetArgumentOfPeriapsis(double ArgumentOfPeriapsis) {
+        _Properties.Orbit.ArgumentOfPeriapsis = ArgumentOfPeriapsis;
+    }
+
+    void SetMeanAnomaly(double MeanAnomaly) {
+        _Properties.Orbit.MeanAnomaly = MeanAnomaly;
     }
 
 private:
-    double _Radius;
-    double _Mass;
-    double _Oblateness;
-    double _AxisTilt;
-    double _Age;
-    double _EscapeVelocity;
-    double _MagneticField;
+    BaseProperties _Properties;
 };
