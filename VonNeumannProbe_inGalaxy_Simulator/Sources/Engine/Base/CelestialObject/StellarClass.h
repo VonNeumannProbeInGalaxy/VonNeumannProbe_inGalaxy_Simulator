@@ -56,7 +56,7 @@ public:
         kSpectral_Unknown   = 32
     };
 
-    enum class LuminosityClass {
+    enum class LuminosityClass : std::int16_t {
         kLuminosity_0       = 0,
         kLuminosity_IaPlus  = 1,
         kLuminosity_Ia      = 2,
@@ -68,13 +68,12 @@ public:
         kLuminosity_IV      = 8,
         kLuminosity_V       = 9,
         kLuminosity_VI      = 10,
-        kLuminosity_VII     = 11,
-        kLuminosity_Unknown = 12
+        kLuminosity_Unknown = 11
     };
 
 public:
     constexpr StellarClass() = default;
-    StellarClass(StarType StarType, SpectralClass SpectralClass, std::int32_t Subclass, LuminosityClass LuminosityClass);
+    StellarClass(StarType StarType, SpectralClass SpectralClass, double Subclass, LuminosityClass LuminosityClass);
 
 public:
     static StellarClass Parse(const std::string_view StellarClassStr);
@@ -90,7 +89,7 @@ public:
         return _SpectralClass;
     }
 
-    std::int32_t GetSubclass() const {
+    double GetSubclass() const {
         return _Subclass;
     }
 
@@ -101,6 +100,6 @@ public:
 private:
     StarType        _StarType;
     SpectralClass   _SpectralClass;
-    std::int32_t    _Subclass;
+    double          _Subclass;
     LuminosityClass _LuminosityClass;
 };
