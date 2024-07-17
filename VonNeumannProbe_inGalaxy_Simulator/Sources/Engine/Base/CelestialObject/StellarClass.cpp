@@ -35,11 +35,11 @@ StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
 
     StarType StarType = StarType::kNormalStar;
     SpectralClass SpectralClass = SpectralClass::kSpectral_Unknown;
-    double Subclass = 0;
+    double Subclass = 0.0;
     LuminosityClass LuminosityClass = LuminosityClass::kLuminosity_Unknown;
 
     ParseState State = ParseState::kBegin;
-    std::int32_t Index = 0;
+    std::size_t Index = 0;
 
     while (State != ParseState::kEnd) {
         unsigned char Char = 0;
