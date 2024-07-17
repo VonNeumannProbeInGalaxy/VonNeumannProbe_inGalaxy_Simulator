@@ -265,7 +265,7 @@ StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
             switch (Char) {
             case 'd':
                 LuminosityClass = LuminosityClass::kLuminosity_VI;
-                State = ParseState::kSubclass;
+                State = ParseState::kSpectralClass;
                 ++Index;
                 break;
             default:
@@ -404,6 +404,7 @@ StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
 }
 
 std::uint16_t StellarClass::Data() const {
+    // TODO
     return static_cast<std::uint16_t>(_StarType)      << 12 |
            static_cast<std::uint16_t>(_SpectralClass) << 8  |
            static_cast<std::uint16_t>(_Subclass)      << 4  |
@@ -411,5 +412,6 @@ std::uint16_t StellarClass::Data() const {
 }
 
 bool StellarClass::Load(std::uint16_t PackagedSpectralType) {
+    // TODO
     return false;
 }
