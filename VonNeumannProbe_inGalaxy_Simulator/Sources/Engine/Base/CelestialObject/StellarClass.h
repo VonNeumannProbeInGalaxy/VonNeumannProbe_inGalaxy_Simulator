@@ -31,29 +31,24 @@ public:
         // -----------
         kSpectral_WC        = 12,
         kSpectral_WN        = 13,
-        kSpectral_WNxh      = 14,
-        kSpectral_WO        = 15,
+        kSpectral_WO        = 14,
         // 棕矮星
         // -----
-        kSpectral_L         = 16,
-        kSpectral_T         = 17,
-        kSpectral_Y         = 18,
+        kSpectral_L         = 15,
+        kSpectral_T         = 16,
+        kSpectral_Y         = 17,
         // 恒星残骸
         // -------
-        kSpectral_D         = 19, // 白矮星
-        kSpectral_DA        = 20,
-        kSpectral_DB        = 21,
-        kSpectral_DC        = 22,
-        kSpectral_DO        = 23,
-        kSpectral_DQ        = 24,
-        kSpectral_DX        = 25,
-        kSpectral_DZ        = 26,
-        kSpectral_DAB       = 27,
-        kSpectral_DAO       = 28,
-        kSpectral_DAZ       = 29,
-        kSpectral_DBZ       = 30,
-        kSpectral_Q         = 31, // 中子星
-        kSpectral_X         = 32, // 黑洞
+        kSpectral_D         = 18, // 白矮星
+        kSpectral_DA        = 19,
+        kSpectral_DB        = 20,
+        kSpectral_DC        = 21,
+        kSpectral_DO        = 22,
+        kSpectral_DQ        = 23,
+        kSpectral_DX        = 24,
+        kSpectral_DZ        = 25,
+        kSpectral_Q         = 36, // 中子星
+        kSpectral_X         = 27  // 黑洞
     };
 
     enum class LuminosityClass : std::int16_t {
@@ -77,8 +72,8 @@ public:
 
 public:
     static StellarClass Parse(const std::string_view StellarClassStr);
-    std::uint16_t Data() const;
-    bool Load(std::uint16_t PackagedSpectralType);
+    std::uint32_t Data() const;
+    bool Load(std::uint32_t PackagedSpectralType);
 
 public:
     StarType GetStarType() const {
