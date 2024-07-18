@@ -25,6 +25,255 @@ enum class ParseState {
     kLuminosityClassV
 };
 
+static ParseState ParseStarType(unsigned char Char, StellarClass::StarType& StarType, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
+    switch (Char) {
+    case 'X':
+        StarType = StellarClass::StarType::kBlackHole;
+        return ParseState::kEnd;
+    case 'Q':
+        StarType = StellarClass::StarType::kNeutronStar;
+        return ParseState::kEnd;
+    case 'D':
+        StarType = StellarClass::StarType::kWhiteDwarf;
+        SpectralClass = StellarClass::SpectralClass::kSpectral_D;
+        ++Index;
+        return ParseState::kWhiteDwarf;
+    case 's': // sd 前缀
+        StarType = StellarClass::StarType::kNormalStar;
+        ++Index;
+        return ParseState::kSubdwarfPerfix;
+    case '?':
+        return ParseState::kEnd;
+    default:
+        return ParseState::kSpectralClass;
+    }
+}
+
+static ParseState ParseSpectralClass(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
+    switch (Char) {
+    case 'W':
+        ++Index;
+        return ParseState::kWolfRayetStar;
+    case 'O':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_O;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'B':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_B;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'A':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_A;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'F':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_F;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'G':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_G;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'K':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_K;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'M':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_M;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'R':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_R;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'N':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_N;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'C':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_C;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'S':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_S;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'L':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_L;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'T':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_T;
+        ++Index;
+        return ParseState::kSubclass;
+    case 'Y':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_Y;
+        ++Index;
+        return ParseState::kSubclass;
+    default:
+        return ParseState::kEnd;
+    }
+}
+
+static ParseState ParseWolfRayetStar(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
+    switch (Char) {
+    case 'C':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_WC;
+        ++Index;
+        return ParseState::kSubclass;
+        break;
+    case 'N':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_WN;
+        ++Index;
+        return ParseState::kSubclass;
+        break;
+    case 'O':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_WO;
+        ++Index;
+        return ParseState::kSubclass;
+        break;
+    default:
+        return ParseState::kEnd;
+        break;
+    }
+}
+
+static ParseState ParseWhiteDwarf(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t Index) {
+    ++Index;
+
+    switch (Char) {
+    case 'A':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_DA;
+        return ParseState::kWhiteDwarfEx;
+    case 'B':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_DB;
+        return ParseState::kWhiteDwarfEx;
+    case 'C':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_DC;
+        return ParseState::kWhiteDwarfEx;
+    case 'O':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_DO;
+        return ParseState::kWhiteDwarfEx;
+    case 'Q':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_DQ;
+        return ParseState::kWhiteDwarfEx;
+    case 'X':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_DX;
+        return ParseState::kWhiteDwarfEx;
+    case 'Z':
+        SpectralClass = StellarClass::SpectralClass::kSpectral_DZ;
+        return ParseState::kWhiteDwarfEx;
+    default:
+        SpectralClass = StellarClass::SpectralClass::kSpectral_D;
+        return ParseState::kSubclass;
+    }
+}
+
+static ParseState ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, StellarClass::SpectralClass& SpectralClass, std::size_t Index) {
+    if (Char == PrevChar) {
+        NpgsAssert(false, "Invalid white dwarf extended type.");
+    }
+
+    switch (Char) {
+    case 'A':
+        break;
+    case 'B':
+        break;
+    case 'C':
+        break;
+    case 'O':
+        break;
+    case 'Q':
+        break;
+    case 'X':
+        break;
+    case 'Z':
+        break;
+    default:
+        break;
+    }
+
+    ++Index;
+    return ParseState::kSubclass;
+}
+
+static ParseState ParseLuminosityClass(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass, std::size_t& Index) {
+    switch (Char) {
+    case '0':
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_0;
+        return ParseState::kEnd;
+    case 'I':
+        ++Index;
+        return ParseState::kLuminosityClassI;
+    case 'V':
+        ++Index;
+        return ParseState::kLuminosityClassV;
+    case ' ':
+        ++Index;
+        return ParseState::kLuminosityClass;
+    default:
+        return ParseState::kEnd;
+    }
+}
+
+static ParseState ParseLuminosityClassI(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass, std::size_t& Index) {
+    switch (Char) {
+    case 'a':
+        ++Index;
+        return ParseState::kLuminosityClassIa;
+    case 'b':
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Ib;
+        ++Index;
+        return ParseState::kEnd;
+    case 'I':
+        ++Index;
+        return ParseState::kLuminosityClassII;
+    case 'V':
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IV;
+        ++Index;
+        return ParseState::kEnd;
+    default:
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_I;
+        return ParseState::kEnd;
+    }
+}
+
+static ParseState ParseLuminosityClassIa(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass) {
+    switch (Char) {
+    case '+':
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IaPlus;
+        return ParseState::kEnd;
+    case 'b':
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Iab;
+        return ParseState::kEnd;
+    default:
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Ia;
+        return ParseState::kEnd;
+    }
+}
+
+static ParseState ParseLuminosityClassII(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass) {
+    switch (Char) {
+    case 'I':
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_III;
+        return ParseState::kEnd;
+    default:
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_II;
+        return ParseState::kEnd;
+    }
+}
+
+static ParseState ParseLuminosityClassV(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass) {
+    switch (Char) {
+    case 'I':
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_VI;
+        return ParseState::kEnd;
+    default:
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
+        return ParseState::kEnd;
+    }
+}
+
 StellarClass::StellarClass(StarType StarType, SpectralClass SpectralClass, double Subclass, LuminosityClass LuminosityClass)
     : _StarType(StarType), _SpectralClass(SpectralClass), _Subclass(Subclass), _LuminosityClass(LuminosityClass)
 {}
@@ -50,208 +299,23 @@ StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
 
         switch (State) {
         case ParseState::kBegin:
-            switch (Char) {
-            case 'X':
-                StarType = StarType::kBlackHole;
-                State = ParseState::kEnd;
-                break;
-            case 'Q':
-                StarType = StarType::kNeutronStar;
-                State = ParseState::kEnd;
-                break;
-            case 'D':
-                StarType = StarType::kWhiteDwarf;
-                SpectralClass = SpectralClass::kSpectral_D;
-                State = ParseState::kWhiteDwarf;
-                ++Index;
-                break;
-            case 's': // sd 前缀
-                StarType = StarType::kNormalStar;
-                State = ParseState::kSubdwarfPerfix;
-                ++Index;
-                break;
-            case '?':
-                State = ParseState::kEnd;
-                break;
-            default:
-                State = ParseState::kSpectralClass;
-                break;
-            }
-
+            State = ParseStarType(Char, StarType, SpectralClass, Index);
             break;
 
         case ParseState::kSpectralClass:
-            switch (Char) {
-            case 'W':
-                State = ParseState::kWolfRayetStar;
-                ++Index;
-                break;
-            case 'O':
-                SpectralClass = SpectralClass::kSpectral_O;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'B':
-                SpectralClass = SpectralClass::kSpectral_B;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'A':
-                SpectralClass = SpectralClass::kSpectral_A;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'F':
-                SpectralClass = SpectralClass::kSpectral_F;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'G':
-                SpectralClass = SpectralClass::kSpectral_G;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'K':
-                SpectralClass = SpectralClass::kSpectral_K;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'M':
-                SpectralClass = SpectralClass::kSpectral_M;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'R':
-                SpectralClass = SpectralClass::kSpectral_R;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'N':
-                SpectralClass = SpectralClass::kSpectral_N;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'C':
-                SpectralClass = SpectralClass::kSpectral_C;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'S':
-                SpectralClass = SpectralClass::kSpectral_S;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'L':
-                SpectralClass = SpectralClass::kSpectral_L;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'T':
-                SpectralClass = SpectralClass::kSpectral_T;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'Y':
-                SpectralClass = SpectralClass::kSpectral_Y;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            default:
-                State = ParseState::kEnd;
-                break;
-            }
-
+            State = ParseSpectralClass(Char, SpectralClass, Index);
             break;
 
         case ParseState::kWolfRayetStar:
-            switch (Char) {
-            case 'C':
-                SpectralClass = SpectralClass::kSpectral_WC;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'N':
-                SpectralClass = SpectralClass::kSpectral_WN;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            case 'O':
-                SpectralClass = SpectralClass::kSpectral_WO;
-                State = ParseState::kSubclass;
-                ++Index;
-                break;
-            default:
-                State = ParseState::kEnd;
-                break;
-            }
-
+            State = ParseWolfRayetStar(Char, SpectralClass, Index);
             break;
 
         case ParseState::kWhiteDwarf:
-            switch (Char) {
-            case 'A':
-                SpectralClass = SpectralClass::kSpectral_DA;
-                State = ParseState::kWhiteDwarfEx;
-                break;
-            case 'B':
-                SpectralClass = SpectralClass::kSpectral_DB;
-                State = ParseState::kWhiteDwarfEx;
-                break;
-            case 'C':
-                SpectralClass = SpectralClass::kSpectral_DC;
-                State = ParseState::kWhiteDwarfEx;
-                break;
-            case 'O':
-                SpectralClass = SpectralClass::kSpectral_DO;
-                State = ParseState::kWhiteDwarfEx;
-                break;
-            case 'Q':
-                SpectralClass = SpectralClass::kSpectral_DQ;
-                State = ParseState::kWhiteDwarfEx;
-                break;
-            case 'X':
-                SpectralClass = SpectralClass::kSpectral_DX;
-                State = ParseState::kWhiteDwarfEx;
-                break;
-            case 'Z':
-                SpectralClass = SpectralClass::kSpectral_DZ;
-                State = ParseState::kWhiteDwarfEx;
-                break;
-            default:
-                SpectralClass = SpectralClass::kSpectral_D;
-                State = ParseState::kSubclass;
-                break;
-            }
-
-            ++Index;
+            State = ParseWhiteDwarf(Char, SpectralClass, Index);
             break;
 
         case ParseState::kWhiteDwarfEx:
-            if (Char == StellarClassStr[Index - 1]) {
-                NpgsAssert(false, "Invalid white dwarf extended type.");
-            }
-
-            switch (Char) {
-            case 'A':
-                break;
-            case 'B':
-                break;
-            case 'C':
-                break;
-            case 'O':
-                break;
-            case 'Q':
-                break;
-            case 'X':
-                break;
-            case 'Z':
-                break;
-            default:
-                break;
-            }
-
-            State = ParseState::kSubclass;
-            ++Index;
+            State = ParseWhiteDwarfEx(Char, StellarClassStr[Index - 1], SpectralClass, Index);
             break;
 
         case ParseState::kSubdwarfPerfix:
@@ -299,101 +363,23 @@ StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
             break;
 
         case ParseState::kLuminosityClass:
-            switch (Char) {
-            case '0':
-                LuminosityClass = LuminosityClass::kLuminosity_0;
-                State = ParseState::kEnd;
-                break;
-            case 'I':
-                State = ParseState::kLuminosityClassI;
-                ++Index;
-                break;
-            case 'V':
-                State = ParseState::kLuminosityClassV;
-                ++Index;
-                break;
-            case ' ':
-                ++Index;
-                break;
-            default:
-                State = ParseState::kEnd;
-                break;
-            }
-
+            State = ParseLuminosityClass(Char, LuminosityClass, Index);
             break;
 
         case ParseState::kLuminosityClassI:
-            switch (Char) {
-            case 'a':
-                State = ParseState::kLuminosityClassIa;
-                ++Index;
-                break;
-            case 'b':
-                LuminosityClass = LuminosityClass::kLuminosity_Ib;
-                State = ParseState::kEnd;
-                ++Index;
-                break;
-            case 'I':
-                State = ParseState::kLuminosityClassII;
-                ++Index;
-                break;
-            case 'V':
-                LuminosityClass = LuminosityClass::kLuminosity_IV;
-                State = ParseState::kEnd;
-                ++Index;
-                break;
-            default:
-                LuminosityClass = LuminosityClass::kLuminosity_I;
-                State = ParseState::kEnd;
-                break;
-            }
-
+            State = ParseLuminosityClassI(Char, LuminosityClass, Index);
             break;
 
         case ParseState::kLuminosityClassIa:
-            switch (Char) {
-            case '+':
-                LuminosityClass = LuminosityClass::kLuminosity_IaPlus;
-                State = ParseState::kEnd;
-                break;
-            case 'b':
-                LuminosityClass = LuminosityClass::kLuminosity_Iab;
-                State = ParseState::kEnd;
-                break;
-            default:
-                LuminosityClass = LuminosityClass::kLuminosity_Ia;
-                State = ParseState::kEnd;
-                break;
-            }
-
+            State = ParseLuminosityClassIa(Char, LuminosityClass);
             break;
 
         case ParseState::kLuminosityClassII:
-            switch (Char) {
-            case 'I':
-                LuminosityClass = LuminosityClass::kLuminosity_III;
-                State = ParseState::kEnd;
-                break;
-            default:
-                LuminosityClass = LuminosityClass::kLuminosity_II;
-                State = ParseState::kEnd;
-                break;
-            }
-
+            State = ParseLuminosityClassII(Char, LuminosityClass);
             break;
 
         case ParseState::kLuminosityClassV:
-            switch (Char) {
-            case 'I':
-                LuminosityClass = LuminosityClass::kLuminosity_VI;
-                State = ParseState::kEnd;
-                break;
-            default:
-                LuminosityClass = LuminosityClass::kLuminosity_V;
-                State = ParseState::kEnd;
-                break;
-            }
-
+            State = ParseLuminosityClassV(Char, LuminosityClass);
             break;
         }
     }
