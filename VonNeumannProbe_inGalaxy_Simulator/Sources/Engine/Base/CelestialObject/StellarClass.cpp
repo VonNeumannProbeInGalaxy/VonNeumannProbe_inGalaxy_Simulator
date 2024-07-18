@@ -121,20 +121,16 @@ static ParseState ParseWolfRayetStar(unsigned char Char, StellarClass::SpectralC
         SpectralClass = StellarClass::SpectralClass::kSpectral_WC;
         ++Index;
         return ParseState::kSubclass;
-        break;
     case 'N':
         SpectralClass = StellarClass::SpectralClass::kSpectral_WN;
         ++Index;
         return ParseState::kSubclass;
-        break;
     case 'O':
         SpectralClass = StellarClass::SpectralClass::kSpectral_WO;
         ++Index;
         return ParseState::kSubclass;
-        break;
     default:
         return ParseState::kEnd;
-        break;
     }
 }
 
