@@ -134,7 +134,7 @@ static ParseState ParseWolfRayetStar(unsigned char Char, StellarClass::SpectralC
     }
 }
 
-static ParseState ParseWhiteDwarf(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t Index) {
+static ParseState ParseWhiteDwarf(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
     ++Index;
 
     switch (Char) {
@@ -165,31 +165,37 @@ static ParseState ParseWhiteDwarf(unsigned char Char, StellarClass::SpectralClas
     }
 }
 
-static ParseState ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, StellarClass::SpectralClass& SpectralClass, std::size_t Index) {
+static ParseState ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
     if (Char == PrevChar) {
         NpgsAssert(false, "Invalid white dwarf extended type.");
     }
 
     switch (Char) {
     case 'A':
+        ++Index;
         break;
     case 'B':
+        ++Index;
         break;
     case 'C':
+        ++Index;
         break;
     case 'O':
+        ++Index;
         break;
     case 'Q':
+        ++Index;
         break;
     case 'X':
+        ++Index;
         break;
     case 'Z':
+        ++Index;
         break;
     default:
         break;
     }
 
-    ++Index;
     return ParseState::kSubclass;
 }
 
@@ -270,8 +276,7 @@ static ParseState ParseLuminosityClassV(unsigned char Char, StellarClass::Lumino
     }
 }
 
-StellarClass::StellarClass(StarType StarType, SpectralClass SpectralClass, double Subclass, LuminosityClass LuminosityClass)
-    : _StarType(StarType), _SpectralClass(SpectralClass), _Subclass(Subclass), _LuminosityClass(LuminosityClass)
+StellarClass::StellarClass(StarType StarType, const SpectralType& SpectralType) : _StarType(StarType), _SpectralType(SpectralType)
 {}
 
 StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
@@ -380,11 +385,18 @@ StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
         }
     }
 
-    return { StarType, SpectralClass, Subclass, LuminosityClass };
+    return { StarType, { SpectralClass, Subclass, LuminosityClass } };
 }
 
 std::uint32_t StellarClass::Data() const {
-    // TODO
+    // 光谱型位结构
+    // ---------------------------------------------------
+    // std::uint32_t
+    // |----|------|------|------|------|----------------|
+    // | 00 | 0000 | 0000 | 0000 | 0000 | 00000000000000 |
+    // |----|------|------|------|------|----------------|
+    // 恒星类型 光谱 亚型高位 亚型低位 光度级     特殊标识
+
     return 0;
 }
 

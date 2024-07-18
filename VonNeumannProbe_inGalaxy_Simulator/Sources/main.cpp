@@ -3,7 +3,7 @@
 #include "Engine/Base/CelestialObject/StellarClass.h"
 
 int main() {
-    std::string sc = "G2V";
+    std::string sc = "O2 Ia";
     StellarClass::Parse(sc);
 
     return 0;
