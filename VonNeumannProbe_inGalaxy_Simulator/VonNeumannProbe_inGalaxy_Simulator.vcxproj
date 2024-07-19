@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="Sources\Engine\Base\CelestialObject\Planet.cpp" />
     <ClCompile Include="Sources\Engine\Base\CelestialObject\CelestialObject.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Logger.cpp" />
     <ClCompile Include="Sources\main.cpp" />
     <ClCompile Include="Sources\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -153,8 +154,10 @@
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Base\CelestialObject\Planet.h" />
     <ClInclude Include="Sources\Engine\Base\CelestialObject\CelestialObject.h" />
+    <ClInclude Include="Sources\Engine\Core\Base.h" />
     <ClInclude Include="Sources\Engine\Core\Constants.h" />
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
+    <ClInclude Include="Sources\Engine\Core\Logger.h" />
     <ClInclude Include="Sources\stdafx.h" />
     <ClInclude Include="Sources\Engine\Base\CelestialObject\Star.h" />
     <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarClass.h" />

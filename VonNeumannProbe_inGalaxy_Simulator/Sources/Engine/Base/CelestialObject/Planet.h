@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Engine/Base/CelestialObject/CelestialObject.h"
+#include "Engine/Core/Base.h"
+
+_NPGS_BEGIN
 
 class Planet : public CelestialBody {
 public:
@@ -98,3 +101,5 @@ public:
 private:
     ExtendedProperties _PlanetExtraProperties;
 };
+
+_NPGS_END

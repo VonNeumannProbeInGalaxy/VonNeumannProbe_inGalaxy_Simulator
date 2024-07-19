@@ -1,7 +1,9 @@
 #include "CelestialObject.h"
 
-CelestialBody::CelestialBody(const BaseProperties& Properties) : _Properties(Properties)
-{}
+_NPGS_BEGIN
 
-MolecularCloud::MolecularCloud(const BaseProperties& Properties) : _Properties(Properties)
-{}
+CelestialBody::CelestialBody(const BaseProperties& Properties) : _Properties(Properties) {}
+
+MolecularCloud::MolecularCloud(const BaseProperties& Properties) : _Properties(Properties) {}
+
+_NPGS_END

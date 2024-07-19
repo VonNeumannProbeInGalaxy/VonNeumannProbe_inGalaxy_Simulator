@@ -2,7 +2,10 @@
 
 #include <string>
 #include <vector>
+#include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
+
+_NPGS_BEGIN
 
 class CelestialBody {
 public:
@@ -159,3 +162,5 @@ public:
 private:
     BaseProperties _Properties;
 };
+
+_NPGS_END

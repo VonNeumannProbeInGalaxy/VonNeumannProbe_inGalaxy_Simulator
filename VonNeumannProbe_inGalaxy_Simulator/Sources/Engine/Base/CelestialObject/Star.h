@@ -3,8 +3,11 @@
 #include "CelestialObject.h"
 
 #include <string>
+#include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/Modules/Stellar/StellarClass.h"
+
+_NPGS_BEGIN
 
 class Star : public CelestialBody {
 public:
@@ -20,7 +23,7 @@ public:
         double StellarWindMassLossRate;
 
         std::string SpectralType;
-        StellarClass StellarClass;
+        Modules::StellarClass StellarClass;
     };
 
 public:
@@ -71,10 +74,12 @@ public:
         _StarExtraProperties.SpectralType = SpectralType;
     }
 
-    void SetStellarClass(const StellarClass& StellarClass) {
+    void SetStellarClass(const Modules::StellarClass& StellarClass) {
         _StarExtraProperties.StellarClass = StellarClass;
     }
 
 private:
     ExtendedProperties _StarExtraProperties;
 };
+
+_NPGS_END

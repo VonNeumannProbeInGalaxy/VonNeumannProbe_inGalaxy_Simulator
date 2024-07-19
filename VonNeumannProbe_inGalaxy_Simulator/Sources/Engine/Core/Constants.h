@@ -1,5 +1,9 @@
 #pragma once
 
+#include "Engine/Core/Base.h"
+
+_NPGS_BEGIN
+
 // Calculation constants
 // ---------------------
 constexpr inline int    kSpeedOflightMps  = 299792458;
@@ -10,3 +14,5 @@ constexpr inline double kSolarMass        = 1.9884e30;
 constexpr inline double kSolarLuminosity  = 3.828e26;
 constexpr inline double kSolarFeH         = 0.0;
 constexpr inline double kSolarEffTemp     = 5772;
+
+_NPGS_END

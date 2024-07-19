@@ -3,6 +3,10 @@
 #include <cctype>
 #include "Engine/Core/Assert.h"
 
+_NPGS_BEGIN
+
+namespace Modules {
+
 enum class ParseState {
     kBegin,
     kEnd,
@@ -17,15 +21,16 @@ enum class ParseState {
     kSpectralClass,
     kSubclass,
     kSubclassDecimal,
-    kSubclassDecimalNext,
+    kSubclassDecimalFinal,
     kLuminosityClass,
     kLuminosityClassI,
     kLuminosityClassIa,
     kLuminosityClassII,
-    kLuminosityClassV
+    kLuminosityClassV,
+    kSpecialMark
 };
 
-static ParseState ParseStarType(unsigned char Char, StellarClass::StarType& StarType, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
+static ParseState ParseStarType(unsigned char Char, StellarClass::StarType& StarType, StellarClass::SpectralClass& HSpectralClass, std::size_t& Index) {
     switch (Char) {
     case 'X':
         StarType = StellarClass::StarType::kBlackHole;
@@ -35,7 +40,7 @@ static ParseState ParseStarType(unsigned char Char, StellarClass::StarType& Star
         return ParseState::kEnd;
     case 'D':
         StarType = StellarClass::StarType::kWhiteDwarf;
-        SpectralClass = StellarClass::SpectralClass::kSpectral_D;
+        HSpectralClass = StellarClass::SpectralClass::kSpectral_D;
         ++Index;
         return ParseState::kWhiteDwarf;
     case 's': // sd 前缀
@@ -45,6 +50,7 @@ static ParseState ParseStarType(unsigned char Char, StellarClass::StarType& Star
     case '?':
         return ParseState::kEnd;
     default:
+        StarType = StellarClass::StarType::kNormalStar;
         return ParseState::kSpectralClass;
     }
 }
@@ -203,7 +209,7 @@ static ParseState ParseLuminosityClass(unsigned char Char, StellarClass::Luminos
     switch (Char) {
     case '0':
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_0;
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     case 'I':
         ++Index;
         return ParseState::kLuminosityClassI;
@@ -214,7 +220,7 @@ static ParseState ParseLuminosityClass(unsigned char Char, StellarClass::Luminos
         ++Index;
         return ParseState::kLuminosityClass;
     default:
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     }
 }
 
@@ -226,17 +232,17 @@ static ParseState ParseLuminosityClassI(unsigned char Char, StellarClass::Lumino
     case 'b':
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Ib;
         ++Index;
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     case 'I':
         ++Index;
         return ParseState::kLuminosityClassII;
     case 'V':
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IV;
         ++Index;
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     default:
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_I;
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     }
 }
 
@@ -244,13 +250,13 @@ static ParseState ParseLuminosityClassIa(unsigned char Char, StellarClass::Lumin
     switch (Char) {
     case '+':
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IaPlus;
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     case 'b':
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Iab;
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     default:
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Ia;
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     }
 }
 
@@ -258,10 +264,10 @@ static ParseState ParseLuminosityClassII(unsigned char Char, StellarClass::Lumin
     switch (Char) {
     case 'I':
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_III;
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     default:
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_II;
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     }
 }
 
@@ -269,29 +275,65 @@ static ParseState ParseLuminosityClassV(unsigned char Char, StellarClass::Lumino
     switch (Char) {
     case 'I':
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_VI;
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     default:
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
-        return ParseState::kEnd;
+        return ParseState::kSpecialMark;
     }
 }
 
-StellarClass::StellarClass(StarType StarType, const SpectralType& SpectralType) : _StarType(StarType), _SpectralType(SpectralType)
-{}
+static ParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, StellarClass::SpecialPeculiarity& SpecialMark, std::size_t& Index) {
+    switch (Char) {
+    case 'm':
+        SpecialMark |= static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_m);
+        ++Index;
+        return ParseState::kSpectralClass;
+    case 'f':
+        SpecialMark |= static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_f);
+        ++Index;
+        return (std::isalpha(NextChar) && std::islower(NextChar)) ? ParseState::kSpecialMark : ParseState::kEnd;
+    case 'h':
+        SpecialMark |= static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h);
+        ++Index;
+        return (std::isalpha(NextChar) && std::islower(NextChar)) ? ParseState::kSpecialMark : ParseState::kEnd;
+    case 'p':
+        SpecialMark |= static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h);
+        ++Index;
+        return (std::isalpha(NextChar) && std::islower(NextChar)) ? ParseState::kSpecialMark : ParseState::kEnd;
+    case '+':
+        ++Index;
+        return ParseState::kSpecialMark;
+    case ' ':
+        ++Index;
+        return ParseState::kSpecialMark;
+    case '\0':
+        return ParseState::kEnd;
+    default:
+        return ParseState::kLuminosityClass;
+    }
+}
 
-StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
+StellarClass::StellarClass(StarType StarType, const SpectralType& SpectralType) : _StarType(StarType), _SpectralType(SpectralType) {}
+
+StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
     NpgsAssert(!StellarClassStr.empty(), "StellarClassStr is empty.");
 
     StarType StarType = StarType::kNormalStar;
-    SpectralClass SpectralClass = SpectralClass::kSpectral_Unknown;
+    SpectralClass HSpectralClass = SpectralClass::kSpectral_Unknown;
     double Subclass = 0.0;
+    bool bIsAmStar = false;
+    SpectralClass MSpectralClass = SpectralClass::kSpectral_Unknown;
+    double AmSubclass = 0.0;
     LuminosityClass LuminosityClass = LuminosityClass::kLuminosity_Unknown;
+    std::uint32_t SpecialMark = 0;
 
     ParseState State = ParseState::kBegin;
     std::size_t Index = 0;
+    bool bParsingAmStar = false;
 
     while (State != ParseState::kEnd) {
         unsigned char Char = 0;
+        unsigned char NextChar = Index + 1 >= StellarClassStr.size() ? '\0' : StellarClassStr[Index + 1];
         if (Index == StellarClassStr.size()) {
             Char = '\0';
         } else {
@@ -300,23 +342,28 @@ StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
 
         switch (State) {
         case ParseState::kBegin:
-            State = ParseStarType(Char, StarType, SpectralClass, Index);
+            State = ParseStarType(Char, StarType, HSpectralClass, Index);
             break;
 
         case ParseState::kSpectralClass:
-            State = ParseSpectralClass(Char, SpectralClass, Index);
+            if (!bParsingAmStar) {
+                State = ParseSpectralClass(Char, HSpectralClass, Index);
+            } else {
+                State = ParseSpectralClass(Char, MSpectralClass, Index);
+            }
+
             break;
 
         case ParseState::kWolfRayetStar:
-            State = ParseWolfRayetStar(Char, SpectralClass, Index);
+            State = ParseWolfRayetStar(Char, HSpectralClass, Index);
             break;
 
         case ParseState::kWhiteDwarf:
-            State = ParseWhiteDwarf(Char, SpectralClass, Index);
+            State = ParseWhiteDwarf(Char, HSpectralClass, Index);
             break;
 
         case ParseState::kWhiteDwarfEx:
-            State = ParseWhiteDwarfEx(Char, StellarClassStr[Index - 1], SpectralClass, Index);
+            State = ParseWhiteDwarfEx(Char, StellarClassStr[Index - 1], HSpectralClass, Index);
             break;
 
         case ParseState::kSubdwarfPerfix:
@@ -335,32 +382,48 @@ StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
 
         case ParseState::kSubclass:
             if (std::isdigit(Char)) {
-                Subclass = Char - '0';
+                if (!bParsingAmStar) {
+                    Subclass = Char - '0';
+                } else {
+                    AmSubclass = Char - '0';
+                }
+
                 State = ParseState::kSubclassDecimal;
                 ++Index;
             } else {
-                State = ParseState::kLuminosityClass;
+                State = ParseState::kSpecialMark;
             }
 
             break;
 
         case ParseState::kSubclassDecimal:
             if (Char == '.') {
-                State = ParseState::kSubclassDecimalNext;
+                State = ParseState::kSubclassDecimalFinal;
                 ++Index;
             } else {
-                State = ParseState::kLuminosityClass;
+                State = ParseState::kSpecialMark;
             }
 
             break;
 
-        case ParseState::kSubclassDecimalNext:
+        case ParseState::kSubclassDecimalFinal:
             if (std::isdigit(Char)) {
-                Subclass += 0.1 * (Char - '0');
+                if (!bParsingAmStar) {
+                    Subclass += 0.1 * (Char - '0');
+                } else {
+                    AmSubclass += 0.1 * (Char - '0');
+                }
             }
 
-            State = ParseState::kLuminosityClass;
+            State = ParseState::kSpecialMark;
             ++Index;
+            break;
+
+        case ParseState::kSpecialMark:
+            if ((State = ParseSpecialMark(Char, NextChar, SpecialMark, Index)) == ParseState::kSpectralClass) {
+                bParsingAmStar = true;
+            }
+
             break;
 
         case ParseState::kLuminosityClass:
@@ -385,7 +448,7 @@ StellarClass StellarClass::Parse(const std::string_view StellarClassStr) {
         }
     }
 
-    return { StarType, { SpectralClass, Subclass, LuminosityClass } };
+    return { StarType,{ HSpectralClass, Subclass, bIsAmStar, MSpectralClass, AmSubclass, LuminosityClass, SpecialMark } };
 }
 
 std::uint32_t StellarClass::Data() const {
@@ -404,3 +467,7 @@ bool StellarClass::Load(std::uint32_t PackagedSpectralType) {
     // TODO
     return false;
 }
+
+}
+
+_NPGS_END
