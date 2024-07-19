@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "Engine/Base/CelestialObject/Constants.h"
+#include "Engine/Core/Constants.h"
 
 class CelestialBody {
 public:

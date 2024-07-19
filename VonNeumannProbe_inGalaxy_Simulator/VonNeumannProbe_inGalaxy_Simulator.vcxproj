@@ -148,16 +148,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Base\CelestialObject\Star.cpp" />
-    <ClCompile Include="Sources\Engine\Base\CelestialObject\StellarClass.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Modules\Stellar\StellarClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Base\CelestialObject\Planet.h" />
     <ClInclude Include="Sources\Engine\Base\CelestialObject\CelestialObject.h" />
-    <ClInclude Include="Sources\Engine\Base\CelestialObject\Constants.h" />
+    <ClInclude Include="Sources\Engine\Core\Constants.h" />
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
     <ClInclude Include="Sources\stdafx.h" />
     <ClInclude Include="Sources\Engine\Base\CelestialObject\Star.h" />
-    <ClInclude Include="Sources\Engine\Base\CelestialObject\StellarClass.h" />
+    <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarClass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

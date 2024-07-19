@@ -1,6 +1,6 @@
 #include <print>
 #include <string>
-#include "Engine/Base/CelestialObject/StellarClass.h"
+#include "Engine/Core/Modules/Stellar/StellarClass.h"
 
 int main() {
     std::string sc = "O2 Ia";

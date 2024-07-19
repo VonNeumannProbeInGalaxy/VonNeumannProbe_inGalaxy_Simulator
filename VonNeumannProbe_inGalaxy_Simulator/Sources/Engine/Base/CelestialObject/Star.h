@@ -3,8 +3,8 @@
 #include "CelestialObject.h"
 
 #include <string>
-#include "Engine/Base/CelestialObject/Constants.h"
-#include "Engine/Base/CelestialObject/StellarClass.h"
+#include "Engine/Core/Constants.h"
+#include "Engine/Core/Modules/Stellar/StellarClass.h"
 
 class Star : public CelestialBody {
 public:

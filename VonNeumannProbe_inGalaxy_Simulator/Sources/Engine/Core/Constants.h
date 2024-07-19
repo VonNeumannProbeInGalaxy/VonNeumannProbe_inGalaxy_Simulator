@@ -1,5 +1,7 @@
 #pragma once
 
+// Calculation constants
+// ---------------------
 constexpr inline int    kSpeedOflightMps  = 299792458;
 constexpr inline double kSpeedOfLightKmps = 299792.458;
 
