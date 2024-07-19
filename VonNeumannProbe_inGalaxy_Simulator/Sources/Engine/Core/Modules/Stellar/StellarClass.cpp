@@ -1,6 +1,7 @@
 ﻿#include "StellarClass.h"
 
 #include <cctype>
+#include <cmath>
 #include "Engine/Core/Assert.h"
 
 _NPGS_BEGIN
@@ -208,8 +209,12 @@ static ParseState ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, 
 static ParseState ParseLuminosityClass(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass, std::size_t& Index) {
     switch (Char) {
     case '0':
-        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_0;
-        return ParseState::kSpecialMark;
+        if (LuminosityClass == StellarClass::LuminosityClass::kLuminosity_Unknown) {
+            LuminosityClass =  StellarClass::LuminosityClass::kLuminosity_0;
+            return ParseState::kSpecialMark;
+        } else {
+            return ParseState::kEnd;
+        }
     case 'I':
         ++Index;
         return ParseState::kLuminosityClassI;
@@ -325,7 +330,7 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
     SpectralClass MSpectralClass = SpectralClass::kSpectral_Unknown;
     double AmSubclass = 0.0;
     LuminosityClass LuminosityClass = LuminosityClass::kLuminosity_Unknown;
-    std::uint32_t SpecialMark = 0;
+    SpecialPeculiarity SpecialMark = static_cast<std::uint32_t>(SpecialPeculiarities::kCode_Null);
 
     ParseState State = ParseState::kBegin;
     std::size_t Index = 0;
@@ -422,6 +427,7 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
         case ParseState::kSpecialMark:
             if ((State = ParseSpecialMark(Char, NextChar, SpecialMark, Index)) == ParseState::kSpectralClass) {
                 bParsingAmStar = true;
+                bIsAmStar = true;
             }
 
             break;
@@ -451,19 +457,40 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
     return { StarType,{ HSpectralClass, Subclass, bIsAmStar, MSpectralClass, AmSubclass, LuminosityClass, SpecialMark } };
 }
 
-std::uint32_t StellarClass::Data() const {
+std::uint64_t StellarClass::Data() const {
     // 光谱型位结构
     // ---------------------------------------------------
-    // std::uint32_t
-    // |----|------|------|------|------|----------------|
-    // | 00 | 0000 | 0000 | 0000 | 0000 | 00000000000000 |
-    // |----|------|------|------|------|----------------|
-    // 恒星类型 光谱 亚型高位 亚型低位 光度级     特殊标识
+    // std::uint64_t
+    // |----|------|------|------|---|------|------|------|------|---------------------------------------|
+    // | 00 | 0000 | 0000 | 0000 | 0 | 0000 | 0000 | 0000 | 0000 | 0 00000000 00000000 00000000 00000000 |
+    // |----|------|------|------|---|------|------|------|------|---------------------------------------|
+    // 恒星类型 光谱 亚型高位 亚型低位 Am m 光谱 m 亚型高位 m亚型低位 光度级 特殊标识
 
-    return 0;
+    std::uint64_t Data         = 0;
+    std::uint32_t SubclassHigh = static_cast<std::uint32_t>(_SpectralType.Subclass);
+    double        Intermediate = std::round((_SpectralType.Subclass - SubclassHigh) * 1000.0) / 1000.0;
+    std::uint32_t SubclassLow  = static_cast<std::uint32_t>(Intermediate * 10.0);
+
+    Data |= static_cast<std::uint64_t>(_StarType)                     << 62;
+    Data |= static_cast<std::uint64_t>(_SpectralType.HSpectralClass)  << 58;
+    Data |= static_cast<std::uint64_t>(SubclassHigh)                  << 54;
+    Data |= static_cast<std::uint64_t>(SubclassLow)                   << 50;
+    Data |= static_cast<std::uint64_t>(_SpectralType.bIsAmStar)       << 49;
+    Data |= static_cast<std::uint64_t>(_SpectralType.MSpectralClass)  << 45;
+
+    SubclassHigh = static_cast<std::uint32_t>(_SpectralType.AmSubclass);
+    Intermediate = std::round((_SpectralType.AmSubclass - SubclassHigh) * 1000.0) / 1000.0;
+    SubclassLow  = static_cast<std::uint32_t>(Intermediate * 10.0);
+
+    Data |= static_cast<std::uint64_t>(SubclassHigh)                  << 41;
+    Data |= static_cast<std::uint64_t>(SubclassLow)                   << 37;
+    Data |= static_cast<std::uint64_t>(_SpectralType.LuminosityClass) << 33;
+    Data |= static_cast<std::uint64_t>(_SpectralType.SpecialMark)     << 0;
+
+    return Data;
 }
 
-bool StellarClass::Load(std::uint32_t PackagedSpectralType) {
+bool StellarClass::Load(std::uint64_t PackagedSpectralType) {
     // TODO
     return false;
 }

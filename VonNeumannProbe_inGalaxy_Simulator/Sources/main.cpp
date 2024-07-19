@@ -39,7 +39,7 @@ std::string GenerateRandomSpectralTypeStr(std::mt19937& gen) {
     const char* neutronStarAndBlackHoleClasses[] = { "Q", "X" };
 
     // 亮度类别数组
-    const char* luminosityClasses[] = { "Ia+", "Ia", "Ib", "II", "III", "IV", "V" };
+    const char* luminosityClasses[] = { "Ia+", "Ia", "Iab", "Ib", "I", "II", "III", "IV", "V", "VI" };
 
     std::uniform_int_distribution<> typeDist(0, 3); // 选择恒星类型
     int type = typeDist(gen);
@@ -104,54 +104,56 @@ std::string GenerateRandomSpectralTypeStr(std::mt19937& gen) {
 }
 
 int main() {
-    //Npgs::Logger::Init();
+    Npgs::Logger::Init();
 
-    //const int totalCases = 160;
-    //std::vector<std::string> globalSpectralTypes;
+    const int totalCases = 160;
+    std::vector<std::string> globalSpectralTypes;
 
-    //auto cpuCount = std::thread::hardware_concurrency();
-    //std::vector<std::thread> threads;
-    //std::vector<std::vector<std::string>> localSpectralTypes(cpuCount);
+    auto cpuCount = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads;
+    std::vector<std::vector<std::string>> localSpectralTypes(cpuCount);
 
-    //auto generateFunc = [&](int threadIndex) {
-    //    std::random_device rd;
-    //    std::mt19937 gen(rd());
-    //    std::vector<std::string>& localVec = localSpectralTypes[threadIndex];
-    //    int casesPerThread = totalCases / cpuCount;
+    auto generateFunc = [&](int threadIndex) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::vector<std::string>& localVec = localSpectralTypes[threadIndex];
+        int casesPerThread = totalCases / cpuCount;
 
-    //    for (int i = 0; i < casesPerThread; ++i) {
-    //        localVec.push_back(GenerateRandomSpectralTypeStr(gen));
-    //    }
-    //};
+        for (int i = 0; i < casesPerThread; ++i) {
+            localVec.push_back(GenerateRandomSpectralTypeStr(gen));
+        }
+    };
 
-    //// 启动多线程生成测试用例
-    //for (unsigned i = 0; i < cpuCount; ++i) {
-    //    threads.emplace_back(generateFunc, i);
-    //}
+    // 启动多线程生成测试用例
+    for (unsigned i = 0; i < cpuCount; ++i) {
+        threads.emplace_back(generateFunc, i);
+    }
 
-    //for (auto& t : threads) {
-    //    t.join();
-    //}
+    for (auto& t : threads) {
+        t.join();
+    }
 
-    //// 合并局部向量到全局向量
-    //for (const auto& localVec : localSpectralTypes) {
-    //    globalSpectralTypes.insert(globalSpectralTypes.end(), localVec.begin(), localVec.end());
-    //}
+    // 合并局部向量到全局向量
+    for (const auto& localVec : localSpectralTypes) {
+        globalSpectralTypes.insert(globalSpectralTypes.end(), localVec.begin(), localVec.end());
+    }
 
-    //std::cout << "Generate complete. Generated " << globalSpectralTypes.size() << " spectral types." << std::endl;
+    std::cout << "Generate complete. Generated " << globalSpectralTypes.size() << " spectral types." << std::endl;
 
-    //// 单线程解析测试用例
-    //auto start = std::chrono::high_resolution_clock::now();
-    //int timeoutCount = 0;
-    //for (const auto& sc : globalSpectralTypes) {
-    //    ParseWrapper(sc);
-    //}
-    //auto end = std::chrono::high_resolution_clock::now();
-    //std::chrono::duration<double, std::milli> elapsed = end - start; // 将时间间隔转换为毫秒
-    //std::cout << "Parsing completed in " << elapsed.count() << " milliseconds." << std::endl;
-    //std::cout << "Timeout cases: " << timeoutCount << std::endl;
+    // 单线程解析测试用例
+    auto start = std::chrono::high_resolution_clock::now();
+    int timeoutCount = 0;
+    for (const auto& sc : globalSpectralTypes) {
+        ParseWrapper(sc);
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end - start; // 将时间间隔转换为毫秒
+    std::cout << "Parsing completed in " << elapsed.count() << " milliseconds." << std::endl;
+    std::cout << "Timeout cases: " << timeoutCount << std::endl;
 
-    Npgs::Modules::StellarClass::Parse("O2If");
+    //Npgs::Modules::StellarClass sc = Npgs::Modules::StellarClass::Parse("WN5h");
+    //std::bitset<64> Bin(sc.Data());
+    //std::cout << Bin << std::endl;
 
     return 0;
 }
