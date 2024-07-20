@@ -459,7 +459,7 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
 
 std::uint64_t StellarClass::Data() const {
     // 光谱型位结构
-    // ---------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------
     // std::uint64_t
     // |----|------|------|------|---|------|------|------|------|---------------------------------------|
     // | 00 | 0000 | 0000 | 0000 | 0 | 0000 | 0000 | 0000 | 0000 | 0 00000000 00000000 00000000 00000000 |
@@ -491,8 +491,21 @@ std::uint64_t StellarClass::Data() const {
 }
 
 bool StellarClass::Load(std::uint64_t PackagedSpectralType) {
-    // TODO
-    return false;
+    _StarType                     = static_cast<StarType>(PackagedSpectralType >> 62 & 0x3);
+    _SpectralType.HSpectralClass  = static_cast<SpectralClass>(PackagedSpectralType >> 58 & 0xF);
+    _SpectralType.Subclass        = (PackagedSpectralType >> 54 & 0xF) + (PackagedSpectralType >> 50 & 0xF) / 10.0;
+    _SpectralType.bIsAmStar       = PackagedSpectralType >> 49 & 0x1;
+    _SpectralType.MSpectralClass  = static_cast<SpectralClass>(PackagedSpectralType >> 45 & 0xF);
+    _SpectralType.AmSubclass      = (PackagedSpectralType >> 41 & 0xF) + (PackagedSpectralType >> 37 & 0xF) / 10.0;
+    _SpectralType.LuminosityClass = static_cast<LuminosityClass>(PackagedSpectralType >> 33 & 0xF);
+    _SpectralType.SpecialMark     = static_cast<SpecialPeculiarity>(PackagedSpectralType & 0x1FFFFFFFF);
+
+    if (_SpectralType.HSpectralClass != SpectralClass::kSpectral_Unknown) {
+        return true;
+    } else {
+        _SpectralType = { SpectralClass::kSpectral_Unknown, 0.0, false, SpectralClass::kSpectral_Unknown, 0.0, LuminosityClass::kLuminosity_Unknown, 0 };
+        return false;
+    }
 }
 
 }
