@@ -1,6 +1,4 @@
 #pragma once
-#pragma warning(push)
-#pragma warning(disable : 4996)
 
 #include <random>
 
@@ -42,5 +40,3 @@ private:
 }
 
 _NPGS_END
-
-#pragma warning(pop)
