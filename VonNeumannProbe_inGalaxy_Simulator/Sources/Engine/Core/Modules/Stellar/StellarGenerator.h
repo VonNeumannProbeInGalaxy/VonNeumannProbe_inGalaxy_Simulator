@@ -4,7 +4,6 @@
 
 #include <random>
 
-#include <fast-cpp-csv-parser/csv.h>
 #include <glm/glm.hpp>
 
 #include "Engine/Base/AstroObject/Star.h"
@@ -30,10 +29,10 @@ public:
     StellarGenerator(int Seed);
     ~StellarGenerator() = default;
 
-public:
+public: // public for test
     double ProbabilityDensity(double Mass);
-    BasicProperties GenBasicProperties();
     double GenMass(double MaxPdf);
+    BasicProperties GenBasicProperties();
 
 private:
     std::mt19937 _RandomEngine;

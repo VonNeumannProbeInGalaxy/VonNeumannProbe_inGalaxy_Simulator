@@ -16,10 +16,21 @@ double StellarGenerator::ProbabilityDensity(double Mass) {
         g1 = (0.158 / (std::log(10) * Mass)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2.0) / 2 * std::pow(0.69, 2.0));
     } else {
         double n01 = (0.158 / std::log(10)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2.0) / 2 * std::pow(0.69, 2.0));
-        g1 =  n01 * std::pow(Mass, -2.35);
+        g1 = n01 * std::pow(Mass, -2.35);
     }
 
     return g1;
+}
+
+double StellarGenerator::GenMass(double MaxPdf) {
+    double Mass = 0.0;
+    double Probability = 0.0;
+    do {
+        Mass = 0.1 + _UniformDistribution(_RandomEngine) * (300.0 - 0.1);
+        Probability = ProbabilityDensity(Mass);
+    } while (_UniformDistribution(_RandomEngine) * MaxPdf > Probability);
+
+    return Mass;
 }
 
 StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
@@ -44,17 +55,6 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     Properties.FeH = FeH;
 
     return Properties;
-}
-
-double StellarGenerator::GenMass(double MaxPdf) {
-    double Mass = 0.0;
-    double Probability = 0.0;
-    do {
-        Mass = 0.1 + _UniformDistribution(_RandomEngine) * (300.0 - 0.1);
-        Probability = ProbabilityDensity(Mass);
-    } while (_UniformDistribution(_RandomEngine) * MaxPdf > Probability);
-
-    return Mass;
 }
 
 }
