@@ -20,12 +20,26 @@ public:
         double Age;
         double FeH;
         double Mass;
+
+        explicit operator AstroObject::Star() const {
+            AstroObject::Star Star;
+            Star.SetParentBody(StarSys);
+            Star.SetMass(Mass);
+            Star.SetAge(Age);
+            Star.SetFeH(FeH);
+
+            return Star;
+        }
     };
 
 public:
     StellarGenerator() = default;
     StellarGenerator(int Seed);
     ~StellarGenerator() = default;
+
+public:
+    AstroObject::Star GenStar();
+    AstroObject::Star operator=(const BasicProperties& Properties);
 
 public: // public for test
     double ProbabilityDensity(double Mass);

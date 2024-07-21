@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\Engine\Core\AssetManager\AssetManager.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\Planet.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.cpp" />
     <ClCompile Include="Sources\Engine\Core\Logger.cpp" />
@@ -155,6 +156,7 @@
     <ClCompile Include="Sources\Engine\Base\Universe.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\Engine\Core\AssetManager\AssetManager.h" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\Planet.h" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h" />
     <ClInclude Include="Sources\Engine\Core\Base.h" />
@@ -162,6 +164,7 @@
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
     <ClInclude Include="Sources\Engine\Core\Logger.h" />
     <ClInclude Include="Sources\Engine\Core\ThreadPool.h" />
+    <ClInclude Include="Sources\Npgs.h" />
     <ClInclude Include="Sources\stdafx.h" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\Star.h" />
     <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarClass.h" />

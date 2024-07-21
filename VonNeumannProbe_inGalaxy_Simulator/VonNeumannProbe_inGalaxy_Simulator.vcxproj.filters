@@ -45,6 +45,9 @@
     <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\Core\AssetManager\AssetManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h">
@@ -81,6 +84,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\ThreadPool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\AssetManager\AssetManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Npgs.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

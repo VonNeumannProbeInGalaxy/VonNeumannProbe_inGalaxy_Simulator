@@ -1,6 +1,7 @@
 #include "StellarGenerator.h"
 
 #include <cmath>
+#include <fast-cpp-csv-parser/csv.h>
 
 _NPGS_BEGIN
 
@@ -8,9 +9,25 @@ namespace Modules {
 
 StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
 
+AstroObject::Star StellarGenerator::GenStar() {
+    AstroObject::Star Star = static_cast<AstroObject::Star>(GenBasicProperties());
+}
+
+AstroObject::Star StellarGenerator::operator=(const BasicProperties& Properties) {
+    AstroObject::Star Star;
+    Star.SetParentBody(Properties.StarSys);
+    Star.SetMass(Properties.Mass);
+    Star.SetAge(Properties.Age);
+    Star.SetFeH(Properties.FeH);
+
+    return Star;
+}
+
 double StellarGenerator::ProbabilityDensity(double Mass) {
-    // g1 = (0.158 / (log(10) * m)) * exp(-1.0 * pow(log10(1) - log10(0.08), 2.0) / 2 * pow(0.69, 2.0)), m <= 1Msun
-    // g1 = n01 * pow(m, -2.35), m > 1Msun
+    // n01 = (0.158 /  log(10))      * exp(-1.0 * pow(log10(1) - log10(0.08), 2.0) / 2 * pow(0.69, 2.0))
+    // g1  = (0.158 / (log(10) * m)) * exp(-1.0 * pow(log10(1) - log10(0.08), 2.0) / 2 * pow(0.69, 2.0)), m <= 1Msun
+    // g1  = n01 * pow(m, -2.35), m > 1Msun
+    // ------------------------------------
     double g1 = 0.0;
     if (Mass <= 1.0) {
         g1 = (0.158 / (std::log(10) * Mass)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2.0) / 2 * std::pow(0.69, 2.0));
@@ -42,6 +59,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     int Distance = static_cast<int>(_UniformDistribution(_RandomEngine) * 10000);
     Properties.StarSys.Name = "S-" + std::to_string(PosX) + "-" + std::to_string(PosY) + "-" + std::to_string(PosZ) + "-" + std::to_string(Distance);
     Properties.StarSys.Position = glm::dvec3(PosX, PosY, PosZ);
+    Properties.StarSys.Distance = Distance;
 
     double Mass = GenMass(3.125);
     Properties.Mass = Mass;
