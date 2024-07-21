@@ -41,7 +41,7 @@ public:
     AstroObject::Star GenStar();
     AstroObject::Star operator=(const BasicProperties& Properties);
 
-public: // public for test
+private: // public for test
     double ProbabilityDensity(double Mass);
     double GenMass(double MaxPdf);
     BasicProperties GenBasicProperties();
