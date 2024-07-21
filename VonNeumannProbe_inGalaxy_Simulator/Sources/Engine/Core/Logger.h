@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <spdlog/spdlog.h>
+
 #include "Engine/Core/Base.h"
 
 // Macro function use pascal style

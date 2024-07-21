@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN

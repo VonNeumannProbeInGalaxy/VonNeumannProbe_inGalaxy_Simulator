@@ -2,6 +2,7 @@
 
 #include <cctype>
 #include <cmath>
+
 #include "Engine/Core/Assert.h"
 
 _NPGS_BEGIN
@@ -210,7 +211,7 @@ static ParseState ParseLuminosityClass(unsigned char Char, StellarClass::Luminos
     switch (Char) {
     case '0':
         if (LuminosityClass == StellarClass::LuminosityClass::kLuminosity_Unknown) {
-            LuminosityClass =  StellarClass::LuminosityClass::kLuminosity_0;
+            LuminosityClass  = StellarClass::LuminosityClass::kLuminosity_0;
             return ParseState::kSpecialMark;
         } else {
             return ParseState::kEnd;

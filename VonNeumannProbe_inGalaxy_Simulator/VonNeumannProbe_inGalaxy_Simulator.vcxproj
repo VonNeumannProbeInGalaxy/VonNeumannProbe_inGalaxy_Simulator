@@ -140,27 +140,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\Engine\Base\CelestialObject\Planet.cpp" />
-    <ClCompile Include="Sources\Engine\Base\CelestialObject\CelestialObject.cpp" />
+    <ClCompile Include="Sources\Engine\Base\AstroObject\Planet.cpp" />
+    <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.cpp" />
     <ClCompile Include="Sources\Engine\Core\Logger.cpp" />
+    <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp" />
     <ClCompile Include="Sources\main.cpp" />
     <ClCompile Include="Sources\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Base\CelestialObject\Star.cpp" />
+    <ClCompile Include="Sources\Engine\Base\AstroObject\Star.cpp" />
     <ClCompile Include="Sources\Engine\Core\Modules\Stellar\StellarClass.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Modules\Stellar\StellarGenerator.cpp" />
+    <ClCompile Include="Sources\Engine\Base\Universe.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Engine\Base\CelestialObject\Planet.h" />
-    <ClInclude Include="Sources\Engine\Base\CelestialObject\CelestialObject.h" />
+    <ClInclude Include="Sources\Engine\Base\AstroObject\Planet.h" />
+    <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h" />
     <ClInclude Include="Sources\Engine\Core\Base.h" />
     <ClInclude Include="Sources\Engine\Core\Constants.h" />
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
     <ClInclude Include="Sources\Engine\Core\Logger.h" />
+    <ClInclude Include="Sources\Engine\Core\ThreadPool.h" />
     <ClInclude Include="Sources\stdafx.h" />
-    <ClInclude Include="Sources\Engine\Base\CelestialObject\Star.h" />
+    <ClInclude Include="Sources\Engine\Base\AstroObject\Star.h" />
     <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarClass.h" />
+    <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarGenerator.h" />
+    <ClInclude Include="Sources\Engine\Base\Universe.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

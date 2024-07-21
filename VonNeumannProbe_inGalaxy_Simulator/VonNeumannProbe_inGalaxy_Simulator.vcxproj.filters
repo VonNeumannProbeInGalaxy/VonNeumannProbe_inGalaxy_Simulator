@@ -18,33 +18,42 @@
     <ClCompile Include="Sources\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Base\CelestialObject\CelestialObject.cpp">
+    <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Base\CelestialObject\Star.cpp">
+    <ClCompile Include="Sources\Engine\Base\AstroObject\Star.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Core\Modules\Stellar\StellarClass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Base\CelestialObject\Planet.cpp">
+    <ClCompile Include="Sources\Engine\Base\AstroObject\Planet.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Core\Logger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\Core\Modules\Stellar\StellarGenerator.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\Base\Universe.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Engine\Base\CelestialObject\CelestialObject.h">
+    <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Base\CelestialObject\Star.h">
+    <ClInclude Include="Sources\Engine\Base\AstroObject\Star.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarClass.h">
@@ -56,13 +65,22 @@
     <ClInclude Include="Sources\Engine\Core\Constants.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Base\CelestialObject\Planet.h">
+    <ClInclude Include="Sources\Engine\Base\AstroObject\Planet.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\Logger.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\Base.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarGenerator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\Base\Universe.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\ThreadPool.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
