@@ -48,6 +48,9 @@
     <ClCompile Include="Sources\stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\Core\AssetLoader\CommaSeparatedValues.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h">
@@ -90,6 +93,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\AssetLoader\CommaSeparatedValues.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

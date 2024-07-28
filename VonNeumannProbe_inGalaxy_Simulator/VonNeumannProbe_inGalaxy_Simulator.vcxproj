@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\Engine\Core\AssetLoader\CommaSeparatedValues.cpp" />
     <ClCompile Include="Sources\Engine\Core\AssetLoader\AssetManager.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\Planet.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.cpp" />
@@ -160,6 +161,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\Engine\Core\AssetLoader\CommaSeparatedValues.h" />
     <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\Planet.h" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h" />
