@@ -1,7 +1,6 @@
 #include "StellarGenerator.h"
 
 #include <cmath>
-#include <fast-cpp-csv-parser/csv.h>
 
 _NPGS_BEGIN
 

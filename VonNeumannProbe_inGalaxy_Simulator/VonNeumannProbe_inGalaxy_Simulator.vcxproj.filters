@@ -21,9 +21,6 @@
     <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\stdafx.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Sources\Engine\Base\AstroObject\Star.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -45,15 +42,21 @@
     <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\AssetManager\AssetManager.cpp">
+    <ClCompile Include="Sources\Engine\Core\AssetLoader\AssetManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\Core\Assert.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\Core\Base.ixx">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Sources\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Base\AstroObject\Star.h">
@@ -86,7 +89,7 @@
     <ClInclude Include="Sources\Engine\Core\ThreadPool.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\AssetManager\AssetManager.h">
+    <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Npgs.h">
