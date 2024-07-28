@@ -45,13 +45,7 @@
     <ClCompile Include="Sources\Engine\Core\AssetLoader\AssetManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.ixx">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Assert.ixx">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Base.ixx">
+    <ClCompile Include="Sources\stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -93,6 +87,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Npgs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
