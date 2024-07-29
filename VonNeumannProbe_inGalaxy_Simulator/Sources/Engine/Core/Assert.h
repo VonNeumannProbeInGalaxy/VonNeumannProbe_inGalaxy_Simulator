@@ -1,7 +1,7 @@
 #pragma once
 
-// NpgsAssert
-// ----------
+// Assert
+// ------
 
 #ifdef _DEBUG
 #define NPGS_ASSERT_ENABLE
@@ -17,8 +17,11 @@ if (!(Expr)) {                                                                  
     __debugbreak();                                                                                           \
 }
 
+#define NpgsStaticAssert(Expr, ...) static_assert(Expr, __VA_ARGS__)
+
 #else
 
 #define NpgsAssert(Expr, ...)
+#define NpgsStaticAssert(Expr, ...)
 
 #endif // NPGS_ASSERT_ENABLE

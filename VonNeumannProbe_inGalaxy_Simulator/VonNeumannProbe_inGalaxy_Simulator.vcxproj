@@ -110,7 +110,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\VonNeumannProbe_inGalaxy_Simulator\Sources</AdditionalIncludeDirectories>
       <EnableModules>true</EnableModules>
-      <BuildStlModules>true</BuildStlModules>
+      <BuildStlModules>false</BuildStlModules>
       <AdditionalOptions>/FI "stdafx.h" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -133,7 +133,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\VonNeumannProbe_inGalaxy_Simulator\Sources</AdditionalIncludeDirectories>
       <EnableModules>true</EnableModules>
-      <BuildStlModules>true</BuildStlModules>
+      <BuildStlModules>false</BuildStlModules>
       <AdditionalOptions>/FI "stdafx.h" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -144,7 +144,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\Engine\Core\AssetLoader\Csv.cpp" />
     <ClCompile Include="Sources\Engine\Core\AssetLoader\AssetManager.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\Planet.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.cpp" />
@@ -161,7 +160,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Engine\Core\AssetLoader\Csv.h" />
+    <ClInclude Include="Sources\Engine\Core\AssetLoader\Csv.hpp" />
     <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\Planet.h" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h" />

@@ -10,6 +10,7 @@ StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
 
 AstroObject::Star StellarGenerator::GenStar() {
     AstroObject::Star Star = static_cast<AstroObject::Star>(GenBasicProperties());
+    return {};
 }
 
 AstroObject::Star StellarGenerator::operator=(const BasicProperties& Properties) {

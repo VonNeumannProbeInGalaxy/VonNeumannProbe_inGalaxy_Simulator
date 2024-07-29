@@ -48,9 +48,6 @@
     <ClCompile Include="Sources\stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\AssetLoader\Csv.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h">
@@ -95,7 +92,7 @@
     <ClInclude Include="Sources\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\AssetLoader\Csv.h">
+    <ClInclude Include="Sources\Engine\Core\AssetLoader\Csv.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
