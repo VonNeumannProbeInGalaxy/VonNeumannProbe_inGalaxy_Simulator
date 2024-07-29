@@ -16,13 +16,13 @@ class Star : public CelestialBody {
 public:
     enum class Phase : int {
         kPrevMainSequence = -1,
-        kMainSequence = 0,
-        kRedGiant = 2,
-        kCoreHeBurn = 3,
-        kEarlyAgb = 4,
-        kThermalPulseAgb = 5,
-        kPostAgb = 6,
-        kWolfRayet = 9
+        kMainSequence     =  0,
+        kRedGiant         =  2,
+        kCoreHeBurn       =  3,
+        kEarlyAgb         =  4,
+        kThermalPulseAgb  =  5,
+        kPostAgb          =  6,
+        kWolfRayet        =  9
     };
 
     struct ExtendedProperties {
