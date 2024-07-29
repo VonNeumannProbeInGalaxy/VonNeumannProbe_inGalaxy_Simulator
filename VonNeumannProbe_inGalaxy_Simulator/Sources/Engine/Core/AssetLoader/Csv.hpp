@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <concepts>
 #include <functional>
 #include <sstream>

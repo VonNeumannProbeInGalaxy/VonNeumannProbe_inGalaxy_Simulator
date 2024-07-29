@@ -1,17 +1,18 @@
 #pragma once
 
 #include <concepts>
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "Engine/Core/AssetLoader/Csv.hpp"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
 
-template <typename T>
-concept Copyable = std::copyable<T>;
+template <typename AssetType>
+concept Copyable = std::copyable<AssetType>;
 
 class AssetManager {
 public:
@@ -19,24 +20,24 @@ public:
     ~AssetManager() = default;
 
 public:
-    template<typename T>
-    requires Copyable<T>
-    static void AddAsset(const std::string& Name, const std::shared_ptr<T>& Asset) {
+    template<typename AssetType>
+    requires Copyable<AssetType>
+    static void AddAsset(const std::string& Name, const std::shared_ptr<AssetType>& Asset) {
         _Assets[Name] = Asset;
     }
 
-    template<typename T>
-    requires Copyable<T>
-    static std::shared_ptr<T> GetAsset(const std::string& Name) {
-        return std::static_pointer_cast<T>(_Assets[Name]);
+    template<typename AssetType>
+    requires Copyable<AssetType>
+    static std::shared_ptr<AssetType> GetAsset(const std::string& Name) {
+        return std::static_pointer_cast<AssetType>(_Assets[Name]);
     }
 
-    template<typename T>
-    requires Copyable<T>
-    static std::vector<std::shared_ptr<T>> GetAssets() {
-        std::vector<std::shared_ptr<T>> Assets;
+    template<typename AssetType>
+    requires Copyable<AssetType>
+    static std::vector<std::shared_ptr<AssetType>> GetAssets() {
+        std::vector<std::shared_ptr<AssetType>> Assets;
         for (auto& Asset : _Assets) {
-            Assets.push_back(std::static_pointer_cast<T>(Asset.second));
+            Assets.push_back(std::static_pointer_cast<AssetType>(Asset.second));
         }
 
         return Assets;
@@ -51,7 +52,7 @@ public:
     }
 
 private:
-    static std::map<std::string, std::shared_ptr<void>> _Assets;
+    static std::unordered_map<std::string, std::shared_ptr<void>> _Assets;
 };
 
 _NPGS_END
