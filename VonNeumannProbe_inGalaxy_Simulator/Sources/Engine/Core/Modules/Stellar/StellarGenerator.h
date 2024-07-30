@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "Engine/Base/AstroObject/Star.h"
+#include "Engine/Core/AssetLoader/Csv.hpp"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
@@ -14,6 +15,7 @@ namespace Modules {
 class StellarGenerator {
 public:
     using BaryCenter = AstroObject::CelestialBody::BaryCenter;
+    using MesaData   = Csv<std::string, std::string, std::string, std::string, std::string, std::string, std::string, std::string, std::string, std::string, std::string>;
 
     struct BasicProperties {
         BaryCenter StarSys;
@@ -41,10 +43,12 @@ public:
     AstroObject::Star GenStar();
     AstroObject::Star operator=(const BasicProperties& Properties);
 
-private:
-    double ProbabilityDensity(double Mass);
+public:
+    double DefaultPdf(double Mass);
     double GenMass(double MaxPdf);
     BasicProperties GenBasicProperties();
+    std::vector<double> GetActuallyData(const BasicProperties& Properties);
+    std::vector<double> InterpolateArrays(const std::vector<double>& Lower, const std::vector<double>& Upper, double Target);
 
 private:
     std::mt19937 _RandomEngine;

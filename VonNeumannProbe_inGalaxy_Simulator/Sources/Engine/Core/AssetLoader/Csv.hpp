@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <concepts>
 #include <functional>
 #include <sstream>
@@ -9,6 +10,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include <fast-cpp-csv-parser/csv.h>
 
@@ -24,7 +26,10 @@ template <typename... Args>
 requires CsvConcept<Args...>
 class Csv {
 public:
-    Csv() = delete;
+    using RowArray = std::vector<std::string>;
+
+public:
+    Csv() = default;
     Csv(const std::string& Filename, Args&&... ColNames) : _Filename(Filename) {
         AssignColNames(ColNames...);
         InitHeaderMap();
@@ -34,7 +39,7 @@ public:
     ~Csv() = default;
 
 public:
-    std::vector<std::string> GetDataArray(const std::string& DataHeader, const std::string& DataValue) const {
+    RowArray GetDataArray(const std::string& DataHeader, const std::string& DataValue) const {
         std::size_t DataIndex = GetHeaderIndex(DataHeader);
         for (const auto& Row : _Data) {
             if (Row[DataIndex] == DataValue) {
@@ -55,6 +60,34 @@ public:
         }
 
         throw std::out_of_range("Data not found.");
+    }
+
+    template <typename Func = decltype(&Csv::StrLessThan)>
+    std::pair<RowArray, RowArray> FindSurroundingValues(const std::string& DataHeader, const std::string& TargetValue, bool bSorted = true, Func Pred = &Csv::StrLessThan) const {
+        std::size_t DataIndex = GetHeaderIndex(DataHeader);
+        std::vector<std::pair<std::string, RowArray>> ColData;
+
+        for (const auto& Row : _Data) {
+            ColData.emplace_back(Row[DataIndex], Row);
+        }
+
+        if (!bSorted) {
+            std::sort(ColData.begin(), ColData.end(), [&](const auto& Lhs, const auto& Rhs) -> bool {
+                return Pred(Lhs.first, Rhs.first);
+            });
+        }
+
+        auto it = std::lower_bound(ColData.begin(), ColData.end(), TargetValue, [&](const auto& Lhs, const std::string& Rhs) -> bool {
+            return Pred(Lhs.first, Rhs);
+        });
+
+        if (it == ColData.end()) {
+            throw std::out_of_range("Target value is out of range of the data.");
+        }
+
+        RowArray LowerRow = it == ColData.begin() ? it->second : (it - 1)->second;
+        RowArray UpperRow = it->second;
+        return { LowerRow, UpperRow };
     }
 
 private:
@@ -117,6 +150,12 @@ private:
         std::stringstream Stream;
         Stream << Value;
         return Stream.str();
+    }
+
+    static bool StrLessThan(const std::string& Str1, const std::string& Str2) {
+        double StrValue1 = std::stod(Str1);
+        double StrValue2 = std::stod(Str2);
+        return StrValue1 < StrValue2;
     }
 
 private:
