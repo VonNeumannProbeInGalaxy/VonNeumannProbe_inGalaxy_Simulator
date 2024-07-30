@@ -6,8 +6,7 @@
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
-
-namespace Modules {
+_MODULES_BEGIN
 
 class StellarClass {
 public:
@@ -127,6 +126,7 @@ public:
 public:
     constexpr StellarClass() = default;
     StellarClass(StarType StarType, const SpectralType& SpectralType);
+    ~StellarClass() = default;
 
 public:
     static StellarClass Parse(const std::string& StellarClassStr);
@@ -155,6 +155,5 @@ private:
     };
 };
 
-}
-
+_MODULES_END
 _NPGS_END

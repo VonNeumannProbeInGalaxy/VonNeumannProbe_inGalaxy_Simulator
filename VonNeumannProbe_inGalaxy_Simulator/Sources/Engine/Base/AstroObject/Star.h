@@ -1,16 +1,13 @@
 #pragma once
 
-
 #include <string>
 
 #include "Engine/Base/AstroObject/CelestialObject.h"
-#include "Engine/Core/Base.h"
-#include "Engine/Core/Constants.h"
 #include "Engine/Core/Modules/Stellar/StellarClass.h"
+#include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
-
-namespace AstroObject {
+_ASTROOBJECT_BEGIN
 
 class Star : public CelestialBody {
 public:
@@ -27,10 +24,10 @@ public:
 
     struct ExtendedProperties {
         double Luminosity;
-        double AbsMagn;
+        double AbsoluteMagnitude;
         double FeH;
-        double SurfFeH;
-        double EffTemp;
+        double SurfaceFeH;
+        double EffectiveTemp;
         double StellarWindSpeed;
         double StellarWindDensity;
         double StellarWindMomentum;
@@ -47,139 +44,46 @@ public:
     Star(const CelestialBody::BasicProperties& StarBasicProperties, const ExtendedProperties& StarExtraProperties);
     ~Star() = default;
 
-public:
-    Star& SetExtendedProperties(const ExtendedProperties& StarExtraProperties) {
-        _StarExtraProperties = StarExtraProperties;
-        return *this;
-    }
+    Star& SetExtendedProperties(const ExtendedProperties& StarExtraProperties);
+    const ExtendedProperties& GetExtendedProperties() const;
 
-    ExtendedProperties GetExtendedProperties() const {
-        return _StarExtraProperties;
-    }
-
-    ExtendedProperties Data() const {
-        return GetExtendedProperties();
-    }
-
-public:
     // Setters
     // Setters for ExtendedProperties
     // ------------------------------
-    Star& SetLuminosity(double Luminosity) {
-        _StarExtraProperties.Luminosity = Luminosity;
-        return *this;
-    }
-
-    Star& SetAbsMagn(double AbsMagn) {
-        _StarExtraProperties.AbsMagn = AbsMagn;
-        return *this;
-    }
-
-    Star& SetFeH(double FeH) {
-        _StarExtraProperties.FeH = FeH;
-        return *this;
-    }
-
-    Star& SetSurfFeH(double SurfFeH) {
-        _StarExtraProperties.SurfFeH = SurfFeH;
-        return *this;
-    }
-
-    Star& SetEffTemp(double EffTemp) {
-        _StarExtraProperties.EffTemp = EffTemp;
-        return *this;
-    }
-
-    Star& SetStellarWindSpeed(double StellarWindSpeed) {
-        _StarExtraProperties.StellarWindSpeed = StellarWindSpeed;
-        return *this;
-    }
-
-    Star& SetStellarWindDensity(double StellarWindDensity) {
-        _StarExtraProperties.StellarWindDensity = StellarWindDensity;
-        return *this;
-    }
-
-    Star& SetStellarWindMomentum(double StellarWindMomentum) {
-        _StarExtraProperties.StellarWindMomentum = StellarWindMomentum;
-        return *this;
-    }
-
-    Star& SetStellarWindMassLossRate(double StellarWindMassLossRate) {
-        _StarExtraProperties.StellarWindMassLossRate = StellarWindMassLossRate;
-        return *this;
-    }
-
-    Star& SetSpectralType(const std::string& SpectralType) {
-        _StarExtraProperties.SpectralType = SpectralType;
-        return *this;
-    }
-
-    Star& SetStellarClass(const Modules::StellarClass& StellarClass) {
-        _StarExtraProperties.StellarClass = StellarClass;
-        return *this;
-    }
-
-    Star& SetEvolutionPhase(Phase EvolutionPhase) {
-        _StarExtraProperties.EvolutionPhase = EvolutionPhase;
-        return *this;
-    }
+    Star& SetLuminosity(double Luminosity);
+    Star& SetAbsoluteMagnitude(double AbsoluteMagnitude);
+    Star& SetFeH(double FeH);
+    Star& SetSurfaceFeH(double SurfaceFeH);
+    Star& SetEffectiveTemp(double EffectiveTemp);
+    Star& SetStellarWindSpeed(double StellarWindSpeed);
+    Star& SetStellarWindDensity(double StellarWindDensity);
+    Star& SetStellarWindMomentum(double StellarWindMomentum);
+    Star& SetStellarWindMassLossRate(double StellarWindMassLossRate);
+    Star& SetSpectralType(const std::string& SpectralType);
+    Star& SetStellarClass(const Modules::StellarClass& StellarClass);
+    Star& SetEvolutionPhase(Phase EvolutionPhase);
 
     // Getters
     // Getters for ExtendedProperties
     // ------------------------------
-    double GetLuminosity() const {
-        return _StarExtraProperties.Luminosity;
-    }
-
-    double GetAbsMagn() const {
-        return _StarExtraProperties.AbsMagn;
-    }
-
-    double GetFeH() const {
-        return _StarExtraProperties.FeH;
-    }
-
-    double GetSurfFeH() const {
-        return _StarExtraProperties.SurfFeH;
-    }
-
-    double GetEffTemp() const {
-        return _StarExtraProperties.EffTemp;
-    }
-
-    double GetStellarWindSpeed() const {
-        return _StarExtraProperties.StellarWindSpeed;
-    }
-
-    double GetStellarWindDensity() const {
-        return _StarExtraProperties.StellarWindDensity;
-    }
-
-    double GetStellarWindMomentum() const {
-        return _StarExtraProperties.StellarWindMomentum;
-    }
-
-    double GetStellarWindMassLossRate() const {
-        return _StarExtraProperties.StellarWindMassLossRate;
-    }
-
-    const std::string& GetSpectralType() const {
-        return _StarExtraProperties.SpectralType;
-    }
-
-    const Modules::StellarClass& GetStellarClass() const {
-        return _StarExtraProperties.StellarClass;
-    }
-
-    Phase GetEvolPhase() const {
-        return _StarExtraProperties.EvolutionPhase;
-    }
+    double GetLuminosity() const;
+    double GetAbsoluteMagnitude() const;
+    double GetFeH() const;
+    double GetSurfaceFeH() const;
+    double GetEffectiveTemp() const;
+    double GetStellarWindSpeed() const;
+    double GetStellarWindDensity() const;
+    double GetStellarWindMomentum() const;
+    double GetStellarWindMassLossRate() const;
+    const std::string& GetSpectralType() const;
+    const Modules::StellarClass& GetStellarClass() const;
+    Phase GetEvolutionPhase() const;
 
 private:
     ExtendedProperties _StarExtraProperties;
 };
 
-}
-
+_ASTROOBJECT_END
 _NPGS_END
+
+#include "Star.inl"

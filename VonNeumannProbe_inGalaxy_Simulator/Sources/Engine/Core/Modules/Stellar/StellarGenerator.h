@@ -15,7 +15,8 @@ namespace Modules {
 class StellarGenerator {
 public:
     using BaryCenter = AstroObject::CelestialBody::BaryCenter;
-    using MesaData   = Csv<std::string, std::string, std::string, std::string, std::string, std::string, std::string, std::string, std::string, std::string, std::string>;
+    using MesaData   = Assets::Csv<std::string, std::string, std::string, std::string, std::string,
+                      std::string, std::string, std::string, std::string, std::string, std::string>;
 
     struct BasicProperties {
         BaryCenter StarSys;
@@ -43,7 +44,7 @@ public:
     AstroObject::Star GenStar();
     AstroObject::Star operator=(const BasicProperties& Properties);
 
-public:
+public: // public for test
     double DefaultPdf(double Mass);
     double GenMass(double MaxPdf);
     BasicProperties GenBasicProperties();

@@ -4,8 +4,7 @@
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
-
-namespace AstroObject {
+_ASTROOBJECT_BEGIN
 
 class Planet : public CelestialBody {
 public:
@@ -25,7 +24,7 @@ public:
 
     struct ExtendedProperties {
         double AverageDensity;
-        double SurfGravity;
+        double SurfaceGravity;
         double GreenhouseFactor;
         double Hydrosphere;
         double IceCover;
@@ -45,148 +44,48 @@ public:
     Planet(const CelestialBody::BasicProperties& PlanetBasicProperties, const ExtendedProperties& PlanetExtraProperties);
     ~Planet() = default;
 
-public:
-    Planet& SetExtendedProperties(const ExtendedProperties& PlanetExtraProperties) {
-        _PlanetExtraProperties = PlanetExtraProperties;
-        return *this;
-    }
+    Planet& SetExtendedProperties(const ExtendedProperties& PlanetExtraProperties);
+    const ExtendedProperties& GetExtendedProperties() const;
 
-    ExtendedProperties GetExtendedProperties() const {
-        return _PlanetExtraProperties;
-    }
-
-    ExtendedProperties Data() const {
-        return GetExtendedProperties();
-    }
-
-public:
     // Setters
     // Setters for ExtendedProperties
     // ------------------------------
-    Planet& SetAverageDensity(double AverageDensity) {
-        _PlanetExtraProperties.AverageDensity = AverageDensity;
-        return *this;
-    }
-
-    Planet& SetSurfGravity(double SurfGravity) {
-        _PlanetExtraProperties.SurfGravity = SurfGravity;
-        return *this;
-    }
-
-    Planet& SetGreenhouseFactor(double GreenhouseFactor) {
-        _PlanetExtraProperties.GreenhouseFactor = GreenhouseFactor;
-        return *this;
-    }
-
-    Planet& SetHydrosphere(double Hydrosphere) {
-        _PlanetExtraProperties.Hydrosphere = Hydrosphere;
-        return *this;
-    }
-
-    Planet& SetIceCover(double IceCover) {
-        _PlanetExtraProperties.IceCover = IceCover;
-        return *this;
-    }
-
-    Planet& SetCloudCover(double CloudCover) {
-        _PlanetExtraProperties.CloudCover = CloudCover;
-        return *this;
-    }
-
-    Planet& SetAtmospherePressure(double AtmospherePressure) {
-        _PlanetExtraProperties.AtmospherePressure = AtmospherePressure;
-        return *this;
-    }
-
-    Planet& SetAtmosphereDensity(double AtmosphereDensity) {
-        _PlanetExtraProperties.AtmosphereDensity = AtmosphereDensity;
-        return *this;
-    }
-
-    Planet& SetAtmosphereComposition(double AtmosphereComposition) {
-        _PlanetExtraProperties.AtmosphereComposition = AtmosphereComposition;
-        return *this;
-    }
-
-    Planet& SetTectonicActivity(double TectonicActivity) {
-        _PlanetExtraProperties.TectonicActivity = TectonicActivity;
-        return *this;
-    }
-
-    Planet& SetVolcanism(double Volcanism) {
-        _PlanetExtraProperties.Volcanism = Volcanism;
-        return *this;
-    }
-
-    Planet& SetLife(bool bHasLife) {
-        _PlanetExtraProperties.bHasLife = bHasLife;
-        return *this;
-    }
-
-    Planet& SetType(PlanetType Type) {
-        _PlanetExtraProperties.Type = Type;
-        return *this;
-    }
+    Planet& SetAverageDensity(double AverageDensity);
+    Planet& SetSurfaceGravity(double SurfaceGravity);
+    Planet& SetGreenhouseFactor(double GreenhouseFactor);
+    Planet& SetHydrosphere(double Hydrosphere);
+    Planet& SetIceCover(double IceCover);
+    Planet& SetCloudCover(double CloudCover);
+    Planet& SetAtmospherePressure(double AtmospherePressure);
+    Planet& SetAtmosphereDensity(double AtmosphereDensity);
+    Planet& SetAtmosphereComposition(double AtmosphereComposition);
+    Planet& SetTectonicActivity(double TectonicActivity);
+    Planet& SetVolcanism(double Volcanism);
+    Planet& SetLife(bool bHasLife);
+    Planet& SetType(PlanetType Type);
 
     // Getters
     // Getters for ExtendedProperties
     // ------------------------------
-    double GetAverageDensity() const {
-        return _PlanetExtraProperties.AverageDensity;
-    }
-
-    double GetSurfGravity() const {
-        return _PlanetExtraProperties.SurfGravity;
-    }
-
-    double GetGreenhouseFactor() const {
-        return _PlanetExtraProperties.GreenhouseFactor;
-    }
-
-    double GetHydrosphere() const {
-        return _PlanetExtraProperties.Hydrosphere;
-    }
-
-    double GetIceCover() const {
-        return _PlanetExtraProperties.IceCover;
-    }
-
-    double GetCloudCover() const {
-        return _PlanetExtraProperties.CloudCover;
-    }
-
-    double GetAtmospherePressure() const {
-        return _PlanetExtraProperties.AtmospherePressure;
-    }
-
-    double GetAtmosphereDensity() const {
-        return _PlanetExtraProperties.AtmosphereDensity;
-    }
-
-    double GetAtmosphereComposition() const {
-        return _PlanetExtraProperties.AtmosphereComposition;
-    }
-
-    double GetTectonicActivity() const {
-        return _PlanetExtraProperties.TectonicActivity;
-    }
-
-    double GetVolcanism() const {
-        return _PlanetExtraProperties.Volcanism;
-    }
-
-    bool GetbLife() const {
-        return _PlanetExtraProperties.bHasLife;
-    }
-
-    PlanetType GetType() const {
-        return _PlanetExtraProperties.Type;
-    }
+    double GetAverageDensity() const;
+    double GetSurfaceGravity() const;
+    double GetGreenhouseFactor() const;
+    double GetHydrosphere() const;
+    double GetIceCover() const;
+    double GetCloudCover() const;
+    double GetAtmospherePressure() const;
+    double GetAtmosphereDensity() const;
+    double GetAtmosphereComposition() const;
+    double GetTectonicActivity() const;
+    double GetVolcanism() const;
+    bool   GetLife() const;
+    PlanetType GetType() const;
 
 private:
     ExtendedProperties _PlanetExtraProperties;
 };
 
-}
-
+_ASTROOBJECT_END
 _NPGS_END
+
+#include "Planet.inl"

@@ -1,15 +1,16 @@
 #pragma once
 
 #include <concepts>
-#include <unordered_map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "Engine/Core/AssetLoader/Csv.hpp"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
+_ASSETS_BEGIN
 
 template <typename AssetType>
 concept Copyable = std::copyable<AssetType>;
@@ -55,4 +56,5 @@ private:
     static std::unordered_map<std::string, std::shared_ptr<void>> _Assets;
 };
 
+_ASSETS_END
 _NPGS_END

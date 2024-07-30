@@ -22,8 +22,14 @@
 
 // Basic namespace defines
 // -----------------------
-#define _NPGS_BEGIN namespace Npgs {
-#define _NPGS_END   }
+#define _NPGS_BEGIN        namespace Npgs        {
+#define _NPGS_END                                }
+#define _ASTROOBJECT_BEGIN namespace AstroObject {
+#define _ASTROOBJECT_END                         }
+#define _MODULES_BEGIN     namespace Modules     {
+#define _MODULES_END                             }
+#define _ASSETS_BEGIN      namespace Assets      {
+#define _ASSETS_END                              }
 
 // Bit operator function
 // ---------------------

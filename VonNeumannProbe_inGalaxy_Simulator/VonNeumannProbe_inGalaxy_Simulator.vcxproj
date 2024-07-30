@@ -176,6 +176,11 @@
     <ClInclude Include="Sources\Engine\Base\Universe.h" />
     <ClInclude Include="Sources\stdafx.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Sources\Engine\Base\AstroObject\CelestialObject.inl" />
+    <None Include="Sources\Engine\Base\AstroObject\Planet.inl" />
+    <None Include="Sources\Engine\Base\AstroObject\Star.inl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

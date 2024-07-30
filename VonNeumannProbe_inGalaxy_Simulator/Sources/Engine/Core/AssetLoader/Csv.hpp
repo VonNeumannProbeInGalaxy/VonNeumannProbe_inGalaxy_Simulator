@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <concepts>
-#include <functional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -18,6 +17,7 @@
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
+_ASSETS_BEGIN
 
 template <typename... Args>
 concept CsvConcept = (std::copyable<Args> && ...);
@@ -72,14 +72,18 @@ public:
         }
 
         if (!bSorted) {
-            std::sort(ColData.begin(), ColData.end(), [&](const auto& Lhs, const auto& Rhs) -> bool {
-                return Pred(Lhs.first, Rhs.first);
-            });
+            std::sort(ColData.begin(), ColData.end(),
+                [&](const auto& Lhs, const auto& Rhs) -> bool {
+                    return Pred(Lhs.first, Rhs.first);
+                }
+            );
         }
 
-        auto it = std::lower_bound(ColData.begin(), ColData.end(), TargetValue, [&](const auto& Lhs, const std::string& Rhs) -> bool {
-            return Pred(Lhs.first, Rhs);
-        });
+        auto it = std::lower_bound(ColData.begin(), ColData.end(), TargetValue,
+            [&](const auto& Lhs, const std::string& Rhs) -> bool {
+                return Pred(Lhs.first, Rhs);
+            }
+        );
 
         if (it == ColData.end()) {
             throw std::out_of_range("Target value is out of range of the data.");
@@ -165,4 +169,5 @@ private:
     std::vector<std::vector<std::string>>        _Data;
 };
 
+_ASSETS_END
 _NPGS_END

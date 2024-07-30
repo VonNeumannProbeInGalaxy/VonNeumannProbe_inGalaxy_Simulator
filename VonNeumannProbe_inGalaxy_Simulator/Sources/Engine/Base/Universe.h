@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <tuple>
+#include <utility>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -17,15 +17,11 @@ public:
     Universe() = default;
     ~Universe() = default;
 
-public:
     void AddStar(const std::string& Name, AstroObject::CelestialBody::BaryCenter& StarSys, const AstroObject::Star& Star);
-
-    const std::vector<std::tuple<std::string, AstroObject::CelestialBody::BaryCenter>>& GetStarSystems() const {
-        return _StarSystems;
-    }
+    const std::vector<std::pair<std::string, AstroObject::CelestialBody::BaryCenter>>& GetStarSystems() const;
 
 private:
-    std::vector<std::tuple<std::string, AstroObject::CelestialBody::BaryCenter>> _StarSystems;
+    std::vector<std::pair<std::string, AstroObject::CelestialBody::BaryCenter>> _StarSystems;
 };
 
 _NPGS_END

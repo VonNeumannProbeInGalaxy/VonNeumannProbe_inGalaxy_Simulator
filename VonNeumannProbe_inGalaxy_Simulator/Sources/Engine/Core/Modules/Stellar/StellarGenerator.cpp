@@ -14,8 +14,7 @@
 #include <boost/math/interpolators/barycentric_rational.hpp>
 
 _NPGS_BEGIN
-
-namespace Modules {
+_MODULES_BEGIN
 
 StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
 
@@ -208,6 +207,5 @@ std::vector<double> StellarGenerator::InterpolateArrays(const std::vector<double
     return Result;
 }
 
-}
-
+_MODULES_END
 _NPGS_END

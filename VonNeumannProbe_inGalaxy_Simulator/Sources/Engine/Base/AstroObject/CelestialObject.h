@@ -1,15 +1,11 @@
 #pragma once
 
 #include <string>
-
 #include <glm/glm.hpp>
-
 #include "Engine/Core/Base.h"
-#include "Engine/Core/Constants.h"
 
 _NPGS_BEGIN
-
-namespace AstroObject {
+_ASTROOBJECT_BEGIN
 
 class CelestialBody {
 public:
@@ -52,219 +48,64 @@ public:
     CelestialBody(const BasicProperties& Properties);
     ~CelestialBody() = default;
 
-public:
-    CelestialBody& SetBasicProperties(const BasicProperties& Properties) {
-        _Properties = Properties;
-        return *this;
-    }
+    CelestialBody& SetBasicProperties(const BasicProperties& Properties);
+    CelestialBody& SetOrbitProperties(const OrbitProperties& Properties);
+    const BasicProperties& GetBasicProperties() const;
+    const OrbitProperties& GetOrbitProperties() const;
 
-    CelestialBody& SetOrbitProperties(const OrbitProperties& Properties) {
-        _Properties.Orbit = Properties;
-        return *this;
-    }
-
-    BasicProperties GetBasicProperties() const {
-        return _Properties;
-    }
-
-    OrbitProperties GetOrbitProperties() const {
-        return _Properties.Orbit;
-    }
-
-    BasicProperties Data() const {
-        return GetBasicProperties();
-    }
-
-public:
     // Setters
     // Setters for BasicProperties
-    // --------------------------
-    CelestialBody& SetName(const std::string& Name) {
-        _Properties.Name = Name;
-        return *this;
-    }
-
-    CelestialBody& SetRadius(double Radius) {
-        _Properties.Radius = Radius;
-        return *this;
-    }
-
-    CelestialBody& SetMass(double Mass) {
-        _Properties.Mass = Mass;
-        return *this;
-    }
-
-    CelestialBody& SetRotateVelocity(double RotateVelocity) {
-        _Properties.RotateVelocity = RotateVelocity;
-        return *this;
-    }
-
-    CelestialBody& SetRotationPeriod(double RotationPeriod) {
-        _Properties.RotationPeriod = RotationPeriod;
-        return *this;
-    }
-
-    CelestialBody& SetOblateness(double Oblateness) {
-        _Properties.Oblateness = Oblateness;
-        return *this;
-    }
-
-    CelestialBody& SetAxisTilt(double AxisTilt) {
-        _Properties.AxisTilt = AxisTilt;
-        return *this;
-    }
-
-    CelestialBody& SetAlbedo(double Albedo) {
-        _Properties.Albedo = Albedo;
-        return *this;
-    }
-
-    CelestialBody& SetAge(double Age) {
-        _Properties.Age = Age;
-        return *this;
-    }
-
-    CelestialBody& SetEscapeVelocity(double EscapeVelocity) {
-        _Properties.EscapeVelocity = EscapeVelocity;
-        return *this;
-    }
-
-    CelestialBody& SetMagneticField(double MagneticField) {
-        _Properties.MagneticField = MagneticField;
-        return *this;
-    }
+    // ---------------------------
+    CelestialBody& SetName(const std::string& Name);
+    CelestialBody& SetRadius(double Radius);
+    CelestialBody& SetMass(double Mass);
+    CelestialBody& SetRotateVelocity(double RotateVelocity);
+    CelestialBody& SetRotationPeriod(double RotationPeriod);
+    CelestialBody& SetOblateness(double Oblateness);
+    CelestialBody& SetAxisTilt(double AxisTilt);
+    CelestialBody& SetAlbedo(double Albedo);
+    CelestialBody& SetAge(double Age);
+    CelestialBody& SetEscapeVelocity(double EscapeVelocity);
+    CelestialBody& SetMagneticField(double MagneticField);
 
     // Setters for OrbitProperties
     // ---------------------------
-    CelestialBody& SetParentBody(const BaryCenter& ParentBody) {
-        _Properties.Orbit.ParentBody = ParentBody;
-        return *this;
-    }
-
-    CelestialBody& SetEpoch(double Epoch) {
-        _Properties.Orbit.Epoch = Epoch;
-        return *this;
-    }
-
-    CelestialBody& SetPeriod(double Period) {
-        _Properties.Orbit.Period = Period;
-        return *this;
-    }
-
-    CelestialBody& SetSemiMajorAxis(double SemiMajorAxis) {
-        _Properties.Orbit.SemiMajorAxis = SemiMajorAxis;
-        return *this;
-    }
-
-    CelestialBody& SetEccentricity(double Eccentricity) {
-        _Properties.Orbit.Eccentricity = Eccentricity;
-        return *this;
-    }
-
-    CelestialBody& SetInclination(double Inclination) {
-        _Properties.Orbit.Inclination = Inclination;
-        return *this;
-    }
-
-    CelestialBody& SetLongitudeOfAscendingNode(double LongitudeOfAscendingNode) {
-        _Properties.Orbit.LongitudeOfAscendingNode = LongitudeOfAscendingNode;
-        return *this;
-    }
-
-    CelestialBody& SetArgumentOfPeriapsis(double ArgumentOfPeriapsis) {
-        _Properties.Orbit.ArgumentOfPeriapsis = ArgumentOfPeriapsis;
-        return *this;
-    }
-
-    CelestialBody& SetMeanAnomaly(double MeanAnomaly) {
-        _Properties.Orbit.MeanAnomaly = MeanAnomaly;
-        return *this;
-    }
+    CelestialBody& SetParentBody(const BaryCenter& ParentBody);
+    CelestialBody& SetEpoch(double Epoch);
+    CelestialBody& SetPeriod(double Period);
+    CelestialBody& SetSemiMajorAxis(double SemiMajorAxis);
+    CelestialBody& SetEccentricity(double Eccentricity);
+    CelestialBody& SetInclination(double Inclination);
+    CelestialBody& SetLongitudeOfAscendingNode(double LongitudeOfAscendingNode);
+    CelestialBody& SetArgumentOfPeriapsis(double ArgumentOfPeriapsis);
+    CelestialBody& SetMeanAnomaly(double MeanAnomaly);
 
     // Getters
     // Getters for BasicProperties
-    // --------------------------
-    std::string GetName() const {
-        return _Properties.Name;
-    }
-
-    double GetRadius() const {
-        return _Properties.Radius;
-    }
-
-    double GetMass() const {
-        return _Properties.Mass;
-    }
-
-    double GetRotateVelocity() const {
-        return _Properties.RotateVelocity;
-    }
-
-    double GetRotationPeriod() const {
-        return _Properties.RotationPeriod;
-    }
-
-    double GetOblateness() const {
-        return _Properties.Oblateness;
-    }
-
-    double GetAxisTilt() const {
-        return _Properties.AxisTilt;
-    }
-
-    double GetAlbedo() const {
-        return _Properties.Albedo;
-    }
-
-    double GetAge() const {
-        return _Properties.Age;
-    }
-
-    double GetEscapeVelocity() const {
-        return _Properties.EscapeVelocity;
-    }
-
-    double GetMagneticField() const {
-        return _Properties.MagneticField;
-    }
+    // ---------------------------
+    std::string GetName() const;
+    double GetRadius() const;
+    double GetMass() const;
+    double GetRotateVelocity() const;
+    double GetRotationPeriod() const;
+    double GetOblateness() const;
+    double GetAxisTilt() const;
+    double GetAlbedo() const;
+    double GetAge() const;
+    double GetEscapeVelocity() const;
+    double GetMagneticField() const;
 
     // Getters for OrbitProperties
     // ---------------------------
-    BaryCenter GetParentBody() const {
-        return _Properties.Orbit.ParentBody;
-    }
-
-    double GetEpoch() const {
-        return _Properties.Orbit.Epoch;
-    }
-
-    double GetPeriod() const {
-        return _Properties.Orbit.Period;
-    }
-
-    double GetSemiMajorAxis() const {
-        return _Properties.Orbit.SemiMajorAxis;
-    }
-
-    double GetEccentricity() const {
-        return _Properties.Orbit.Eccentricity;
-    }
-
-    double GetInclination() const {
-        return _Properties.Orbit.Inclination;
-    }
-
-    double GetLongitudeOfAscendingNode() const {
-        return _Properties.Orbit.LongitudeOfAscendingNode;
-    }
-
-    double GetArgumentOfPeriapsis() const {
-        return _Properties.Orbit.ArgumentOfPeriapsis;
-    }
-
-    double GetMeanAnomaly() const {
-        return _Properties.Orbit.MeanAnomaly;
-    }
+    BaryCenter GetParentBody() const;
+    double GetEpoch() const;
+    double GetPeriod() const;
+    double GetSemiMajorAxis() const;
+    double GetEccentricity() const;
+    double GetInclination() const;
+    double GetLongitudeOfAscendingNode() const;
+    double GetArgumentOfPeriapsis() const;
+    double GetMeanAnomaly() const;
 
 private:
     BasicProperties _Properties;
@@ -272,11 +113,6 @@ private:
 
 class MolecularCloud {
 public:
-    //struct CloudRegion {
-    //    double Radius;
-    //    double Density;
-    //};
-
     struct BasicProperties {
         double Radius;
         double Mass;
@@ -286,13 +122,15 @@ public:
     };
 
 public:
-    MolecularCloud() = delete;
+    MolecularCloud() = default;
     MolecularCloud(const BasicProperties& Properties);
+    ~MolecularCloud() = default;
 
 private:
     BasicProperties _Properties;
 };
 
-}
-
+_ASTROOBJECT_END
 _NPGS_END
+
+#include "CelestialObject.inl"

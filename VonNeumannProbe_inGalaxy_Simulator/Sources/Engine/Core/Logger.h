@@ -27,17 +27,17 @@
 
 #else
 
-#define NpgsCoreCritical(...)
-#define NpgsCoreError(...)
-#define NpgsCoreInfo(...)
-#define NpgsCoreTrace(...)
-#define NpgsCoreWarn(...)
+#define NpgsCoreCritical(...) static_cast<void>(0)
+#define NpgsCoreError(...)    static_cast<void>(0)
+#define NpgsCoreInfo(...)     static_cast<void>(0)
+#define NpgsCoreTrace(...)    static_cast<void>(0)
+#define NpgsCoreWarn(...)     static_cast<void>(0)
 
-#define NpgsCritical(...)
-#define NpgsError(...)
-#define NpgsInfo(...)
-#define NpgsTrace(...)
-#define NpgsWarn(...)
+#define NpgsCritical(...)     static_cast<void>(0)
+#define NpgsError(...)        static_cast<void>(0)
+#define NpgsInfo(...)         static_cast<void>(0)
+#define NpgsTrace(...)        static_cast<void>(0)
+#define NpgsWarn(...)         static_cast<void>(0)
 
 #endif // !_DEBUG
 

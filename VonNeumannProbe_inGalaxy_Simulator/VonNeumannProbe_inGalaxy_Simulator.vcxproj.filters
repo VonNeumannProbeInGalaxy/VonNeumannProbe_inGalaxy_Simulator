@@ -96,4 +96,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Sources\Engine\Base\AstroObject\CelestialObject.inl">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Sources\Engine\Base\AstroObject\Planet.inl">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Sources\Engine\Base\AstroObject\Star.inl">
+      <Filter>头文件</Filter>
+    </None>
+  </ItemGroup>
 </Project>

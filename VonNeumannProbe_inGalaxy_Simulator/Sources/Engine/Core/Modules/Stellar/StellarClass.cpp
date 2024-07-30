@@ -6,8 +6,7 @@
 #include "Engine/Core/Assert.h"
 
 _NPGS_BEGIN
-
-namespace Modules {
+_MODULES_BEGIN
 
 enum class ParseState {
     kBegin,
@@ -319,7 +318,9 @@ static ParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, S
     }
 }
 
-StellarClass::StellarClass(StarType StarType, const SpectralType& SpectralType) : _StarType(StarType), _SpectralType(SpectralType) {}
+StellarClass::StellarClass(StarType StarType, const SpectralType& SpectralType)
+    : _StarType(StarType), _SpectralType(SpectralType)
+{}
 
 StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
     NpgsAssert(!StellarClassStr.empty(), "StellarClassStr is empty.");
@@ -509,6 +510,5 @@ bool StellarClass::Load(std::uint64_t PackagedSpectralType) {
     }
 }
 
-}
-
+_MODULES_END
 _NPGS_END
