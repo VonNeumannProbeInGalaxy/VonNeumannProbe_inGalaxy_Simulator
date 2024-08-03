@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include <array>
+#include <algorithm>
 #include <filesystem>
 #include <iomanip>
 #include <stdexcept>
@@ -20,7 +21,7 @@ StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
 
 AstroObject::Star StellarGenerator::GenStar() {
     BasicProperties BasicData = GenBasicProperties();
-    std::vector<double> ActuallyData = GetActuallyData(static_cast<BasicProperties>(BasicData));
+    std::vector<double> ActuallyData = GetActuallyMesaData(static_cast<BasicProperties>(BasicData));
     return {};
 }
 
@@ -68,7 +69,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     int PosY     = static_cast<int>(_UniformDistribution(_RandomEngine) * 1000);
     int PosZ     = static_cast<int>(_UniformDistribution(_RandomEngine) * 1000);
     int Distance = static_cast<int>(_UniformDistribution(_RandomEngine) * 10000);
-    Properties.StarSys.Name = "S-" + std::to_string(PosX) + "-" + std::to_string(PosY) + "-" + std::to_string(PosZ) + "-" + std::to_string(Distance);
+    Properties.StarSys.Name     = "S-" + std::to_string(PosX) + "-" + std::to_string(PosY) + "-" + std::to_string(PosZ) + "-" + std::to_string(Distance);
     Properties.StarSys.Position = glm::dvec3(PosX, PosY, PosZ);
     Properties.StarSys.Distance = Distance;
 
@@ -80,82 +81,95 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     double Age = _UniformDistribution(_RandomEngine) * std::min(Lifetime, 3e12);
     Properties.Age = Age;
 
-    double FeH = -1.5 + _UniformDistribution(_RandomEngine) * (0.5 - (-1.5));
+    double FeH = -2.0 + _UniformDistribution(_RandomEngine) * (0.5 - (-2.0));
     Properties.FeH = FeH;
 
     return Properties;
 }
 
-std::vector<double> StellarGenerator::GetActuallyData(const BasicProperties& Properties) {
-    std::array<double, 4> PresetFeH{ -1.5, -0.5, 0.0, 0.5 };
+std::vector<double> StellarGenerator::GetActuallyMesaData(const BasicProperties& Properties) {
+    std::array<double, 6> PresetFeH{ -2.0, -1.5, -1.0, -0.5, 0.0, 0.5 };
     double TargetAge  = Properties.Age;
     double TargetFeH  = Properties.FeH;
     double TargetMass = Properties.Mass;
 
-    auto LowerFeH = std::lower_bound(PresetFeH.begin(), PresetFeH.end(), TargetFeH);
-    auto UpperFeH = std::upper_bound(PresetFeH.begin(), PresetFeH.end(), TargetFeH);
-    if (UpperFeH == PresetFeH.end()) {
-        UpperFeH = LowerFeH;
-    }
+    double ClosestFeH = *std::min_element(PresetFeH.begin(), PresetFeH.end(),
+        [TargetFeH](double Lhs, double Rhs) -> bool {
+            return std::abs(Lhs - TargetFeH) < std::abs(Rhs - TargetFeH);
+        }
+    );
 
-    if (LowerFeH == PresetFeH.end()) {
-        throw std::out_of_range("FeH value out of range.");
-    }
+    TargetFeH = ClosestFeH;
+
+    bool bSkipMassInterpolate = false;
 
     std::ostringstream MassStream;
     MassStream << std::fixed << std::setprecision(2) << TargetMass;
     std::string MassStr = MassStream.str() + "0";
 
-    std::vector<std::pair<std::string, std::string>> Files;
-    for (double FeH : { *LowerFeH, *UpperFeH }) {
-        std::ostringstream FeHStream;
-        FeHStream << std::fixed << std::setprecision(1) << FeH;
-        std::string FeHStr = FeHStream.str();
-        if (FeH >= 0.0) {
-            FeHStr.insert(FeHStr.begin(), '+');
-        }
-        FeHStr.insert(0, "Assets/Models/MESA/[Fe_H]=");
-
-        std::vector<double> Masses;
-        for (const auto& Entry : std::filesystem::directory_iterator(FeHStr)) {
-            std::string Filename = Entry.path().filename().string();
-            if (Filename.find(MassStr) != std::string::npos) {
-                double Mass = std::stod(Filename.substr(0, Filename.find("Ms_track.csv")));
-                Masses.push_back(Mass);
-            }
-        }
-
-        std::sort(Masses.begin(), Masses.end());
-        auto LowerMass = std::lower_bound(Masses.begin(), Masses.end(), TargetMass);
-        auto UpperMass = std::upper_bound(Masses.begin(), Masses.end(), TargetMass);
-        if (Masses.empty() && (LowerMass == Masses.end() || UpperMass == Masses.end())) {
-            throw std::out_of_range("Mass value out of range.");
-        }
-
-        MassStr.clear();
-        MassStream.str("");
-        MassStream.clear();
-
-        MassStream << std::fixed << std::setprecision(2) << *LowerMass;
-        MassStr = MassStream.str() + "0";
-        std::string LowerMassFile = FeHStr + "/" + MassStr + "Ms_track.csv";
-
-        MassStr.clear();
-        MassStream.str("");
-        MassStream.clear();
-
-        MassStream << std::fixed << std::setprecision(2) << *UpperMass;
-        MassStr = MassStream.str() + "0";
-        std::string UpperMassFile = FeHStr + "/" + MassStr + "Ms_track.csv";
-
-        Files.emplace_back(LowerMassFile, UpperMassFile);
+    std::pair<std::string, std::string> Files;
+    std::ostringstream FeHStream;
+    FeHStream << std::fixed << std::setprecision(1) << TargetFeH;
+    std::string FeHStr = FeHStream.str();
+    if (TargetFeH >= 0.0) {
+        FeHStr.insert(FeHStr.begin(), '+');
     }
+    FeHStr.insert(0, "Assets/Models/MESA/[Fe_H]=");
+
+    std::vector<double> Masses;
+    for (const auto& Entry : std::filesystem::directory_iterator(FeHStr)) {
+        std::string Filename = Entry.path().filename().string();
+        double Mass = std::stod(Filename.substr(0, Filename.find("Ms_track.csv")));
+        Masses.push_back(Mass);
+    }
+
+    // std::sort(Masses.begin(), Masses.end());
+    auto LowerMass = std::lower_bound(Masses.begin(), Masses.end(), TargetMass);
+    auto UpperMass = std::upper_bound(Masses.begin(), Masses.end(), TargetMass);
+
+    if (LowerMass != UpperMass) {
+        bSkipMassInterpolate = true;
+    }
+
+    if (LowerMass != Masses.begin() && LowerMass != Masses.end()) {
+        --LowerMass;
+    }
+
+    if (LowerMass == Masses.end()) {
+        throw std::out_of_range("Mass value out of range.");
+    }
+
+    MassStr.clear();
+    MassStream.str("");
+    MassStream.clear();
+
+    MassStream << std::fixed << std::setprecision(2) << *LowerMass;
+    MassStr = MassStream.str() + "0";
+    std::string LowerMassFile = FeHStr + "/" + MassStr + "Ms_track.csv";
+
+    MassStr.clear();
+    MassStream.str("");
+    MassStream.clear();
+
+    MassStream << std::fixed << std::setprecision(2) << *UpperMass;
+    MassStr = MassStream.str() + "0";
+    std::string UpperMassFile = FeHStr + "/" + MassStr + "Ms_track.csv";
+
+    Files.first  = LowerMassFile;
+    Files.second = UpperMassFile;
 
     std::vector<std::vector<double>> InterpolatedData;
 
-    for (const auto& FilePair : Files) {
-        MesaData LowerData(FilePair.first,  "star_age", "star_mass", "star_mdot", "log_L", "log_Teff", "log_R", "log_surf_z", "v_wind_Km_per_s", "log_center_T", "log_center_Rho", "phase");
-        MesaData UpperData(FilePair.second, "star_age", "star_mass", "star_mdot", "log_L", "log_Teff", "log_R", "log_surf_z", "v_wind_Km_per_s", "log_center_T", "log_center_Rho", "phase");
+    BuildNumericMesaDataCache(Files.first);
+    BuildNumericMesaDataCache(Files.second);
+
+    std::vector<double> LowerRow;
+    std::vector<double> UpperRow;
+    std::vector<double> FinalData;
+
+    if (Files.first != Files.second) [[likely]] {
+        MesaData LowerData(Files.first, "star_age", "star_mass", "star_mdot", "log_L", "log_Teff", "log_R", "log_surf_z", "v_wind_Km_per_s", "log_center_T", "log_center_Rho", "phase", "x");
+        MesaData UpperData(Files.second, "star_age", "star_mass", "star_mdot", "log_L", "log_Teff", "log_R", "log_surf_z", "v_wind_Km_per_s", "log_center_T", "log_center_Rho", "phase", "x");
 
         auto LowerRows = LowerData.FindSurroundingValues("star_age", std::to_string(TargetAge));
         auto UpperRows = UpperData.FindSurroundingValues("star_age", std::to_string(TargetAge));
@@ -181,14 +195,36 @@ std::vector<double> StellarGenerator::GetActuallyData(const BasicProperties& Pro
             UpperUpperRow.push_back(std::stod(Value));
         }
 
-        std::vector<double> LowerRow = InterpolateArrays(LowerLowerRow, LowerUpperRow, TargetAge);
-        std::vector<double> UpperRow = InterpolateArrays(UpperLowerRow, UpperUpperRow, TargetAge);
-        std::vector<double> FinalRow = InterpolateArrays(LowerRow, UpperRow, TargetMass);
-        InterpolatedData.push_back(FinalRow);
+        LowerRow  = InterpolateArrays(LowerLowerRow, LowerUpperRow, TargetAge);
+        UpperRow  = InterpolateArrays(UpperLowerRow, UpperUpperRow, TargetAge);
+        FinalData = InterpolateArrays(LowerRow, UpperRow, TargetMass);
+    } else [[unlikely]] {
+        MesaData Data(Files.first, "star_age", "star_mass", "star_mdot", "log_L", "log_Teff", "log_R", "log_surf_z", "v_wind_Km_per_s", "log_center_T", "log_center_Rho", "phase", "x");
     }
+
+    InterpolatedData.push_back(FinalData);
 
     std::vector<double> FinalData = InterpolateArrays(InterpolatedData[0], InterpolatedData[1], TargetFeH);
     return FinalData;
+}
+
+bool Modules::StellarGenerator::BuildNumericMesaDataCache(const std::string& Filename) {
+    if (std::find(_Cache.begin(), _Cache.end(), Filename) == _Cache.end()) {
+        MesaData StrData(Filename, "star_age", "star_mass", "star_mdot", "log_L", "log_Teff", "log_R", "log_surf_z", "v_wind_Km_per_s", "log_center_T", "log_center_Rho", "phase", "x");
+        std::vector<std::vector<double>> NumericData;
+        for (const auto& Row : *StrData.Data()) {
+            std::vector<double> NumericRow;
+            for (const auto& Value : Row) {
+                NumericRow.push_back(std::stod(Value));
+            }
+            NumericData.push_back(NumericRow);
+        }
+
+        _Cache[Filename] = NumericData;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 std::vector<double> StellarGenerator::InterpolateArrays(const std::vector<double>& Lower, const std::vector<double>& Upper, double Target) {
@@ -200,7 +236,7 @@ std::vector<double> StellarGenerator::InterpolateArrays(const std::vector<double
     for (std::size_t i = 0; i < Lower.size(); ++i) {
         std::vector<double> x = { 0.0, 1.0 };
         std::vector<double> y = { Lower[i], Upper[i] };
-        boost::math::interpolators::barycentric_rational<double> Interpolator(x.begin(), x.end(), y.begin());
+        boost::math::interpolators::barycentric_rational<double> Interpolator(x.begin(), x.end(), y.begin(), 1);
         Result[i] = Interpolator(Target);
     }
 

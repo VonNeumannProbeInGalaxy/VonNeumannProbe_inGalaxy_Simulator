@@ -51,7 +51,7 @@ public:
     }
 
     std::string GetSingleValue(const std::string& DataHeader, const std::string& DataValue, const std::string& TargetHeader) const {
-        std::size_t DataIndex = GetHeaderIndex(DataHeader);
+        std::size_t DataIndex   = GetHeaderIndex(DataHeader);
         std::size_t TargetIndex = GetHeaderIndex(TargetHeader);
         for (const auto& Row : _Data) {
             if (Row[DataIndex] == DataValue) {
@@ -92,6 +92,10 @@ public:
         RowArray LowerRow = it == ColData.begin() ? it->second : (it - 1)->second;
         RowArray UpperRow = it->second;
         return { LowerRow, UpperRow };
+    }
+
+    const std::vector<std::vector<std::string>>* const Data() const {
+        return &_Data;
     }
 
 private:

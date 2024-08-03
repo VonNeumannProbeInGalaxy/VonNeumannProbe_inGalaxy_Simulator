@@ -1,6 +1,7 @@
 #pragma once
 
 #include <random>
+#include <unordered_map>
 
 #include <glm/glm.hpp>
 
@@ -9,14 +10,13 @@
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
-
-namespace Modules {
+_MODULES_BEGIN
 
 class StellarGenerator {
 public:
     using BaryCenter = AstroObject::CelestialBody::BaryCenter;
-    using MesaData   = Assets::Csv<std::string, std::string, std::string, std::string, std::string,
-                      std::string, std::string, std::string, std::string, std::string, std::string>;
+    using MesaData   = Assets::Csv<std::string, std::string, std::string, std::string, std::string, std::string,
+                                   std::string, std::string, std::string, std::string, std::string, std::string>;
 
     struct BasicProperties {
         BaryCenter StarSys;
@@ -48,14 +48,15 @@ public: // public for test
     double DefaultPdf(double Mass);
     double GenMass(double MaxPdf);
     BasicProperties GenBasicProperties();
-    std::vector<double> GetActuallyData(const BasicProperties& Properties);
+    std::vector<double> GetActuallyMesaData(const BasicProperties& Properties);
+    bool BuildNumericMesaDataCache(const std::string& Filename);
     std::vector<double> InterpolateArrays(const std::vector<double>& Lower, const std::vector<double>& Upper, double Target);
 
 private:
     std::mt19937 _RandomEngine;
     std::uniform_real_distribution<double> _UniformDistribution;
+    std::unordered_map<std::string, std::vector<std::vector<double>>> _Cache;
 };
 
-}
-
+_MODULES_END
 _NPGS_END
