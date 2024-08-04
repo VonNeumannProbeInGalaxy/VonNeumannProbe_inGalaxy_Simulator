@@ -90,8 +90,15 @@ public:
             throw std::out_of_range("Target value is out of range of the data.");
         }
 
-        RowArray LowerRow = it == ColData.begin() ? it->second : (it - 1)->second;
-        RowArray UpperRow = it->second;
+        RowArray LowerRow;
+        RowArray UpperRow;
+
+        if (it->first == TargetValue) {
+            LowerRow = UpperRow = it->second;
+        } else {
+            LowerRow = it == ColData.begin() ? it->second : (it - 1)->second;
+            UpperRow = it->second;
+        }
         return { LowerRow, UpperRow };
     }
 

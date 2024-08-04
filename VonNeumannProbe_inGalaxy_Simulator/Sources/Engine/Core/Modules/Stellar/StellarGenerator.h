@@ -50,8 +50,9 @@ public: // public for test
     std::vector<double> GetActuallyMesaData(const BasicProperties& Properties);
     std::vector<double> InterpolateMesaData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);
     std::vector<std::vector<double>> FindPhaseChanges(std::shared_ptr<MesaData> DataCsv);
-    double CalcEvolutionProgress(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
-    std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double MassFactor, bool bIsSameFile);
+    std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge, double MassFactor);
+    double CalcEvolutionProgress(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor);
+    std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor);
 
 private:
     std::mt19937 _RandomEngine;
