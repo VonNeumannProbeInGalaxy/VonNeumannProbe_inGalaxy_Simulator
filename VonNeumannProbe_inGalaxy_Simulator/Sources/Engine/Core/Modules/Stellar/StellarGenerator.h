@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "Engine/Base/AstroObject/Star.h"
-#include "Engine/Core/AssetLoader/Csv.hpp"
+#include "Engine/Core/AssetLoader/AssetManager.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
@@ -15,8 +15,7 @@ _MODULES_BEGIN
 class StellarGenerator {
 public:
     using BaryCenter = AstroObject::CelestialBody::BaryCenter;
-    using MesaData   = Assets::Csv<std::string, std::string, std::string, std::string, std::string, std::string,
-                                   std::string, std::string, std::string, std::string, std::string, std::string>;
+    using MesaData   = Assets::Csv<double, 12>;
 
     struct BasicProperties {
         BaryCenter StarSys;
@@ -49,13 +48,15 @@ public: // public for test
     double GenMass(double MaxPdf);
     BasicProperties GenBasicProperties();
     std::vector<double> GetActuallyMesaData(const BasicProperties& Properties);
-    bool BuildNumericMesaDataCache(const std::string& Filename);
-    std::vector<double> InterpolateArrays(const std::vector<double>& Lower, const std::vector<double>& Upper, double Target);
+    std::vector<double> InterpolateMesaData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);
+    std::vector<std::vector<double>> FindPhaseChanges(std::shared_ptr<MesaData> DataCsv);
+    double CalcEvolutionProgress(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
+    std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double MassFactor, bool bIsSameFile);
 
 private:
     std::mt19937 _RandomEngine;
     std::uniform_real_distribution<double> _UniformDistribution;
-    std::unordered_map<std::string, std::vector<std::vector<double>>> _Cache;
+    std::vector<std::string> _MesaHeaders{ "star_age", "star_mass", "star_mdot", "log_L", "log_Teff", "log_R", "log_surf_z", "v_wind_Km_per_s", "log_center_T", "log_center_Rho", "phase", "x" };
 };
 
 _MODULES_END

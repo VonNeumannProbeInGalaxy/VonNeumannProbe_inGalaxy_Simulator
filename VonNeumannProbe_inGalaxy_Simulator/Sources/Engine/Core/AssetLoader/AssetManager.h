@@ -38,7 +38,7 @@ public:
     static std::vector<std::shared_ptr<AssetType>> GetAssets() {
         std::vector<std::shared_ptr<AssetType>> Assets;
         for (auto& Asset : _Assets) {
-            Assets.push_back(std::static_pointer_cast<AssetType>(Asset.second));
+            Assets.emplace_back(std::static_pointer_cast<AssetType>(Asset.second));
         }
 
         return Assets;
