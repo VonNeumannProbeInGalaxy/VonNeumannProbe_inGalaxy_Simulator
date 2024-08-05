@@ -30,13 +30,12 @@ int main() {
     //    std::cerr << "Error: " << e.what() << std::endl;
     //}
 
+    Npgs::Logger::Init();
+
     Modules::StellarGenerator sg;
-    sg.GetActuallyMistData({
-        {"Test", {0.0, 0.0, 0.0}, 0},
-        3.55e+06,
-        0.0,
-        82.0
-    });
+    for (int i = 0; i != 100000; ++i) {
+        sg.GenStar();
+    }
 
     return 0;
 }

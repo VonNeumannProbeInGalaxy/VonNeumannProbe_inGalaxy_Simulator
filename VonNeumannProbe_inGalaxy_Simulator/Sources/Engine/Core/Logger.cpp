@@ -7,7 +7,7 @@ _NPGS_BEGIN
 void Logger::Init() {
     spdlog::set_pattern("%^[%T] %n: %v%$");
 
-    _kCoreLogger = spdlog::stdout_color_mt("Hazel");
+    _kCoreLogger = spdlog::stdout_color_mt("Npgs");
     _kClientLogger = spdlog::stdout_color_mt("App");
 
     _kCoreLogger->set_level(spdlog::level::trace);

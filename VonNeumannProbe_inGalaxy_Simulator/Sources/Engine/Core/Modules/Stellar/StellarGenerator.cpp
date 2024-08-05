@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <stdexcept>
 #include <string>
@@ -23,6 +24,12 @@ StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
 AstroObject::Star StellarGenerator::GenStar() {
     BasicProperties BasicData = GenBasicProperties();
     std::vector<double> ActuallyData = GetActuallyMistData(static_cast<BasicProperties>(BasicData));
+    
+    for (double Data : ActuallyData) {
+        std::cout << Data << " ";
+    }
+    std::endl(std::cout);
+
     return {};
 }
 
@@ -56,7 +63,7 @@ double StellarGenerator::GenMass(double MaxPdf) {
     double Mass = 0.0;
     double Probability = 0.0;
     do {
-        Mass = 0.1 + _UniformDistribution(_RandomEngine) * (300.0 - 0.1);
+        Mass = 1 + _UniformDistribution(_RandomEngine) * (300.0 - 1);
         Probability = DefaultPdf(Mass);
     } while (_UniformDistribution(_RandomEngine) * MaxPdf > Probability);
 
@@ -210,7 +217,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             Result.emplace_back(EvolutionProgress);
         }
     } catch (std::exception& e) {
-        NpgsError("Error: " + std::string(e.what()));
+        NpgsCoreError("Error: " + std::string(e.what()));
     }
 
     return Result;
@@ -244,7 +251,7 @@ std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTi
     std::vector<std::vector<double>>::const_iterator LowerTimePoint;
     std::vector<std::vector<double>>::const_iterator UpperTimePoint;
     
-    if (PhaseChanges.size() != 2) {
+    if (PhaseChanges.size() != 2 || PhaseChanges.front().at(10) != PhaseChanges.back().at(10)) {
         LowerTimePoint = std::lower_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](const std::vector<double>& Lhs, double Rhs) -> bool {
                 return Lhs[0] < Rhs;
@@ -262,6 +269,10 @@ std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTi
         }
 
         if (LowerTimePoint == PhaseChanges.end()) {
+            throw std::out_of_range("Time point out of range.");
+        }
+
+        if (UpperTimePoint == PhaseChanges.end()) {
             throw std::out_of_range("Time point out of range.");
         }
     } else {
