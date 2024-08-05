@@ -6,13 +6,12 @@
 #include <algorithm>
 #include <filesystem>
 #include <iomanip>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <sstream>
 #include <utility>
 #include <vector>
-
-#include <boost/math/interpolators/barycentric_rational.hpp>
 
 #include "Engine/Core/Logger.h"
 
@@ -23,7 +22,7 @@ StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
 
 AstroObject::Star StellarGenerator::GenStar() {
     BasicProperties BasicData = GenBasicProperties();
-    std::vector<double> ActuallyData = GetActuallyMesaData(static_cast<BasicProperties>(BasicData));
+    std::vector<double> ActuallyData = GetActuallyMistData(static_cast<BasicProperties>(BasicData));
     return {};
 }
 
@@ -83,14 +82,14 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     double Age = _UniformDistribution(_RandomEngine) * std::min(Lifetime, 3e12);
     Properties.Age = Age;
 
-    double FeH = -2.0 + _UniformDistribution(_RandomEngine) * (0.5 - (-2.0));
+    double FeH = -1.5 + _UniformDistribution(_RandomEngine) * (0.5 - (-1.5));
     Properties.FeH = FeH;
 
     return Properties;
 }
 
-std::vector<double> StellarGenerator::GetActuallyMesaData(const BasicProperties& Properties) {
-    std::array<double, 6> PresetFeH{ -2.0, -1.5, -1.0, -0.5, 0.0, 0.5 };
+std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties& Properties) {
+    std::array<double, 5> PresetFeH{ -1.5, -1.0, -0.5, 0.0, 0.5 };
     double TargetAge  = Properties.Age;
     double TargetFeH  = Properties.FeH;
     double TargetMass = Properties.Mass;
@@ -112,7 +111,7 @@ std::vector<double> StellarGenerator::GetActuallyMesaData(const BasicProperties&
     if (TargetFeH >= 0.0) {
         FeHStr.insert(FeHStr.begin(), '+');
     }
-    FeHStr.insert(0, "Assets/Models/MESA/[Fe_H]=");
+    FeHStr.insert(0, "Assets/Models/MIST/[Fe_H]=");
 
     std::vector<double> Masses;
     for (const auto& Entry : std::filesystem::directory_iterator(FeHStr)) {
@@ -157,31 +156,32 @@ std::vector<double> StellarGenerator::GetActuallyMesaData(const BasicProperties&
     Files.first  = LowerMassFile;
     Files.second = UpperMassFile;
 
-    std::vector<double> Result = InterpolateMesaData(Files, TargetAge, MassFactor);
+    std::vector<double> Result = InterpolateMistData(Files, TargetAge, MassFactor);
 
     return Result;
 }
 
-std::vector<double> StellarGenerator::InterpolateMesaData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor) {
+std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor) {
     std::vector<double> Result(12);
     
     try {
         if (Files.first != Files.second) [[likely]] {
-            if (Assets::AssetManager::GetAsset<MesaData>(Files.first) == nullptr) {
-                Assets::AssetManager::AddAsset<MesaData>(Files.first, std::make_shared<MesaData>(MesaData(Files.first, _MesaHeaders)));
+            if (Assets::AssetManager::GetAsset<MistData>(Files.first) == nullptr) {
+                Assets::AssetManager::AddAsset<MistData>(Files.first, std::make_shared<MistData>(MistData(Files.first, _MistHeaders)));
             }
 
-            if (Assets::AssetManager::GetAsset<MesaData>(Files.second) == nullptr) {
-                Assets::AssetManager::AddAsset<MesaData>(Files.second, std::make_shared<MesaData>(MesaData(Files.second, _MesaHeaders)));
+            if (Assets::AssetManager::GetAsset<MistData>(Files.second) == nullptr) {
+                Assets::AssetManager::AddAsset<MistData>(Files.second, std::make_shared<MistData>(MistData(Files.second, _MistHeaders)));
             }
 
-            std::shared_ptr<MesaData> LowerData = Assets::AssetManager::GetAsset<MesaData>(Files.first);
-            std::shared_ptr<MesaData> UpperData = Assets::AssetManager::GetAsset<MesaData>(Files.second);
+            std::shared_ptr<MistData> LowerData = Assets::AssetManager::GetAsset<MistData>(Files.first);
+            std::shared_ptr<MistData> UpperData = Assets::AssetManager::GetAsset<MistData>(Files.second);
 
             auto LowerPhaseChanges = FindPhaseChanges(LowerData);
             auto UpperPhaseChanges = FindPhaseChanges(UpperData);
 
-            double EvolutionProgress = CalcEvolutionProgress({ LowerPhaseChanges, UpperPhaseChanges }, TargetAge, MassFactor);
+            std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ LowerPhaseChanges, UpperPhaseChanges };
+            double EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
 
             auto LowerSurroundingRows = LowerData->FindSurroundingValues("x", EvolutionProgress);
             auto UpperSurroundingRows = UpperData->FindSurroundingValues("x", EvolutionProgress);
@@ -195,13 +195,14 @@ std::vector<double> StellarGenerator::InterpolateMesaData(const std::pair<std::s
             Result = InterpolateArray({ LowerRows, UpperRows }, MassFactor);
             Result.emplace_back(EvolutionProgress);
         } else [[unlikely]] {
-            if (Assets::AssetManager::GetAsset<MesaData>(Files.first) == nullptr) {
-                Assets::AssetManager::AddAsset<MesaData>(Files.first, std::make_shared<MesaData>(MesaData(Files.first, _MesaHeaders)));
+            if (Assets::AssetManager::GetAsset<MistData>(Files.first) == nullptr) {
+                Assets::AssetManager::AddAsset<MistData>(Files.first, std::make_shared<MistData>(MistData(Files.first, _MistHeaders)));
             }
 
-            std::shared_ptr<MesaData> Data = Assets::AssetManager::GetAsset<MesaData>(Files.first);
+            std::shared_ptr<MistData> Data = Assets::AssetManager::GetAsset<MistData>(Files.first);
             auto   PhaseChanges      = FindPhaseChanges(Data);
-            double EvolutionProgress = CalcEvolutionProgress({ PhaseChanges, {} }, TargetAge, MassFactor);
+            std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ PhaseChanges, {} };
+            double EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
             auto   SurroundingRows   = Data->FindSurroundingValues("x", EvolutionProgress);
             double ProgressFactor    = (EvolutionProgress - SurroundingRows.first[11]) / (SurroundingRows.second[11] - SurroundingRows.first[11]);
 
@@ -215,60 +216,138 @@ std::vector<double> StellarGenerator::InterpolateMesaData(const std::pair<std::s
     return Result;
 }
 
-std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(std::shared_ptr<MesaData> DataCsv) {
+std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(std::shared_ptr<MistData> DataCsv) {
     std::vector<std::vector<double>> Result;
 
     auto* DataArray = DataCsv->Data();
     int CurrentPhase = -2;
+    int OccurredTimes = 1;
     for (const auto& Row : *DataArray) {
+        ++OccurredTimes;
         if (Row[10] != CurrentPhase) {
             CurrentPhase = static_cast<int>(Row[10]);
             Result.emplace_back(Row);
+            OccurredTimes = 1;
+        }
+    }
+
+    if (OccurredTimes == 1) {
+        Result.pop_back();
+    }
+
+    Result.emplace_back(DataArray->back());
+
+    return Result;
+}
+
+std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge, double MassFactor) {
+    std::vector<std::vector<double>>::const_iterator LowerTimePoint;
+    std::vector<std::vector<double>>::const_iterator UpperTimePoint;
+    
+    if (PhaseChanges.size() != 2) {
+        LowerTimePoint = std::lower_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
+            [](const std::vector<double>& Lhs, double Rhs) -> bool {
+                return Lhs[0] < Rhs;
+            }
+        );
+
+        UpperTimePoint = std::upper_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
+            [](double Lhs, const std::vector<double>& Rhs) -> bool {
+                return Lhs < Rhs[0];
+            }
+        );
+
+        if (LowerTimePoint == UpperTimePoint) {
+            --LowerTimePoint;
+        }
+
+        if (LowerTimePoint == PhaseChanges.end()) {
+            throw std::out_of_range("Time point out of range.");
+        }
+    } else {
+        LowerTimePoint = PhaseChanges.begin();
+        UpperTimePoint = std::prev(PhaseChanges.end(), 1);
+    }
+
+    return { LowerTimePoint->at(11), { LowerTimePoint->at(0), UpperTimePoint->at(0) } };
+}
+
+double StellarGenerator::CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor) {
+    double Result = 0.0;
+
+    const auto& [LowerPhase, LowerTimePoints] = FindSurroundingTimePoints(PhaseChanges.first,  TargetAge, MassFactor);
+    if (PhaseChanges.second.empty()) {
+        Result = (TargetAge - LowerTimePoints.first) / (LowerTimePoints.second - LowerTimePoints.first) + LowerPhase;
+    }
+
+    if (PhaseChanges.first.size() == PhaseChanges.second.size()) {
+        bool bIsPhaseChangeSame = true;
+        for (std::size_t i = 0; i != PhaseChanges.first.size() - 1; ++i) {
+            if (PhaseChanges.first.at(i).at(10) != PhaseChanges.second.at(i).at(10)) {
+                bIsPhaseChangeSame = false;
+                break;
+            }
+        }
+
+        if (bIsPhaseChangeSame) {
+            const auto& [UpperPhase, UpperTimePoints] = FindSurroundingTimePoints(PhaseChanges.second, TargetAge, MassFactor);
+
+            const auto& [LowerLowerTimePoint, LowerUpperTimePoint] = LowerTimePoints;
+            const auto& [UpperLowerTimePoint, UpperUpperTimePoint] = UpperTimePoints;
+
+            double LowerTimePoint = LowerLowerTimePoint + (UpperLowerTimePoint - LowerLowerTimePoint) * MassFactor;
+            double UpperTimePoint = LowerUpperTimePoint + (UpperUpperTimePoint - LowerUpperTimePoint) * MassFactor;
+
+            Result = (TargetAge - LowerTimePoint) / (UpperTimePoint - LowerTimePoint) + LowerPhase;
+        } else {
+            PhaseChanges.first.erase(std::prev(PhaseChanges.first.end(), 2));
+            PhaseChanges.second.erase(std::prev(PhaseChanges.second.end(), 2));
+            Result = CalcEvolutionProgress(PhaseChanges, TargetAge, MassFactor);
+        }
+    } else {
+        double FirstDiscardTimePoint     = 0.0;
+        double FirstCommonTimePoint      = std::prev(PhaseChanges.first.end(), 2)->at(0);
+        double FirstLowerDiscardProgress = 0.0;
+        double FirstUpperDiscardProgress = 0.0;
+
+        std::size_t MinSize = std::min(PhaseChanges.first.size(), PhaseChanges.second.size());
+        for (std::size_t i = 0; i != MinSize - 1; ++i) {
+            if (PhaseChanges.first.at(i).at(10) != PhaseChanges.second.at(i).at(10)) {
+                FirstDiscardTimePoint = PhaseChanges.first.at(i).at(0);
+                FirstLowerDiscardProgress = PhaseChanges.first.at(i - 1).at(11);
+                FirstUpperDiscardProgress = PhaseChanges.second.at(i - 1).at(11);
+                break;
+            }
+        }
+
+        if (PhaseChanges.first.at(PhaseChanges.first.size() - 2).at(10) ==
+            PhaseChanges.second.at(PhaseChanges.second.size() - 2).at(10))
+        {
+            double DeltaTimePoint = FirstCommonTimePoint - FirstDiscardTimePoint;
+            std::prev(PhaseChanges.first.end(), 2)->at(0) -= DeltaTimePoint;
+            PhaseChanges.first.back().at(0) -= DeltaTimePoint;
+            PhaseChanges.first.erase(PhaseChanges.first.begin(), PhaseChanges.first.end() - 2);
+            PhaseChanges.second.erase(PhaseChanges.second.begin(), PhaseChanges.second.end() - 2);
+        } else {
+            TrimArrays(PhaseChanges);
+        }
+
+        Result = CalcEvolutionProgress(PhaseChanges, TargetAge, MassFactor);
+        if (Result > std::min(FirstLowerDiscardProgress, FirstUpperDiscardProgress)) {
+            Result = 9.0;
         }
     }
 
     return Result;
 }
 
-std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge, double MassFactor) {
-    auto LowerTimePoint = std::lower_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
-        [](const std::vector<double>& Lhs, double Rhs) -> bool {
-            return Lhs[0] < Rhs;
-        }
-    );
+void StellarGenerator::TrimArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) {
+    std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
+    std::vector<std::vector<double>> TrimmedArray1(Arrays.first.begin(), Arrays.first.begin() + MinSize);
+    std::vector<std::vector<double>> TrimmedArray2(Arrays.second.begin(), Arrays.second.begin() + MinSize);
 
-    auto UpperTimePoint = std::upper_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
-        [](double Lhs, const std::vector<double>& Rhs) -> bool {
-            return Lhs < Rhs[0];
-        }
-    );
-
-    if (LowerTimePoint == UpperTimePoint) {
-        --LowerTimePoint;
-    }
-
-    if (LowerTimePoint == PhaseChanges.end()) {
-        throw std::out_of_range("Time point out of range.");
-    }
-
-    return { LowerTimePoint->at(11), { LowerTimePoint->at(0), UpperTimePoint->at(0) } };
-}
-
-double StellarGenerator::CalcEvolutionProgress(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor) {
-    const auto& [LowerPhase, LowerTimePoints] = FindSurroundingTimePoints(PhaseChanges.first,  TargetAge, MassFactor);
-    if (PhaseChanges.second.empty()) {
-        return (TargetAge - LowerTimePoints.first) / (LowerTimePoints.second - LowerTimePoints.first) + LowerPhase;
-    }
-
-    const auto& [UpperPhase, UpperTimePoints] = FindSurroundingTimePoints(PhaseChanges.second, TargetAge, MassFactor);
-
-    const auto& [LowerLowerTimePoint, LowerUpperTimePoint] = LowerTimePoints;
-    const auto& [UpperLowerTimePoint, UpperUpperTimePoint] = UpperTimePoints;
-
-    double LowerTimePoint = LowerLowerTimePoint + (UpperLowerTimePoint - LowerLowerTimePoint) * MassFactor;
-    double UpperTimePoint = LowerUpperTimePoint + (UpperUpperTimePoint - LowerUpperTimePoint) * MassFactor;
-
-    return (TargetAge - LowerTimePoint) / (UpperTimePoint - LowerTimePoint) + LowerPhase;
+    Arrays.first  = TrimmedArray1;
+    Arrays.second = TrimmedArray2;
 }
 
 std::vector<double> StellarGenerator::InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor) {
