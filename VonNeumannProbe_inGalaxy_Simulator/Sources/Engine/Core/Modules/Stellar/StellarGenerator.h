@@ -1,7 +1,6 @@
 #pragma once
 
 #include <random>
-#include <unordered_map>
 
 #include <glm/glm.hpp>
 
@@ -50,10 +49,12 @@ private:
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);
     std::vector<std::vector<double>> FindPhaseChanges(std::shared_ptr<MistData> DataCsv);
-    std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge, double MassFactor);
+    std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
+    std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor);
     double CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor);
-    void TrimArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays);
+    void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays);
     std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor);
+    std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor);
 
 private:
     std::mt19937 _RandomEngine;

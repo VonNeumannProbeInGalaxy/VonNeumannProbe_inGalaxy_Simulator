@@ -23,6 +23,9 @@ StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
 
 AstroObject::Star StellarGenerator::GenStar() {
     BasicProperties BasicData = GenBasicProperties();
+    BasicData.Age = 3.375e+6;
+    BasicData.FeH = 0.0;
+    BasicData.Mass = 84;
     std::vector<double> ActuallyData = GetActuallyMistData(static_cast<BasicProperties>(BasicData));
     
     for (double Data : ActuallyData) {
@@ -63,7 +66,7 @@ double StellarGenerator::GenMass(double MaxPdf) {
     double Mass = 0.0;
     double Probability = 0.0;
     do {
-        Mass = 1 + _UniformDistribution(_RandomEngine) * (300.0 - 1);
+        Mass = 0.1 + _UniformDistribution(_RandomEngine) * (300.0 - 0.1);
         Probability = DefaultPdf(Mass);
     } while (_UniformDistribution(_RandomEngine) * MaxPdf > Probability);
 
@@ -193,13 +196,26 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             auto LowerSurroundingRows = LowerData->FindSurroundingValues("x", EvolutionProgress);
             auto UpperSurroundingRows = UpperData->FindSurroundingValues("x", EvolutionProgress);
 
-            double LowerProgressFactor = (EvolutionProgress - LowerSurroundingRows.first[11]) / (LowerSurroundingRows.second[11] - LowerSurroundingRows.first[11]);
-            double UpperProgressFactor = (EvolutionProgress - UpperSurroundingRows.first[11]) / (UpperSurroundingRows.second[11] - UpperSurroundingRows.first[11]);
+            std::vector<double> LowerRows;
+            std::vector<double> UpperRows;
 
-            auto LowerRows = InterpolateArray(LowerSurroundingRows, LowerProgressFactor);
-            auto UpperRows = InterpolateArray(UpperSurroundingRows, UpperProgressFactor);
+            if (LowerSurroundingRows.first != LowerSurroundingRows.second) {
+                double LowerProgressFactor = (EvolutionProgress - LowerSurroundingRows.first[11]) / (LowerSurroundingRows.second[11] - LowerSurroundingRows.first[11]);
+                LowerRows = InterpolateFinalData(LowerSurroundingRows, LowerProgressFactor);
+            } else {
+                LowerRows = LowerSurroundingRows.first;
+            }
 
-            Result = InterpolateArray({ LowerRows, UpperRows }, MassFactor);
+            if (UpperSurroundingRows.first != UpperSurroundingRows.second) {
+                double UpperProgressFactor = (EvolutionProgress - UpperSurroundingRows.first[11]) / (UpperSurroundingRows.second[11] - UpperSurroundingRows.first[11]);
+                UpperRows = InterpolateFinalData(UpperSurroundingRows, UpperProgressFactor);
+            } else {
+                UpperRows = UpperSurroundingRows.first;
+            }
+
+            LowerRows.pop_back();
+            UpperRows.pop_back();
+            Result = InterpolateFinalData({ LowerRows, UpperRows }, MassFactor);
             Result.emplace_back(EvolutionProgress);
         } else [[unlikely]] {
             if (Assets::AssetManager::GetAsset<MistData>(Files.first) == nullptr) {
@@ -213,7 +229,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             auto   SurroundingRows   = Data->FindSurroundingValues("x", EvolutionProgress);
             double ProgressFactor    = (EvolutionProgress - SurroundingRows.first[11]) / (SurroundingRows.second[11] - SurroundingRows.first[11]);
 
-            Result = InterpolateArray(SurroundingRows, ProgressFactor);
+            Result = InterpolateFinalData(SurroundingRows, ProgressFactor);
             Result.emplace_back(EvolutionProgress);
         }
     } catch (std::exception& e) {
@@ -228,26 +244,17 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(std::shared_
 
     auto* DataArray = DataCsv->Data();
     int CurrentPhase = -2;
-    int OccurredTimes = 1;
     for (const auto& Row : *DataArray) {
-        ++OccurredTimes;
-        if (Row[10] != CurrentPhase) {
+        if (Row[10] != CurrentPhase || Row[11] == 10.0) {
             CurrentPhase = static_cast<int>(Row[10]);
             Result.emplace_back(Row);
-            OccurredTimes = 1;
         }
     }
-
-    if (OccurredTimes == 1) {
-        Result.pop_back();
-    }
-
-    Result.emplace_back(DataArray->back());
 
     return Result;
 }
 
-std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge, double MassFactor) {
+std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge) {
     std::vector<std::vector<double>>::const_iterator LowerTimePoint;
     std::vector<std::vector<double>>::const_iterator UpperTimePoint;
     
@@ -268,12 +275,9 @@ std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTi
             --LowerTimePoint;
         }
 
-        if (LowerTimePoint == PhaseChanges.end()) {
-            throw std::out_of_range("Time point out of range.");
-        }
-
         if (UpperTimePoint == PhaseChanges.end()) {
-            throw std::out_of_range("Time point out of range.");
+            --LowerTimePoint;
+            --UpperTimePoint;
         }
     } else {
         LowerTimePoint = PhaseChanges.begin();
@@ -283,82 +287,123 @@ std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTi
     return { LowerTimePoint->at(11), { LowerTimePoint->at(0), UpperTimePoint->at(0) } };
 }
 
-double StellarGenerator::CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor) {
-    double Result = 0.0;
-
-    const auto& [LowerPhase, LowerTimePoints] = FindSurroundingTimePoints(PhaseChanges.first,  TargetAge, MassFactor);
-    if (PhaseChanges.second.empty()) {
-        Result = (TargetAge - LowerTimePoints.first) / (LowerTimePoints.second - LowerTimePoints.first) + LowerPhase;
+std::pair<double, std::size_t> StellarGenerator::FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor) {
+    std::vector<double> LowerPhaseChangeTimePoints;
+    std::vector<double> UpperPhaseChangeTimePoints;
+    for (std::size_t i = 0; i != PhaseChanges.first.size(); ++i) {
+        LowerPhaseChangeTimePoints.emplace_back(PhaseChanges.first.at(i).at(0));
+        UpperPhaseChangeTimePoints.emplace_back(PhaseChanges.second.at(i).at(0));
     }
 
-    if (PhaseChanges.first.size() == PhaseChanges.second.size()) {
-        bool bIsPhaseChangeSame = true;
-        for (std::size_t i = 0; i != PhaseChanges.first.size() - 1; ++i) {
-            if (PhaseChanges.first.at(i).at(10) != PhaseChanges.second.at(i).at(10)) {
-                bIsPhaseChangeSame = false;
-                break;
-            }
-        }
+    std::vector<double> PhaseChangeTimePoints = InterpolateArray({ LowerPhaseChangeTimePoints, UpperPhaseChangeTimePoints }, MassFactor);
 
-        if (bIsPhaseChangeSame) {
-            const auto& [UpperPhase, UpperTimePoints] = FindSurroundingTimePoints(PhaseChanges.second, TargetAge, MassFactor);
+    std::vector<std::pair<double, double>> TimePointPairs;
+    for (std::size_t i = 0; i != PhaseChanges.first.size(); ++i) {
+        TimePointPairs.emplace_back(PhaseChanges.first.at(i).at(10), PhaseChangeTimePoints[i]);
+    }
 
-            const auto& [LowerLowerTimePoint, LowerUpperTimePoint] = LowerTimePoints;
-            const auto& [UpperLowerTimePoint, UpperUpperTimePoint] = UpperTimePoints;
-
-            double LowerTimePoint = LowerLowerTimePoint + (UpperLowerTimePoint - LowerLowerTimePoint) * MassFactor;
-            double UpperTimePoint = LowerUpperTimePoint + (UpperUpperTimePoint - LowerUpperTimePoint) * MassFactor;
-
-            Result = (TargetAge - LowerTimePoint) / (UpperTimePoint - LowerTimePoint) + LowerPhase;
-        } else {
-            PhaseChanges.first.erase(std::prev(PhaseChanges.first.end(), 2));
-            PhaseChanges.second.erase(std::prev(PhaseChanges.second.end(), 2));
-            Result = CalcEvolutionProgress(PhaseChanges, TargetAge, MassFactor);
-        }
-    } else {
-        double FirstDiscardTimePoint     = 0.0;
-        double FirstCommonTimePoint      = std::prev(PhaseChanges.first.end(), 2)->at(0);
-        double FirstLowerDiscardProgress = 0.0;
-        double FirstUpperDiscardProgress = 0.0;
-
-        std::size_t MinSize = std::min(PhaseChanges.first.size(), PhaseChanges.second.size());
-        for (std::size_t i = 0; i != MinSize - 1; ++i) {
-            if (PhaseChanges.first.at(i).at(10) != PhaseChanges.second.at(i).at(10)) {
-                FirstDiscardTimePoint = PhaseChanges.first.at(i).at(0);
-                FirstLowerDiscardProgress = PhaseChanges.first.at(i - 1).at(11);
-                FirstUpperDiscardProgress = PhaseChanges.second.at(i - 1).at(11);
-                break;
-            }
-        }
-
-        if (PhaseChanges.first.at(PhaseChanges.first.size() - 2).at(10) ==
-            PhaseChanges.second.at(PhaseChanges.second.size() - 2).at(10))
-        {
-            double DeltaTimePoint = FirstCommonTimePoint - FirstDiscardTimePoint;
-            std::prev(PhaseChanges.first.end(), 2)->at(0) -= DeltaTimePoint;
-            PhaseChanges.first.back().at(0) -= DeltaTimePoint;
-            PhaseChanges.first.erase(PhaseChanges.first.begin(), PhaseChanges.first.end() - 2);
-            PhaseChanges.second.erase(PhaseChanges.second.begin(), PhaseChanges.second.end() - 2);
-        } else {
-            TrimArrays(PhaseChanges);
-        }
-
-        Result = CalcEvolutionProgress(PhaseChanges, TargetAge, MassFactor);
-        if (Result > std::min(FirstLowerDiscardProgress, FirstUpperDiscardProgress)) {
-            Result = 9.0;
+    std::pair<double, std::size_t> Result;
+    for (std::size_t i = 0; i != TimePointPairs.size(); ++i) {
+        if (TimePointPairs[i].second >= TargetAge) {
+            Result.first = TimePointPairs[i == 0 ? 0 : i - 1].first;
+            Result.second = i == 0 ? 0 : i - 1;
+            break;
         }
     }
 
     return Result;
 }
 
-void StellarGenerator::TrimArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) {
-    std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
-    std::vector<std::vector<double>> TrimmedArray1(Arrays.first.begin(), Arrays.first.begin() + MinSize);
-    std::vector<std::vector<double>> TrimmedArray2(Arrays.second.begin(), Arrays.second.begin() + MinSize);
+double StellarGenerator::CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor) {
+    double Result = 0.0;
+    double Phase  = 0.0;
+    if (PhaseChanges.second.empty()) [[unlikely]] {
+        const auto& TimePointResults = FindSurroundingTimePoints(PhaseChanges.first, TargetAge);
+        Phase = TimePointResults.first;
+        const auto& TimePoints = TimePointResults.second;
+        Result = (TargetAge - TimePoints.first) / (TimePoints.second - TimePoints.first) + Phase;
+    } else [[likely]] {
+        if (PhaseChanges.first.size() == PhaseChanges.second.size()) {
+            const auto& TimePointResults = FindSurroundingTimePoints(PhaseChanges, TargetAge, MassFactor);
 
-    Arrays.first  = TrimmedArray1;
-    Arrays.second = TrimmedArray2;
+            Phase = TimePointResults.first;
+            std::size_t Index = TimePointResults.second;
+
+            if (Index + 1 != PhaseChanges.first.size()) {
+                std::pair<double, double> LowerTimePoints = { PhaseChanges.first.at(Index).at(0), PhaseChanges.first.at(Index + 1).at(0) };
+                std::pair<double, double> UpperTimePoints = { PhaseChanges.second.at(Index).at(0), PhaseChanges.second.at(Index + 1).at(0) };
+
+                const auto& [LowerLowerTimePoint, LowerUpperTimePoint] = LowerTimePoints;
+                const auto& [UpperLowerTimePoint, UpperUpperTimePoint] = UpperTimePoints;
+
+                double LowerTimePoint = LowerLowerTimePoint + (UpperLowerTimePoint - LowerLowerTimePoint) * MassFactor;
+                double UpperTimePoint = LowerUpperTimePoint + (UpperUpperTimePoint - LowerUpperTimePoint) * MassFactor;
+
+                Result = (TargetAge - LowerTimePoint) / (UpperTimePoint - LowerTimePoint) + Phase;
+            } else {
+                Result = 0.0;
+            }
+        } else {
+            if (PhaseChanges.first.back().at(10) == PhaseChanges.second.back().at(10)) {
+                double FirstDiscardTimePoint = 0.0;
+                double FirstCommonTimePoint = std::prev(PhaseChanges.first.end(), 2)->at(0);
+
+                std::size_t MinSize = std::min(PhaseChanges.first.size(), PhaseChanges.second.size());
+                for (std::size_t i = 0; i != MinSize - 1; ++i) {
+                    if (PhaseChanges.first.at(i).at(10) != PhaseChanges.second.at(i).at(10)) {
+                        FirstDiscardTimePoint = PhaseChanges.first.at(i).at(0);
+                        break;
+                    }
+                }
+
+                double DeltaTimePoint = FirstCommonTimePoint - FirstDiscardTimePoint;
+                std::prev(PhaseChanges.first.end(), 2)->at(0) -= DeltaTimePoint;
+                PhaseChanges.first.back().at(0) -= DeltaTimePoint;
+            }
+
+            AlignArrays(PhaseChanges);
+
+            Result = CalcEvolutionProgress(PhaseChanges, TargetAge, MassFactor);
+            double IntegerPart = 0.0;
+            double FractionalPart = std::modf(Result, &IntegerPart);
+            if (FractionalPart > 0.99 && Result < 9.0 && IntegerPart >= std::prev(PhaseChanges.first.end(), 3)->at(10)) {
+                Result = 9.0;
+            }
+        }
+    }
+
+    return Result;
+}
+
+void StellarGenerator::AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) {
+    if (Arrays.first.back().at(10) != 9 && Arrays.second.back().at(10) != 9) {
+        std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
+        Arrays.first.resize(MinSize);
+        Arrays.second.resize(MinSize);
+    } else if (Arrays.first.back().at(10) != 9 && Arrays.second.back().at(10) == 9) {
+        Arrays.first.back().at(10) = 9;
+        Arrays.first.back().at(11) = 9.0;
+    } else if (Arrays.first.back().at(10) == 9 && Arrays.second.back().at(10) == 9) {
+        auto LastArray1 = Arrays.first.back();
+        auto LastArray2 = Arrays.second.back();
+        auto SubLastArray1 = *std::prev(Arrays.first.end(), 2);
+        auto SubLastArray2 = *std::prev(Arrays.second.end(), 2);
+        std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
+        Arrays.first.resize(MinSize - 2);
+        Arrays.second.resize(MinSize - 2);
+        Arrays.first.emplace_back(SubLastArray1);
+        Arrays.first.emplace_back(LastArray1);
+        Arrays.second.emplace_back(SubLastArray2);
+        Arrays.second.emplace_back(LastArray2);
+    } else {
+        auto LastArray1 = Arrays.first.back();
+        auto LastArray2 = Arrays.second.back();
+        std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
+        Arrays.first.resize(MinSize - 1);
+        Arrays.second.resize(MinSize - 1);
+        Arrays.first.emplace_back(LastArray1);
+        Arrays.second.emplace_back(LastArray2);
+    }
 }
 
 std::vector<double> StellarGenerator::InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor) {
@@ -366,12 +411,23 @@ std::vector<double> StellarGenerator::InterpolateArray(const std::pair<std::vect
         throw std::runtime_error("Data arrays size mismatch.");
     }
 
-    std::vector<double> Result(11);
-    for (std::size_t i = 0; i != 10; ++i) {
+    std::size_t Size = DataArrays.first.size();
+    std::vector<double> Result(Size);
+    for (std::size_t i = 0; i != Size; ++i) {
         Result[i] = DataArrays.first[i] + (DataArrays.second[i] - DataArrays.first[i]) * Factor;
     }
 
+    return Result;
+}
+
+std::vector<double> StellarGenerator::InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor) {
+    if (DataArrays.first.size() != DataArrays.second.size()) {
+        throw std::runtime_error("Data arrays size mismatch.");
+    }
+
+    std::vector<double> Result = InterpolateArray(DataArrays, Factor);
     Result[10] = DataArrays.first[10];
+
     return Result;
 }
 

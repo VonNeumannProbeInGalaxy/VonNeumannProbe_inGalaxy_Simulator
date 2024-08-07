@@ -32,10 +32,8 @@ int main() {
 
     Npgs::Logger::Init();
 
-    Modules::StellarGenerator sg;
-    for (int i = 0; i != 100000; ++i) {
-        sg.GenStar();
-    }
+    Modules::StellarGenerator sg(42);
+    sg.GenStar();
 
     return 0;
 }
