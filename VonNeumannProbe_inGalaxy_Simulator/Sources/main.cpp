@@ -1,36 +1,40 @@
 #include <chrono>
 #include <iostream>
+#include <random>
+#include <vector>
 
 #include "Npgs.h"
 
 int main() {
     Npgs::Logger::Init();
 
-    Npgs::Modules::StellarGenerator sg(42);
+    auto Pool = Npgs::ThreadPool::GetInstance(std::thread::hardware_concurrency());
 
-    //sg.GenStar();
+    std::vector<Npgs::Modules::StellarGenerator> Generators;
+    std::random_device RandomDevice;
+    for (int i = 0; i != std::thread::hardware_concurrency(); ++i) {
+        std::mt19937 RandomEngine(RandomDevice());
+        std::uniform_int_distribution<int> UniformDistribution(1, 10000);
+        Generators.emplace_back(UniformDistribution(RandomEngine));
+    }
 
-    // 初始化线程池，16线程
-    Npgs::ThreadPool::Init(16);
-    auto pool = Npgs::ThreadPool::GetInstance(16);
+    auto Start = std::chrono::high_resolution_clock::now();
 
-    auto start = std::chrono::high_resolution_clock::now();
-
-    // 提交任务到线程池
-    for (int i = 0; i < 10000; ++i) {
-        pool->Commit([&sg]() {
-            sg.GenStar();
+    for (int i = 0; i != 10000; ++i) {
+        Pool->Commit([i, &Generators]() -> void {
+            int ThreadId = i % Generators.size();
+            Generators[ThreadId].GenStar();
         });
     }
 
-    // 销毁线程池
-    pool->Terminate();
+    Pool->Terminate();
     Npgs::ThreadPool::Destroy();
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration = end - start;
+    auto End = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> Duration = End - Start;
 
-    std::cout << "Benchmark completed in " << duration.count() << " seconds." << std::endl;
+    std::println("Benchmark completed in {} seconds.", Duration.count());
 
     return 0;
 }
+

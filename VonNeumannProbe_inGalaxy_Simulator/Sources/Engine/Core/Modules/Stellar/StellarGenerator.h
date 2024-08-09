@@ -7,7 +7,6 @@
 
 #include <glm/glm.hpp>
 
-//#define BENCHMARK
 #include "Engine/Base/AstroObject/Star.h"
 #include "Engine/Core/AssetLoader/AssetManager.h"
 #include "Engine/Core/Base.h"
@@ -53,7 +52,7 @@ private:
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties);
     std::shared_ptr<MistData> LoadMistData(const std::string& Filename);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);
-    std::vector<std::vector<double>> FindPhaseChanges(std::shared_ptr<MistData> DataCsv);
+    std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
     std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
     std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor);
     double CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor);
@@ -66,6 +65,7 @@ private:
     std::mt19937 _RandomEngine;
     std::uniform_real_distribution<double> _UniformDistribution;
     std::vector<std::string> _MistHeaders{ "star_age", "star_mass", "star_mdot", "log_L", "log_Teff", "log_R", "log_surf_z", "v_wind_Km_per_s", "log_center_T", "log_center_Rho", "phase", "x" };
+    std::unordered_map<std::string, std::vector<double>> _MassFileCache;
     std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>> _PhaseChangesCache;
 };
 
