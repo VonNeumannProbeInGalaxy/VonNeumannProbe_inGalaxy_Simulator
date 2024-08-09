@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 
-#define BENCHMARK
+//#define BENCHMARK
 #include "Engine/Base/AstroObject/Star.h"
 #include "Engine/Core/AssetLoader/AssetManager.h"
 #include "Engine/Core/Base.h"

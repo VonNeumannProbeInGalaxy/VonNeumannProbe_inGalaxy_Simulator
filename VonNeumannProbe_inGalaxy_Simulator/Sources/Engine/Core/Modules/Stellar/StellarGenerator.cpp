@@ -265,7 +265,7 @@ std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTi
     std::vector<std::vector<double>>::const_iterator LowerTimePoint;
     std::vector<std::vector<double>>::const_iterator UpperTimePoint;
     
-    if (PhaseChanges.size() != 2 || PhaseChanges.front().at(10) != PhaseChanges.back().at(10)) {
+    if (PhaseChanges.size() != 2 || PhaseChanges.front()[10] != PhaseChanges.back()[10]) {
         LowerTimePoint = std::lower_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](const std::vector<double>& Lhs, double Rhs) -> bool {
                 return Lhs[0] < Rhs;
@@ -293,7 +293,7 @@ std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTi
 
     TimerEnd;
 
-    return { LowerTimePoint->at(11), { LowerTimePoint->at(0), UpperTimePoint->at(0) } };
+    return { (*LowerTimePoint)[11], { (*LowerTimePoint)[0], (*UpperTimePoint)[0] } };
 }
 
 std::pair<double, std::size_t> StellarGenerator::FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor) {
@@ -302,15 +302,15 @@ std::pair<double, std::size_t> StellarGenerator::FindSurroundingTimePoints(const
     std::vector<double> LowerPhaseChangeTimePoints;
     std::vector<double> UpperPhaseChangeTimePoints;
     for (std::size_t i = 0; i != PhaseChanges.first.size(); ++i) {
-        LowerPhaseChangeTimePoints.emplace_back(PhaseChanges.first.at(i).at(0));
-        UpperPhaseChangeTimePoints.emplace_back(PhaseChanges.second.at(i).at(0));
+        LowerPhaseChangeTimePoints.emplace_back(PhaseChanges.first[i][0]);
+        UpperPhaseChangeTimePoints.emplace_back(PhaseChanges.second[i][0]);
     }
 
     std::vector<double> PhaseChangeTimePoints = InterpolateArray({ LowerPhaseChangeTimePoints, UpperPhaseChangeTimePoints }, MassFactor);
 
     std::vector<std::pair<double, double>> TimePointPairs;
     for (std::size_t i = 0; i != PhaseChanges.first.size(); ++i) {
-        TimePointPairs.emplace_back(PhaseChanges.first.at(i).at(10), PhaseChangeTimePoints[i]);
+        TimePointPairs.emplace_back(PhaseChanges.first[i][10], PhaseChangeTimePoints[i]);
     }
 
     std::pair<double, std::size_t> Result;
@@ -345,8 +345,8 @@ double StellarGenerator::CalcEvolutionProgress(std::pair<std::vector<std::vector
             std::size_t Index = TimePointResults.second;
 
             if (Index + 1 != PhaseChanges.first.size()) {
-                std::pair<double, double> LowerTimePoints = { PhaseChanges.first.at(Index).at(0), PhaseChanges.first.at(Index + 1).at(0) };
-                std::pair<double, double> UpperTimePoints = { PhaseChanges.second.at(Index).at(0), PhaseChanges.second.at(Index + 1).at(0) };
+                std::pair<double, double> LowerTimePoints = { PhaseChanges.first[Index][0], PhaseChanges.first[Index + 1][0] };
+                std::pair<double, double> UpperTimePoints = { PhaseChanges.second[Index][0], PhaseChanges.second[Index + 1][0] };
 
                 const auto& [LowerLowerTimePoint, LowerUpperTimePoint] = LowerTimePoints;
                 const auto& [UpperLowerTimePoint, UpperUpperTimePoint] = UpperTimePoints;
@@ -359,21 +359,21 @@ double StellarGenerator::CalcEvolutionProgress(std::pair<std::vector<std::vector
                 Result = 0.0;
             }
         } else {
-            if (PhaseChanges.first.back().at(10) == PhaseChanges.second.back().at(10)) {
+            if (PhaseChanges.first.back()[10] == PhaseChanges.second.back()[10]) {
                 double FirstDiscardTimePoint = 0.0;
-                double FirstCommonTimePoint = std::prev(PhaseChanges.first.end(), 2)->at(0);
+                double FirstCommonTimePoint = (*std::prev(PhaseChanges.first.end(), 2))[0];
 
                 std::size_t MinSize = std::min(PhaseChanges.first.size(), PhaseChanges.second.size());
                 for (std::size_t i = 0; i != MinSize - 1; ++i) {
-                    if (PhaseChanges.first.at(i).at(10) != PhaseChanges.second.at(i).at(10)) {
-                        FirstDiscardTimePoint = PhaseChanges.first.at(i).at(0);
+                    if (PhaseChanges.first[i][10] != PhaseChanges.second[i][10]) {
+                        FirstDiscardTimePoint = PhaseChanges.first[i][0];
                         break;
                     }
                 }
 
                 double DeltaTimePoint = FirstCommonTimePoint - FirstDiscardTimePoint;
-                std::prev(PhaseChanges.first.end(), 2)->at(0) -= DeltaTimePoint;
-                PhaseChanges.first.back().at(0) -= DeltaTimePoint;
+                (*std::prev(PhaseChanges.first.end(), 2))[0] -= DeltaTimePoint;
+                PhaseChanges.first.back()[0] -= DeltaTimePoint;
             }
 
             AlignArrays(PhaseChanges);
@@ -399,12 +399,12 @@ std::vector<double> StellarGenerator::InterpolateRows(const std::shared_ptr<Mist
 
     auto SurroundingRows = Data->FindSurroundingValues("x", EvolutionProgress);
     if (SurroundingRows.first != SurroundingRows.second) {
-        int LowerTempPhase = static_cast<int>(SurroundingRows.first.at(10));
-        int UpperTempPhase = static_cast<int>(SurroundingRows.second.at(10));
+        int LowerTempPhase = static_cast<int>(SurroundingRows.first[10]);
+        int UpperTempPhase = static_cast<int>(SurroundingRows.second[10]);
         if (LowerTempPhase != UpperTempPhase) {
-            SurroundingRows.second.at(11) = LowerTempPhase + 1;
+            SurroundingRows.second[11] = LowerTempPhase + 1;
         }
-        double ProgressFactor = (EvolutionProgress - SurroundingRows.first.at(11)) / (SurroundingRows.second.at(11) - SurroundingRows.first.at(11));
+        double ProgressFactor = (EvolutionProgress - SurroundingRows.first[11]) / (SurroundingRows.second[11] - SurroundingRows.first[11]);
         Result = InterpolateFinalData(SurroundingRows, ProgressFactor);
     } else {
         Result = SurroundingRows.first;
@@ -418,14 +418,14 @@ std::vector<double> StellarGenerator::InterpolateRows(const std::shared_ptr<Mist
 void StellarGenerator::AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) {
     TimerBegin;
 
-    if (Arrays.first.back().at(10) != 9 && Arrays.second.back().at(10) != 9) {
+    if (Arrays.first.back()[10] != 9 && Arrays.second.back()[10] != 9) {
         std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
         Arrays.first.resize(MinSize);
         Arrays.second.resize(MinSize);
-    } else if (Arrays.first.back().at(10) != 9 && Arrays.second.back().at(10) == 9) {
-        Arrays.first.back().at(10) = 9;
-        Arrays.first.back().at(11) = 9.0;
-    } else if (Arrays.first.back().at(10) == 9 && Arrays.second.back().at(10) == 9) {
+    } else if (Arrays.first.back()[10] != 9 && Arrays.second.back()[10] == 9) {
+        Arrays.first.back()[10] = 9;
+        Arrays.first.back()[11] = 9.0;
+    } else if (Arrays.first.back()[10] == 9 && Arrays.second.back()[10] == 9) {
         auto LastArray1 = Arrays.first.back();
         auto LastArray2 = Arrays.second.back();
         auto SubLastArray1 = *std::prev(Arrays.first.end(), 2);
