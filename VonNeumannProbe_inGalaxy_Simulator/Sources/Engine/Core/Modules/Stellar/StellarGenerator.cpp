@@ -24,19 +24,12 @@ StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
 AstroObject::Star StellarGenerator::GenStar() {
     BasicProperties BasicData = GenBasicProperties();
 
-    // test
-    double Age = 0.0, FeH = 0.0, Mass = 0.0;
-    while (std::cin >> FeH >> Mass >> Age) {
-        BasicData.Age = Age;
-        BasicData.FeH = FeH;
-        BasicData.Mass = Mass;
-        std::vector<double> ActuallyData = GetActuallyMistData(static_cast<BasicProperties>(BasicData));
+    std::vector<double> ActuallyData = GetActuallyMistData(static_cast<BasicProperties>(BasicData));
 
-        for (double Data : ActuallyData) {
-            std::cout << Data << " ";
-        }
-        std::endl(std::cout);
-    }
+    //for (double Data : ActuallyData) {
+    //    std::cout << Data << " ";
+    //}
+    //std::endl(std::cout);
 
     return {};
 }
