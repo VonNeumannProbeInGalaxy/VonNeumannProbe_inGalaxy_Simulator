@@ -23,15 +23,20 @@ StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
 
 AstroObject::Star StellarGenerator::GenStar() {
     BasicProperties BasicData = GenBasicProperties();
-    BasicData.Age = 3.375e+6;
-    BasicData.FeH = 0.0;
-    BasicData.Mass = 84;
-    std::vector<double> ActuallyData = GetActuallyMistData(static_cast<BasicProperties>(BasicData));
-    
-    for (double Data : ActuallyData) {
-        std::cout << Data << " ";
+
+    // test
+    double Age = 0.0, FeH = 0.0, Mass = 0.0;
+    while (std::cin >> FeH >> Mass >> Age) {
+        BasicData.Age = Age;
+        BasicData.FeH = FeH;
+        BasicData.Mass = Mass;
+        std::vector<double> ActuallyData = GetActuallyMistData(static_cast<BasicProperties>(BasicData));
+
+        for (double Data : ActuallyData) {
+            std::cout << Data << " ";
+        }
+        std::endl(std::cout);
     }
-    std::endl(std::cout);
 
     return {};
 }
@@ -200,37 +205,48 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             std::vector<double> UpperRows;
 
             if (LowerSurroundingRows.first != LowerSurroundingRows.second) {
-                double LowerProgressFactor = (EvolutionProgress - LowerSurroundingRows.first[11]) / (LowerSurroundingRows.second[11] - LowerSurroundingRows.first[11]);
+                int LowerTempPhase = static_cast<int>(LowerSurroundingRows.first.at(10));
+                int UpperTempPhase = static_cast<int>(LowerSurroundingRows.second.at(10));
+                if (LowerTempPhase != UpperTempPhase) {
+                    LowerSurroundingRows.second.at(11) = LowerTempPhase + 1;
+                }
+                double LowerProgressFactor = (EvolutionProgress - LowerSurroundingRows.first.at(11)) / (LowerSurroundingRows.second.at(11) - LowerSurroundingRows.first.at(11));
                 LowerRows = InterpolateFinalData(LowerSurroundingRows, LowerProgressFactor);
             } else {
                 LowerRows = LowerSurroundingRows.first;
             }
 
             if (UpperSurroundingRows.first != UpperSurroundingRows.second) {
-                double UpperProgressFactor = (EvolutionProgress - UpperSurroundingRows.first[11]) / (UpperSurroundingRows.second[11] - UpperSurroundingRows.first[11]);
+                int LowerTempPhase = static_cast<int>(UpperSurroundingRows.first.at(10));
+                int UpperTempPhase = static_cast<int>(UpperSurroundingRows.second.at(10));
+                if (LowerTempPhase != UpperTempPhase) {
+                    UpperSurroundingRows.second.at(11) = LowerTempPhase + 1;
+                }
+                double UpperProgressFactor = (EvolutionProgress - UpperSurroundingRows.first.at(11)) / (UpperSurroundingRows.second.at(11) - UpperSurroundingRows.first.at(11));
                 UpperRows = InterpolateFinalData(UpperSurroundingRows, UpperProgressFactor);
             } else {
                 UpperRows = UpperSurroundingRows.first;
             }
 
-            LowerRows.pop_back();
-            UpperRows.pop_back();
             Result = InterpolateFinalData({ LowerRows, UpperRows }, MassFactor);
-            Result.emplace_back(EvolutionProgress);
         } else [[unlikely]] {
             if (Assets::AssetManager::GetAsset<MistData>(Files.first) == nullptr) {
                 Assets::AssetManager::AddAsset<MistData>(Files.first, std::make_shared<MistData>(MistData(Files.first, _MistHeaders)));
             }
 
             std::shared_ptr<MistData> Data = Assets::AssetManager::GetAsset<MistData>(Files.first);
-            auto   PhaseChanges      = FindPhaseChanges(Data);
+            auto PhaseChanges = FindPhaseChanges(Data);
             std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ PhaseChanges, {} };
             double EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
-            auto   SurroundingRows   = Data->FindSurroundingValues("x", EvolutionProgress);
-            double ProgressFactor    = (EvolutionProgress - SurroundingRows.first[11]) / (SurroundingRows.second[11] - SurroundingRows.first[11]);
+            auto SurroundingRows = Data->FindSurroundingValues("x", EvolutionProgress);
+            int LowerTempPhase = static_cast<int>(SurroundingRows.first.at(10));
+            int UpperTempPhase = static_cast<int>(SurroundingRows.second.at(10));
+            if (LowerTempPhase != UpperTempPhase) {
+                SurroundingRows.second.at(11) = LowerTempPhase + 1;
+            }
+            double ProgressFactor = (EvolutionProgress - SurroundingRows.first[11]) / (SurroundingRows.second[11] - SurroundingRows.first[11]);
 
             Result = InterpolateFinalData(SurroundingRows, ProgressFactor);
-            Result.emplace_back(EvolutionProgress);
         }
     } catch (std::exception& e) {
         NpgsCoreError("Error: " + std::string(e.what()));
