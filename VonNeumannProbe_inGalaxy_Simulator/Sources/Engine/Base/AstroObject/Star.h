@@ -28,10 +28,13 @@ public:
         double FeH;
         double SurfaceFeH;
         double EffectiveTemp;
+        double CoreTemp;
+        double CoreDensity;
         double StellarWindSpeed;
         double StellarWindDensity;
         double StellarWindMomentum;
         double StellarWindMassLossRate;
+        double EvolutionProgress;
 
         std::string SpectralType;
         Modules::StellarClass StellarClass;
@@ -55,6 +58,8 @@ public:
     Star& SetFeH(double FeH);
     Star& SetSurfaceFeH(double SurfaceFeH);
     Star& SetEffectiveTemp(double EffectiveTemp);
+    Star& SetCoreTemp(double CoreTemp);
+    Star& SetCoreDensity(double CoreDensity);
     Star& SetStellarWindSpeed(double StellarWindSpeed);
     Star& SetStellarWindDensity(double StellarWindDensity);
     Star& SetStellarWindMomentum(double StellarWindMomentum);
@@ -62,6 +67,7 @@ public:
     Star& SetSpectralType(const std::string& SpectralType);
     Star& SetStellarClass(const Modules::StellarClass& StellarClass);
     Star& SetEvolutionPhase(Phase EvolutionPhase);
+    Star& SetEvolutionProgress(double EvolutionProgress);
 
     // Getters
     // Getters for ExtendedProperties
@@ -71,6 +77,8 @@ public:
     double GetFeH() const;
     double GetSurfaceFeH() const;
     double GetEffectiveTemp() const;
+    double GetCoreTemp() const;
+    double GetCoreDensity() const;
     double GetStellarWindSpeed() const;
     double GetStellarWindDensity() const;
     double GetStellarWindMomentum() const;
@@ -78,6 +86,7 @@ public:
     const std::string& GetSpectralType() const;
     const Modules::StellarClass& GetStellarClass() const;
     Phase GetEvolutionPhase() const;
+    double GetEvolutionProgress() const;
 
 private:
     ExtendedProperties _StarExtraProperties;

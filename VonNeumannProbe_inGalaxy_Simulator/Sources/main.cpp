@@ -1,12 +1,15 @@
 #include <chrono>
-#include <iostream>
+#include <print>
 #include <random>
+#include <thread>
 #include <vector>
 
 #include "Npgs.h"
 
 int main() {
     Npgs::Logger::Init();
+
+    std::println("Mass Radius Age FeH Lum EffTemp CoreTemp CoreDensity WindSpeed MassLoss Phase");
 
     auto Pool = Npgs::ThreadPool::GetInstance(std::thread::hardware_concurrency());
 
@@ -20,10 +23,24 @@ int main() {
 
     auto Start = std::chrono::high_resolution_clock::now();
 
-    for (int i = 0; i != 10000; ++i) {
+    for (int i = 0; i != 200000; ++i) {
         Pool->Commit([i, &Generators]() -> void {
             int ThreadId = i % Generators.size();
-            Generators[ThreadId].GenStar();
+            auto Star = Generators[ThreadId].GenStar();
+            if (Star.GetMass() > 50.0) {
+                std::println("{:.2f}\t{:.2f}\t{:.2E}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2E}\t{:.2f}\t{:.2f}\t{:.2E}\t{}",
+                    Star.GetMass(),
+                    Star.GetRadius(),
+                    Star.GetAge(),
+                    Star.GetFeH(),
+                    Star.GetLuminosity(),
+                    Star.GetEffectiveTemp(),
+                    Star.GetCoreTemp(),
+                    Star.GetCoreDensity(),
+                    Star.GetStellarWindSpeed(),
+                    Star.GetStellarWindMassLossRate(),
+                    static_cast<int>(Star.GetEvolutionPhase()));
+            }
         });
     }
 
@@ -37,4 +54,3 @@ int main() {
 
     return 0;
 }
-

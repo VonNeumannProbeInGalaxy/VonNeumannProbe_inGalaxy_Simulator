@@ -39,6 +39,16 @@ inline Star& Star::SetEffectiveTemp(double EffectiveTemp) {
     return *this;
 }
 
+inline Star& Star::SetCoreTemp(double CoreTemp) {
+    _StarExtraProperties.CoreTemp = CoreTemp;
+    return *this;
+}
+
+inline Star& Star::SetCoreDensity(double CoreDensity) {
+    _StarExtraProperties.CoreDensity = CoreDensity;
+    return *this;
+}
+
 inline Star& Star::SetStellarWindSpeed(double StellarWindSpeed) {
     _StarExtraProperties.StellarWindSpeed = StellarWindSpeed;
     return *this;
@@ -74,6 +84,11 @@ inline Star& Star::SetEvolutionPhase(Phase EvolutionPhase) {
     return *this;
 }
 
+inline Star& Star::SetEvolutionProgress(double EvolutionProgress) {
+    _StarExtraProperties.EvolutionProgress = EvolutionProgress;
+    return *this;
+}
+
 inline double Star::GetLuminosity() const {
     return _StarExtraProperties.Luminosity;
 }
@@ -92,6 +107,14 @@ inline double Star::GetSurfaceFeH() const {
 
 inline double Star::GetEffectiveTemp() const {
     return _StarExtraProperties.EffectiveTemp;
+}
+
+inline double Star::GetCoreTemp() const {
+    return _StarExtraProperties.CoreTemp;
+}
+
+inline double Star::GetCoreDensity() const {
+    return _StarExtraProperties.CoreDensity;
 }
 
 inline double Star::GetStellarWindSpeed() const {
@@ -120,6 +143,10 @@ inline const Modules::StellarClass& Star::GetStellarClass() const {
 
 inline Star::Phase Star::GetEvolutionPhase() const {
     return _StarExtraProperties.EvolutionPhase;
+}
+
+inline double Star::GetEvolutionProgress() const {
+    return _StarExtraProperties.EvolutionProgress;
 }
 
 _ASTROOBJECT_END

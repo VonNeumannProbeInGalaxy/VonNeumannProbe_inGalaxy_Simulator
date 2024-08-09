@@ -43,6 +43,7 @@ public:
 
 public:
     AstroObject::Star GenStar();
+    AstroObject::Star GenStar(const BasicProperties& Properties);
     AstroObject::Star operator=(const BasicProperties& Properties);
 
 private:

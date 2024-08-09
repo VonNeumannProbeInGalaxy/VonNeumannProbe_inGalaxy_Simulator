@@ -22,21 +22,40 @@ StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
 
 AstroObject::Star StellarGenerator::GenStar() {
     BasicProperties BasicData = GenBasicProperties();
+    return GenStar(BasicData);
+}
 
-    //double a, f, m;
-    //while (std::cin >> f >> m >> a) {
-    //    BasicData.Age = a;
-    //    BasicData.FeH = f;
-    //    BasicData.Mass = m;
-    std::vector<double> ActuallyData = GetActuallyMistData(static_cast<BasicProperties>(BasicData));
+AstroObject::Star StellarGenerator::GenStar(const BasicProperties& Properties) {
+    AstroObject::Star Star(Properties);
+    auto StarData = GetActuallyMistData(Properties);
 
-    //    for (double Data : ActuallyData) {
-    //        std::cout << Data << " ";
-    //    }
-    //    std::endl(std::cout);
-    //}
+    Star.SetAge(StarData[0]).SetMass(StarData[1]).SetRadius(std::pow(10.0, StarData[5]));
+    Star.SetStellarWindMassLossRate(StarData[2])
+        .SetLuminosity(std::pow(10.0, StarData[3]))
+        .SetEffectiveTemp(std::pow(10.0, StarData[4]))
+        .SetSurfaceFeH(StarData[6])
+        .SetStellarWindSpeed(StarData[7])
+        .SetCoreTemp(std::pow(10.0, StarData[8]))
+        .SetCoreDensity(std::pow(10.0, StarData[9]))
+        .SetEvolutionPhase(static_cast<AstroObject::Star::Phase>(StarData[10]))
+        .SetEvolutionProgress(StarData[11]);
 
-    return {};
+    auto EvolutionPhase = Star.GetEvolutionPhase();
+    double EffectiveTemp = Star.GetEffectiveTemp();
+
+    std::array<int, 10> SpectralTemp_O{ 0,     0,     54000, 44900, 42900, 41400, 39500, 37100, 35100, 33300 };
+    std::array<int, 10> SpectralTemp_B{ 31400, 26000, 20600, 17000, 16400, 15700, 14500, 14000, 12300, 10700 };
+    std::array<int, 10> SpectralTemp_A{ 9700,  9300,  8800,  8600,  8250,  8100,  7910,  7760,  7590,  7400  };
+    std::array<int, 10> SpectralTemp_F{ 7220,  7020,  6820,  6750,  6670,  6550,  6350,  6280,  6180,  6050  };
+    std::array<int, 10> SpectralTemp_G{ 5930,  5860,  5770,  5720,  5680,  5660,  5600,  5550,  5480,  5380  };
+    std::array<int, 10> SpectralTemp_K{ 5270,  5170,  5100,  4830,  4600,  4440,  4300,  4100,  3990,  3930  };
+    std::array<int, 10> SpectralTemp_M{ 3850,  3660,  3560,  3430,  3210,  3060,  2810,  2680,  2570,  2380  };
+
+    if (EvolutionPhase != AstroObject::Star::Phase::kPrevMainSequence) {
+
+    }
+
+    return Star;
 }
 
 AstroObject::Star StellarGenerator::operator=(const BasicProperties& Properties) {
@@ -90,9 +109,9 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     double Mass = GenMass(3.125);
     Properties.Mass = Mass;
 
-    double Lifetime = pow(10, 10) * pow(Mass, -2.5);
+    //double Lifetime = pow(10, 10) * pow(Mass, -2.5);
 
-    double Age = _UniformDistribution(_RandomEngine) * std::min(Lifetime, 3e12);
+    double Age = _UniformDistribution(_RandomEngine) * std::min(1e7, 3e12);
     Properties.Age = Age;
 
     double FeH = -1.5 + _UniformDistribution(_RandomEngine) * (0.5 - (-1.5));
