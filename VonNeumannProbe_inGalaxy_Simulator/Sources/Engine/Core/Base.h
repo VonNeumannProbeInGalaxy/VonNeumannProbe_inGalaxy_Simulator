@@ -40,3 +40,15 @@
 #define NpgsBind(Func) [this](auto&&... Args) -> decltype(auto) { \
     return this->Func(std::forward<decltype(Args)>(Args)...);     \
 }
+
+// Benchmark Timer
+// ---------------
+#ifdef BENCHMARK
+#define TimerBegin auto Start = std::chrono::high_resolution_clock::now();
+#define TimerEnd auto End = std::chrono::high_resolution_clock::now(); \
+                 std::chrono::duration<double> Duration = End - Start; \
+                 std::print("{} completed in {} seconds.\n", __func__, Duration.count());
+#else
+#define TimerBegin static_cast<void>(0);
+#define TimerEnd   static_cast<void>(0);
+#endif // BENCHMARK

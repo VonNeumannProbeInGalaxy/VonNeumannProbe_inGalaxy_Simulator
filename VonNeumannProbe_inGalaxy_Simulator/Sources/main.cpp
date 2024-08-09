@@ -8,27 +8,29 @@ int main() {
 
     Npgs::Modules::StellarGenerator sg(42);
 
-    // 初始化线程池，16线程
-    Npgs::ThreadPool::Init(16);
-    auto pool = Npgs::ThreadPool::GetInstance(16);
+    sg.GenStar();
 
-    auto start = std::chrono::high_resolution_clock::now();
+    //// 初始化线程池，16线程
+    //Npgs::ThreadPool::Init(16);
+    //auto pool = Npgs::ThreadPool::GetInstance(16);
 
-    // 提交任务到线程池
-    for (int i = 0; i < 10000; ++i) {
-        pool->Commit([&sg]() {
-            sg.GenStar();
-        });
-    }
+    //auto start = std::chrono::high_resolution_clock::now();
 
-    // 销毁线程池
-    pool->Terminate();
-    Npgs::ThreadPool::Destroy();
+    //// 提交任务到线程池
+    //for (int i = 0; i < 1; ++i) {
+    //    pool->Commit([&sg]() {
+    //        sg.GenStar();
+    //    });
+    //}
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration = end - start;
+    //// 销毁线程池
+    //pool->Terminate();
+    //Npgs::ThreadPool::Destroy();
 
-    std::cout << "Benchmark completed in " << duration.count() << " seconds." << std::endl;
+    //auto end = std::chrono::high_resolution_clock::now();
+    //std::chrono::duration<double> duration = end - start;
+
+    //std::cout << "Benchmark completed in " << duration.count() << " seconds." << std::endl;
 
     return 0;
 }
