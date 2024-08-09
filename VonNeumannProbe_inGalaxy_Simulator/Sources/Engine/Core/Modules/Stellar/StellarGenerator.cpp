@@ -23,18 +23,18 @@ StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
 AstroObject::Star StellarGenerator::GenStar() {
     BasicProperties BasicData = GenBasicProperties();
 
-    double a, f, m;
-    while (std::cin >> f >> m >> a) {
-        BasicData.Age = a;
-        BasicData.FeH = f;
-        BasicData.Mass = m;
-        std::vector<double> ActuallyData = GetActuallyMistData(static_cast<BasicProperties>(BasicData));
+    //double a, f, m;
+    //while (std::cin >> f >> m >> a) {
+    //    BasicData.Age = a;
+    //    BasicData.FeH = f;
+    //    BasicData.Mass = m;
+    std::vector<double> ActuallyData = GetActuallyMistData(static_cast<BasicProperties>(BasicData));
 
-        for (double Data : ActuallyData) {
-            std::cout << Data << " ";
-        }
-        std::endl(std::cout);
-    }
+    //    for (double Data : ActuallyData) {
+    //        std::cout << Data << " ";
+    //    }
+    //    std::endl(std::cout);
+    //}
 
     return {};
 }
@@ -66,6 +66,8 @@ double StellarGenerator::DefaultPdf(double Mass) {
 }
 
 double StellarGenerator::GenMass(double MaxPdf) {
+    TimerBegin;
+
     double Mass = 0.0;
     double Probability = 0.0;
     do {
@@ -73,10 +75,14 @@ double StellarGenerator::GenMass(double MaxPdf) {
         Probability = DefaultPdf(Mass);
     } while (_UniformDistribution(_RandomEngine) * MaxPdf > Probability);
 
+    TimerEnd;
+
     return Mass;
 }
 
 StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
+    TimerBegin;
+
     BasicProperties Properties;
 
     int PosX     = static_cast<int>(_UniformDistribution(_RandomEngine) * 1000);
@@ -97,6 +103,8 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
 
     double FeH = -1.5 + _UniformDistribution(_RandomEngine) * (0.5 - (-1.5));
     Properties.FeH = FeH;
+
+    TimerEnd;
 
     return Properties;
 }
@@ -182,6 +190,7 @@ std::shared_ptr<StellarGenerator::MistData> StellarGenerator::LoadMistData(const
     if (Assets::AssetManager::GetAsset<MistData>(Filename) == nullptr) {
         Assets::AssetManager::AddAsset<MistData>(Filename, std::make_shared<MistData>(MistData(Filename, _MistHeaders)));
     }
+
     return Assets::AssetManager::GetAsset<MistData>(Filename);
 }
 
@@ -384,6 +393,8 @@ double StellarGenerator::CalcEvolutionProgress(std::pair<std::vector<std::vector
 }
 
 std::vector<double> StellarGenerator::InterpolateRows(const std::shared_ptr<MistData>& Data, double EvolutionProgress) {
+    TimerBegin;
+
     std::vector<double> Result;
 
     auto SurroundingRows = Data->FindSurroundingValues("x", EvolutionProgress);
@@ -398,6 +409,8 @@ std::vector<double> StellarGenerator::InterpolateRows(const std::shared_ptr<Mist
     } else {
         Result = SurroundingRows.first;
     }
+
+    TimerEnd;
 
     return Result;
 }
