@@ -79,6 +79,11 @@ inline Star& Star::SetEvolutionProgress(double EvolutionProgress) {
     return *this;
 }
 
+inline Star& Star::SetLifetime(double Lifetime) {
+    _StarExtraProperties.Lifetime = Lifetime;
+    return *this;
+}
+
 inline double Star::GetLuminosity() const {
     return _StarExtraProperties.Luminosity;
 }
@@ -129,6 +134,10 @@ inline Star::Phase Star::GetEvolutionPhase() const {
 
 inline double Star::GetEvolutionProgress() const {
     return _StarExtraProperties.EvolutionProgress;
+}
+
+inline double Star::GetLifetime() const {
+    return _StarExtraProperties.Lifetime;
 }
 
 _ASTROOBJECT_END

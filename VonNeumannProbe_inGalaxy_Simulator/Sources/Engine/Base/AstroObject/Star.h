@@ -34,6 +34,7 @@ public:
         double StellarWindSpeed;
         double StellarWindMassLossRate;
         double EvolutionProgress;
+        double Lifetime;
 
         std::string SpectralType;
         Modules::StellarClass StellarClass;
@@ -65,6 +66,7 @@ public:
     Star& SetStellarClass(const Modules::StellarClass& StellarClass);
     Star& SetEvolutionPhase(Phase EvolutionPhase);
     Star& SetEvolutionProgress(double EvolutionProgress);
+    Star& SetLifetime(double Lifetime);
 
     // Getters
     // Getters for ExtendedProperties
@@ -82,6 +84,7 @@ public:
     const Modules::StellarClass& GetStellarClass() const;
     Phase GetEvolutionPhase() const;
     double GetEvolutionProgress() const;
+    double GetLifetime() const;
 
     static const std::unordered_map<int, std::string> _kSpectralTemp_O;
     static const std::unordered_map<int, std::string> _kSpectralTemp_B;

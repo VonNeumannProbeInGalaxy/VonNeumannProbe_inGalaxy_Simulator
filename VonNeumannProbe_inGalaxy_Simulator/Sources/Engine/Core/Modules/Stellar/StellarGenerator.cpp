@@ -30,16 +30,18 @@ AstroObject::Star StellarGenerator::GenStar(const BasicProperties& Properties) {
     AstroObject::Star Star(Properties);
     auto StarData = GetActuallyMistData(Properties);
 
-    double Age               = StarData[0];
-    double MassSol           = StarData[1];
-    double RadiusSol         = std::pow(10.0, StarData[5]);
-    double EffectiveTemp     = std::pow(10.0, StarData[4]);
-    double SurfaceFeH        = StarData[6];
-    double CoreTemp          = std::pow(10.0, StarData[8]);
-    double CoreDensity       = std::pow(10.0, StarData[9]);
-    double EvolutionProgress = StarData[11];
+    double Age               = StarData[_kStarAgeIndex];
+    double MassSol           = StarData[_kStarMassIndex];
+    double RadiusSol         = std::pow(10.0, StarData[_kLogRIndex]);
+    double EffectiveTemp     = std::pow(10.0, StarData[_kLogTeffIndex]);
+    double SurfaceFeH        = StarData[_kLogSurfZIndex];
+    double CoreTemp          = std::pow(10.0, StarData[_kLogCenterTIndex]);
+    double CoreDensity       = std::pow(10.0, StarData[_kLogCenterRhoIndex]);
+    double MassLossRate      = StarData[_kStarMdotIndex];
+    double EvolutionProgress = StarData[_kXIndex];
+    double Lifetime          = StarData[_kLifetimeIndex];
 
-    double LuminositySol = std::pow((RadiusSol / kSolarRadius), 2) * std::pow((EffectiveTemp / kSolarEffectiveTemp), 4);
+    double LuminositySol = std::pow(RadiusSol, 2) * std::pow((EffectiveTemp / kSolarEffectiveTemp), 4);
 
     AstroObject::Star::Phase EvolutionPhase = static_cast<AstroObject::Star::Phase>(StarData[10]);
 
@@ -49,11 +51,13 @@ AstroObject::Star StellarGenerator::GenStar(const BasicProperties& Properties) {
         .SetSurfaceFeH(SurfaceFeH)
         .SetCoreTemp(CoreTemp)
         .SetCoreDensity(CoreDensity)
+        .SetStellarWindMassLossRate(MassLossRate * kSolarMass)
         .SetEvolutionProgress(EvolutionProgress)
-        .SetEvolutionPhase(EvolutionPhase);
+        .SetEvolutionPhase(EvolutionPhase)
+        .SetLifetime(Lifetime);
 
-    auto EvolutionPhase = Star.GetEvolutionPhase();
-    double EffectiveTemp = Star.GetEffectiveTemp();
+    //auto EvolutionPhase = Star.GetEvolutionPhase();
+    //double EffectiveTemp = Star.GetEffectiveTemp();
 
     GenSpectralType(Star);
 
@@ -227,11 +231,17 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ LowerPhaseChanges, UpperPhaseChanges };
             double EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
 
+            double LowerLifetime = PhaseChangePair.first.back()[_kStarAgeIndex];
+            double UpperLifetime = PhaseChangePair.second.back()[_kStarAgeIndex];
+
             auto LowerSurroundingRows = LowerData->FindSurroundingValues("x", EvolutionProgress);
             auto UpperSurroundingRows = UpperData->FindSurroundingValues("x", EvolutionProgress);
 
             std::vector<double> LowerRows = InterpolateRows(LowerData, EvolutionProgress);
             std::vector<double> UpperRows = InterpolateRows(UpperData, EvolutionProgress);
+
+            LowerRows.emplace_back(LowerLifetime);
+            UpperRows.emplace_back(UpperLifetime);
 
             Result = InterpolateFinalData({ LowerRows, UpperRows }, MassFactor);
         } else [[unlikely]] {
@@ -239,7 +249,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             auto PhaseChanges = FindPhaseChanges(StarData);
             std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ PhaseChanges, {} };
             double EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
-            double Lifetime = StarData->Data()->back()[_kStarAgeIndex];
+            double Lifetime = PhaseChanges.back()[_kStarAgeIndex];
             Result = InterpolateRows(StarData, EvolutionProgress);
             Result.emplace_back(Lifetime);
         }
