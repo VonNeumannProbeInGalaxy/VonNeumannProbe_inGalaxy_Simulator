@@ -18,27 +18,54 @@ else:
     # 将图像转换为HSV颜色空间
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-    # 定义紫色的HSV范围
-    lower_purple = np.array([125, 50, 50])
-    upper_purple = np.array([150, 255, 255])
+    # 定义每条曲线的颜色范围（假设颜色范围已知）
+    color_ranges = {
+        'Ia': ([85, 100, 100], [95, 255, 255]),   # 青色
+        'Ib': ([170, 100, 100], [180, 255, 255]), # 红色
+        'II': ([50, 100, 100], [70, 255, 255]),   # 绿色
+        'III': ([25, 100, 100], [35, 255, 255]),  # 黄色
+        'IV': ([125, 100, 100], [150, 255, 255])  # 紫色
+    }
 
-    # 使用颜色范围掩码提取紫色像素
-    mask = cv2.inRange(hsv_image, lower_purple, upper_purple)
+    # 图像尺寸
+    img_height, img_width = image.shape[:2]
 
-    # 获取紫色像素的坐标
-    coordinates = np.column_stack(np.where(mask > 0))
+    # 转换像素坐标为实际坐标的函数
+    def pixel_to_actual(x, y):
+        b_v = -0.3 + (x / 22.0) * 0.1
+        luminosity = 10 ** (-5 + (img_height - y) / 63.4)
+        return b_v, luminosity
 
-    # 如果没有找到紫色像素，输出提示
-    if coordinates.size == 0:
-        print("没有找到紫色像素")
-    else:
-        # 输出所有紫色像素的坐标点
-        print("紫色像素的坐标点:")
-        for coord in coordinates:
-            print(f"({coord[1]}, {coord[0]})")
+    # 遍历每条曲线，提取坐标点并输出到文件
+    for curve, (lower, upper) in color_ranges.items():
+        lower = np.array(lower, dtype="uint8")
+        upper = np.array(upper, dtype="uint8")
+        
+        # 创建掩膜
+        mask = cv2.inRange(hsv_image, lower, upper)
+        coordinates = []
 
-    # 显示原图和掩码图像
+        # 遍历图像的每一列，每隔5个像素取一个点
+        for x in range(0, img_width, 5):
+            for y in range(img_height):
+                if mask[y, x] > 0:
+                    coordinates.append((y, x))
+                    break  # 确保同一列只取一个点
+
+        if not coordinates:
+            print(f"没有找到{curve}曲线的像素")
+        else:
+            output_file_path = os.path.join(script_directory, f"{curve}_coordinates.txt")
+            print(f"{curve}曲线的坐标点已输出到文件: {output_file_path}")
+            with open(output_file_path, "w") as file:
+                for coord in coordinates:
+                    b_v, luminosity = pixel_to_actual(coord[1], coord[0])
+                    file.write(f"{b_v:.2f}, {luminosity:.5f}\n")
+
+            # 显示对应的掩码图像
+            cv2.imshow(f'{curve} Mask', mask)
+
+    # 显示原图
     cv2.imshow('Original Image', image)
-    cv2.imshow('Purple Mask', mask)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

@@ -111,7 +111,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\VonNeumannProbe_inGalaxy_Simulator\Sources</AdditionalIncludeDirectories>
       <EnableModules>true</EnableModules>
       <BuildStlModules>false</BuildStlModules>
-      <AdditionalOptions>/FI "stdafx.h" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,7 +134,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\VonNeumannProbe_inGalaxy_Simulator\Sources</AdditionalIncludeDirectories>
       <EnableModules>true</EnableModules>
       <BuildStlModules>false</BuildStlModules>
-      <AdditionalOptions>/FI "stdafx.h" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

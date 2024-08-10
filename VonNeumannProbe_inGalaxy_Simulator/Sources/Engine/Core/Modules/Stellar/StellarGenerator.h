@@ -5,10 +5,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include <glm/glm.hpp>
-
 #include "Engine/Base/AstroObject/Star.h"
-#include "Engine/Core/Modules/Stellar/StellarClass.h"
 #include "Engine/Core/AssetLoader/AssetManager.h"
 #include "Engine/Core/Base.h"
 
@@ -22,9 +19,9 @@ public:
 
     struct BasicProperties {
         BaryCenter StarSys;
-        double Age;
-        double FeH;
-        double Mass;
+        double     Age;
+        double     FeH;
+        double     Mass;
 
         explicit operator AstroObject::Star() const {
             AstroObject::Star Star;
@@ -51,27 +48,12 @@ private:
     double DefaultPdf(double Mass);
     double GenMass(double MaxPdf);
     BasicProperties GenBasicProperties();
-    void GenSpectralType(AstroObject::Star& StarData);
-    StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star& StarData);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties);
     std::shared_ptr<MistData> LoadMistData(const std::string& Filename);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
-    std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
-    std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor);
-    double CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor);
-    std::vector<double> InterpolateRows(const std::shared_ptr<MistData>& Data, double EvolutionProgress);
-    void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays);
-    std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor);
-    std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor);
 
-private:
-    std::mt19937 _RandomEngine;
-    std::uniform_real_distribution<double> _UniformDistribution;
-    std::vector<std::string> _MistHeaders{ "star_age", "star_mass", "star_mdot", "log_Teff", "log_R", "log_surf_z", "surface_h1", "surface_he3", "log_center_T", "log_center_Rho", "phase", "x" };
-    std::unordered_map<std::string, std::vector<double>> _MassFileCache;
-    std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>> _PhaseChangesCache;
-
+public:
     static const int _kStarAgeIndex;
     static const int _kStarMassIndex;
     static const int _kStarMdotIndex;
@@ -85,6 +67,13 @@ private:
     static const int _kPhaseIndex;
     static const int _kXIndex;
     static const int _kLifetimeIndex;
+
+private:
+    std::mt19937                                                                    _RandomEngine;
+    std::uniform_real_distribution<double>                                          _UniformDistribution;
+    std::vector<std::string>                                                        _MistHeaders;
+    std::unordered_map<std::string, std::vector<double>>                            _MassFileCache;
+    std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>> _PhaseChangesCache;
 };
 
 _MODULES_END
