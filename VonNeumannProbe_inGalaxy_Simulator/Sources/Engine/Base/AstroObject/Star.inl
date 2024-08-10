@@ -54,16 +54,6 @@ inline Star& Star::SetStellarWindSpeed(double StellarWindSpeed) {
     return *this;
 }
 
-inline Star& Star::SetStellarWindDensity(double StellarWindDensity) {
-    _StarExtraProperties.StellarWindDensity = StellarWindDensity;
-    return *this;
-}
-
-inline Star& Star::SetStellarWindMomentum(double StellarWindMomentum) {
-    _StarExtraProperties.StellarWindMomentum = StellarWindMomentum;
-    return *this;
-}
-
 inline Star& Star::SetStellarWindMassLossRate(double StellarWindMassLossRate) {
     _StarExtraProperties.StellarWindMassLossRate = StellarWindMassLossRate;
     return *this;
@@ -119,14 +109,6 @@ inline double Star::GetCoreDensity() const {
 
 inline double Star::GetStellarWindSpeed() const {
     return _StarExtraProperties.StellarWindSpeed;
-}
-
-inline double Star::GetStellarWindDensity() const {
-    return _StarExtraProperties.StellarWindDensity;
-}
-
-inline double Star::GetStellarWindMomentum() const {
-    return _StarExtraProperties.StellarWindMomentum;
 }
 
 inline double Star::GetStellarWindMassLossRate() const {

@@ -50,6 +50,7 @@ private:
     double DefaultPdf(double Mass);
     double GenMass(double MaxPdf);
     BasicProperties GenBasicProperties();
+    void GenSpectralType(AstroObject::Star& StarData);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties);
     std::shared_ptr<MistData> LoadMistData(const std::string& Filename);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);
@@ -68,6 +69,20 @@ private:
     std::vector<std::string> _MistHeaders{ "star_age", "star_mass", "star_mdot", "log_L", "log_Teff", "log_R", "log_surf_z", "v_wind_Km_per_s", "log_center_T", "log_center_Rho", "phase", "x" };
     std::unordered_map<std::string, std::vector<double>> _MassFileCache;
     std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>> _PhaseChangesCache;
+
+    static const int _kStarAgeIndex;
+    static const int _kStarMassIndex;
+    static const int _kStarMdotIndex;
+    static const int _kLogLIndex;
+    static const int _kLogTeffIndex;
+    static const int _kLogRIndex;
+    static const int _kLogSurfZIndex;
+    static const int _kVWindKmPerSIndex;
+    static const int _kLogCenterTIndex;
+    static const int _kLogCenterRhoIndex;
+    static const int _kPhaseIndex;
+    static const int _kXIndex;
+    static const int _kLifetimeIndex;
 };
 
 _MODULES_END

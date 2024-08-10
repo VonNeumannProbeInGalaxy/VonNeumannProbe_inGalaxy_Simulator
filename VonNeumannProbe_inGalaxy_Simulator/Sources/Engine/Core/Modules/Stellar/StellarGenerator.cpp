@@ -13,6 +13,7 @@
 #include <sstream>
 #include <vector>
 
+#include "Engine/Core/Constants.h"
 #include "Engine/Core/Logger.h"
 
 _NPGS_BEGIN
@@ -29,31 +30,32 @@ AstroObject::Star StellarGenerator::GenStar(const BasicProperties& Properties) {
     AstroObject::Star Star(Properties);
     auto StarData = GetActuallyMistData(Properties);
 
-    Star.SetAge(StarData[0]).SetMass(StarData[1]).SetRadius(std::pow(10.0, StarData[5]));
-    Star.SetStellarWindMassLossRate(StarData[2])
-        .SetLuminosity(std::pow(10.0, StarData[3]))
-        .SetEffectiveTemp(std::pow(10.0, StarData[4]))
-        .SetSurfaceFeH(StarData[6])
-        .SetStellarWindSpeed(StarData[7])
-        .SetCoreTemp(std::pow(10.0, StarData[8]))
-        .SetCoreDensity(std::pow(10.0, StarData[9]))
-        .SetEvolutionPhase(static_cast<AstroObject::Star::Phase>(StarData[10]))
-        .SetEvolutionProgress(StarData[11]);
+    double Age               = StarData[0];
+    double MassSol           = StarData[1];
+    double RadiusSol         = std::pow(10.0, StarData[5]);
+    double EffectiveTemp     = std::pow(10.0, StarData[4]);
+    double SurfaceFeH        = StarData[6];
+    double CoreTemp          = std::pow(10.0, StarData[8]);
+    double CoreDensity       = std::pow(10.0, StarData[9]);
+    double EvolutionProgress = StarData[11];
+
+    double LuminositySol = std::pow((RadiusSol / kSolarRadius), 2) * std::pow((EffectiveTemp / kSolarEffectiveTemp), 4);
+
+    AstroObject::Star::Phase EvolutionPhase = static_cast<AstroObject::Star::Phase>(StarData[10]);
+
+    Star.SetAge(Age).SetMass(MassSol * kSolarMass).SetRadius(RadiusSol * kSolarRadius);
+    Star.SetLuminosity(LuminositySol * kSolarLuminosity)
+        .SetEffectiveTemp(EffectiveTemp)
+        .SetSurfaceFeH(SurfaceFeH)
+        .SetCoreTemp(CoreTemp)
+        .SetCoreDensity(CoreDensity)
+        .SetEvolutionProgress(EvolutionProgress)
+        .SetEvolutionPhase(EvolutionPhase);
 
     auto EvolutionPhase = Star.GetEvolutionPhase();
     double EffectiveTemp = Star.GetEffectiveTemp();
 
-    std::array<int, 10> SpectralTemp_O{ 0,     0,     54000, 44900, 42900, 41400, 39500, 37100, 35100, 33300 };
-    std::array<int, 10> SpectralTemp_B{ 31400, 26000, 20600, 17000, 16400, 15700, 14500, 14000, 12300, 10700 };
-    std::array<int, 10> SpectralTemp_A{ 9700,  9300,  8800,  8600,  8250,  8100,  7910,  7760,  7590,  7400  };
-    std::array<int, 10> SpectralTemp_F{ 7220,  7020,  6820,  6750,  6670,  6550,  6350,  6280,  6180,  6050  };
-    std::array<int, 10> SpectralTemp_G{ 5930,  5860,  5770,  5720,  5680,  5660,  5600,  5550,  5480,  5380  };
-    std::array<int, 10> SpectralTemp_K{ 5270,  5170,  5100,  4830,  4600,  4440,  4300,  4100,  3990,  3930  };
-    std::array<int, 10> SpectralTemp_M{ 3850,  3660,  3560,  3430,  3210,  3060,  2810,  2680,  2570,  2380  };
-
-    if (EvolutionPhase != AstroObject::Star::Phase::kPrevMainSequence) {
-
-    }
+    GenSpectralType(Star);
 
     return Star;
 }
@@ -118,6 +120,10 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     Properties.FeH = FeH;
 
     return Properties;
+}
+
+void StellarGenerator::GenSpectralType(AstroObject::Star& StarData) {
+    
 }
 
 std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties& Properties) {
@@ -229,12 +235,13 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 
             Result = InterpolateFinalData({ LowerRows, UpperRows }, MassFactor);
         } else [[unlikely]] {
-            std::shared_ptr<MistData> Data = LoadMistData(Files.first);
-            auto PhaseChanges = FindPhaseChanges(Data);
+            std::shared_ptr<MistData> StarData = LoadMistData(Files.first);
+            auto PhaseChanges = FindPhaseChanges(StarData);
             std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ PhaseChanges, {} };
             double EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
-
-            Result = InterpolateRows(Data, EvolutionProgress);
+            double Lifetime = StarData->Data()->back()[_kStarAgeIndex];
+            Result = InterpolateRows(StarData, EvolutionProgress);
+            Result.emplace_back(Lifetime);
         }
     } catch (std::exception& e) {
         NpgsCoreError("Error: " + std::string(e.what()));
@@ -252,8 +259,8 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::s
         auto* DataArray = DataCsv->Data();
         int CurrentPhase = -2;
         for (const auto& Row : *DataArray) {
-            if (Row[10] != CurrentPhase || Row[11] == 10.0) {
-                CurrentPhase = static_cast<int>(Row[10]);
+            if (Row[_kPhaseIndex] != CurrentPhase || Row[_kXIndex] == 10.0) {
+                CurrentPhase = static_cast<int>(Row[_kPhaseIndex]);
                 Result.emplace_back(Row);
             }
         }
@@ -268,7 +275,7 @@ std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTi
     std::vector<std::vector<double>>::const_iterator LowerTimePoint;
     std::vector<std::vector<double>>::const_iterator UpperTimePoint;
 
-    if (PhaseChanges.size() != 2 || PhaseChanges.front()[10] != PhaseChanges.back()[10]) {
+    if (PhaseChanges.size() != 2 || PhaseChanges.front()[_kPhaseIndex] != PhaseChanges.back()[_kPhaseIndex]) {
         LowerTimePoint = std::lower_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](const std::vector<double>& Lhs, double Rhs) -> bool {
             return Lhs[0] < Rhs;
@@ -294,22 +301,22 @@ std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTi
         UpperTimePoint = std::prev(PhaseChanges.end(), 1);
     }
 
-    return { (*LowerTimePoint)[11], { (*LowerTimePoint)[0], (*UpperTimePoint)[0] } };
+    return { (*LowerTimePoint)[_kXIndex], { (*LowerTimePoint)[_kStarAgeIndex], (*UpperTimePoint)[_kStarAgeIndex] } };
 }
 
 std::pair<double, std::size_t> StellarGenerator::FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor) {
     std::vector<double> LowerPhaseChangeTimePoints;
     std::vector<double> UpperPhaseChangeTimePoints;
     for (std::size_t i = 0; i != PhaseChanges.first.size(); ++i) {
-        LowerPhaseChangeTimePoints.emplace_back(PhaseChanges.first[i][0]);
-        UpperPhaseChangeTimePoints.emplace_back(PhaseChanges.second[i][0]);
+        LowerPhaseChangeTimePoints.emplace_back(PhaseChanges.first[i][_kStarAgeIndex]);
+        UpperPhaseChangeTimePoints.emplace_back(PhaseChanges.second[i][_kStarAgeIndex]);
     }
 
     std::vector<double> PhaseChangeTimePoints = InterpolateArray({ LowerPhaseChangeTimePoints, UpperPhaseChangeTimePoints }, MassFactor);
 
     std::vector<std::pair<double, double>> TimePointPairs;
     for (std::size_t i = 0; i != PhaseChanges.first.size(); ++i) {
-        TimePointPairs.emplace_back(PhaseChanges.first[i][10], PhaseChangeTimePoints[i]);
+        TimePointPairs.emplace_back(PhaseChanges.first[i][_kPhaseIndex], PhaseChangeTimePoints[i]);
     }
 
     std::pair<double, std::size_t> Result;
@@ -341,8 +348,8 @@ double StellarGenerator::CalcEvolutionProgress(std::pair<std::vector<std::vector
             std::size_t Index = TimePointResults.second;
 
             if (Index + 1 != PhaseChanges.first.size()) {
-                std::pair<double, double> LowerTimePoints = { PhaseChanges.first[Index][0], PhaseChanges.first[Index + 1][0] };
-                std::pair<double, double> UpperTimePoints = { PhaseChanges.second[Index][0], PhaseChanges.second[Index + 1][0] };
+                std::pair<double, double> LowerTimePoints = { PhaseChanges.first[Index][_kStarAgeIndex], PhaseChanges.first[Index + 1][_kStarAgeIndex] };
+                std::pair<double, double> UpperTimePoints = { PhaseChanges.second[Index][_kStarAgeIndex], PhaseChanges.second[Index + 1][_kStarAgeIndex] };
 
                 const auto& [LowerLowerTimePoint, LowerUpperTimePoint] = LowerTimePoints;
                 const auto& [UpperLowerTimePoint, UpperUpperTimePoint] = UpperTimePoints;
@@ -355,21 +362,21 @@ double StellarGenerator::CalcEvolutionProgress(std::pair<std::vector<std::vector
                 Result = 0.0;
             }
         } else {
-            if (PhaseChanges.first.back()[10] == PhaseChanges.second.back()[10]) {
+            if (PhaseChanges.first.back()[_kPhaseIndex] == PhaseChanges.second.back()[_kPhaseIndex]) {
                 double FirstDiscardTimePoint = 0.0;
-                double FirstCommonTimePoint = (*std::prev(PhaseChanges.first.end(), 2))[0];
+                double FirstCommonTimePoint = (*std::prev(PhaseChanges.first.end(), 2))[_kStarAgeIndex];
 
                 std::size_t MinSize = std::min(PhaseChanges.first.size(), PhaseChanges.second.size());
                 for (std::size_t i = 0; i != MinSize - 1; ++i) {
-                    if (PhaseChanges.first[i][10] != PhaseChanges.second[i][10]) {
-                        FirstDiscardTimePoint = PhaseChanges.first[i][0];
+                    if (PhaseChanges.first[i][_kPhaseIndex] != PhaseChanges.second[i][_kPhaseIndex]) {
+                        FirstDiscardTimePoint = PhaseChanges.first[i][_kStarAgeIndex];
                         break;
                     }
                 }
 
                 double DeltaTimePoint = FirstCommonTimePoint - FirstDiscardTimePoint;
-                (*std::prev(PhaseChanges.first.end(), 2))[0] -= DeltaTimePoint;
-                PhaseChanges.first.back()[0] -= DeltaTimePoint;
+                (*std::prev(PhaseChanges.first.end(), 2))[_kStarAgeIndex] -= DeltaTimePoint;
+                PhaseChanges.first.back()[_kStarAgeIndex] -= DeltaTimePoint;
             }
 
             AlignArrays(PhaseChanges);
@@ -377,7 +384,7 @@ double StellarGenerator::CalcEvolutionProgress(std::pair<std::vector<std::vector
             Result = CalcEvolutionProgress(PhaseChanges, TargetAge, MassFactor);
             double IntegerPart = 0.0;
             double FractionalPart = std::modf(Result, &IntegerPart);
-            if (FractionalPart > 0.99 && Result < 9.0 && IntegerPart >= std::prev(PhaseChanges.first.end(), 3)->at(10)) {
+            if (FractionalPart > 0.99 && Result < 9.0 && IntegerPart >= (*std::prev(PhaseChanges.first.end(), 3))[_kPhaseIndex]) {
                 Result = 9.0;
             }
         }
@@ -391,12 +398,12 @@ std::vector<double> StellarGenerator::InterpolateRows(const std::shared_ptr<Mist
 
     auto SurroundingRows = Data->FindSurroundingValues("x", EvolutionProgress);
     if (SurroundingRows.first != SurroundingRows.second) {
-        int LowerTempPhase = static_cast<int>(SurroundingRows.first[10]);
-        int UpperTempPhase = static_cast<int>(SurroundingRows.second[10]);
+        int LowerTempPhase = static_cast<int>(SurroundingRows.first[_kPhaseIndex]);
+        int UpperTempPhase = static_cast<int>(SurroundingRows.second[_kPhaseIndex]);
         if (LowerTempPhase != UpperTempPhase) {
-            SurroundingRows.second[11] = LowerTempPhase + 1;
+            SurroundingRows.second[_kXIndex] = LowerTempPhase + 1;
         }
-        double ProgressFactor = (EvolutionProgress - SurroundingRows.first[11]) / (SurroundingRows.second[11] - SurroundingRows.first[11]);
+        double ProgressFactor = (EvolutionProgress - SurroundingRows.first[_kXIndex]) / (SurroundingRows.second[_kXIndex] - SurroundingRows.first[_kXIndex]);
         Result = InterpolateFinalData(SurroundingRows, ProgressFactor);
     } else {
         Result = SurroundingRows.first;
@@ -406,14 +413,14 @@ std::vector<double> StellarGenerator::InterpolateRows(const std::shared_ptr<Mist
 }
 
 void StellarGenerator::AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) {
-    if (Arrays.first.back()[10] != 9 && Arrays.second.back()[10] != 9) {
+    if (Arrays.first.back()[_kPhaseIndex] != 9 && Arrays.second.back()[_kPhaseIndex] != 9) {
         std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
         Arrays.first.resize(MinSize);
         Arrays.second.resize(MinSize);
-    } else if (Arrays.first.back()[10] != 9 && Arrays.second.back()[10] == 9) {
-        Arrays.first.back()[10] = 9;
-        Arrays.first.back()[11] = 9.0;
-    } else if (Arrays.first.back()[10] == 9 && Arrays.second.back()[10] == 9) {
+    } else if (Arrays.first.back()[_kPhaseIndex] != 9 && Arrays.second.back()[_kPhaseIndex] == 9) {
+        Arrays.first.back()[_kPhaseIndex] = 9;
+        Arrays.first.back()[_kXIndex] = 9.0;
+    } else if (Arrays.first.back()[_kPhaseIndex] == 9 && Arrays.second.back()[_kPhaseIndex] == 9) {
         auto LastArray1 = Arrays.first.back();
         auto LastArray2 = Arrays.second.back();
         auto SubLastArray1 = *std::prev(Arrays.first.end(), 2);
@@ -456,10 +463,24 @@ std::vector<double> StellarGenerator::InterpolateFinalData(const std::pair<std::
     }
 
     std::vector<double> Result = InterpolateArray(DataArrays, Factor);
-    Result[10] = DataArrays.first[10];
+    Result[_kPhaseIndex] = DataArrays.first[_kPhaseIndex];
 
     return Result;
 }
+
+const int StellarGenerator::_kStarAgeIndex      = 0;
+const int StellarGenerator::_kStarMassIndex     = 1;
+const int StellarGenerator::_kStarMdotIndex     = 2;
+const int StellarGenerator::_kLogLIndex         = 3;
+const int StellarGenerator::_kLogTeffIndex      = 4;
+const int StellarGenerator::_kLogRIndex         = 5;
+const int StellarGenerator::_kLogSurfZIndex     = 6;
+const int StellarGenerator::_kVWindKmPerSIndex  = 7;
+const int StellarGenerator::_kLogCenterTIndex   = 8;
+const int StellarGenerator::_kLogCenterRhoIndex = 9;
+const int StellarGenerator::_kPhaseIndex        = 10;
+const int StellarGenerator::_kXIndex            = 11;
+const int StellarGenerator::_kLifetimeIndex     = 12;
 
 _MODULES_END
 _NPGS_END

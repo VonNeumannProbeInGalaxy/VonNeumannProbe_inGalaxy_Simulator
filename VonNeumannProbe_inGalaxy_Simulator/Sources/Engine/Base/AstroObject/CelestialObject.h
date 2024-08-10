@@ -127,7 +127,7 @@ public:
     ~MolecularCloud() = default;
 
 private:
-    BasicProperties _Properties;
+    BasicProperties _Properties{};
 };
 
 _ASTROOBJECT_END
