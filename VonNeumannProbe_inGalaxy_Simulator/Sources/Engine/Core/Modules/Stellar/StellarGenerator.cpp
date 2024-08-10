@@ -33,7 +33,7 @@ AstroObject::Star StellarGenerator::GenStar(const BasicProperties& Properties) {
     double Age               = StarData[_kStarAgeIndex];
     double MassSol           = StarData[_kStarMassIndex];
     double RadiusSol         = std::pow(10.0, StarData[_kLogRIndex]);
-    double EffectiveTemp     = std::pow(10.0, StarData[_kLogTeffIndex]);
+    double Teff              = std::pow(10.0, StarData[_kLogTeffIndex]);
     double SurfaceFeH        = StarData[_kLogSurfZIndex];
     double CoreTemp          = std::pow(10.0, StarData[_kLogCenterTIndex]);
     double CoreDensity       = std::pow(10.0, StarData[_kLogCenterRhoIndex]);
@@ -41,23 +41,28 @@ AstroObject::Star StellarGenerator::GenStar(const BasicProperties& Properties) {
     double EvolutionProgress = StarData[_kXIndex];
     double Lifetime          = StarData[_kLifetimeIndex];
 
-    double LuminositySol = std::pow(RadiusSol, 2) * std::pow((EffectiveTemp / kSolarEffectiveTemp), 4);
+    double LuminositySol     = std::pow(RadiusSol, 2) * std::pow((Teff / kSolarTeff), 4);
+    double AbsoluteMagnitude = kSolarAbsoluteMagnitude - 2.5 * std::log10(LuminositySol);
+    double EscapeVelocity    = std::sqrt((2 * kGravityConstant * MassSol * kSolarMass) / (RadiusSol * kSolarRadius));
+
+    double LifeProgress      = Age / Lifetime;
+    double WindSpeedFactor   = 3.0 - LifeProgress;
+    double StellarWindSpeed  = WindSpeedFactor * EscapeVelocity;
 
     AstroObject::Star::Phase EvolutionPhase = static_cast<AstroObject::Star::Phase>(StarData[10]);
 
-    Star.SetAge(Age).SetMass(MassSol * kSolarMass).SetRadius(RadiusSol * kSolarRadius);
+    Star.SetAge(Age).SetMass(MassSol * kSolarMass).SetRadius(RadiusSol * kSolarRadius).SetEscapeVelocity(EscapeVelocity);
     Star.SetLuminosity(LuminositySol * kSolarLuminosity)
-        .SetEffectiveTemp(EffectiveTemp)
+        .SetAbsoluteMagnitude(AbsoluteMagnitude)
+        .SetTeff(Teff)
         .SetSurfaceFeH(SurfaceFeH)
         .SetCoreTemp(CoreTemp)
         .SetCoreDensity(CoreDensity)
-        .SetStellarWindMassLossRate(MassLossRate * kSolarMass)
+        .SetStellarWindSpeed(StellarWindSpeed)
+        .SetStellarWindMassLossRate(-(MassLossRate * kSolarMass / 31536000))
         .SetEvolutionProgress(EvolutionProgress)
         .SetEvolutionPhase(EvolutionPhase)
         .SetLifetime(Lifetime);
-
-    //auto EvolutionPhase = Star.GetEvolutionPhase();
-    //double EffectiveTemp = Star.GetEffectiveTemp();
 
     GenSpectralType(Star);
 
@@ -127,7 +132,82 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
 }
 
 void StellarGenerator::GenSpectralType(AstroObject::Star& StarData) {
-    
+    double Teff = StarData.GetTeff();
+    auto EvolutionPhase = StarData.GetEvolutionPhase();
+
+    StellarClass::SpectralType SpectralType{};
+    SpectralType.bIsAmStar = false;
+
+    std::vector<std::pair<int, int>> SpecialSubclassMap;
+    double Subclass = 0.0;
+
+    if (EvolutionPhase != AstroObject::Star::Phase::kWolfRayet) {
+        std::uint32_t SpectralClass = 0;
+
+        for (auto it = AstroObject::Star::_kInitialCommonMap.begin(); it != AstroObject::Star::_kInitialCommonMap.end() - 1; ++it) {
+            ++SpectralClass;
+            if (it->first >= Teff && (it + 1)->first < Teff) {
+                SpecialSubclassMap = it->second;
+                break;
+            }
+        }
+
+        SpectralType.HSpectralClass = static_cast<StellarClass::SpectralClass>(SpectralClass);
+
+        for (auto it = SpecialSubclassMap.begin(); it != SpecialSubclassMap.end() - 1; ++it) {
+            if (it->first >= Teff && (it + 1)->first < Teff) {
+                double TempFactor = (Teff - (it + 1)->first) / (it->first - (it + 1)->first);
+                Subclass = it->second + TempFactor;
+                Subclass = std::round(Subclass * 10.0) / 10.0;
+                break;
+            }
+        }
+
+        SpectralType.Subclass = Subclass;
+
+        if (StarData.GetLuminosity() / kSolarLuminosity <= 100) {
+            SpectralType.LuminosityClass = AstroObject::Star::_kLuminosity.at(EvolutionPhase);
+        } else {
+            SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
+        }
+
+        StellarClass Class(StellarClass::StarType::kNormalStar, SpectralType);
+        StarData.SetStellarClass(Class);
+        StarData.SetSpectralType(Class.ToString());
+    }
+}
+
+StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroObject::Star& StarData) {
+    StellarClass::LuminosityClass LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
+
+    double MassLossRateYearSol = StarData.GetStellarWindMassLossRate() * 31536000 / kSolarMass;
+    if (MassLossRateYearSol > 1e-4) {
+        return StellarClass::LuminosityClass::kLuminosity_IaPlus;
+    }
+
+    double LuminositySol = StarData.GetLuminosity() / kSolarLuminosity;
+
+    if (LuminositySol > 650000) {
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_0;
+    } else if (LuminositySol > 150000) {
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Ia;
+    } else if (LuminositySol > 50000) {
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Iab;
+    } else if (LuminositySol > 10000) {
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Ib;
+    } else if (LuminositySol > 10000) {
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_II;
+    } else if (LuminositySol > 3000) {
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_III;
+    } else if (LuminositySol > 80) {
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IV;
+    } else if (LuminositySol > 1) {
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
+    } else if (LuminositySol > 0.1) {
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_VI;
+    }
+
+    return LuminosityClass;
 }
 
 std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties& Properties) {
@@ -218,7 +298,7 @@ std::shared_ptr<StellarGenerator::MistData> StellarGenerator::LoadMistData(const
 }
 
 std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor) {
-    std::vector<double> Result(12);
+    std::vector<double> Result;
 
     try {
         if (Files.first != Files.second) [[likely]] {
@@ -288,14 +368,14 @@ std::pair<double, std::pair<double, double>> StellarGenerator::FindSurroundingTi
     if (PhaseChanges.size() != 2 || PhaseChanges.front()[_kPhaseIndex] != PhaseChanges.back()[_kPhaseIndex]) {
         LowerTimePoint = std::lower_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](const std::vector<double>& Lhs, double Rhs) -> bool {
-            return Lhs[0] < Rhs;
-        }
+                return Lhs[0] < Rhs;
+            }
         );
 
         UpperTimePoint = std::upper_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](double Lhs, const std::vector<double>& Rhs) -> bool {
-            return Lhs < Rhs[0];
-        }
+                return Lhs < Rhs[0];
+            }
         );
 
         if (LowerTimePoint == UpperTimePoint) {
@@ -481,11 +561,11 @@ std::vector<double> StellarGenerator::InterpolateFinalData(const std::pair<std::
 const int StellarGenerator::_kStarAgeIndex      = 0;
 const int StellarGenerator::_kStarMassIndex     = 1;
 const int StellarGenerator::_kStarMdotIndex     = 2;
-const int StellarGenerator::_kLogLIndex         = 3;
-const int StellarGenerator::_kLogTeffIndex      = 4;
-const int StellarGenerator::_kLogRIndex         = 5;
-const int StellarGenerator::_kLogSurfZIndex     = 6;
-const int StellarGenerator::_kVWindKmPerSIndex  = 7;
+const int StellarGenerator::_kLogTeffIndex      = 3;
+const int StellarGenerator::_kLogRIndex         = 4;
+const int StellarGenerator::_kLogSurfZIndex     = 5;
+const int StellarGenerator::_kSurfaceH1Index    = 6;
+const int StellarGenerator::_kSurfaceHe3Index   = 7;
 const int StellarGenerator::_kLogCenterTIndex   = 8;
 const int StellarGenerator::_kLogCenterRhoIndex = 9;
 const int StellarGenerator::_kPhaseIndex        = 10;

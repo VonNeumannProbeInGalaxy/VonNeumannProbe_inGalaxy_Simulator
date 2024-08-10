@@ -1,7 +1,10 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "Engine/Base/AstroObject/CelestialObject.h"
 #include "Engine/Core/Modules/Stellar/StellarClass.h"
@@ -28,7 +31,7 @@ public:
         double AbsoluteMagnitude;
         double FeH;
         double SurfaceFeH;
-        double EffectiveTemp;
+        double Teff;
         double CoreTemp;
         double CoreDensity;
         double StellarWindSpeed;
@@ -57,7 +60,7 @@ public:
     Star& SetAbsoluteMagnitude(double AbsoluteMagnitude);
     Star& SetFeH(double FeH);
     Star& SetSurfaceFeH(double SurfaceFeH);
-    Star& SetEffectiveTemp(double EffectiveTemp);
+    Star& SetTeff(double Teff);
     Star& SetCoreTemp(double CoreTemp);
     Star& SetCoreDensity(double CoreDensity);
     Star& SetStellarWindSpeed(double StellarWindSpeed);
@@ -75,7 +78,7 @@ public:
     double GetAbsoluteMagnitude() const;
     double GetFeH() const;
     double GetSurfaceFeH() const;
-    double GetEffectiveTemp() const;
+    double GetTeff() const;
     double GetCoreTemp() const;
     double GetCoreDensity() const;
     double GetStellarWindSpeed() const;
@@ -86,22 +89,22 @@ public:
     double GetEvolutionProgress() const;
     double GetLifetime() const;
 
-    static const std::unordered_map<int, std::string> _kSpectralTemp_O;
-    static const std::unordered_map<int, std::string> _kSpectralTemp_B;
-    static const std::unordered_map<int, std::string> _kSpectralTemp_A;
-    static const std::unordered_map<int, std::string> _kSpectralTemp_F;
-    static const std::unordered_map<int, std::string> _kSpectralTemp_G;
-    static const std::unordered_map<int, std::string> _kSpectralTemp_K;
-    static const std::unordered_map<int, std::string> _kSpectralTemp_M;
-    static const std::unordered_map<int, std::string> _kSpectralTemp_WC;
-    static const std::unordered_map<int, std::string> _kSpectralTemp_WN;
-    static const std::unordered_map<int, std::string> _kSpectralTemp_WO;
-    static const std::unordered_map<int, std::string> _kSpectralTemp_WNxh;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_O;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_B;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_A;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_F;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_G;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_K;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_M;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_WC;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_WN;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_WO;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_WNxh;
 
-    static const std::unordered_map<int, std::unordered_map<int, std::string>> _kInitialCommonTemp;
-    static const std::unordered_map<int, std::unordered_map<int, std::string>> _kInitialWolfRayetTemp;
+    static const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> _kInitialCommonMap;
+    static const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> _kInitialWolfRayetMap;
 
-    static const std::unordered_map<int, int> _kLuminosity;
+    static const std::unordered_map<Phase, Npgs::Modules::StellarClass::LuminosityClass> _kLuminosity;
 
 private:
     ExtendedProperties _StarExtraProperties{};

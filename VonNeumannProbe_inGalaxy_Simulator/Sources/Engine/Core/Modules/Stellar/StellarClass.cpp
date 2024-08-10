@@ -2,6 +2,8 @@
 
 #include <cctype>
 #include <cmath>
+#include <iomanip>
+#include <sstream>
 
 #include "Engine/Core/Assert.h"
 
@@ -318,6 +320,98 @@ static ParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, S
     }
 }
 
+static std::string SpectralToStr(StellarClass::SpectralClass Spectral, double Subclass) {
+    std::ostringstream Stream;
+
+    if (Subclass == std::floor(Subclass)) {
+        Stream << std::fixed << std::setprecision(0) << Subclass;
+    } else {
+        Subclass = std::round(Subclass * 10.0) / 10.0;
+        Stream << std::fixed << std::setprecision(1) << Subclass;
+    }
+
+    switch (Spectral) {
+    case StellarClass::SpectralClass::kSpectral_O:
+        return std::string("O") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_B:
+        return std::string("B") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_A:
+        return std::string("A") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_F:
+        return std::string("F") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_G:
+        return std::string("G") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_K:
+        return std::string("K") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_M:
+        return std::string("M") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_R:
+        return std::string("R") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_N:
+        return std::string("N") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_C:
+        return std::string("C") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_S:
+        return std::string("S") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_WC:
+        return std::string("WC") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_WN:
+        return std::string("WN") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_WO:
+        return std::string("WO") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_L:
+        return std::string("L") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_T:
+        return std::string("T") + Stream.str();
+    case StellarClass::SpectralClass::kSpectral_Y:
+        return std::string("Y") + Stream.str();
+    default:
+        return std::string("Unknown");
+    }
+}
+
+static std::string LuminosityClassToStr(StellarClass::LuminosityClass Luminosity) {
+    switch (Luminosity) {
+    case StellarClass::LuminosityClass::kLuminosity_0:
+        return std::string("0");
+    case StellarClass::LuminosityClass::kLuminosity_IaPlus:
+        return std::string("Ia+");
+    case StellarClass::LuminosityClass::kLuminosity_Ia:
+        return std::string("Ia");
+    case StellarClass::LuminosityClass::kLuminosity_Ib:
+        return std::string("Ib");
+    case StellarClass::LuminosityClass::kLuminosity_Iab:
+        return std::string("Iab");
+    case StellarClass::LuminosityClass::kLuminosity_I:
+        return std::string("I");
+    case StellarClass::LuminosityClass::kLuminosity_II:
+        return std::string("II");
+    case StellarClass::LuminosityClass::kLuminosity_III:
+        return std::string("III");
+    case StellarClass::LuminosityClass::kLuminosity_IV:
+        return std::string("IV");
+    case StellarClass::LuminosityClass::kLuminosity_V:
+        return std::string("V");
+    case StellarClass::LuminosityClass::kLuminosity_VI:
+        return std::string("VI");
+    default:
+        return std::string("");
+    }
+}
+
+static std::string SpecialMarkToStr(StellarClass::SpecialPeculiarities SpecialMark) {
+    switch (SpecialMark) {
+    case StellarClass::SpecialPeculiarities::kCode_Null:
+        return std::string("");
+    case StellarClass::SpecialPeculiarities::kCode_f:
+        return std::string("f");
+    case StellarClass::SpecialPeculiarities::kCode_h:
+        return std::string("h");
+    default:
+        return std::string("");
+    }
+}
+
 StellarClass::StellarClass(StarType StarType, const SpectralType& SpectralType)
     : _StarType(StarType), _SpectralType(SpectralType)
 {}
@@ -508,6 +602,23 @@ bool StellarClass::Load(std::uint64_t PackagedSpectralType) {
         _SpectralType = { SpectralClass::kSpectral_Unknown, 0.0, false, SpectralClass::kSpectral_Unknown, 0.0, LuminosityClass::kLuminosity_Unknown, 0 };
         return false;
     }
+}
+
+std::string StellarClass::ToString(const SpectralType& SpectralType) const {
+    if (SpectralType.HSpectralClass == SpectralClass::kSpectral_Unknown) {
+        return "Unknown";
+    }
+
+    std::string SpectralTypeStr = SpectralToStr(SpectralType.HSpectralClass, SpectralType.Subclass);
+
+    if (SpectralType.bIsAmStar) {
+        SpectralTypeStr += "m" + SpectralToStr(SpectralType.MSpectralClass, SpectralType.AmSubclass);
+    }
+
+    SpectralTypeStr += LuminosityClassToStr(SpectralType.LuminosityClass);
+    SpectralTypeStr += SpecialMarkToStr(static_cast<SpecialPeculiarities>(SpectralType.SpecialMark));
+
+    return SpectralTypeStr;
 }
 
 _MODULES_END

@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 
 #include "Engine/Base/AstroObject/Star.h"
+#include "Engine/Core/Modules/Stellar/StellarClass.h"
 #include "Engine/Core/AssetLoader/AssetManager.h"
 #include "Engine/Core/Base.h"
 
@@ -51,6 +52,7 @@ private:
     double GenMass(double MaxPdf);
     BasicProperties GenBasicProperties();
     void GenSpectralType(AstroObject::Star& StarData);
+    StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star& StarData);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties);
     std::shared_ptr<MistData> LoadMistData(const std::string& Filename);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);
@@ -66,18 +68,18 @@ private:
 private:
     std::mt19937 _RandomEngine;
     std::uniform_real_distribution<double> _UniformDistribution;
-    std::vector<std::string> _MistHeaders{ "star_age", "star_mass", "star_mdot", "log_L", "log_Teff", "log_R", "log_surf_z", "v_wind_Km_per_s", "log_center_T", "log_center_Rho", "phase", "x" };
+    std::vector<std::string> _MistHeaders{ "star_age", "star_mass", "star_mdot", "log_Teff", "log_R", "log_surf_z", "surface_h1", "surface_he3", "log_center_T", "log_center_Rho", "phase", "x" };
     std::unordered_map<std::string, std::vector<double>> _MassFileCache;
     std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>> _PhaseChangesCache;
 
     static const int _kStarAgeIndex;
     static const int _kStarMassIndex;
     static const int _kStarMdotIndex;
-    static const int _kLogLIndex;
     static const int _kLogTeffIndex;
     static const int _kLogRIndex;
     static const int _kLogSurfZIndex;
-    static const int _kVWindKmPerSIndex;
+    static const int _kSurfaceH1Index;
+    static const int _kSurfaceHe3Index;
     static const int _kLogCenterTIndex;
     static const int _kLogCenterRhoIndex;
     static const int _kPhaseIndex;

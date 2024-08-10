@@ -34,8 +34,8 @@ inline Star& Star::SetSurfaceFeH(double SurfaceFeH) {
     return *this;
 }
 
-inline Star& Star::SetEffectiveTemp(double EffectiveTemp) {
-    _StarExtraProperties.EffectiveTemp = EffectiveTemp;
+inline Star& Star::SetTeff(double Teff) {
+    _StarExtraProperties.Teff = Teff;
     return *this;
 }
 
@@ -100,8 +100,8 @@ inline double Star::GetSurfaceFeH() const {
     return _StarExtraProperties.SurfaceFeH;
 }
 
-inline double Star::GetEffectiveTemp() const {
-    return _StarExtraProperties.EffectiveTemp;
+inline double Star::GetTeff() const {
+    return _StarExtraProperties.Teff;
 }
 
 inline double Star::GetCoreTemp() const {

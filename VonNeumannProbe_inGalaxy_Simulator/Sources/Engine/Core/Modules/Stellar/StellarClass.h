@@ -36,9 +36,9 @@ public:
         kSpectral_S          = 11,
         // 沃尔夫—拉叶星
         // -----------
-        kSpectral_WC         = 12,
+        kSpectral_WO         = 12,
         kSpectral_WN         = 13,
-        kSpectral_WO         = 14,
+        kSpectral_WC         = 14,
         // 棕矮星
         // -----
         kSpectral_L          = 15,
@@ -132,6 +132,7 @@ public:
     static StellarClass Parse(const std::string& StellarClassStr);
     std::uint64_t Data() const;
     bool Load(std::uint64_t PackagedSpectralType);
+    std::string ToString(const SpectralType& SpectralType) const;
 
 public:
     StarType GetStarType() const {
@@ -140,6 +141,10 @@ public:
 
     SpectralType GetSpectralType() const {
         return _SpectralType;
+    }
+
+    std::string ToString() const {
+        return ToString(_SpectralType);
     }
 
 private:
