@@ -82,7 +82,7 @@ public:
     PlanetType GetType() const;
 
 private:
-    ExtendedProperties _PlanetExtraProperties{};
+    ExtendedProperties _PlanetExtraProperties;
 };
 
 _ASTROOBJECT_END

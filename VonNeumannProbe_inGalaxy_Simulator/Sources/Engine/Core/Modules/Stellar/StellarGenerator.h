@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include <random>
 #include <unordered_map>
 #include <utility>
@@ -69,11 +70,13 @@ public:
     static const int _kLifetimeIndex;
 
 private:
-    std::mt19937                                                                    _RandomEngine;
-    std::uniform_real_distribution<double>                                          _UniformDistribution;
-    std::vector<std::string>                                                        _MistHeaders;
-    std::unordered_map<std::string, std::vector<double>>                            _MassFileCache;
-    std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>> _PhaseChangesCache;
+    std::mt19937                           _RandomEngine;
+    std::uniform_real_distribution<double> _UniformDistribution;
+    std::vector<std::string>               _MistHeaders;
+
+    static std::unordered_map<std::string, std::vector<double>>                            _MassFileCache;
+    static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>> _PhaseChangesCache;
+    static std::mutex                                                                      _CacheMutex;
 };
 
 _MODULES_END

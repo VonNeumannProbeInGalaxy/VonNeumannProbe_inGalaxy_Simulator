@@ -41,12 +41,17 @@ StellarGenerator::StellarGenerator(int Seed) :
 
 AstroObject::Star StellarGenerator::GenStar() {
     BasicProperties BasicData = GenBasicProperties();
+    // std::println("{}, {}, {}", BasicData.Age, BasicData.FeH, BasicData.Mass);
     return GenStar(BasicData);
 }
 
 AstroObject::Star StellarGenerator::GenStar(const BasicProperties& Properties) {
     AstroObject::Star Star(Properties);
     auto StarData = GetActuallyMistData(Properties);
+
+    if (StarData.empty()) {
+        return {};
+    }
 
     double Age               = StarData[_kStarAgeIndex];
     double MassSol           = StarData[_kStarMassIndex];
@@ -138,7 +143,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     double Mass = GenMass(3.125);
     Properties.Mass = Mass;
 
-    //double Lifetime = pow(10, 10) * pow(Mass, -2.5);
+    // double Lifetime = pow(10, 10) * pow(Mass, -2.5);
 
     double Age = _UniformDistribution(_RandomEngine) * std::min(1e7, 3e12);
     Properties.Age = Age;
@@ -175,17 +180,21 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
     FeHStr.insert(0, "Assets/Models/MIST/[Fe_H]=");
 
     std::vector<double> Masses;
+    _CacheMutex.lock();
     if (_MassFileCache.contains(FeHStr)) {
         Masses = _MassFileCache[FeHStr];
     } else {
+        _CacheMutex.unlock();
         for (const auto& Entry : std::filesystem::directory_iterator(FeHStr)) {
             std::string Filename = Entry.path().filename().string();
             double Mass = std::stod(Filename.substr(0, Filename.find("Ms_track.csv")));
             Masses.emplace_back(Mass);
         }
 
+        _CacheMutex.lock();
         _MassFileCache.emplace(FeHStr, Masses);
     }
+    _CacheMutex.unlock();
 
     auto it = std::lower_bound(Masses.begin(), Masses.end(), TargetMass);
     if (it == Masses.end()) {
@@ -229,6 +238,7 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
 }
 
 std::shared_ptr<StellarGenerator::MistData> StellarGenerator::LoadMistData(const std::string& Filename) {
+    std::lock_guard<std::mutex> Lock(_CacheMutex);
     if (Assets::AssetManager::GetAsset<MistData>(Filename) == nullptr) {
         Assets::AssetManager::AddAsset<MistData>(Filename, std::make_shared<MistData>(MistData(Filename, _MistHeaders)));
     }
@@ -282,9 +292,11 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv) {
     std::vector<std::vector<double>> Result;
 
+    _CacheMutex.lock();
     if (_PhaseChangesCache.contains(DataCsv)) {
         Result = _PhaseChangesCache[DataCsv];
     } else {
+        _CacheMutex.unlock();
         auto* DataArray = DataCsv->Data();
         int CurrentPhase = -2;
         for (const auto& Row : *DataArray) {
@@ -294,8 +306,10 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::s
             }
         }
 
+        _CacheMutex.lock();
         _PhaseChangesCache.emplace(DataCsv, Result);
     }
+    _CacheMutex.unlock();
 
     return Result;
 }
@@ -313,6 +327,10 @@ const int StellarGenerator::_kLogCenterRhoIndex = 9;
 const int StellarGenerator::_kPhaseIndex        = 10;
 const int StellarGenerator::_kXIndex            = 11;
 const int StellarGenerator::_kLifetimeIndex     = 12;
+
+std::unordered_map<std::string, std::vector<double>> StellarGenerator::_MassFileCache;
+std::unordered_map<std::shared_ptr<StellarGenerator::MistData>, std::vector<std::vector<double>>> StellarGenerator::_PhaseChangesCache;
+std::mutex StellarGenerator::_CacheMutex;
 
 // Tool functions implementations
 // ------------------------------
@@ -517,6 +535,11 @@ static void GenSpectralType(AstroObject::Star& StarData) {
     double Teff = StarData.GetTeff();
     auto EvolutionPhase = StarData.GetEvolutionPhase();
 
+    // Temp
+    if (Teff > 54000) {
+        return;
+    }
+
     StellarClass::SpectralType SpectralType{};
     SpectralType.bIsAmStar = false;
 
@@ -547,10 +570,12 @@ static void GenSpectralType(AstroObject::Star& StarData) {
 
         SpectralType.Subclass = Subclass;
 
-        if (StarData.GetLuminosity() / kSolarLuminosity <= 100) {
-            SpectralType.LuminosityClass = AstroObject::Star::_kLuminosity.at(EvolutionPhase);
-        } else {
-            SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
+        if (EvolutionPhase != AstroObject::Star::Phase::kPrevMainSequence) {
+            if (StarData.GetLuminosity() / kSolarLuminosity <= 100) {
+                SpectralType.LuminosityClass = AstroObject::Star::_kLuminosity.at(EvolutionPhase);
+            } else {
+                SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
+            }
         }
 
         StellarClass Class(StellarClass::StarType::kNormalStar, SpectralType);

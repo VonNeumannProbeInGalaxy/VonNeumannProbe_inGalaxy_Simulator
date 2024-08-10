@@ -107,7 +107,7 @@ public:
     static const std::unordered_map<Phase, Npgs::Modules::StellarClass::LuminosityClass> _kLuminosity;
 
 private:
-    ExtendedProperties _StarExtraProperties{};
+    ExtendedProperties _StarExtraProperties;
 };
 
 _ASTROOBJECT_END
