@@ -124,12 +124,13 @@ public:
     };
 
 public:
-    constexpr StellarClass() = default;
+    StellarClass();
     StellarClass(StarType StarType, const SpectralType& SpectralType);
     ~StellarClass() = default;
 
 public:
     static StellarClass Parse(const std::string& StellarClassStr);
+
     std::uint64_t Data() const;
     bool Load(std::uint64_t PackagedSpectralType);
     std::string ToString(const SpectralType& SpectralType) const;
@@ -148,16 +149,8 @@ public:
     }
 
 private:
-    StarType _StarType{ StarType::kNormalStar };
-    SpectralType _SpectralType{
-        SpectralClass::kSpectral_Unknown,
-        0.0,
-        false,
-        SpectralClass::kSpectral_Unknown,
-        0.0,
-        LuminosityClass::kLuminosity_Unknown,
-        0
-    };
+    StarType     _StarType;
+    SpectralType _SpectralType;
 };
 
 _MODULES_END

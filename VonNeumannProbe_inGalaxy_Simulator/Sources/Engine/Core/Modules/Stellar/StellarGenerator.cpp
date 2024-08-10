@@ -31,9 +31,11 @@ static std::vector<double> InterpolateFinalData(const std::pair<std::vector<doub
 static void GenSpectralType(AstroObject::Star& StarData);
 static StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star& StarData);
 
+// StellarGenerator implementations
+// --------------------------------
 StellarGenerator::StellarGenerator(int Seed) :
     _RandomEngine(Seed),
-    _MistHeaders({ "star_age", "star_mass", "star_mdot", "log_Teff", "log_R", "log_surf_z",
+    _MistHeaders({ "star_age",   "star_mass",   "star_mdot",    "log_Teff",       "log_R", "log_surf_z",
                    "surface_h1", "surface_he3", "log_center_T", "log_center_Rho", "phase", "x" })
 {}
 
