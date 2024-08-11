@@ -4,6 +4,7 @@
 #include <mutex>
 #include <random>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 #include "Engine/Base/AstroObject/Star.h"
@@ -42,22 +43,23 @@ public:
     ~StellarGenerator() = default;
 
 public:
-    template <typename CsvType>
-    static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
-
     BasicProperties GenBasicProperties();
     AstroObject::Star GenStar();
     AstroObject::Star GenStar(const BasicProperties& Properties);
-    double DefaultPdf(double Mass);
-    double GenMass(double MaxPdf);
+    
+private:
+    template <typename CsvType>
+    static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
+
+    double GenAge(double MaxPdf);
+    double GenMass(double LowerLimit);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
+    void GenSpectralType(AstroObject::Star& StarData);
+    StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star& StarData);
 
 public:
-    static const std::vector<std::string> _kMistHeaders;
-    static const std::vector<std::string> _kHrDiagramHeaders;
-
     static const int _kStarAgeIndex;
     static const int _kStarMassIndex;
     static const int _kStarMdotIndex;
@@ -73,9 +75,11 @@ public:
     static const int _kLifetimeIndex;
 
 private:
-    std::mt19937                           _RandomEngine;
-    std::uniform_real_distribution<double> _UniformDistribution;
+    std::mt19937 _RandomEngine;
 
+    static const std::vector<std::string>                                                   _kMistHeaders;
+    static const std::vector<std::string>                                                   _kHrDiagramHeaders;
+    static const std::unordered_set<double>                                                 _kPresetFeH;
     static std::unordered_map<std::string, std::vector<double>>                             _MassFileCache;
     static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>>  _PhaseChangesCache;
     static std::mutex                                                                       _CacheMutex;

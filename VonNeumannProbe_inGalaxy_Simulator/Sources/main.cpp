@@ -6,12 +6,12 @@
 
 #include "Npgs.h"
 
-#define MULTITHREAD
+//#define MULTITHREAD
 
 int main() {
     Npgs::Logger::Init();
 
-    //std::println("Mass\tRadius\tAge\tClass\tFeH\tLum\tAbsMagn\tTeff\tCoreTemp\tCoreDensity\tMassLoss\tWindSpeed\tPhase\tLifetime");
+    std::println("Mass\tRadius\tAge\tClass\tFeH\tLum\tAbsMagn\tTeff\tCoreTemp\tCoreDensity\tMassLoss\tWindSpeed\tPhase\tProgress\tLifetime");
 #ifdef MULTITHREAD
     int MaxThread = std::thread::hardware_concurrency();
     auto Pool = Npgs::ThreadPool::GetInstance(MaxThread);
@@ -88,29 +88,30 @@ int main() {
     std::println("Benchmark completed in {} seconds.", Duration.count());
 #else
     Npgs::Modules::StellarGenerator Gen(42);
-
-    //for (int i = 0; i != 10000; ++i) {
-    //    Gen.GenStar();
-    //}
+    for (int i = 0; i != 100; ++i) {
+        auto Star = Gen.GenStar();
+        //if (Star.GetMass() / Npgs::kSolarMass > 10.0) {
+            std::println("{:.2f}\t{:.2f}\t{:.2E} {}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2E}\t{:.2f}\t{:.2E}\t{:.2f}\t{} \t{:.5f}\t{:.2E}",
+                Star.GetMass() / Npgs::kSolarMass,
+                Star.GetRadius() / Npgs::kSolarRadius,
+                Star.GetAge(),
+                Star.GetSpectralType(),
+                Star.GetFeH(),
+                Star.GetLuminosity() / Npgs::kSolarLuminosity,
+                Star.GetAbsoluteMagnitude(),
+                Star.GetTeff(),
+                Star.GetCoreTemp(),
+                Star.GetCoreDensity(),
+                Star.GetStellarWindMassLossRate(),
+                Star.GetStellarWindSpeed(),
+                static_cast<int>(Star.GetEvolutionPhase()),
+                Star.GetEvolutionProgress(),
+                Star.GetLifetime()
+            );
+        //}
+    }
     //auto Star = Gen.GenStar({ {}, 9.5e6, 0.0, 20 });
-    auto Star = Gen.GenStar({ {}, 4.5e6, -1.0, 54 });
-    std::println("{:.2f}\t{:.2f}\t{:.2E} {}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2E}\t{:.2f}\t{:.2E}\t{:.2f}\t{}\t{}\t{:.2E}",
-        Star.GetMass() / Npgs::kSolarMass,
-        Star.GetRadius() / Npgs::kSolarRadius,
-        Star.GetAge(),
-        Star.GetSpectralType(),
-        Star.GetFeH(),
-        Star.GetLuminosity() / Npgs::kSolarLuminosity,
-        Star.GetAbsoluteMagnitude(),
-        Star.GetTeff(),
-        Star.GetCoreTemp(),
-        Star.GetCoreDensity(),
-        Star.GetStellarWindMassLossRate(),
-        Star.GetStellarWindSpeed(),
-        static_cast<int>(Star.GetEvolutionPhase()),
-        Star.GetEvolutionProgress(),
-        Star.GetLifetime()
-    );
+    //auto Star = Gen.GenStar({ {}, 2.5e7, 0.0, 10 });
 #endif
 
     return 0;
