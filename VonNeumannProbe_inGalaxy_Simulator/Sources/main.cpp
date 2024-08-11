@@ -6,7 +6,7 @@
 
 #include "Npgs.h"
 
-//#define MULTITHREAD
+#define MULTITHREAD
 
 int main() {
     Npgs::Logger::Init();
@@ -89,26 +89,28 @@ int main() {
 #else
     Npgs::Modules::StellarGenerator Gen(42);
 
-    for (int i = 0; i != 10000; ++i) {
-        Gen.GenStar();
-    }
+    //for (int i = 0; i != 10000; ++i) {
+    //    Gen.GenStar();
+    //}
     //auto Star = Gen.GenStar({ {}, 9.5e6, 0.0, 20 });
-    //std::println("{:.2f}\t{:.2f}\t{:.2E} {}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2E}\t{:.2f}\t{:.2E}\t{:.2f}\t{}\t{:.2E}",
-    //    Star.GetMass() / Npgs::kSolarMass,
-    //    Star.GetRadius() / Npgs::kSolarRadius,
-    //    Star.GetAge(),
-    //    Star.GetSpectralType(),
-    //    Star.GetFeH(),
-    //    Star.GetLuminosity() / Npgs::kSolarLuminosity,
-    //    Star.GetAbsoluteMagnitude(),
-    //    Star.GetTeff(),
-    //    Star.GetCoreTemp(),
-    //    Star.GetCoreDensity(),
-    //    Star.GetStellarWindMassLossRate(),
-    //    Star.GetStellarWindSpeed(),
-    //    static_cast<int>(Star.GetEvolutionPhase()),
-    //    Star.GetLifetime()
-    //);
+    auto Star = Gen.GenStar({ {}, 4.5e6, -1.0, 54 });
+    std::println("{:.2f}\t{:.2f}\t{:.2E} {}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2E}\t{:.2f}\t{:.2E}\t{:.2f}\t{}\t{}\t{:.2E}",
+        Star.GetMass() / Npgs::kSolarMass,
+        Star.GetRadius() / Npgs::kSolarRadius,
+        Star.GetAge(),
+        Star.GetSpectralType(),
+        Star.GetFeH(),
+        Star.GetLuminosity() / Npgs::kSolarLuminosity,
+        Star.GetAbsoluteMagnitude(),
+        Star.GetTeff(),
+        Star.GetCoreTemp(),
+        Star.GetCoreDensity(),
+        Star.GetStellarWindMassLossRate(),
+        Star.GetStellarWindSpeed(),
+        static_cast<int>(Star.GetEvolutionPhase()),
+        Star.GetEvolutionProgress(),
+        Star.GetLifetime()
+    );
 #endif
 
     return 0;

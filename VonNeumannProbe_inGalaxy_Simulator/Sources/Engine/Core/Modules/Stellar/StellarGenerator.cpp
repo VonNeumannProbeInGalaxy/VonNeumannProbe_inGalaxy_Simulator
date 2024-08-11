@@ -35,11 +35,18 @@ static StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star
 
 // StellarGenerator implementations
 // --------------------------------
-StellarGenerator::StellarGenerator(int Seed) :
-    _RandomEngine(Seed),
-    _MistHeaders({ "star_age",   "star_mass",   "star_mdot",    "log_Teff",       "log_R", "log_surf_z",
-                   "surface_h1", "surface_he3", "log_center_T", "log_center_Rho", "phase", "x" })
-{}
+StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
+
+template<typename CsvType>
+std::shared_ptr<CsvType> StellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers) {
+    std::lock_guard<std::mutex> Lock(_CacheMutex);
+    if (Assets::AssetManager::GetAsset<CsvType>(Filename) == nullptr) {
+        auto CsvAsset = std::make_shared<CsvType>(Filename, Headers);
+        Assets::AssetManager::AddAsset<CsvType>(Filename, CsvAsset);
+    }
+
+    return Assets::AssetManager::GetAsset<CsvType>(Filename);
+}
 
 StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     BasicProperties Properties;
@@ -120,27 +127,15 @@ AstroObject::Star StellarGenerator::GenStar(const BasicProperties& Properties) {
 }
 
 double StellarGenerator::DefaultPdf(double Fuck) {
-    // n01 = (0.158 /  log(10))      * exp(-1.0 * pow(log10(1) - log10(0.08), 2.0) / 2 * pow(0.69, 2.0))
-    // g1  = (0.158 / (log(10) * m)) * exp(-1.0 * pow(log10(1) - log10(0.08), 2.0) / 2 * pow(0.69, 2.0)), m <= 1Msun
-    // g1  = n01 * pow(m, -2.35),                                                                         m >  1Msun
-    // -------------------------------------------------------------------------------------------------------------
-    // double g1 = 0.0;
-    // if (Mass <= 1.0) {
-    //     g1 = (0.158 / (std::log(10) * Mass)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2.0) / 2 * std::pow(0.69, 2.0));
-    // } else {
-    //     double n01 = (0.158 / std::log(10)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2.0) / 2 * std::pow(0.69, 2.0));
-    //     g1 = n01 * std::pow(Mass, -2.35);
-    // }
-
-    double g2 = 0.0;
+    double g = 0.0;
     if (std::pow(10, Fuck) <= 1.0) {
-        g2 = (0.158 / (std::pow(10, Fuck) * std::log(10))) * std::exp(-1 * (std::pow(Fuck - std::log10(0.08), 2)) / (2 * std::pow(0.69, 2))) * (1 / std::pow(10, Fuck) * std::log(10));
+        g = (0.158 / (std::pow(10, Fuck) * std::log(10))) * std::exp(-1 * (std::pow(Fuck - std::log10(0.08), 2)) / (2 * std::pow(0.69, 2))) * (1 / std::pow(10, Fuck) * std::log(10));
     } else {
         double n01 = (0.158 / std::log(10)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2) / 2 * std::pow(0.69, 2));
-        g2 = n01 * std::pow(std::pow(10, Fuck), -2.35) * (1 / std::pow(10, Fuck) * std::log(10));
+        g = n01 * std::pow(std::pow(10, Fuck), -2.35) * (1 / std::pow(10, Fuck) * std::log(10));
     }
 
-    return g2;
+    return g;
 }
 
 double StellarGenerator::GenMass(double MaxPdf) {
@@ -246,22 +241,13 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
     return Result;
 }
 
-std::shared_ptr<StellarGenerator::MistData> StellarGenerator::LoadMistData(const std::string& Filename) {
-    std::lock_guard<std::mutex> Lock(_CacheMutex);
-    if (Assets::AssetManager::GetAsset<MistData>(Filename) == nullptr) {
-        Assets::AssetManager::AddAsset<MistData>(Filename, std::make_shared<MistData>(MistData(Filename, _MistHeaders)));
-    }
-
-    return Assets::AssetManager::GetAsset<MistData>(Filename);
-}
-
 std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor) {
     std::vector<double> Result;
 
     try {
         if (Files.first != Files.second) [[likely]] {
-            std::shared_ptr<StellarGenerator::MistData> LowerData = LoadMistData(Files.first);
-            std::shared_ptr<StellarGenerator::MistData> UpperData = LoadMistData(Files.second);
+            std::shared_ptr<MistData> LowerData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
+            std::shared_ptr<MistData> UpperData = LoadCsvAsset<MistData>(Files.second, _kMistHeaders);
 
             auto LowerPhaseChanges = FindPhaseChanges(LowerData);
             auto UpperPhaseChanges = FindPhaseChanges(UpperData);
@@ -283,7 +269,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 
             Result = InterpolateFinalData({ LowerRows, UpperRows }, MassFactor);
         } else [[unlikely]] {
-            std::shared_ptr<MistData> StarData = LoadMistData(Files.first);
+            std::shared_ptr<MistData> StarData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
             auto PhaseChanges = FindPhaseChanges(StarData);
             std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ PhaseChanges, {} };
             double EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
@@ -292,10 +278,10 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             Result.emplace_back(Lifetime);
         }
     } catch (std::exception& e) {
-        NpgsCoreError("Error: " + std::string(e.what()));
-    }
+            NpgsCoreError("Error: " + std::string(e.what()));
+        }
 
-    return Result;
+        return Result;
 }
 
 std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv) {
@@ -322,6 +308,9 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::s
 
     return Result;
 }
+
+const std::vector<std::string> StellarGenerator::_kMistHeaders{ "star_age", "star_mass", "star_mdot", "log_Teff", "log_R", "log_surf_z", "surface_h1", "surface_he3", "log_center_T", "log_center_Rho", "phase", "x" };
+const std::vector<std::string> StellarGenerator::_kHrDiagramHeaders{ "B-V", "Ia", "Ib", "II", "III", "IV" };
 
 const int StellarGenerator::_kStarAgeIndex      = 0;
 const int StellarGenerator::_kStarMassIndex     = 1;
@@ -353,7 +342,7 @@ static double CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, 
         const auto& TimePoints = TimePointResults.second;
         Result = (TargetAge - TimePoints.first) / (TimePoints.second - TimePoints.first) + Phase;
     } else [[likely]] {
-        if (PhaseChanges.first.size() == PhaseChanges.second.size()) {
+        if (PhaseChanges.first.size() == PhaseChanges.second.size() && (*std::prev(PhaseChanges.first.end(), 2))[StellarGenerator::_kPhaseIndex] == (*std::prev(PhaseChanges.second.end(), 2))[StellarGenerator::_kPhaseIndex]) {
             const auto& TimePointResults = FindSurroundingTimePoints(PhaseChanges, TargetAge, MassFactor);
 
             Phase = TimePointResults.first;
@@ -412,14 +401,14 @@ static std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(co
     if (PhaseChanges.size() != 2 || PhaseChanges.front()[StellarGenerator::_kPhaseIndex] != PhaseChanges.back()[StellarGenerator::_kPhaseIndex]) {
         LowerTimePoint = std::lower_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](const std::vector<double>& Lhs, double Rhs) -> bool {
-                return Lhs[0] < Rhs;
-            }
+            return Lhs[0] < Rhs;
+        }
         );
 
         UpperTimePoint = std::upper_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](double Lhs, const std::vector<double>& Rhs) -> bool {
-                return Lhs < Rhs[0];
-            }
+            return Lhs < Rhs[0];
+        }
         );
 
         if (LowerTimePoint == UpperTimePoint) {
@@ -466,25 +455,40 @@ static std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<
 }
 
 static void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) {
-    if (Arrays.first.back()[StellarGenerator::_kPhaseIndex] != 9 && Arrays.second.back()[StellarGenerator::_kPhaseIndex] != 9) {
-        std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
-        Arrays.first.resize(MinSize);
-        Arrays.second.resize(MinSize);
-    } else if (Arrays.first.back()[StellarGenerator::_kPhaseIndex] != 9 && Arrays.second.back()[StellarGenerator::_kPhaseIndex] == 9) {
-        Arrays.first.back()[StellarGenerator::_kPhaseIndex] = 9;
-        Arrays.first.back()[StellarGenerator::_kXIndex] = 9.0;
-    } else if (Arrays.first.back()[StellarGenerator::_kPhaseIndex] == 9 && Arrays.second.back()[StellarGenerator::_kPhaseIndex] == 9) {
+    auto TrimArray = [](std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) {
         auto LastArray1 = Arrays.first.back();
         auto LastArray2 = Arrays.second.back();
         auto SubLastArray1 = *std::prev(Arrays.first.end(), 2);
         auto SubLastArray2 = *std::prev(Arrays.second.end(), 2);
+
         std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
+
         Arrays.first.resize(MinSize - 2);
         Arrays.second.resize(MinSize - 2);
         Arrays.first.emplace_back(SubLastArray1);
         Arrays.first.emplace_back(LastArray1);
         Arrays.second.emplace_back(SubLastArray2);
         Arrays.second.emplace_back(LastArray2);
+    };
+
+    if (Arrays.first.back()[StellarGenerator::_kPhaseIndex] != 9 && Arrays.second.back()[StellarGenerator::_kPhaseIndex] != 9) {
+        std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
+        Arrays.first.resize(MinSize);
+        Arrays.second.resize(MinSize);
+    } else if (Arrays.first.back()[StellarGenerator::_kPhaseIndex] != 9 && Arrays.second.back()[StellarGenerator::_kPhaseIndex] == 9) {
+        if (Arrays.first.size() + 1 == Arrays.second.size()) {
+            Arrays.first.back()[StellarGenerator::_kPhaseIndex] = 9;
+            Arrays.first.back()[StellarGenerator::_kXIndex] = 9.0;
+            Arrays.second.pop_back();
+        } else {
+            std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
+            Arrays.first.resize(MinSize - 1);
+            Arrays.second.resize(MinSize - 1);
+            Arrays.first.back()[StellarGenerator::_kPhaseIndex] = Arrays.second.back()[StellarGenerator::_kPhaseIndex];
+            Arrays.first.back()[StellarGenerator::_kXIndex] = Arrays.second.back()[StellarGenerator::_kXIndex];
+        }
+    } else if (Arrays.first.back()[StellarGenerator::_kPhaseIndex] == 9 && Arrays.second.back()[StellarGenerator::_kPhaseIndex] == 9) {
+        TrimArray(Arrays);
     } else {
         auto LastArray1 = Arrays.first.back();
         auto LastArray2 = Arrays.second.back();

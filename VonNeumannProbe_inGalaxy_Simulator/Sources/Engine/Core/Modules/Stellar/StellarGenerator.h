@@ -17,6 +17,7 @@ class StellarGenerator {
 public:
     using BaryCenter = AstroObject::CelestialBody::BaryCenter;
     using MistData   = Assets::Csv<double, 12>;
+    using HrDiagram  = Assets::Csv<double, 6>;
 
     struct BasicProperties {
         BaryCenter StarSys;
@@ -41,19 +42,22 @@ public:
     ~StellarGenerator() = default;
 
 public:
-    BasicProperties   GenBasicProperties();
+    template <typename CsvType>
+    static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
+
+    BasicProperties GenBasicProperties();
     AstroObject::Star GenStar();
     AstroObject::Star GenStar(const BasicProperties& Properties);
-
-private:
     double DefaultPdf(double Mass);
     double GenMass(double MaxPdf);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties);
-    std::shared_ptr<MistData> LoadMistData(const std::string& Filename);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
 
 public:
+    static const std::vector<std::string> _kMistHeaders;
+    static const std::vector<std::string> _kHrDiagramHeaders;
+
     static const int _kStarAgeIndex;
     static const int _kStarMassIndex;
     static const int _kStarMdotIndex;
@@ -71,11 +75,10 @@ public:
 private:
     std::mt19937                           _RandomEngine;
     std::uniform_real_distribution<double> _UniformDistribution;
-    std::vector<std::string>               _MistHeaders;
 
-    static std::unordered_map<std::string, std::vector<double>>                            _MassFileCache;
-    static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>> _PhaseChangesCache;
-    static std::mutex                                                                      _CacheMutex;
+    static std::unordered_map<std::string, std::vector<double>>                             _MassFileCache;
+    static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>>  _PhaseChangesCache;
+    static std::mutex                                                                       _CacheMutex;
 };
 
 _MODULES_END

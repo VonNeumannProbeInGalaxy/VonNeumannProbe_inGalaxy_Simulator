@@ -31,7 +31,7 @@ public:
 
 public:
     Csv() = default;
-    Csv(const std::string& Filename, std::vector<std::string>& ColNames) : _Filename(Filename), _ColNames(ColNames) {
+    Csv(const std::string& Filename, const std::vector<std::string>& ColNames) : _Filename(Filename), _ColNames(ColNames) {
         InitHeaderMap();
         ReadData(io::ignore_extra_column);
     }
