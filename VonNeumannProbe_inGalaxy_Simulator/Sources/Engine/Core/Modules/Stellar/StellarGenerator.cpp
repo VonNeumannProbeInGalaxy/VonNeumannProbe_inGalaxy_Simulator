@@ -164,7 +164,7 @@ double StellarGenerator::GenMass(double MaxPdf) {
 }
 
 std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties& Properties) {
-    std::array<double, 5> PresetFeH{ -1.5, -1.0, -0.5, 0.0, 0.5 };
+    std::array<double, 8> PresetFeH{ -4.0, -3.0, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5 };
     double TargetAge  = Properties.Age;
     double TargetFeH  = Properties.FeH;
     double TargetMass = Properties.Mass;
