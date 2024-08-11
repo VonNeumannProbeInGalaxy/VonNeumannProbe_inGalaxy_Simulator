@@ -41,14 +41,13 @@ public:
     ~StellarGenerator() = default;
 
 public:
+    BasicProperties   GenBasicProperties();
     AstroObject::Star GenStar();
     AstroObject::Star GenStar(const BasicProperties& Properties);
-    AstroObject::Star operator=(const BasicProperties& Properties);
 
 private:
     double DefaultPdf(double Mass);
     double GenMass(double MaxPdf);
-    BasicProperties GenBasicProperties();
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties);
     std::shared_ptr<MistData> LoadMistData(const std::string& Filename);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);

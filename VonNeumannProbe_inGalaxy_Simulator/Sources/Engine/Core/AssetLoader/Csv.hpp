@@ -63,43 +63,39 @@ public:
     }
 
     template <typename Func = std::less<>>
-    std::pair<RowArray, RowArray> FindSurroundingValues(const std::string& DataHeader, const BasicType& TargetValue, bool bSorted = true, Func Pred = Func()) const {
+    std::pair<RowArray, RowArray> FindSurroundingValues(const std::string& DataHeader, const BasicType& TargetValue, bool bSorted = true, Func Pred = Func()) {
         std::size_t DataIndex = GetHeaderIndex(DataHeader);
-        std::vector<std::pair<BasicType, RowArray>> ColData;
 
         std::function<bool(const BasicType&, const BasicType&)> Comparator = Pred;
         if constexpr (std::is_same_v<Func, std::less<>> && std::is_same_v<BasicType, std::string>) {
             Comparator = &Csv::StrLessThan;
         }
 
-        for (const auto& Row : _Data) {
-            ColData.emplace_back(Row[DataIndex], Row);
-        }
-
         if (!bSorted) {
-            std::sort(ColData.begin(), ColData.end(), [&](const auto& Lhs, const auto& Rhs) -> bool {
-                return Comparator(Lhs.first, Rhs.first);
+            std::sort(_Data.begin(), _Data.end(), [&](const RowArray& Lhs, const RowArray& Rhs) -> bool {
+                return Comparator(Lhs[DataIndex], Rhs[DataIndex]);
             });
         }
 
-        auto it = std::lower_bound(ColData.begin(), ColData.end(), TargetValue, [&](const auto& Lhs, const BasicType& Rhs) -> bool {
-            return Comparator(Lhs.first, Rhs);
+        auto it = std::lower_bound(_Data.begin(), _Data.end(), TargetValue, [&](const RowArray& Row, const BasicType& Value) -> bool {
+            return Comparator(Row[DataIndex], Value);
         });
 
-        if (it == ColData.end()) {
+        if (it == _Data.end()) {
             throw std::out_of_range("Target value is out of range of the data.");
         }
 
-        RowArray LowerRow;
-        RowArray UpperRow;
+        typename std::vector<RowArray>::iterator LowerRow;
+        typename std::vector<RowArray>::iterator UpperRow;
 
-        if (it->first == TargetValue) {
-            LowerRow = UpperRow = it->second;
+        if ((*it)[DataIndex] == TargetValue) {
+            LowerRow = UpperRow = it;
         } else {
-            LowerRow = it == ColData.begin() ? it->second : (it - 1)->second;
-            UpperRow = it->second;
+            LowerRow = it == _Data.begin() ? it : it - 1;
+            UpperRow = it;
         }
-        return { LowerRow, UpperRow };
+
+        return { *LowerRow, *UpperRow };
     }
 
     const std::vector<RowArray>* const Data() const {

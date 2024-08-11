@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include <glm/glm.hpp>
+
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/Logger.h"
 
@@ -38,6 +40,31 @@ StellarGenerator::StellarGenerator(int Seed) :
     _MistHeaders({ "star_age",   "star_mass",   "star_mdot",    "log_Teff",       "log_R", "log_surf_z",
                    "surface_h1", "surface_he3", "log_center_T", "log_center_Rho", "phase", "x" })
 {}
+
+StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
+    BasicProperties Properties;
+
+    int PosX     = static_cast<int>(_UniformDistribution(_RandomEngine) * 1000);
+    int PosY     = static_cast<int>(_UniformDistribution(_RandomEngine) * 1000);
+    int PosZ     = static_cast<int>(_UniformDistribution(_RandomEngine) * 1000);
+    int Distance = static_cast<int>(_UniformDistribution(_RandomEngine) * 10000);
+    Properties.StarSys.Name     = "S-" + std::to_string(PosX) + "-" + std::to_string(PosY) + "-" + std::to_string(PosZ) + "-" + std::to_string(Distance);
+    Properties.StarSys.Position = glm::dvec3(PosX, PosY, PosZ);
+    Properties.StarSys.Distance = Distance;
+
+    double Mass = GenMass(3.125);
+    Properties.Mass = Mass;
+
+    // double Lifetime = pow(10, 10) * pow(Mass, -2.5);
+
+    double Age = _UniformDistribution(_RandomEngine) * std::min(1e7, 3e12);
+    Properties.Age = Age;
+
+    double FeH = -1.5 + _UniformDistribution(_RandomEngine) * (0.5 - (-1.5));
+    Properties.FeH = FeH;
+
+    return Properties;
+}
 
 AstroObject::Star StellarGenerator::GenStar() {
     BasicProperties BasicData = GenBasicProperties();
@@ -92,66 +119,48 @@ AstroObject::Star StellarGenerator::GenStar(const BasicProperties& Properties) {
     return Star;
 }
 
-AstroObject::Star StellarGenerator::operator=(const BasicProperties& Properties) {
-    AstroObject::Star Star;
-    Star.SetParentBody(Properties.StarSys);
-    Star.SetMass(Properties.Mass);
-    Star.SetAge(Properties.Age);
-    Star.SetFeH(Properties.FeH);
-
-    return Star;
-}
-
-double StellarGenerator::DefaultPdf(double Mass) {
+double StellarGenerator::DefaultPdf(double Fuck) {
     // n01 = (0.158 /  log(10))      * exp(-1.0 * pow(log10(1) - log10(0.08), 2.0) / 2 * pow(0.69, 2.0))
     // g1  = (0.158 / (log(10) * m)) * exp(-1.0 * pow(log10(1) - log10(0.08), 2.0) / 2 * pow(0.69, 2.0)), m <= 1Msun
-    // g1  = n01 * pow(m, -2.35), m > 1Msun
-    // ------------------------------------
-    double g1 = 0.0;
-    if (Mass <= 1.0) {
-        g1 = (0.158 / (std::log(10) * Mass)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2.0) / 2 * std::pow(0.69, 2.0));
+    // g1  = n01 * pow(m, -2.35),                                                                         m >  1Msun
+    // -------------------------------------------------------------------------------------------------------------
+    // double g1 = 0.0;
+    // if (Mass <= 1.0) {
+    //     g1 = (0.158 / (std::log(10) * Mass)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2.0) / 2 * std::pow(0.69, 2.0));
+    // } else {
+    //     double n01 = (0.158 / std::log(10)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2.0) / 2 * std::pow(0.69, 2.0));
+    //     g1 = n01 * std::pow(Mass, -2.35);
+    // }
+
+    double g2 = 0.0;
+    if (std::pow(10, Fuck) <= 1.0) {
+        g2 = (0.158 / (std::pow(10, Fuck) * std::log(10))) * std::exp(-1 * (std::pow(Fuck - std::log10(0.08), 2)) / (2 * std::pow(0.69, 2))) * (1 / std::pow(10, Fuck) * std::log(10));
     } else {
-        double n01 = (0.158 / std::log(10)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2.0) / 2 * std::pow(0.69, 2.0));
-        g1 = n01 * std::pow(Mass, -2.35);
+        double n01 = (0.158 / std::log(10)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2) / 2 * std::pow(0.69, 2));
+        g2 = n01 * std::pow(std::pow(10, Fuck), -2.35) * (1 / std::pow(10, Fuck) * std::log(10));
     }
 
-    return g1;
+    return g2;
 }
 
 double StellarGenerator::GenMass(double MaxPdf) {
+    std::uniform_real_distribution<double> UniformDistribution(0.1, 2.0);
+    std::uniform_real_distribution<double> LogDistribution(std::log10(2.0), std::log10(300.0));
+    // std::exponential_distribution<double> ExponentialDistbution(1.0);
+
     double Mass = 0.0;
     double Probability = 0.0;
     do {
-        Mass = 0.1 + _UniformDistribution(_RandomEngine) * (300.0 - 0.1);
-        Probability = DefaultPdf(Mass);
+        if (_UniformDistribution(_RandomEngine) < 0.5) {
+            Mass = UniformDistribution(_RandomEngine);
+        } else {
+            // Mass = 2.0 + ExponentialDistbution(_RandomEngine);
+            Mass = std::exp(LogDistribution(_RandomEngine));
+        }
+        Probability = DefaultPdf(std::log10(Mass));
     } while (_UniformDistribution(_RandomEngine) * MaxPdf > Probability);
 
     return Mass;
-}
-
-StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
-    BasicProperties Properties;
-
-    int PosX     = static_cast<int>(_UniformDistribution(_RandomEngine) * 1000);
-    int PosY     = static_cast<int>(_UniformDistribution(_RandomEngine) * 1000);
-    int PosZ     = static_cast<int>(_UniformDistribution(_RandomEngine) * 1000);
-    int Distance = static_cast<int>(_UniformDistribution(_RandomEngine) * 10000);
-    Properties.StarSys.Name = "S-" + std::to_string(PosX) + "-" + std::to_string(PosY) + "-" + std::to_string(PosZ) + "-" + std::to_string(Distance);
-    Properties.StarSys.Position = glm::dvec3(PosX, PosY, PosZ);
-    Properties.StarSys.Distance = Distance;
-
-    double Mass = GenMass(3.125);
-    Properties.Mass = Mass;
-
-    // double Lifetime = pow(10, 10) * pow(Mass, -2.5);
-
-    double Age = _UniformDistribution(_RandomEngine) * std::min(1e7, 3e12);
-    Properties.Age = Age;
-
-    double FeH = -1.5 + _UniformDistribution(_RandomEngine) * (0.5 - (-1.5));
-    Properties.FeH = FeH;
-
-    return Properties;
 }
 
 std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties& Properties) {
@@ -596,7 +605,7 @@ static StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star
 
     if (LuminositySol > 650000) {
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_0;
-    } else if (LuminositySol > 150000) {
+    } else if (LuminositySol > 100000) {
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Ia;
     } else if (LuminositySol > 50000) {
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Iab;
