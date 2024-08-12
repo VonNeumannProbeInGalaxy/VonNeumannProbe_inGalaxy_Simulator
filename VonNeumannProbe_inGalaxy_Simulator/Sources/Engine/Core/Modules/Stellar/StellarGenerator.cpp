@@ -23,7 +23,7 @@ _MODULES_BEGIN
 // Tool functions
 // --------------
 static double DefaultAgePdf(double Age);
-static double DefaultMassPdf(double Mass);
+static double DefaultLogMassPdf(double Mass, bool bIsBinary);
 static double CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor);
 static std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
 static std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor);
@@ -35,42 +35,43 @@ static std::vector<double> InterpolateFinalData(const std::pair<std::vector<doub
 
 // StellarGenerator implementations
 // --------------------------------
-StellarGenerator::StellarGenerator(int Seed) : _RandomEngine(Seed) {}
+StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit) :
+    _RandomEngine(Seed),
+    _LogMassGenerator(std::log10(MassLowerLimit), std::log10(300.0)),
+    _AgeGenerator(0.0, 1.26e10),
+    _CommonGenerator(0.0, 1.0)
+{}
 
 StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     BasicProperties Properties;
 
-    std::uniform_real_distribution<double> UniformDistribution;
-
-    int PosX     = static_cast<int>(UniformDistribution(_RandomEngine) * 1000);
-    int PosY     = static_cast<int>(UniformDistribution(_RandomEngine) * 1000);
-    int PosZ     = static_cast<int>(UniformDistribution(_RandomEngine) * 1000);
-    int Distance = static_cast<int>(UniformDistribution(_RandomEngine) * 10000);
+    double PosX     = _CommonGenerator(_RandomEngine) * 1000.0;
+    double PosY     = _CommonGenerator(_RandomEngine) * 1000.0;
+    double PosZ     = _CommonGenerator(_RandomEngine) * 1000.0;
+    double Distance = _CommonGenerator(_RandomEngine) * 10000.0;
     Properties.StarSys.Name     = "S-" + std::to_string(PosX) + "-" + std::to_string(PosY) + "-" + std::to_string(PosZ) + "-" + std::to_string(Distance);
     Properties.StarSys.Position = glm::dvec3(PosX, PosY, PosZ);
     Properties.StarSys.Distance = Distance;
 
-    double Mass = GenMass(0.2);
+    double Mass = GenerateMass(0.158, false).first;
     Properties.Mass = Mass;
 
-    // double Lifetime = pow(10, 10) * pow(Mass, -2.5);
-
-    double Age = GenAge(2.59187);
+    double Age = GenerateAge(2.6);
     Properties.Age = Age;
 
-    double FeH = -1.5 + UniformDistribution(_RandomEngine) * (0.5 - (-1.5));
+    double FeH = -4.0 + _CommonGenerator(_RandomEngine) * (0.5 - (-4.0));
     Properties.FeH = FeH;
 
     return Properties;
 }
 
-AstroObject::Star StellarGenerator::GenStar() {
+AstroObject::Star StellarGenerator::GenerateStar() {
     BasicProperties BasicData = GenBasicProperties();
     // std::println("{}, {}, {}", BasicData.Age, BasicData.FeH, BasicData.Mass);
-    return GenStar(BasicData);
+    return GenerateStar(BasicData);
 }
 
-AstroObject::Star StellarGenerator::GenStar(const BasicProperties& Properties) {
+AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properties) {
     AstroObject::Star Star(Properties);
     auto StarData = GetActuallyMistData(Properties);
 
@@ -89,7 +90,7 @@ AstroObject::Star StellarGenerator::GenStar(const BasicProperties& Properties) {
     double EvolutionProgress = StarData[_kXIndex];
     double Lifetime          = StarData[_kLifetimeIndex];
 
-    double LuminositySol     = std::pow(RadiusSol, 2) * std::pow((Teff / kSolarTeff), 4);
+    double LuminositySol     = std::pow(RadiusSol, 2.0) * std::pow((Teff / kSolarTeff), 4.0);
     double AbsoluteMagnitude = kSolarAbsoluteMagnitude - 2.5 * std::log10(LuminositySol);
     double EscapeVelocity    = std::sqrt((2 * kGravityConstant * MassSol * kSolarMass) / (RadiusSol * kSolarRadius));
 
@@ -128,41 +129,31 @@ std::shared_ptr<CsvType> StellarGenerator::LoadCsvAsset(const std::string& Filen
     return Assets::AssetManager::GetAsset<CsvType>(Filename);
 }
 
-double StellarGenerator::GenAge(double MaxPdf) {
-    std::uniform_real_distribution<double> UniformDistribution(0.0, 1.2e10);
-
-    double Age = 0.0;
+double StellarGenerator::GenerateAge(double MaxPdf) {
+    double Age         = 0.0;
     double Probability = 0.0;
     do {
-        Age = UniformDistribution(_RandomEngine);
+        Age = _AgeGenerator(_RandomEngine);
         Probability = DefaultAgePdf(Age / 1e9);
-    } while (UniformDistribution(_RandomEngine) * MaxPdf < Probability);
+    } while (_CommonGenerator(_RandomEngine) * MaxPdf > Probability);
 
     return Age;
 }
 
-double StellarGenerator::GenMass(double LowerLimit) {
-    std::uniform_real_distribution<double> UniformDistribution(LowerLimit, 2.0);
-    std::uniform_real_distribution<double> LogDistribution(std::log10(2.0), std::log10(300.0));
-    // std::exponential_distribution<double> ExponentialDistbution(1.0);
-
-    double Mass = 0.0;
+std::pair<double, double> StellarGenerator::GenerateMass(double MaxPdf, bool bIsBinary) {
+    double LogMass     = 0.0;
     double Probability = 0.0;
-    double GeneratedProbability = 0.0;
-    double MaxPdf = DefaultMassPdf(std::log10(LowerLimit));
-    do {
-        if (UniformDistribution(_RandomEngine) < 0.5) {
-            Mass = UniformDistribution(_RandomEngine);
-            GeneratedProbability = UniformDistribution(_RandomEngine);
-        } else {
-            // Mass = 2.0 + ExponentialDistbution(_RandomEngine);
-            Mass = std::exp(LogDistribution(_RandomEngine));
-            GeneratedProbability = LogDistribution(_RandomEngine);
-        }
-        Probability = DefaultMassPdf(std::log10(Mass));
-    } while (GeneratedProbability * MaxPdf < Probability);
 
-    return Mass;
+    if (!bIsBinary) {
+        do {
+            LogMass = _LogMassGenerator(_RandomEngine);
+            Probability = DefaultLogMassPdf(LogMass, false);
+        } while (_CommonGenerator(_RandomEngine) * MaxPdf > Probability);
+
+        return { std::pow(10.0, LogMass), 0.0 };
+    } else {
+        return {};
+    }
 }
 
 std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties& Properties) {
@@ -358,7 +349,7 @@ void StellarGenerator::GenSpectralType(AstroObject::Star& StarData) {
     if (EvolutionPhase != AstroObject::Star::Phase::kWolfRayet && Teff <= 54000) {
         CalcSpectralSubclass(EvolutionPhase);
 
-        if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence && SpectralType.HSpectralClass != StellarClass::SpectralClass::kSpectral_O) {
+        if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence) {
             SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
         } else if (EvolutionPhase == AstroObject::Star::Phase::kRedGiant) {
             SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_III;
@@ -450,22 +441,31 @@ std::mutex StellarGenerator::_CacheMutex;
 // ------------------------------
 static double DefaultAgePdf(double Fuck) {
     double pt = 0.0;
-    if (Fuck > 8) {
+    if (Fuck < 8.0) {
         pt = std::exp(Fuck / 8.4);
     } else {
-        pt = 2.6 * std::exp((-0.5 * std::pow(Fuck - 8, 2)) / (std::pow(1.5, 2)));
+        pt = 2.6 * std::exp((-0.5 * std::pow(Fuck - 8.0, 2.0)) / (std::pow(1.5, 2.0)));
     }
 
     return pt;
 }
 
-static double DefaultMassPdf(double Fuck) {
+static double DefaultLogMassPdf(double Fuck, bool bIsBinary) {
     double g = 0.0;
-    if (std::pow(10, Fuck) <= 1.0) {
-        g = (0.158 / (std::pow(10, Fuck) * std::log(10))) * std::exp(-1 * (std::pow(Fuck - std::log10(0.08), 2)) / (2 * std::pow(0.69, 2))) * (1 / std::pow(10, Fuck) * std::log(10));
+    if (!bIsBinary) {
+        if (std::pow(10.0, Fuck) <= 1.0) {
+            g = (0.158 / (std::pow(10.0, Fuck) * std::log(10.0))) * std::exp(-1.0 * (std::pow(Fuck - std::log10(0.08), 2.0)) / (2.0 * std::pow(0.69, 2.0))) * std::pow(10.0, Fuck) * std::log(10.0);
+        } else {
+            double n01 = 0.0193937;
+            g = n01 * std::pow(std::pow(10.0, Fuck), -2.35) * std::pow(10.0, Fuck) * std::log(10.0);
+        }
     } else {
-        double n01 = (0.158 / std::log(10)) * std::exp(-1.0 * std::pow(std::log10(1) - std::log10(0.08), 2) / 2 * std::pow(0.69, 2));
-        g = n01 * std::pow(std::pow(10, Fuck), -2.35) * (1 / std::pow(10, Fuck) * std::log(10));
+        if (std::pow(10.0, Fuck) <= 1.0) {
+            g = (0.086 / (std::pow(10.0, Fuck) * std::log(10.0))) * std::exp(-1.0 * (std::pow(Fuck - std::log10(0.22), 2.0)) / (2.0 * std::pow(0.69, 2.0))) * std::pow(10.0, Fuck) * std::log(10.0);
+        } else {
+            double n02 = 0.0191992;
+            g = n02 * std::pow(std::pow(10.0, Fuck), -2.35) * std::pow(10.0, Fuck) * std::log(10.0);
+        }
     }
 
     return g;

@@ -39,20 +39,20 @@ public:
 
 public:
     StellarGenerator() = default;
-    StellarGenerator(int Seed);
+    StellarGenerator(int Seed, double MassLowerLimit);
     ~StellarGenerator() = default;
 
 public:
     BasicProperties GenBasicProperties();
-    AstroObject::Star GenStar();
-    AstroObject::Star GenStar(const BasicProperties& Properties);
+    AstroObject::Star GenerateStar();
+    AstroObject::Star GenerateStar(const BasicProperties& Properties);
     
 private:
     template <typename CsvType>
     static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
 
-    double GenAge(double MaxPdf);
-    double GenMass(double LowerLimit);
+    double GenerateAge(double MaxPdf);
+    std::pair<double, double> GenerateMass(double MaxPdf, bool bIsBinary);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
@@ -75,7 +75,10 @@ public:
     static const int _kLifetimeIndex;
 
 private:
-    std::mt19937 _RandomEngine;
+    std::mt19937                           _RandomEngine;
+    std::uniform_real_distribution<double> _LogMassGenerator;
+    std::uniform_real_distribution<double> _AgeGenerator;
+    std::uniform_real_distribution<double> _CommonGenerator;
 
     static const std::vector<std::string>                                                   _kMistHeaders;
     static const std::vector<std::string>                                                   _kHrDiagramHeaders;
