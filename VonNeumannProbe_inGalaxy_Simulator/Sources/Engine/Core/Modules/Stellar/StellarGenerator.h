@@ -52,7 +52,7 @@ private:
     static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
 
     double GenerateAge(double MaxPdf);
-    std::pair<double, double> GenerateMass(double MaxPdf, bool bIsBinary);
+    double GenerateMass(double MaxPdf, bool bIsBinary);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double MassFactor);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
@@ -79,6 +79,7 @@ private:
     std::uniform_real_distribution<double> _LogMassGenerator;
     std::uniform_real_distribution<double> _AgeGenerator;
     std::uniform_real_distribution<double> _CommonGenerator;
+    std::normal_distribution<double>       _FeHGenerator;
 
     static const std::vector<std::string>                                                   _kMistHeaders;
     static const std::vector<std::string>                                                   _kHrDiagramHeaders;

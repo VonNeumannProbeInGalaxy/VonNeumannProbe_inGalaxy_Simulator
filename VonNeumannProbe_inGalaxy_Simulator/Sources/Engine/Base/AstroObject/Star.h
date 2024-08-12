@@ -31,6 +31,8 @@ public:
         double AbsoluteMagnitude;
         double FeH;
         double SurfaceFeH;
+        double SurfaceH1;
+        double SurfaceHe3;
         double Teff;
         double CoreTemp;
         double CoreDensity;
@@ -60,6 +62,8 @@ public:
     Star& SetAbsoluteMagnitude(double AbsoluteMagnitude);
     Star& SetFeH(double FeH);
     Star& SetSurfaceFeH(double SurfaceFeH);
+    Star& SetSurfaceH1(double SurfaceH1);
+    Star& SetSurfaceHe3(double SurfaceHe3);
     Star& SetTeff(double Teff);
     Star& SetCoreTemp(double CoreTemp);
     Star& SetCoreDensity(double CoreDensity);
@@ -78,6 +82,8 @@ public:
     double GetAbsoluteMagnitude() const;
     double GetFeH() const;
     double GetSurfaceFeH() const;
+    double GetSurfaceH1() const;
+    double GetSurfaceHe3() const;
     double GetTeff() const;
     double GetCoreTemp() const;
     double GetCoreDensity() const;

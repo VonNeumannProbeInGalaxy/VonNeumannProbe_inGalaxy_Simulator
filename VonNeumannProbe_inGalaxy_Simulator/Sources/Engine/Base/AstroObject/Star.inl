@@ -34,6 +34,16 @@ inline Star& Star::SetSurfaceFeH(double SurfaceFeH) {
     return *this;
 }
 
+inline Star& Star::SetSurfaceH1(double SurfaceH1) {
+    _StarExtraProperties.SurfaceH1 = SurfaceH1;
+    return *this;
+}
+
+inline Star& Star::SetSurfaceHe3(double SurfaceHe3) {
+    _StarExtraProperties.SurfaceHe3 = SurfaceHe3;
+    return *this;
+}
+
 inline Star& Star::SetTeff(double Teff) {
     _StarExtraProperties.Teff = Teff;
     return *this;
@@ -98,6 +108,14 @@ inline double Star::GetFeH() const {
 
 inline double Star::GetSurfaceFeH() const {
     return _StarExtraProperties.SurfaceFeH;
+}
+
+inline double Star::GetSurfaceH1() const {
+    return _StarExtraProperties.SurfaceH1;
+}
+
+inline double Star::GetSurfaceHe3() const {
+    return _StarExtraProperties.SurfaceHe3;
 }
 
 inline double Star::GetTeff() const {
