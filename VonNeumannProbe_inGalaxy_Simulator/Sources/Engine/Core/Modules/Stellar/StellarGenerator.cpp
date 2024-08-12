@@ -1,4 +1,4 @@
-#include "StellarGenerator.h"
+﻿#include "StellarGenerator.h"
 
 #include <cmath>
 
@@ -426,6 +426,7 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
         BvColorIndex = 0.344 * std::pow(std::log10(Teff), 2) - 3.402 * std::log10(Teff) + 8.037;
     }
 
+    // B-V 色指数低于 -0.3，直接按照光度判断
     if (BvColorIndex < -0.3) {
         if (LuminositySol > 100000) {
             return StellarClass::LuminosityClass::kLuminosity_Ia;

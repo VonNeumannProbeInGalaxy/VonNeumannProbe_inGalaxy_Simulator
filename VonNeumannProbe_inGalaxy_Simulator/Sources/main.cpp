@@ -8,7 +8,7 @@
 
 #include "Npgs.h"
 
-#define MULTITHREAD
+//#define MULTITHREAD
 
 int main() {
     Npgs::Logger::Init();
@@ -39,32 +39,32 @@ int main() {
         }));
     }
 
-    std::ofstream Mass("Mass.txt", std::ios::out);
-    for (auto& Future : Futures) {
-        Future.wait();
-        auto Data = Future.get();
-        Mass << Data.Mass << ",";
+    //std::ofstream Mass("Mass.txt", std::ios::out);
+    //for (auto& Future : Futures) {
+    //    Future.wait();
+    //    auto Data = Future.get();
+    //    Mass << Data.Mass << ",";
+    //}
+
+    auto End = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> Duration = End - Start;
+
+    std::println("Star basic data generation completed in {} seconds.", Duration.count());
+
+    Start = std::chrono::high_resolution_clock::now();
+
+    std::vector<std::future<Npgs::AstroObject::Star>> StarFutures;
+    for (int i = 0; i != MaxStars; ++i) {
+        StarFutures.emplace_back(Pool->Commit([i, &Generators, &Futures]() -> Npgs::AstroObject::Star {
+            int ThreadId = i % Generators.size();
+            auto Properties = Futures[i].get();
+            return Generators[ThreadId].GenerateStar(Properties);
+        }));
     }
 
-    //auto End = std::chrono::high_resolution_clock::now();
-    //std::chrono::duration<double> Duration = End - Start;
-
-    //std::println("Star basic data generation completed in {} seconds.", Duration.count());
-
-    //Start = std::chrono::high_resolution_clock::now();
-
-    //std::vector<std::future<Npgs::AstroObject::Star>> StarFutures;
-    //for (int i = 0; i != MaxStars; ++i) {
-    //    StarFutures.emplace_back(Pool->Commit([i, &Generators, &Futures]() -> Npgs::AstroObject::Star {
-    //        int ThreadId = i % Generators.size();
-    //        auto Properties = Futures[i].get();
-    //        return Generators[ThreadId].GenerateStar(Properties);
-    //    }));
-    //}
-
-    //for (auto& Future : StarFutures) {
-    //    Future.wait(); // 确保所有的 future 都已经完成
-    //}
+    for (auto& Future : StarFutures) {
+        Future.wait(); // 确保所有的 future 都已经完成
+    }
 
     //std::system("cls");
     //std::println("{:<10} {:<10} {:<10} {:<7} {:<5} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<5} {:<10} {:<10}",
@@ -73,56 +73,56 @@ int main() {
     //for (auto& Future : StarFutures) {
     //    auto Star = Future.get();
     //    //if (Star.GetRadius()) {
-    //    std::println("{:<10.2f} {:<10.2f} {:<10.2E} {:<7} {:<5.2f} {:<10.2f} {:<10.2f} {:<10.2f} {:<10.2E} {:<10.2f} {:<10.2E} {:<10.2f} {:<5} {:<10.2f} {:<10.2E}",
-    //        Star.GetMass() / Npgs::kSolarMass,
-    //        Star.GetRadius() / Npgs::kSolarRadius,
-    //        Star.GetAge(),
-    //        Star.GetSpectralType(),
-    //        Star.GetFeH(),
-    //        Star.GetLuminosity() / Npgs::kSolarLuminosity,
-    //        Star.GetAbsoluteMagnitude(),
-    //        Star.GetTeff(),
-    //        Star.GetCoreTemp(),
-    //        Star.GetCoreDensity(),
-    //        Star.GetStellarWindMassLossRate(),
-    //        Star.GetStellarWindSpeed(),
-    //        static_cast<int>(Star.GetEvolutionPhase()),
-    //        Star.GetSurfaceH1(),
-    //        Star.GetLifetime()
-    //    );
+    //    //std::println("{:<10.2f} {:<10.2f} {:<10.2E} {:<7} {:<5.2f} {:<10.2f} {:<10.2f} {:<10.2f} {:<10.2E} {:<10.2f} {:<10.2E} {:<10.2f} {:<5} {:<10.2f} {:<10.2E}",
+    //    //    Star.GetMass() / Npgs::kSolarMass,
+    //    //    Star.GetRadius() / Npgs::kSolarRadius,
+    //    //    Star.GetAge(),
+    //    //    Star.GetSpectralType(),
+    //    //    Star.GetFeH(),
+    //    //    Star.GetLuminosity() / Npgs::kSolarLuminosity,
+    //    //    Star.GetAbsoluteMagnitude(),
+    //    //    Star.GetTeff(),
+    //    //    Star.GetCoreTemp(),
+    //    //    Star.GetCoreDensity(),
+    //    //    Star.GetStellarWindMassLossRate(),
+    //    //    Star.GetStellarWindSpeed(),
+    //    //    static_cast<int>(Star.GetEvolutionPhase()),
+    //    //    Star.GetSurfaceH1(),
+    //    //    Star.GetLifetime()
+    //    //);
     //    //}
     //}
 
     Pool->Terminate();
     Npgs::ThreadPool::Destroy();
 
-    //End = std::chrono::high_resolution_clock::now();
-    //Duration = End - Start;
+    End = std::chrono::high_resolution_clock::now();
+    Duration = End - Start;
 
-    //std::println("Interpolate completed in {} seconds.", Duration.count());
-    //std::system("pause");
+    std::println("Interpolate completed in {} seconds.", Duration.count());
+    std::system("pause");
 #else
     Npgs::Modules::StellarGenerator Gen(42, 0.1);
     for (int i = 0; i != 10000; ++i) {
         auto Star = Gen.GenerateStar();
         //if (Star.GetMass() / Npgs::kSolarMass > 10.0) {
-        std::println("{:<10.2f} {:<10.2f} {:<10.2E} {:<7} {:<5.2f} {:<10.2f} {:<10.2f} {:<10.2f} {:<10.2E} {:<10.2f} {:<10.2E} {:<10.2f} {:<5} {:<10.2f} {:<10.2E}",
-            Star.GetMass() / Npgs::kSolarMass,
-            Star.GetRadius() / Npgs::kSolarRadius,
-            Star.GetAge(),
-            Star.GetSpectralType(),
-            Star.GetFeH(),
-            Star.GetLuminosity() / Npgs::kSolarLuminosity,
-            Star.GetAbsoluteMagnitude(),
-            Star.GetTeff(),
-            Star.GetCoreTemp(),
-            Star.GetCoreDensity(),
-            Star.GetStellarWindMassLossRate(),
-            Star.GetStellarWindSpeed(),
-            static_cast<int>(Star.GetEvolutionPhase()),
-            Star.GetSurfaceH1(),
-            Star.GetLifetime()
-        );
+        //std::println("{:<10.2f} {:<10.2f} {:<10.2E} {:<7} {:<5.2f} {:<10.2f} {:<10.2f} {:<10.2f} {:<10.2E} {:<10.2f} {:<10.2E} {:<10.2f} {:<5} {:<10.2f} {:<10.2E}",
+        //    Star.GetMass() / Npgs::kSolarMass,
+        //    Star.GetRadius() / Npgs::kSolarRadius,
+        //    Star.GetAge(),
+        //    Star.GetSpectralType(),
+        //    Star.GetFeH(),
+        //    Star.GetLuminosity() / Npgs::kSolarLuminosity,
+        //    Star.GetAbsoluteMagnitude(),
+        //    Star.GetTeff(),
+        //    Star.GetCoreTemp(),
+        //    Star.GetCoreDensity(),
+        //    Star.GetStellarWindMassLossRate(),
+        //    Star.GetStellarWindSpeed(),
+        //    static_cast<int>(Star.GetEvolutionPhase()),
+        //    Star.GetSurfaceH1(),
+        //    Star.GetLifetime()
+        //);
         //}
     }
 
