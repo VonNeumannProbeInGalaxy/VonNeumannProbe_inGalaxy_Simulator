@@ -69,11 +69,6 @@ inline Star& Star::SetStellarWindMassLossRate(double StellarWindMassLossRate) {
     return *this;
 }
 
-inline Star& Star::SetSpectralType(const std::string& SpectralType) {
-    _StarExtraProperties.SpectralType = SpectralType;
-    return *this;
-}
-
 inline Star& Star::SetStellarClass(const Modules::StellarClass& StellarClass) {
     _StarExtraProperties.StellarClass = StellarClass;
     return *this;
@@ -136,10 +131,6 @@ inline double Star::GetStellarWindSpeed() const {
 
 inline double Star::GetStellarWindMassLossRate() const {
     return _StarExtraProperties.StellarWindMassLossRate;
-}
-
-inline const std::string& Star::GetSpectralType() const {
-    return _StarExtraProperties.SpectralType;
 }
 
 inline const Modules::StellarClass& Star::GetStellarClass() const {

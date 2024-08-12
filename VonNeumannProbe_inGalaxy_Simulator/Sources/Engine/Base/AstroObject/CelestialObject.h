@@ -10,35 +10,34 @@ _ASTROOBJECT_BEGIN
 class CelestialBody {
 public:
     struct BaryCenter {
-        std::string Name;
-        glm::dvec3 Position;
-        double Distance;
+        std::string Name;                // 质心名字
+        glm::dvec3 Position;             // 位置，使用 3 个 double 分量的向量存储
+        double Distance;                 // 距离，单位 pc
     };
 
     struct OrbitProperties {
-        BaryCenter ParentBody;
-        double Epoch;
-        double Period;
-        double SemiMajorAxis;
-        double Eccentricity;
-        double Inclination;
-        double LongitudeOfAscendingNode;
-        double ArgumentOfPeriapsis;
-        double MeanAnomaly;
+        BaryCenter ParentBody;           // 环绕的上级天体
+        double Epoch;                    // 历元，单位儒略日
+        double Period;                   // 周期，单位 yr
+        double SemiMajorAxis;            // 半长轴，单位 AU
+        double Eccentricity;             // 离心率
+        double Inclination;              // 轨道倾角，单位度
+        double LongitudeOfAscendingNode; // 升交点经度，单位度
+        double ArgumentOfPeriapsis;      // 近日点幅角，单位度 
+        double MeanAnomaly;              // 平近点角，单位度
     };
 
     struct BasicProperties {
-        std::string Name;
-        double Mass;
-        double Radius;
-        double RotateVelocity;
-        double RotationPeriod;
-        double Oblateness;
-        double AxisTilt;
-        double Albedo;
-        double Age;
-        double EscapeVelocity;
-        double MagneticField;
+        std::string Name;                // 名字
+        double Mass;                     // 质量，单位 kg
+        double Radius;                   // 半径，单位 km
+        double RotationPeriod;           // 自转周期，单位 s
+        double Oblateness;               // 扁率
+        double AxisTilt;                 // 自转轴倾角，单位度
+        double Albedo;                   // 反照率
+        double Age;                      // 年龄，单位年
+        double EscapeVelocity;           // 逃逸速度，单位 m/s
+        double MagneticField;            // 磁场强度，单位 T
 
         OrbitProperties Orbit;
     };
@@ -59,7 +58,6 @@ public:
     CelestialBody& SetName(const std::string& Name);
     CelestialBody& SetRadius(double Radius);
     CelestialBody& SetMass(double Mass);
-    CelestialBody& SetRotateVelocity(double RotateVelocity);
     CelestialBody& SetRotationPeriod(double RotationPeriod);
     CelestialBody& SetOblateness(double Oblateness);
     CelestialBody& SetAxisTilt(double AxisTilt);
@@ -86,7 +84,6 @@ public:
     std::string GetName() const;
     double GetRadius() const;
     double GetMass() const;
-    double GetRotateVelocity() const;
     double GetRotationPeriod() const;
     double GetOblateness() const;
     double GetAxisTilt() const;

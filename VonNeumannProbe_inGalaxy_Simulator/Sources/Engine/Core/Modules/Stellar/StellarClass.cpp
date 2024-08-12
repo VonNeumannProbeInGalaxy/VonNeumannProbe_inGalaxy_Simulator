@@ -642,6 +642,8 @@ static std::string SpecialMarkToStr(StellarClass::SpecialPeculiarities SpecialMa
         return std::string("f");
     case StellarClass::SpecialPeculiarities::kCode_h:
         return std::string("h");
+    case StellarClass::SpecialPeculiarities::kCode_p:
+        return std::string("p");
     default:
         return std::string("");
     }

@@ -27,21 +27,20 @@ public:
     };
 
     struct ExtendedProperties {
-        double Luminosity;
-        double AbsoluteMagnitude;
-        double FeH;
-        double SurfaceFeH;
-        double SurfaceH1;
-        double SurfaceHe3;
-        double Teff;
-        double CoreTemp;
-        double CoreDensity;
-        double StellarWindSpeed;
-        double StellarWindMassLossRate;
-        double EvolutionProgress;
-        double Lifetime;
+        double Luminosity;              // 辐射光度，单位 W
+        double AbsoluteMagnitude;       // 绝对热星等
+        double FeH;                     // 金属丰度
+        double SurfaceFeH;              // 表面金属丰度
+        double SurfaceH1;               // 表面氕质量分数
+        double SurfaceHe3;              // 表面氦-3 质量分数
+        double Teff;                    // 有效温度
+        double CoreTemp;                // 核心温度
+        double CoreDensity;             // 核心密度，单位 kg/m^3
+        double StellarWindSpeed;        // 恒星风速度，单位 m/s
+        double StellarWindMassLossRate; // 恒星风质量损失率，单位 kg/s
+        double EvolutionProgress;       // 演化进度
+        double Lifetime;                // 寿命，单位 yr
 
-        std::string SpectralType;
         Modules::StellarClass StellarClass;
 
         Phase EvolutionPhase;
@@ -69,7 +68,6 @@ public:
     Star& SetCoreDensity(double CoreDensity);
     Star& SetStellarWindSpeed(double StellarWindSpeed);
     Star& SetStellarWindMassLossRate(double StellarWindMassLossRate);
-    Star& SetSpectralType(const std::string& SpectralType);
     Star& SetStellarClass(const Modules::StellarClass& StellarClass);
     Star& SetEvolutionPhase(Phase EvolutionPhase);
     Star& SetEvolutionProgress(double EvolutionProgress);
@@ -89,7 +87,6 @@ public:
     double GetCoreDensity() const;
     double GetStellarWindSpeed() const;
     double GetStellarWindMassLossRate() const;
-    const std::string& GetSpectralType() const;
     const Modules::StellarClass& GetStellarClass() const;
     Phase GetEvolutionPhase() const;
     double GetEvolutionProgress() const;

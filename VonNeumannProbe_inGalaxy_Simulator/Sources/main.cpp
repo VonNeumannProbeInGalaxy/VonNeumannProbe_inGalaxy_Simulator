@@ -8,7 +8,7 @@
 
 #include "Npgs.h"
 
-//#define MULTITHREAD
+#define MULTITHREAD
 
 int main() {
     Npgs::Logger::Init();
@@ -66,32 +66,33 @@ int main() {
         Future.wait(); // 确保所有的 future 都已经完成
     }
 
-    //std::system("cls");
-    //std::println("{:<10} {:<10} {:<10} {:<7} {:<5} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<5} {:<10} {:<10}",
-    //    "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "MassLoss", "WindSpeed", "Phase", "SurfaceH1", "Lifetime");
+    std::system("cls");
+    std::println("{:<10} {:<10} {:<10} {:<7} {:<5} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<5} {:<10} {:<10} {:<10}",
+        "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "MassLoss", "WindSpeed", "Phase", "SurfaceH1", "Magnetic", "Lifetime");
 
-    //for (auto& Future : StarFutures) {
-    //    auto Star = Future.get();
-    //    //if (Star.GetRadius()) {
-    //    //std::println("{:<10.2f} {:<10.2f} {:<10.2E} {:<7} {:<5.2f} {:<10.2f} {:<10.2f} {:<10.2f} {:<10.2E} {:<10.2f} {:<10.2E} {:<10.2f} {:<5} {:<10.2f} {:<10.2E}",
-    //    //    Star.GetMass() / Npgs::kSolarMass,
-    //    //    Star.GetRadius() / Npgs::kSolarRadius,
-    //    //    Star.GetAge(),
-    //    //    Star.GetSpectralType(),
-    //    //    Star.GetFeH(),
-    //    //    Star.GetLuminosity() / Npgs::kSolarLuminosity,
-    //    //    Star.GetAbsoluteMagnitude(),
-    //    //    Star.GetTeff(),
-    //    //    Star.GetCoreTemp(),
-    //    //    Star.GetCoreDensity(),
-    //    //    Star.GetStellarWindMassLossRate(),
-    //    //    Star.GetStellarWindSpeed(),
-    //    //    static_cast<int>(Star.GetEvolutionPhase()),
-    //    //    Star.GetSurfaceH1(),
-    //    //    Star.GetLifetime()
-    //    //);
-    //    //}
-    //}
+    for (auto& Future : StarFutures) {
+        auto Star = Future.get();
+        //if (Star.GetMass() / Npgs::kSolarMass > 1.0) {
+            std::println("{:<10.2f} {:<10.2f} {:<10.2E} {:<7} {:<5.2f} {:<10.2f} {:<10.2f} {:<10.2f} {:<10.2E} {:<10.2f} {:<10.2E} {:<10.2f} {:<5} {:<10.2f} {:<10.5f} {:<10.2E}",
+                Star.GetMass() / Npgs::kSolarMass,
+                Star.GetRadius() / Npgs::kSolarRadius,
+                Star.GetAge(),
+                Star.GetStellarClass().ToString(),
+                Star.GetFeH(),
+                Star.GetLuminosity() / Npgs::kSolarLuminosity,
+                Star.GetAbsoluteMagnitude(),
+                Star.GetTeff(),
+                Star.GetCoreTemp(),
+                Star.GetCoreDensity(),
+                Star.GetStellarWindMassLossRate(),
+                Star.GetStellarWindSpeed(),
+                static_cast<int>(Star.GetEvolutionPhase()),
+                Star.GetSurfaceH1(),
+                Star.GetMagneticField(),
+                Star.GetLifetime()
+            );
+        //}
+    }
 
     Pool->Terminate();
     Npgs::ThreadPool::Destroy();
@@ -106,11 +107,11 @@ int main() {
     for (int i = 0; i != 10000; ++i) {
         auto Star = Gen.GenerateStar();
         //if (Star.GetMass() / Npgs::kSolarMass > 10.0) {
-        //std::println("{:<10.2f} {:<10.2f} {:<10.2E} {:<7} {:<5.2f} {:<10.2f} {:<10.2f} {:<10.2f} {:<10.2E} {:<10.2f} {:<10.2E} {:<10.2f} {:<5} {:<10.2f} {:<10.2E}",
+        //std::println("{:<10.2f} {:<10.2f} {:<10.2E} {:<7} {:<5.2f} {:<10.2f} {:<10.2f} {:<10.2f} {:<10.2E} {:<10.2f} {:<10.2E} {:<10.2f} {:<5} {:<10.2f} {:<10.5f} {:<10.2E}",
         //    Star.GetMass() / Npgs::kSolarMass,
         //    Star.GetRadius() / Npgs::kSolarRadius,
         //    Star.GetAge(),
-        //    Star.GetSpectralType(),
+        //    Star.GetStellarClass().ToString(),
         //    Star.GetFeH(),
         //    Star.GetLuminosity() / Npgs::kSolarLuminosity,
         //    Star.GetAbsoluteMagnitude(),
@@ -121,6 +122,7 @@ int main() {
         //    Star.GetStellarWindSpeed(),
         //    static_cast<int>(Star.GetEvolutionPhase()),
         //    Star.GetSurfaceH1(),
+        //    Star.GetMagneticField(),
         //    Star.GetLifetime()
         //);
         //}

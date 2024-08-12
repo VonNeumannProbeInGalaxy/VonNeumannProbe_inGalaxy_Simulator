@@ -23,17 +23,17 @@ public:
     };
 
     struct ExtendedProperties {
-        double AverageDensity;
-        double SurfaceGravity;
-        double GreenhouseFactor;
-        double Hydrosphere;
-        double IceCover;
-        double CloudCover;
-        double AtmospherePressure;
-        double AtmosphereDensity;
-        double AtmosphereComposition;
-        double TectonicActivity;
-        double Volcanism;
+        double AverageDensity;        // 平均密度，单位 kg/m^3
+        double SurfaceGravity;        // 表面重力，单位 m/s^2
+        double GreenhouseFactor;      // 温室效应因子
+        double Hydrosphere;           // 水圈覆盖率
+        double IceCover;              // 冰覆盖率
+        double CloudCover;            // 云覆盖率
+        double AtmospherePressure;    // 大气压，单位 atm
+        double AtmosphereDensity;     // 大气密度，单位 kg/m^3
+        double AtmosphereComposition; // 大气成分
+        double TectonicActivity;      // 构造活动
+        double Volcanism;             // 火山活动
         bool   bHasLife;
 
         PlanetType Type;

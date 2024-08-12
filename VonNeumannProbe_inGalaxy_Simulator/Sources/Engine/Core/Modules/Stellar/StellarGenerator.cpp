@@ -122,7 +122,7 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         .SetSurfaceH1(SurfaceH1)
         .SetSurfaceHe3(SurfaceHe3)
         .SetCoreTemp(CoreTemp)
-        .SetCoreDensity(CoreDensity)
+        .SetCoreDensity(CoreDensity * 1000)
         .SetStellarWindSpeed(StellarWindSpeed)
         .SetStellarWindMassLossRate(-(MassLossRate * kSolarMass / 31536000))
         .SetEvolutionProgress(EvolutionProgress)
@@ -130,6 +130,36 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         .SetLifetime(Lifetime);
 
     GenSpectralType(Star);
+
+    if (MassSol >= 0.075 && MassSol < 0.33) {
+        std::uniform_real_distribution<double> MagneticGenerator(500.0, 3000.0);
+        Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+    } else if (MassSol >= 0.33 && MassSol < 0.6) {
+        std::uniform_real_distribution<double> MagneticGenerator(100.0, 1000.0);
+        Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+    } else if (MassSol >= 0.6 && MassSol < 1.5) {
+        std::uniform_real_distribution<double> MagneticGenerator(1.0, 10.0);
+        Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+    } else if (MassSol >= 1.5 && MassSol < 20) {
+        auto SpectralType = Star.GetStellarClass().GetSpectralType();
+        if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence &&
+            (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_A ||
+             SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
+            std::bernoulli_distribution ProbabilityGenerator(0.15);
+            if (ProbabilityGenerator(_RandomEngine)) {
+                std::uniform_real_distribution<double> MagneticGenerator(1000.0, 10000.0);
+                Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+                SpectralType.SpecialMark |= static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_p);
+                Star.SetStellarClass(StellarClass(StellarClass::StarType::kNormalStar, SpectralType));
+            }
+        } else {
+            std::uniform_real_distribution<double> MagneticGenerator(0.1, 1.0);
+            Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+        }
+    } else {
+        std::uniform_real_distribution<double> MagneticGenerator(100.0, 1000.0);
+        Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+    }
 
     return Star;
 }
@@ -401,7 +431,6 @@ void StellarGenerator::GenSpectralType(AstroObject::Star& StarData) {
 
     StellarClass Class(StellarClass::StarType::kNormalStar, SpectralType);
     StarData.SetStellarClass(Class);
-    StarData.SetSpectralType(Class.ToString());
 }
 
 StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroObject::Star& StarData) {

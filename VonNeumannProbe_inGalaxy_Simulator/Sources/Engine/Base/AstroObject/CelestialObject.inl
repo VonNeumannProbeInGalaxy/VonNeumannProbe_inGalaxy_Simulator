@@ -38,11 +38,6 @@ inline CelestialBody& CelestialBody::SetMass(double Mass) {
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetRotateVelocity(double RotateVelocity) {
-    _Properties.RotateVelocity = RotateVelocity;
-    return *this;
-}
-
 inline CelestialBody& CelestialBody::SetRotationPeriod(double RotationPeriod) {
     _Properties.RotationPeriod = RotationPeriod;
     return *this;
@@ -133,10 +128,6 @@ inline double CelestialBody::GetRadius() const {
 
 inline double CelestialBody::GetMass() const {
     return _Properties.Mass;
-}
-
-inline double CelestialBody::GetRotateVelocity() const {
-    return _Properties.RotateVelocity;
 }
 
 inline double CelestialBody::GetRotationPeriod() const {
