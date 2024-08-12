@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <functional>
 #include <string>
@@ -27,19 +27,19 @@ public:
     };
 
     struct ExtendedProperties {
-        double Luminosity;              // ·øÉä¹â¶È£¬µ¥Î» W
-        double AbsoluteMagnitude;       // ¾ø¶ÔÈÈĞÇµÈ
-        double FeH;                     // ½ğÊô·á¶È
-        double SurfaceFeH;              // ±íÃæ½ğÊô·á¶È
-        double SurfaceH1;               // ±íÃæë­ÖÊÁ¿·ÖÊı
-        double SurfaceHe3;              // ±íÃæº¤-3 ÖÊÁ¿·ÖÊı
-        double Teff;                    // ÓĞĞ§ÎÂ¶È
-        double CoreTemp;                // ºËĞÄÎÂ¶È
-        double CoreDensity;             // ºËĞÄÃÜ¶È£¬µ¥Î» kg/m^3
-        double StellarWindSpeed;        // ºãĞÇ·çËÙ¶È£¬µ¥Î» m/s
-        double StellarWindMassLossRate; // ºãĞÇ·çÖÊÁ¿ËğÊ§ÂÊ£¬µ¥Î» kg/s
-        double EvolutionProgress;       // Ñİ»¯½ø¶È
-        double Lifetime;                // ÊÙÃü£¬µ¥Î» yr
+        double Luminosity;              // è¾å°„å…‰åº¦ï¼Œå•ä½ W
+        double AbsoluteMagnitude;       // ç»å¯¹çƒ­æ˜Ÿç­‰
+        double FeH;                     // é‡‘å±ä¸°åº¦
+        double SurfaceFeH;              // è¡¨é¢é‡‘å±ä¸°åº¦
+        double SurfaceH1;               // è¡¨é¢æ°•è´¨é‡åˆ†æ•°
+        double SurfaceHe3;              // è¡¨é¢æ°¦-3 è´¨é‡åˆ†æ•°
+        double Teff;                    // æœ‰æ•ˆæ¸©åº¦
+        double CoreTemp;                // æ ¸å¿ƒæ¸©åº¦
+        double CoreDensity;             // æ ¸å¿ƒå¯†åº¦ï¼Œå•ä½ kg/m^3
+        double StellarWindSpeed;        // æ’æ˜Ÿé£é€Ÿåº¦ï¼Œå•ä½ m/s
+        double StellarWindMassLossRate; // æ’æ˜Ÿé£è´¨é‡æŸå¤±ç‡ï¼Œå•ä½ kg/s
+        double EvolutionProgress;       // æ¼”åŒ–è¿›åº¦
+        double Lifetime;                // å¯¿å‘½ï¼Œå•ä½ yr
 
         Modules::StellarClass StellarClass;
 
@@ -110,7 +110,7 @@ public:
     static const std::unordered_map<Phase, Npgs::Modules::StellarClass::LuminosityClass> _kLuminosity;
 
 private:
-    ExtendedProperties _StarExtraProperties;
+    ExtendedProperties _StarExtraProperties{};
 };
 
 _ASTROOBJECT_END

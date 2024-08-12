@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -350,25 +351,12 @@ void StellarGenerator::GenSpectralType(AstroObject::Star& StarData) {
     std::vector<std::pair<int, int>> SpecialSubclassMap;
     double Subclass = 0.0;
 
-    auto CalcSpectralSubclass = [&](const AstroObject::Star::Phase& Phase, double SurfaceH1) -> void {
+    std::function<void(AstroObject::Star::Phase, double)> CalcSpectralSubclass = [&](AstroObject::Star::Phase Phase, double SurfaceH1) -> void {
         std::uint32_t SpectralClass = Phase == AstroObject::Star::Phase::kWolfRayet ? 11 : 0;
 
         if (Phase != AstroObject::Star::Phase::kWolfRayet) {
-            const auto& InitialMap = AstroObject::Star::_kInitialCommonMap;
-            for (auto it = InitialMap.begin(); it != InitialMap.end() - 1; ++it) {
-                ++SpectralClass;
-                if (it->first >= Teff && (it + 1)->first < Teff) {
-                    SpecialSubclassMap = it->second;
-                    break;
-                }
-            }
-        } else {
-            if (SurfaceH1 >= 0.2) {
-                SpecialSubclassMap = AstroObject::Star::_kSpectralSubclassMap_WNxh;
-                SpectralClass = 13;
-                SpectralType.SpecialMark = static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h);
-            } else {
-                const auto& InitialMap = AstroObject::Star::_kInitialWolfRayetMap;
+            if (SurfaceH1 > 0.6) {
+                const auto& InitialMap = AstroObject::Star::_kInitialCommonMap;
                 for (auto it = InitialMap.begin(); it != InitialMap.end() - 1; ++it) {
                     ++SpectralClass;
                     if (it->first >= Teff && (it + 1)->first < Teff) {
@@ -376,10 +364,35 @@ void StellarGenerator::GenSpectralType(AstroObject::Star& StarData) {
                         break;
                     }
                 }
-
-                if (SpectralClass == 15) {
+            } else if (Phase == AstroObject::Star::Phase::kMainSequence) {
+                EvolutionPhase = AstroObject::Star::Phase::kWolfRayet;
+                CalcSpectralSubclass(EvolutionPhase, SurfaceH1);
+                return;
+            }
+        } else {
+            if (Teff >= 200000) {
+                SpectralType.HSpectralClass = StellarClass::SpectralClass::kSpectral_WO;
+                SpectralType.Subclass = 2;
+                return;
+            } else {
+                if (SurfaceH1 >= 0.2) {
+                    SpecialSubclassMap = AstroObject::Star::_kSpectralSubclassMap_WNxh;
                     SpectralClass = 13;
                     SpectralType.SpecialMark = static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h);
+                } else {
+                    const auto& InitialMap = AstroObject::Star::_kInitialWolfRayetMap;
+                    for (auto it = InitialMap.begin(); it != InitialMap.end() - 1; ++it) {
+                        ++SpectralClass;
+                        if (it->first >= Teff && (it + 1)->first < Teff) {
+                            SpecialSubclassMap = it->second;
+                            break;
+                        }
+                    }
+
+                    if (SpectralClass == 15) {
+                        SpectralClass = 13;
+                        SpectralType.SpecialMark = static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h);
+                    }
                 }
             }
         }
@@ -408,15 +421,29 @@ void StellarGenerator::GenSpectralType(AstroObject::Star& StarData) {
         if (Teff < 54000) {
             CalcSpectralSubclass(EvolutionPhase, SurfaceH1);
 
-            if (EvolutionPhase == AstroObject::Star::Phase::kPrevMainSequence || EvolutionPhase == AstroObject::Star::Phase::kMainSequence) {
-                SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
-            } else if (EvolutionPhase == AstroObject::Star::Phase::kRedGiant) {
-                SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_III;
+            if (EvolutionPhase != AstroObject::Star::Phase::kWolfRayet) {
+                if (EvolutionPhase == AstroObject::Star::Phase::kPrevMainSequence) {
+                    SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
+                } else if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence) {
+                    if (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_O) {
+                        if (SurfaceH1 > 0.6) {
+                            SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
+                        } else {
+                            SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
+                        }
+                    } else {
+                        SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
+                    }
+                } else if (EvolutionPhase == AstroObject::Star::Phase::kRedGiant) {
+                    SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_III;
+                } else {
+                    SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
+                }
             } else {
-                SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
+                SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
             }
         } else {
-            if (SurfaceH1 > 0.7) {
+            if (SurfaceH1 > 0.6) {
                 SpectralType.HSpectralClass = StellarClass::SpectralClass::kSpectral_O;
                 SpectralType.Subclass = 2;
                 SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
@@ -455,14 +482,21 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
         BvColorIndex = 0.344 * std::pow(std::log10(Teff), 2) - 3.402 * std::log10(Teff) + 8.037;
     }
 
-    // B-V 色指数低于 -0.3，直接按照光度判断
-    if (BvColorIndex < -0.3) {
+    if (BvColorIndex < -0.3 || BvColorIndex > 1.8363636363636362) {
         if (LuminositySol > 100000) {
             return StellarClass::LuminosityClass::kLuminosity_Ia;
         } else if (LuminositySol > 50000) {
             return StellarClass::LuminosityClass::kLuminosity_Iab;
-        } else {
+        } else if (LuminositySol > 10000) {
             return StellarClass::LuminosityClass::kLuminosity_Ib;
+        } else if (LuminositySol > 1000) {
+            return StellarClass::LuminosityClass::kLuminosity_II;
+        } else if (LuminositySol > 100) {
+            return StellarClass::LuminosityClass::kLuminosity_III;
+        } else if (LuminositySol > 10) {
+            return StellarClass::LuminosityClass::kLuminosity_IV;
+        } else {
+            return StellarClass::LuminosityClass::kLuminosity_V;
         }
     }
 
@@ -577,6 +611,10 @@ static double CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, 
                 double UpperTimePoint = LowerUpperTimePoint + (UpperUpperTimePoint - LowerUpperTimePoint) * MassFactor;
 
                 Result = (TargetAge - LowerTimePoint) / (UpperTimePoint - LowerTimePoint) + Phase;
+
+                if (Result > PhaseChanges.first.back()[StellarGenerator::_kPhaseIndex] + 1) {
+                    return 0.0;
+                }
             } else {
                 Result = 0.0;
             }
@@ -721,7 +759,13 @@ static void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<
 static std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::HrDiagram>& Data, double BvColorIndex) {
     std::vector<double> Result;
 
-    auto SurroundingRows = Data->FindSurroundingValues("B-V", BvColorIndex);
+    std::pair<std::vector<double>, std::vector<double>> SurroundingRows;
+    try {
+        SurroundingRows = Data->FindSurroundingValues("B-V", BvColorIndex);
+    } catch (std::out_of_range& e) {
+        NpgsCoreError("Error: " + std::string(e.what()));
+    }
+
     double Factor = (BvColorIndex - SurroundingRows.first[0]) / (SurroundingRows.second[0] - SurroundingRows.first[0]);
 
     auto& Array1 = SurroundingRows.first;
@@ -744,7 +788,13 @@ static std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerato
 static std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::MistData>& Data, double EvolutionProgress) {
     std::vector<double> Result;
 
-    auto SurroundingRows = Data->FindSurroundingValues("x", EvolutionProgress);
+    std::pair<std::vector<double>, std::vector<double>> SurroundingRows;
+    try {
+        SurroundingRows = Data->FindSurroundingValues("x", EvolutionProgress);
+    } catch (std::out_of_range& e) {
+        NpgsCoreError("Error: " + std::string(e.what()));
+    }
+
     if (SurroundingRows.first != SurroundingRows.second) {
         int LowerTempPhase = static_cast<int>(SurroundingRows.first[StellarGenerator::_kPhaseIndex]);
         int UpperTempPhase = static_cast<int>(SurroundingRows.second[StellarGenerator::_kPhaseIndex]);

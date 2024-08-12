@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <string>
 #include <glm/glm.hpp>
@@ -10,36 +10,36 @@ _ASTROOBJECT_BEGIN
 class CelestialBody {
 public:
     struct BaryCenter {
-        std::string Name;                // ÖÊĞÄÃû×Ö
-        glm::dvec3 Position;             // Î»ÖÃ£¬Ê¹ÓÃ 3 ¸ö double ·ÖÁ¿µÄÏòÁ¿´æ´¢
-        double Distance;                 // ¾àÀë£¬µ¥Î» pc
+        std::string Name;                // è´¨å¿ƒåå­—
+        glm::dvec3 Position;             // ä½ç½®ï¼Œä½¿ç”¨ 3 ä¸ª double åˆ†é‡çš„å‘é‡å­˜å‚¨
+        double Distance;                 // è·ç¦»ï¼Œå•ä½ pc
     };
 
     struct OrbitProperties {
-        BaryCenter ParentBody;           // »·ÈÆµÄÉÏ¼¶ÌìÌå
-        double Epoch;                    // ÀúÔª£¬µ¥Î»ÈåÂÔÈÕ
-        double Period;                   // ÖÜÆÚ£¬µ¥Î» yr
-        double SemiMajorAxis;            // °ë³¤Öá£¬µ¥Î» AU
-        double Eccentricity;             // ÀëĞÄÂÊ
-        double Inclination;              // ¹ìµÀÇã½Ç£¬µ¥Î»¶È
-        double LongitudeOfAscendingNode; // Éı½»µã¾­¶È£¬µ¥Î»¶È
-        double ArgumentOfPeriapsis;      // ½üÈÕµã·ù½Ç£¬µ¥Î»¶È 
-        double MeanAnomaly;              // Æ½½üµã½Ç£¬µ¥Î»¶È
+        BaryCenter ParentBody;           // ç¯ç»•çš„ä¸Šçº§å¤©ä½“
+        double Epoch;                    // å†å…ƒï¼Œå•ä½å„’ç•¥æ—¥
+        double Period;                   // å‘¨æœŸï¼Œå•ä½ yr
+        double SemiMajorAxis;            // åŠé•¿è½´ï¼Œå•ä½ AU
+        double Eccentricity;             // ç¦»å¿ƒç‡
+        double Inclination;              // è½¨é“å€¾è§’ï¼Œå•ä½åº¦
+        double LongitudeOfAscendingNode; // å‡äº¤ç‚¹ç»åº¦ï¼Œå•ä½åº¦
+        double ArgumentOfPeriapsis;      // è¿‘æ—¥ç‚¹å¹…è§’ï¼Œå•ä½åº¦ 
+        double MeanAnomaly;              // å¹³è¿‘ç‚¹è§’ï¼Œå•ä½åº¦
     };
 
     struct BasicProperties {
-        std::string Name;                // Ãû×Ö
-        double Mass;                     // ÖÊÁ¿£¬µ¥Î» kg
-        double Radius;                   // °ë¾¶£¬µ¥Î» km
-        double RotationPeriod;           // ×Ô×ªÖÜÆÚ£¬µ¥Î» s
-        double Oblateness;               // ±âÂÊ
-        double AxisTilt;                 // ×Ô×ªÖáÇã½Ç£¬µ¥Î»¶È
-        double Albedo;                   // ·´ÕÕÂÊ
-        double Age;                      // ÄêÁä£¬µ¥Î»Äê
-        double EscapeVelocity;           // ÌÓÒİËÙ¶È£¬µ¥Î» m/s
-        double MagneticField;            // ´Å³¡Ç¿¶È£¬µ¥Î» T
+        std::string Name;                // åå­—
+        double Mass;                     // è´¨é‡ï¼Œå•ä½ kg
+        double Radius;                   // åŠå¾„ï¼Œå•ä½ km
+        double RotationPeriod;           // è‡ªè½¬å‘¨æœŸï¼Œå•ä½ s
+        double Oblateness;               // æ‰ç‡
+        double AxisTilt;                 // è‡ªè½¬è½´å€¾è§’ï¼Œå•ä½åº¦
+        double Albedo;                   // åç…§ç‡
+        double Age;                      // å¹´é¾„ï¼Œå•ä½å¹´
+        double EscapeVelocity;           // é€ƒé€¸é€Ÿåº¦ï¼Œå•ä½ m/s
+        double MagneticField;            // ç£åœºå¼ºåº¦ï¼Œå•ä½ T
 
-        OrbitProperties Orbit;
+        OrbitProperties Orbit{};
     };
 
 public:
@@ -105,7 +105,7 @@ public:
     double GetMeanAnomaly() const;
 
 private:
-    BasicProperties _Properties;
+    BasicProperties _Properties{};
 };
 
 class MolecularCloud {
@@ -124,7 +124,7 @@ public:
     ~MolecularCloud() = default;
 
 private:
-    BasicProperties _Properties;
+    BasicProperties _Properties{};
 };
 
 _ASTROOBJECT_END

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "Engine/Base/AstroObject/CelestialObject.h"
 #include "Engine/Core/Base.h"
@@ -23,17 +23,17 @@ public:
     };
 
     struct ExtendedProperties {
-        double AverageDensity;        // Æ½¾ùÃÜ¶È£¬µ¥Î» kg/m^3
-        double SurfaceGravity;        // ±íÃæÖØÁ¦£¬µ¥Î» m/s^2
-        double GreenhouseFactor;      // ÎÂÊÒĞ§Ó¦Òò×Ó
-        double Hydrosphere;           // Ë®È¦¸²¸ÇÂÊ
-        double IceCover;              // ±ù¸²¸ÇÂÊ
-        double CloudCover;            // ÔÆ¸²¸ÇÂÊ
-        double AtmospherePressure;    // ´óÆøÑ¹£¬µ¥Î» atm
-        double AtmosphereDensity;     // ´óÆøÃÜ¶È£¬µ¥Î» kg/m^3
-        double AtmosphereComposition; // ´óÆø³É·Ö
-        double TectonicActivity;      // ¹¹Ôì»î¶¯
-        double Volcanism;             // »ğÉ½»î¶¯
+        double AverageDensity;        // å¹³å‡å¯†åº¦ï¼Œå•ä½ kg/m^3
+        double SurfaceGravity;        // è¡¨é¢é‡åŠ›ï¼Œå•ä½ m/s^2
+        double GreenhouseFactor;      // æ¸©å®¤æ•ˆåº”å› å­
+        double Hydrosphere;           // æ°´åœˆè¦†ç›–ç‡
+        double IceCover;              // å†°è¦†ç›–ç‡
+        double CloudCover;            // äº‘è¦†ç›–ç‡
+        double AtmospherePressure;    // å¤§æ°”å‹ï¼Œå•ä½ atm
+        double AtmosphereDensity;     // å¤§æ°”å¯†åº¦ï¼Œå•ä½ kg/m^3
+        double AtmosphereComposition; // å¤§æ°”æˆåˆ†
+        double TectonicActivity;      // æ„é€ æ´»åŠ¨
+        double Volcanism;             // ç«å±±æ´»åŠ¨
         bool   bHasLife;
 
         PlanetType Type;
@@ -82,7 +82,7 @@ public:
     PlanetType GetType() const;
 
 private:
-    ExtendedProperties _PlanetExtraProperties;
+    ExtendedProperties _PlanetExtraProperties{};
 };
 
 _ASTROOBJECT_END
