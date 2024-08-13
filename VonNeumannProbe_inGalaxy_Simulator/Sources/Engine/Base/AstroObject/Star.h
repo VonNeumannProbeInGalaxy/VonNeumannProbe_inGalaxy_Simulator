@@ -31,8 +31,8 @@ public:
         double AbsoluteMagnitude;       // 绝对热星等
         double FeH;                     // 金属丰度
         double SurfaceFeH;              // 表面金属丰度
-        double SurfaceH1;               // 表面氕质量分数
-        double SurfaceHe3;              // 表面氦-3 质量分数
+        double SurfaceEnergeticNuclide; // 表面含能核素质量分数
+        double SurfaceVolatiles;        // 表面挥发物质量分数
         double Teff;                    // 有效温度
         double CoreTemp;                // 核心温度
         double CoreDensity;             // 核心密度，单位 kg/m^3
@@ -61,8 +61,8 @@ public:
     Star& SetAbsoluteMagnitude(double AbsoluteMagnitude);
     Star& SetFeH(double FeH);
     Star& SetSurfaceFeH(double SurfaceFeH);
-    Star& SetSurfaceH1(double SurfaceH1);
-    Star& SetSurfaceHe3(double SurfaceHe3);
+    Star& SetSurfaceEnergeticNuclide(double SurfaceEnergeticNuclide);
+    Star& SetSurfaceVolatiles(double SurfaceVolatiles);
     Star& SetTeff(double Teff);
     Star& SetCoreTemp(double CoreTemp);
     Star& SetCoreDensity(double CoreDensity);
@@ -80,8 +80,8 @@ public:
     double GetAbsoluteMagnitude() const;
     double GetFeH() const;
     double GetSurfaceFeH() const;
-    double GetSurfaceH1() const;
-    double GetSurfaceHe3() const;
+    double GetSurfaceEnergeticNuclide() const;
+    double GetSurfaceVolatiles() const;
     double GetTeff() const;
     double GetCoreTemp() const;
     double GetCoreDensity() const;

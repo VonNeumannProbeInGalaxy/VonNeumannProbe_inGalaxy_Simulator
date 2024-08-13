@@ -109,7 +109,7 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
     double MassSol           = StarData[_kStarMassIndex];
     double RadiusSol         = std::pow(10.0, StarData[_kLogRIndex]);
     double Teff              = std::pow(10.0, StarData[_kLogTeffIndex]);
-    double SurfaceFeH        = StarData[_kLogSurfZIndex];
+    double SurfaceFeH        = std::pow(10.0, StarData[_kLogSurfZIndex]);
     double SurfaceH1         = StarData[_kSurfaceH1Index];
     double SurfaceHe3        = StarData[_kSurfaceHe3Index];
     double CoreTemp          = std::pow(10.0, StarData[_kLogCenterTIndex]);
@@ -126,6 +126,9 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
     double WindSpeedFactor   = 3.0 - LifeProgress;
     double StellarWindSpeed  = WindSpeedFactor * EscapeVelocity;
 
+    double SurfaceEnergeticNuclide = (SurfaceH1 * 0.00002 + SurfaceHe3);
+    double SurfaceVolatiles        = 1.0 - SurfaceFeH - SurfaceEnergeticNuclide;
+
     AstroObject::Star::Phase EvolutionPhase = static_cast<AstroObject::Star::Phase>(StarData[10]);
 
     Star.SetAge(Age).SetMass(MassSol * kSolarMass).SetRadius(RadiusSol * kSolarRadius).SetEscapeVelocity(EscapeVelocity);
@@ -133,8 +136,8 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         .SetAbsoluteMagnitude(AbsoluteMagnitude)
         .SetTeff(Teff)
         .SetSurfaceFeH(SurfaceFeH)
-        .SetSurfaceH1(SurfaceH1)
-        .SetSurfaceHe3(SurfaceHe3)
+        .SetSurfaceEnergeticNuclide(SurfaceEnergeticNuclide)
+        .SetSurfaceVolatiles(SurfaceVolatiles)
         .SetCoreTemp(CoreTemp)
         .SetCoreDensity(CoreDensity * 1000)
         .SetStellarWindSpeed(StellarWindSpeed)
@@ -143,7 +146,7 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         .SetEvolutionPhase(EvolutionPhase)
         .SetLifetime(Lifetime);
 
-    CalcSpectralType(Star);
+    CalcSpectralType(Star, SurfaceH1);
 
     if (MassSol >= 0.075 && MassSol < 0.33) {
         std::uniform_real_distribution<double> MagneticGenerator(500.0, 3000.0);
@@ -375,7 +378,7 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::s
     return Result;
 }
 
-void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData) {
+void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, double SurfaceH1) {
     double Teff = StarData.GetTeff();
     auto EvolutionPhase = StarData.GetEvolutionPhase();
 
@@ -448,7 +451,6 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData) {
     };
 
     if (EvolutionPhase != AstroObject::Star::Phase::kWolfRayet) {
-        double SurfaceH1 = StarData.GetSurfaceH1();
         if (Teff < 54000) {
             CalcSpectralSubclass(EvolutionPhase, SurfaceH1);
 
@@ -483,7 +485,7 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData) {
             }
         }
     } else {
-        CalcSpectralSubclass(AstroObject::Star::Phase::kWolfRayet, StarData.GetSurfaceH1());
+        CalcSpectralSubclass(AstroObject::Star::Phase::kWolfRayet, SurfaceH1);
         SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
     }
 

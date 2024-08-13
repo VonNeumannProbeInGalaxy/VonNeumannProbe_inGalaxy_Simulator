@@ -6,12 +6,12 @@
 
 static void PrintTitle() {
     std::system("cls");
-    std::println("{:>6} {:>8} {:>9} {:7} {:>6} {:>13} {:>10} {:>10} {:>10} {:>12} {:>10} {:>12} {:>5} {:>10} {:>10} {:>10}",
-        "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "MassLoss", "WindSpeed", "Phase", "SurfaceH1", "Magnetic", "Lifetime");
+    std::println("{:>6} {:>8} {:>8} {:7} {:>5} {:>13} {:>7} {:>6} {:>8} {:>11} {:>8} {:>9} {:>5} {:>8} {:>8} {:>8} {:>8} {:>8}",
+        "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "SurfZ", "SurfNuc", "SurfVol", "Magnetic", "Lifetime");
 }
 
 static void PrintInfo(const Npgs::AstroObject::Star& Star) {
-    std::println("{:6.2f} {:8.2f} {:9.2E} {:7} {:6.2f} {:13.4f} {:10.2f} {:10} {:10.2E} {:12.2E} {:10.2E} {:12} {:5} {:10.2f} {:10.5f} {:10.2E}",
+    std::println("{:6.2f} {:8.2f} {:8.2E} {:7} {:5.2f} {:13.4f} {:7.2f} {:6} {:8.2E} {:11.2E} {:8.2E} {:9} {:5} {:8.2E} {:8.2E} {:8.2E} {:8.5f} {:8.2E}",
         Star.GetMass() / Npgs::kSolarMass,
         Star.GetRadius() / Npgs::kSolarRadius,
         Star.GetAge(),
@@ -25,7 +25,9 @@ static void PrintInfo(const Npgs::AstroObject::Star& Star) {
         Star.GetStellarWindMassLossRate(),
         static_cast<int>(std::round(Star.GetStellarWindSpeed())),
         static_cast<int>(Star.GetEvolutionPhase()),
-        Star.GetSurfaceH1(),
+        Star.GetSurfaceFeH(),
+        Star.GetSurfaceEnergeticNuclide(),
+        Star.GetSurfaceVolatiles(),
         Star.GetMagneticField(),
         Star.GetLifetime()
     );
@@ -49,7 +51,7 @@ int main() {
     for (int i = 0; i != MaxThread; ++i) {
         std::mt19937 RandomEngine(RandomDevice());
         std::uniform_int_distribution<int> UniformDistribution(1, 10000);
-        Generators.emplace_back(UniformDistribution(RandomEngine), 0.1);
+        Generators.emplace_back(UniformDistribution(RandomEngine), 0.075);
     }
 
     auto Start = std::chrono::high_resolution_clock::now();
@@ -87,13 +89,13 @@ int main() {
         Future.wait();
     }
 
-    //PrintTitle();
+    PrintTitle();
 
-    //for (std::size_t i = 0; i < StarFutures.size(); ++i) {
-    //    auto Star = StarFutures[i].get();
-    //    if (Star.GetMass() / Npgs::kSolarMass >= 1)
-    //        PrintInfo(Star);
-    //}
+    for (std::size_t i = 0; i < StarFutures.size(); ++i) {
+        auto Star = StarFutures[i].get();
+        //if (Star.GetMass() / Npgs::kSolarMass >= 1)
+            PrintInfo(Star);
+    }
 
 
     Pool->Terminate();
