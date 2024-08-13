@@ -272,7 +272,7 @@ std::string StellarClass::ToString() const {
 
 // Tool functions implementations
 // ------------------------------
-static ParseState ParseStarType(unsigned char Char, StellarClass::StarType& StarType, StellarClass::SpectralClass& HSpectralClass, std::size_t& Index) {
+ParseState ParseStarType(unsigned char Char, StellarClass::StarType& StarType, StellarClass::SpectralClass& HSpectralClass, std::size_t& Index) {
     switch (Char) {
     case 'X':
         StarType = StellarClass::StarType::kBlackHole;
@@ -297,7 +297,7 @@ static ParseState ParseStarType(unsigned char Char, StellarClass::StarType& Star
     }
 }
 
-static ParseState ParseSpectralClass(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
+ParseState ParseSpectralClass(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
     switch (Char) {
     case 'W':
         ++Index;
@@ -363,7 +363,7 @@ static ParseState ParseSpectralClass(unsigned char Char, StellarClass::SpectralC
     }
 }
 
-static ParseState ParseWolfRayetStar(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
+ParseState ParseWolfRayetStar(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
     switch (Char) {
     case 'C':
         SpectralClass = StellarClass::SpectralClass::kSpectral_WC;
@@ -382,7 +382,7 @@ static ParseState ParseWolfRayetStar(unsigned char Char, StellarClass::SpectralC
     }
 }
 
-static ParseState ParseWhiteDwarf(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
+ParseState ParseWhiteDwarf(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
     ++Index;
 
     switch (Char) {
@@ -413,7 +413,7 @@ static ParseState ParseWhiteDwarf(unsigned char Char, StellarClass::SpectralClas
     }
 }
 
-static ParseState ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
+ParseState ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, StellarClass::SpectralClass& SpectralClass, std::size_t& Index) {
     if (Char == PrevChar) {
         NpgsAssert(false, "Invalid white dwarf extended type.");
     }
@@ -447,7 +447,7 @@ static ParseState ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, 
     return ParseState::kSubclass;
 }
 
-static ParseState ParseLuminosityClass(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass, std::size_t& Index) {
+ParseState ParseLuminosityClass(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass, std::size_t& Index) {
     switch (Char) {
     case '0':
         if (LuminosityClass == StellarClass::LuminosityClass::kLuminosity_Unknown) {
@@ -470,7 +470,7 @@ static ParseState ParseLuminosityClass(unsigned char Char, StellarClass::Luminos
     }
 }
 
-static ParseState ParseLuminosityClassI(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass, std::size_t& Index) {
+ParseState ParseLuminosityClassI(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass, std::size_t& Index) {
     switch (Char) {
     case 'a':
         ++Index;
@@ -492,7 +492,7 @@ static ParseState ParseLuminosityClassI(unsigned char Char, StellarClass::Lumino
     }
 }
 
-static ParseState ParseLuminosityClassIa(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass) {
+ParseState ParseLuminosityClassIa(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass) {
     switch (Char) {
     case '+':
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IaPlus;
@@ -506,7 +506,7 @@ static ParseState ParseLuminosityClassIa(unsigned char Char, StellarClass::Lumin
     }
 }
 
-static ParseState ParseLuminosityClassII(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass) {
+ParseState ParseLuminosityClassII(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass) {
     switch (Char) {
     case 'I':
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_III;
@@ -517,7 +517,7 @@ static ParseState ParseLuminosityClassII(unsigned char Char, StellarClass::Lumin
     }
 }
 
-static ParseState ParseLuminosityClassV(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass) {
+ParseState ParseLuminosityClassV(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass) {
     switch (Char) {
     case 'I':
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_VI;
@@ -528,7 +528,7 @@ static ParseState ParseLuminosityClassV(unsigned char Char, StellarClass::Lumino
     }
 }
 
-static ParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, StellarClass::SpecialPeculiarity& SpecialMark, std::size_t& Index) {
+ParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, StellarClass::SpecialPeculiarity& SpecialMark, std::size_t& Index) {
     switch (Char) {
     case 'm':
         SpecialMark |= static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_m);
@@ -559,7 +559,7 @@ static ParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, S
     }
 }
 
-static std::string SpectralToStr(StellarClass::SpectralClass Spectral, double Subclass) {
+std::string SpectralToStr(StellarClass::SpectralClass Spectral, double Subclass) {
     std::ostringstream Stream;
 
     if (Subclass == std::floor(Subclass)) {
@@ -609,7 +609,7 @@ static std::string SpectralToStr(StellarClass::SpectralClass Spectral, double Su
     }
 }
 
-static std::string LuminosityClassToStr(StellarClass::LuminosityClass Luminosity) {
+std::string LuminosityClassToStr(StellarClass::LuminosityClass Luminosity) {
     switch (Luminosity) {
     case StellarClass::LuminosityClass::kLuminosity_0:
         return std::string("0");
@@ -638,7 +638,7 @@ static std::string LuminosityClassToStr(StellarClass::LuminosityClass Luminosity
     }
 }
 
-static std::string SpecialMarkToStr(StellarClass::SpecialPeculiarities SpecialMark) {
+std::string SpecialMarkToStr(StellarClass::SpecialPeculiarities SpecialMark) {
     switch (SpecialMark) {
     case StellarClass::SpecialPeculiarities::kCode_Null:
         return std::string("");

@@ -87,13 +87,13 @@ int main() {
         Future.wait();
     }
 
-    PrintTitle();
+    //PrintTitle();
 
-    for (std::size_t i = 0; i < StarFutures.size(); ++i) {
-        auto Star = StarFutures[i].get();
-        if (Star.GetMass() / Npgs::kSolarMass >= 1)
-            PrintInfo(Star);
-    }
+    //for (std::size_t i = 0; i < StarFutures.size(); ++i) {
+    //    auto Star = StarFutures[i].get();
+    //    if (Star.GetMass() / Npgs::kSolarMass >= 1)
+    //        PrintInfo(Star);
+    //}
 
 
     Pool->Terminate();
@@ -105,20 +105,20 @@ int main() {
     std::println("Interpolate completed in {} seconds.", Duration.count());
     // std::system("pause");
 #else
-    PrintTitle();
+    //PrintTitle();
 
-    Npgs::Modules::StellarGenerator Generator(42, 10.0, 0.0, 1e7);
-    for (int i = 0; i != 10000; ++i) {
+    Npgs::Modules::StellarGenerator Generator(42, 0.075);
+    for (int i = 0; i != 100; ++i) {
         auto Properties = Generator.GenBasicProperties();
         auto Star = Generator.GenerateStar(Properties);
-        if (Star.GetStellarWindMassLossRate() * Npgs::kYearInSeconds > 1e-4 * Npgs::kSolarMass) {
+        if (Star.GetMass() / Npgs::kSolarMass < 0.1) {
             std::println("Basic properties - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
             PrintInfo(Star);
         }
     }
 
-    //auto Star = Generator.GenerateStar({ {}, 4.8e6, 0.0, 50 });
-    //PrintInfo(Star);
+    // auto Star = Generator.GenerateStar({ {}, 1.14e10, 0.114, 0.09 });
+    // PrintInfo(Star);
 #endif
 
     return 0;
