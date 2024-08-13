@@ -1,4 +1,4 @@
-#include "Star.h"
+﻿#include "Star.h"
 
 _NPGS_BEGIN
 _ASTROOBJECT_BEGIN

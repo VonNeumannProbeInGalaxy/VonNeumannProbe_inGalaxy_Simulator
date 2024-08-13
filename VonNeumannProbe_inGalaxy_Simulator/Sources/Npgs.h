@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Engine/Base/AstroObject/CelestialObject.h"
 #include "Engine/Base/AstroObject/Planet.h"

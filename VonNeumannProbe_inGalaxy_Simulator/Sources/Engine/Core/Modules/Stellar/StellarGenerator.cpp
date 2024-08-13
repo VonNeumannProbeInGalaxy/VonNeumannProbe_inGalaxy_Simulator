@@ -130,7 +130,7 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         .SetEvolutionPhase(EvolutionPhase)
         .SetLifetime(Lifetime);
 
-    GenSpectralType(Star);
+    CalcSpectralType(Star);
 
     if (MassSol >= 0.075 && MassSol < 0.33) {
         std::uniform_real_distribution<double> MagneticGenerator(500.0, 3000.0);
@@ -341,7 +341,7 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::s
     return Result;
 }
 
-void StellarGenerator::GenSpectralType(AstroObject::Star& StarData) {
+void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData) {
     double Teff = StarData.GetTeff();
     auto EvolutionPhase = StarData.GetEvolutionPhase();
 

@@ -1,4 +1,4 @@
-#include "AssetManager.h"
+﻿#include "AssetManager.h"
 
 _NPGS_BEGIN
 _ASSETS_BEGIN
