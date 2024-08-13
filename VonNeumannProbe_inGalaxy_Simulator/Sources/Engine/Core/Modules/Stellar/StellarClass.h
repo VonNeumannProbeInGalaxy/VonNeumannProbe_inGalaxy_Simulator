@@ -131,26 +131,18 @@ public:
 public:
     static StellarClass Parse(const std::string& StellarClassStr);
 
-    std::uint64_t Data() const;
-    bool Load(std::uint64_t PackagedSpectralType);
-    std::string ToString(const SpectralType& SpectralType) const;
+    SpectralType Data() const;
+    bool Load(const SpectralType& SpectralType);
+    std::string ToString() const;
 
 public:
     StarType GetStarType() const {
         return _StarType;
     }
 
-    SpectralType GetSpectralType() const {
-        return _SpectralType;
-    }
-
-    std::string ToString() const {
-        return ToString(_SpectralType);
-    }
-
 private:
-    StarType     _StarType;
-    SpectralType _SpectralType;
+    StarType      _StarType;
+    std::uint64_t _SpectralType;
 };
 
 _MODULES_END

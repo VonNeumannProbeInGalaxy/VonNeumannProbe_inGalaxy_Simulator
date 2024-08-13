@@ -142,7 +142,7 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         std::uniform_real_distribution<double> MagneticGenerator(1.0, 10.0);
         Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
     } else if (MassSol >= 1.5 && MassSol < 20) {
-        auto SpectralType = Star.GetStellarClass().GetSpectralType();
+        auto SpectralType = Star.GetStellarClass().Data();
         if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence &&
             (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_A ||
              SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
