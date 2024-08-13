@@ -15,6 +15,7 @@
 
 #include <glm/glm.hpp>
 
+//#define ENABLE_LOGGER
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/Logger.h"
 
@@ -36,10 +37,10 @@ static std::vector<double> InterpolateFinalData(const std::pair<std::vector<doub
 
 // StellarGenerator implementations
 // --------------------------------
-StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit) :
+StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit, double AgeLowerLimit, double AgeUpperLimit) :
     _RandomEngine(Seed),
     _LogMassGenerator(std::log10(MassLowerLimit), std::log10(300.0)),
-    _AgeGenerator(0.0, 1.26e10),
+    _AgeGenerator(AgeLowerLimit, AgeUpperLimit),
     _CommonGenerator(0.0, 1.0),
     _FeHGenerator(-0.1, 0.3)
 {}
@@ -84,8 +85,8 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
     
     try {
         StarData = GetActuallyMistData(Properties);
-    } catch (std::exception& e) {
-        NpgsCoreError("Error: " + std::string(e.what()));
+    } catch (AstroObject::Star&) {
+        NpgsCoreError("Star dead - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
     }
 
     if (StarData.empty()) {
@@ -125,7 +126,7 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         .SetCoreTemp(CoreTemp)
         .SetCoreDensity(CoreDensity * 1000)
         .SetStellarWindSpeed(StellarWindSpeed)
-        .SetStellarWindMassLossRate(-(MassLossRate * kSolarMass / 31536000))
+        .SetStellarWindMassLossRate(-(MassLossRate * kSolarMass / kYearInSeconds))
         .SetEvolutionProgress(EvolutionProgress)
         .SetEvolutionPhase(EvolutionPhase)
         .SetLifetime(Lifetime);
@@ -355,19 +356,21 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData) {
         std::uint32_t SpectralClass = Phase == AstroObject::Star::Phase::kWolfRayet ? 11 : 0;
 
         if (Phase != AstroObject::Star::Phase::kWolfRayet) {
-            if (SurfaceH1 > 0.6) {
-                const auto& InitialMap = AstroObject::Star::_kInitialCommonMap;
-                for (auto it = InitialMap.begin(); it != InitialMap.end() - 1; ++it) {
-                    ++SpectralClass;
-                    if (it->first >= Teff && (it + 1)->first < Teff) {
-                        SpecialSubclassMap = it->second;
-                        break;
-                    }
+            if (Phase == AstroObject::Star::Phase::kMainSequence) {
+                if (SurfaceH1 < 0.6) {
+                    EvolutionPhase = AstroObject::Star::Phase::kWolfRayet;
+                    CalcSpectralSubclass(EvolutionPhase, SurfaceH1);
+                    return;
                 }
-            } else if (Phase == AstroObject::Star::Phase::kMainSequence) {
-                EvolutionPhase = AstroObject::Star::Phase::kWolfRayet;
-                CalcSpectralSubclass(EvolutionPhase, SurfaceH1);
-                return;
+            }
+
+            const auto& InitialMap = AstroObject::Star::_kInitialCommonMap;
+            for (auto it = InitialMap.begin(); it != InitialMap.end() - 1; ++it) {
+                ++SpectralClass;
+                if (it->first >= Teff && (it + 1)->first < Teff) {
+                    SpecialSubclassMap = it->second;
+                    break;
+                }
             }
         } else {
             if (Teff >= 200000) {
@@ -379,20 +382,15 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData) {
                     SpecialSubclassMap = AstroObject::Star::_kSpectralSubclassMap_WNxh;
                     SpectralClass = 13;
                     SpectralType.SpecialMark = static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h);
+                } else if (SurfaceH1 >= 0.1) {
+                    SpecialSubclassMap = AstroObject::Star::_kSpectralSubclassMap_WN;
+                    SpectralClass = 13;
+                } else if (SurfaceH1 < 0.1 && SurfaceH1 > 0.05) {
+                    SpecialSubclassMap = AstroObject::Star::_kSpectralSubclassMap_WC;
+                    SpectralClass = 12;
                 } else {
-                    const auto& InitialMap = AstroObject::Star::_kInitialWolfRayetMap;
-                    for (auto it = InitialMap.begin(); it != InitialMap.end() - 1; ++it) {
-                        ++SpectralClass;
-                        if (it->first >= Teff && (it + 1)->first < Teff) {
-                            SpecialSubclassMap = it->second;
-                            break;
-                        }
-                    }
-
-                    if (SpectralClass == 15) {
-                        SpectralClass = 13;
-                        SpectralType.SpecialMark = static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h);
-                    }
+                    SpecialSubclassMap = AstroObject::Star::_kSpectralSubclassMap_WO;
+                    SpectralClass = 14;
                 }
             }
         }
@@ -407,7 +405,7 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData) {
         }
 
         if (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_WN &&
-            SpectralType.SpecialMark == static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h)) {
+            SpectralType.SpecialMark & static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h)) {
             if (Subclass < 5) {
                 Subclass = 5;
             }
@@ -461,7 +459,7 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData) {
 }
 
 StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroObject::Star& StarData) {
-    double MassLossRateSolPerYear = StarData.GetStellarWindMassLossRate() * 31536000 / kSolarMass;
+    double MassLossRateSolPerYear = StarData.GetStellarWindMassLossRate() * kYearInSeconds / kSolarMass;
     double MassSol = StarData.GetMass() / kSolarMass;
     if (MassLossRateSolPerYear > 1e-4 && MassSol >= 15) {
         return StellarClass::LuminosityClass::kLuminosity_IaPlus;
@@ -693,6 +691,13 @@ static std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<
 
     std::vector<double> PhaseChangeTimePoints = InterpolateArray({ LowerPhaseChangeTimePoints, UpperPhaseChangeTimePoints }, MassFactor);
 
+    if (TargetAge > PhaseChangeTimePoints.back()) {
+        StellarClass::SpectralType DeathStarClass{ StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        AstroObject::Star DeathStar;
+        DeathStar.SetStellarClass(StellarClass(StellarClass::StarType::kDeathStar, DeathStarClass));
+        throw DeathStar;
+    }
+
     std::vector<std::pair<double, double>> TimePointPairs;
     for (std::size_t i = 0; i != PhaseChanges.first.size(); ++i) {
         TimePointPairs.emplace_back(PhaseChanges.first[i][StellarGenerator::_kPhaseIndex], PhaseChangeTimePoints[i]);
@@ -763,7 +768,7 @@ static std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerato
     try {
         SurroundingRows = Data->FindSurroundingValues("B-V", BvColorIndex);
     } catch (std::out_of_range& e) {
-        NpgsCoreError("Error: " + std::string(e.what()));
+        NpgsCoreError(std::string(e.what()));
     }
 
     double Factor = (BvColorIndex - SurroundingRows.first[0]) / (SurroundingRows.second[0] - SurroundingRows.first[0]);
@@ -792,7 +797,7 @@ static std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerato
     try {
         SurroundingRows = Data->FindSurroundingValues("x", EvolutionProgress);
     } catch (std::out_of_range& e) {
-        NpgsCoreError("Error: " + std::string(e.what()));
+        NpgsCoreError(std::string(e.what()));
     }
 
     if (SurroundingRows.first != SurroundingRows.second) {

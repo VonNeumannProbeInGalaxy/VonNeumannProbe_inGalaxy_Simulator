@@ -20,5 +20,6 @@ constexpr inline double kSolarAbsoluteMagnitude = 4.83;
 constexpr inline double kGravityConstant        = 6.67430e-11;
 constexpr inline double kPi                     = 3.1415926535897932;
 constexpr inline double kStefanBoltzmann        = 5.670374419e-8;
+constexpr inline int    kYearInSeconds          = 31556926;
 
 _NPGS_END

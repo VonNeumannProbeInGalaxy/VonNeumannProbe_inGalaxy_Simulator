@@ -16,7 +16,8 @@ public:
         kNormalStar          = 0,
         kWhiteDwarf          = 1,
         kNeutronStar         = 2,
-        kBlackHole           = 3
+        kBlackHole           = 3,
+        kDeathStar           = 4
     };
 
     enum class SpectralClass : std::uint32_t {
@@ -36,9 +37,9 @@ public:
         kSpectral_S          = 11,
         // 沃尔夫—拉叶星
         // -----------
-        kSpectral_WO         = 12,
+        kSpectral_WC         = 12,
         kSpectral_WN         = 13,
-        kSpectral_WC         = 14,
+        kSpectral_WO         = 14,
         // 棕矮星
         // -----
         kSpectral_L          = 15,

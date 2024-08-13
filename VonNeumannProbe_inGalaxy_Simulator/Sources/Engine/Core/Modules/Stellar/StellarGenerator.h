@@ -39,7 +39,7 @@ public:
 
 public:
     StellarGenerator() = default;
-    StellarGenerator(int Seed, double MassLowerLimit);
+    StellarGenerator(int Seed, double MassLowerLimit, double AgeLowerLimit = 0.0, double AgeUpperLimit = 1.26e10);
     ~StellarGenerator() = default;
 
 public:

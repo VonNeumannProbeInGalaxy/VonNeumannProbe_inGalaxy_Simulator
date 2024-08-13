@@ -16,7 +16,7 @@ const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_K{ { 5270,  0
 const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_M{ { 3850,  0 }, { 3660,  1 }, { 3560,  2 }, { 3430,  3 }, { 3210,  4 }, { 3060,  5 }, { 2810,  6 }, { 2680,  7 }, { 2570,  8 }, { 2380,  9 }, { 2000, 10 } };
 const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_WC{ { 117000, 4 }, { 83000, 5 }, { 78000, 6 }, { 71000, 7 }, { 60000, 8 }, { 44000, 9 }, { 40000, 10 } };
 const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_WN{ { 141000, 2 }, { 85000, 3 }, { 70000, 4 }, { 60000, 5 }, { 56000, 6 }, { 50000, 7 }, { 45000, 8 }, { 40000, 10 } };
-const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_WO{ { 300000, 1 }, { 200000, 2 }, { 100000, 3 }, { 80000, 4} };
+const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_WO{ { 200000, 2 }, { 100000, 3 }, { 80000, 4} };
 const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_WNxh{ { 50000, 5 }, { 45000, 6 }, { 43000, 7 }, { 40000, 8 }, { 35000, 9 }, { 30000, 10 } };
 
 const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> Star::_kInitialCommonMap{

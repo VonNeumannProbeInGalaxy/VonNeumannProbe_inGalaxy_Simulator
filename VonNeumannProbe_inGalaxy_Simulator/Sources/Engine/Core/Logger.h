@@ -8,7 +8,7 @@
 // Macro function use pascal style
 // Those macro make function call easily
 // -------------------------------------
-#ifdef _DEBUG
+#ifdef ENABLE_LOGGER
 // Core logger
 // -----------
 #define NpgsCoreCritical(...) ::Npgs::Logger::GetCoreLogger()->critical(__VA_ARGS__)
