@@ -176,35 +176,36 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
 
     CalcSpectralType(Star, SurfaceH1);
 
+    std::unique_ptr<Distribution> MagneticGenerator = nullptr;
+
     if (MassSol >= 0.075 && MassSol < 0.33) {
-        std::uniform_real_distribution<double> MagneticGenerator(500.0, 3000.0);
-        Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+        MagneticGenerator = std::make_unique<UniformRealDistribution>(500.0, 3000.0);
     } else if (MassSol >= 0.33 && MassSol < 0.6) {
-        std::uniform_real_distribution<double> MagneticGenerator(100.0, 1000.0);
-        Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+        MagneticGenerator = std::make_unique<UniformRealDistribution>(100.0, 1000.0);
     } else if (MassSol >= 0.6 && MassSol < 1.5) {
-        std::uniform_real_distribution<double> MagneticGenerator(1.0, 10.0);
-        Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+        MagneticGenerator = std::make_unique<UniformRealDistribution>(1.0, 10.0);
     } else if (MassSol >= 1.5 && MassSol < 20) {
         auto SpectralType = Star.GetStellarClass().Data();
         if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence &&
             (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_A ||
-             SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
-            std::bernoulli_distribution ProbabilityGenerator(0.15);
-            if (ProbabilityGenerator(_RandomEngine)) {
-                std::uniform_real_distribution<double> MagneticGenerator(1000.0, 10000.0);
-                Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+             SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B))
+        {
+            BernoulliDistribution ProbabilityGenerator(0.15);
+            if (ProbabilityGenerator.Generate(_RandomEngine)) {
+                MagneticGenerator = std::make_unique<UniformRealDistribution>(1000.0, 10000.0);
                 SpectralType.SpecialMark |= static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_p);
                 Star.SetStellarClass(StellarClass(StellarClass::StarType::kNormalStar, SpectralType));
+            } else {
+                MagneticGenerator = std::make_unique<UniformRealDistribution>(0.1, 1.0);
             }
         } else {
-            std::uniform_real_distribution<double> MagneticGenerator(0.1, 1.0);
-            Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+            MagneticGenerator = std::make_unique<UniformRealDistribution>(0.1, 1.0);
         }
     } else {
-        std::uniform_real_distribution<double> MagneticGenerator(100.0, 1000.0);
-        Star.SetMagneticField(MagneticGenerator(_RandomEngine) / 10000);
+        MagneticGenerator = std::make_unique<UniformRealDistribution>(100.0, 1000.0);
     }
+
+    Star.SetMagneticField(MagneticGenerator->Generate(_RandomEngine) / 10000);
 
     return Star;
 }

@@ -11,9 +11,9 @@ public:
     virtual double Generate(std::mt19937& Engine) = 0;
 };
 
-class NPGS_API UniformDistribution : public Distribution {
+class NPGS_API UniformRealDistribution : public Distribution {
 public:
-    UniformDistribution(double Min, double Max) : _Distribution(Min, Max) {}
+    UniformRealDistribution(double Min, double Max) : _Distribution(Min, Max) {}
 
     double Generate(std::mt19937& Engine) override {
         return _Distribution(Engine);

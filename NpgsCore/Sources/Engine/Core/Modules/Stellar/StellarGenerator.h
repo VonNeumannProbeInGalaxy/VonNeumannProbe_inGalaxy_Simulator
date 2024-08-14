@@ -76,9 +76,9 @@ public:
 
 private:
     std::mt19937                                 _RandomEngine;
-    UniformDistribution                          _LogMassGenerator;
-    UniformDistribution                          _AgeGenerator;
-    UniformDistribution                          _CommonGenerator;
+    UniformRealDistribution                      _LogMassGenerator;
+    UniformRealDistribution                      _AgeGenerator;
+    UniformRealDistribution                      _CommonGenerator;
     std::array<std::shared_ptr<Distribution>, 4> _FeHGenerators;
 
     double _FeHLowerLimit;
