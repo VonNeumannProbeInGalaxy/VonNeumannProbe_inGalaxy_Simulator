@@ -91,13 +91,6 @@ int main() {
 
     // PrintTitle();
 
-    //for (std::size_t i = 0; i < StarFutures.size(); ++i) {
-    //    auto Star = StarFutures[i].get();
-    //    //if (Star.GetMass() / Npgs::kSolarMass >= 1)
-    //    //PrintInfo(Star);
-    //}
-
-
     Pool->Terminate();
     Npgs::ThreadPool::Destroy();
 

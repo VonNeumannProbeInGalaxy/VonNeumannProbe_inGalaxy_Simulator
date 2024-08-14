@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include <memory>
-#include <mutex>
 #include <random>
+#include <shared_mutex>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -86,7 +86,7 @@ private:
     static const std::unordered_set<double>                                                 _kPresetFeH;
     static std::unordered_map<std::string, std::vector<double>>                             _MassFileCache;
     static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>>  _PhaseChangesCache;
-    static std::mutex                                                                       _CacheMutex;
+    static std::shared_mutex                                                                _CacheMutex;
 };
 
 _MODULES_END

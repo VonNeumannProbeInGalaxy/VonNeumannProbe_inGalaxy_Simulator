@@ -183,7 +183,7 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
 
 template<typename CsvType>
 std::shared_ptr<CsvType> StellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers) {
-    std::lock_guard<std::mutex> Lock(_CacheMutex);
+    std::shared_lock Lock(_CacheMutex);
     if (Assets::AssetManager::GetAsset<CsvType>(Filename) == nullptr) {
         auto CsvAsset = std::make_shared<CsvType>(Filename, Headers);
         Assets::AssetManager::AddAsset<CsvType>(Filename, CsvAsset);
@@ -581,7 +581,7 @@ const std::vector<std::string> StellarGenerator::_kHrDiagramHeaders{ "B-V", "Ia"
 const std::unordered_set<double> StellarGenerator::_kPresetFeH{ -4.0, -3.0, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5 };
 std::unordered_map<std::string, std::vector<double>> StellarGenerator::_MassFileCache;
 std::unordered_map<std::shared_ptr<StellarGenerator::MistData>, std::vector<std::vector<double>>> StellarGenerator::_PhaseChangesCache;
-std::mutex StellarGenerator::_CacheMutex;
+std::shared_mutex StellarGenerator::_CacheMutex;
 
 // Tool functions implementations
 // ------------------------------
