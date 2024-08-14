@@ -10,7 +10,7 @@
 
 _NPGS_BEGIN
 
-class ThreadPool {
+class NPGS_API ThreadPool {
 public:
     static ThreadPool* GetInstance(int ThreadCount);
     static void Init(int ThreadCount);

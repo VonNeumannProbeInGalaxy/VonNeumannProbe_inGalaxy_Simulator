@@ -8,7 +8,7 @@
 _NPGS_BEGIN
 _MODULES_BEGIN
 
-class StellarClass {
+class NPGS_API StellarClass {
 public:
     using SpecialPeculiarity = std::uint32_t;
 

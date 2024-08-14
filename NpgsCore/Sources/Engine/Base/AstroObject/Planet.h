@@ -6,7 +6,7 @@
 _NPGS_BEGIN
 _ASTROOBJECT_BEGIN
 
-class Planet : public CelestialBody {
+class NPGS_API Planet : public CelestialBody {
 public:
     enum class PlanetType {
         kTerrestrial,

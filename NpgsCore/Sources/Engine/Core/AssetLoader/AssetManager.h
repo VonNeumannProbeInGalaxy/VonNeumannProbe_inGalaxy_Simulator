@@ -15,7 +15,7 @@ _ASSETS_BEGIN
 template <typename AssetType>
 concept Copyable = std::copyable<AssetType>;
 
-class AssetManager {
+class NPGS_API AssetManager {
 public:
     AssetManager() = default;
     ~AssetManager() = default;

@@ -25,7 +25,7 @@ concept CsvConcept = Size > 0;
 
 template <typename BasicType, std::size_t Size>
 requires CsvConcept<Size>
-class Csv {
+class NPGS_API Csv {
 public:
     using RowArray = std::vector<BasicType>;
 

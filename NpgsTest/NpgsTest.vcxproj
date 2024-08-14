@@ -18,11 +18,21 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Sources\main.cpp" />
+    <ClCompile Include="Sources\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Sources\stdafx.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{66046d06-f578-45bc-84b6-c6800f65bf0c}</ProjectGuid>
-    <RootNamespace>VonNeumannProbeinGalaxySimulator</RootNamespace>
+    <ProjectGuid>{be583f5f-76c0-44e1-bdf4-27792918f2dc}</ProjectGuid>
+    <RootNamespace>NpgsTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,6 +80,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -102,20 +118,19 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NPGS_EXPORT;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(SolutionDir)\VonNeumannProbe_inGalaxy_Simulator\Sources</AdditionalIncludeDirectories>
-      <EnableModules>true</EnableModules>
-      <BuildStlModules>false</BuildStlModules>
       <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\NpgsCore\Sources</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>NpgsCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -124,17 +139,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NPGS_EXPORT;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(SolutionDir)\VonNeumannProbe_inGalaxy_Simulator\Sources</AdditionalIncludeDirectories>
-      <EnableModules>true</EnableModules>
-      <BuildStlModules>false</BuildStlModules>
       <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\NpgsCore\Sources</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,47 +155,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <Profile>true</Profile>
+      <AdditionalDependencies>NpgsCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Sources\Engine\Core\AssetLoader\AssetManager.cpp" />
-    <ClCompile Include="Sources\Engine\Base\AstroObject\Planet.cpp" />
-    <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Logger.cpp" />
-    <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp" />
-    <ClCompile Include="Sources\Engine\Base\AstroObject\Star.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Modules\Stellar\StellarClass.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Modules\Stellar\StellarGenerator.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Universe.cpp" />
-    <ClCompile Include="Sources\main.cpp" />
-    <ClCompile Include="Sources\stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Sources\Engine\Core\Random.hpp" />
-    <ClInclude Include="Sources\Engine\Core\AssetLoader\Csv.hpp" />
-    <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h" />
-    <ClInclude Include="Sources\Engine\Base\AstroObject\Planet.h" />
-    <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h" />
-    <ClInclude Include="Sources\Engine\Core\Base.h" />
-    <ClInclude Include="Sources\Engine\Core\Constants.h" />
-    <ClInclude Include="Sources\Engine\Core\Assert.h" />
-    <ClInclude Include="Sources\Engine\Core\Logger.h" />
-    <ClInclude Include="Sources\Engine\Core\ThreadPool.h" />
-    <ClInclude Include="Sources\Npgs.h" />
-    <ClInclude Include="Sources\Engine\Base\AstroObject\Star.h" />
-    <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarClass.h" />
-    <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarGenerator.h" />
-    <ClInclude Include="Sources\Engine\Base\Universe.h" />
-    <ClInclude Include="Sources\stdafx.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Sources\Engine\Base\AstroObject\CelestialObject.inl" />
-    <None Include="Sources\Engine\Base\AstroObject\Planet.inl" />
-    <None Include="Sources\Engine\Base\AstroObject\Star.inl" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

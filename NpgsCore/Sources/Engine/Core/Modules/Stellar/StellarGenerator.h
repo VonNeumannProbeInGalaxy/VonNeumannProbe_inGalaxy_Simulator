@@ -16,7 +16,7 @@
 _NPGS_BEGIN
 _MODULES_BEGIN
 
-class StellarGenerator {
+class NPGS_API StellarGenerator {
 public:
     using BaryCenter = AstroObject::CelestialBody::BaryCenter;
     using MistData   = Assets::Csv<double, 12>;

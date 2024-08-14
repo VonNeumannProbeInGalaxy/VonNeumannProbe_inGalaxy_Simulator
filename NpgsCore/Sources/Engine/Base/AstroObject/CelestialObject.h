@@ -7,7 +7,7 @@
 _NPGS_BEGIN
 _ASTROOBJECT_BEGIN
 
-class CelestialBody {
+class NPGS_API CelestialBody {
 public:
     struct BaryCenter {
         std::string Name;                // 质心名字
@@ -108,7 +108,7 @@ private:
     BasicProperties _Properties{};
 };
 
-class MolecularCloud {
+class NPGS_API MolecularCloud {
 public:
     struct BasicProperties {
         double Radius;

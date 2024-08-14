@@ -12,7 +12,7 @@
 
 _NPGS_BEGIN
 
-class Universe {
+class NPGS_API Universe {
 public:
     Universe() = default;
     ~Universe() = default;
