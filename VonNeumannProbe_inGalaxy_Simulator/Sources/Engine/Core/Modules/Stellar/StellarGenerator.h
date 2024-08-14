@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <array>
 #include <memory>
 #include <mutex>
 #include <random>
@@ -10,6 +11,7 @@
 #include "Engine/Base/AstroObject/Star.h"
 #include "Engine/Core/AssetLoader/AssetManager.h"
 #include "Engine/Core/Base.h"
+#include "Engine/Core/Random.hpp"
 
 _NPGS_BEGIN
 _MODULES_BEGIN
@@ -39,7 +41,7 @@ public:
 
 public:
     StellarGenerator() = default;
-    StellarGenerator(int Seed, double MassLowerLimit, double AgeLowerLimit = 0.0, double AgeUpperLimit = 1.26e10);
+    StellarGenerator(int Seed, double MassLowerLimit, double AgeLowerLimit = 0.0, double AgeUpperLimit = 1.26e10, double FeHLowerLimit = -4.0, double FeHUpperLimit = 0.5);
     ~StellarGenerator() = default;
 
 public:
@@ -75,11 +77,14 @@ public:
     static const int _kLifetimeIndex;
 
 private:
-    std::mt19937                           _RandomEngine;
-    std::uniform_real_distribution<double> _LogMassGenerator;
-    std::uniform_real_distribution<double> _AgeGenerator;
-    std::uniform_real_distribution<double> _CommonGenerator;
-    std::normal_distribution<double>       _FeHGenerator;
+    std::mt19937                                 _RandomEngine;
+    UniformDistribution                          _LogMassGenerator;
+    UniformDistribution                          _AgeGenerator;
+    UniformDistribution                          _CommonGenerator;
+    std::array<std::shared_ptr<Distribution>, 4> _FeHGenerators;
+
+    double _FeHLowerLimit;
+    double _FeHUpperLimit;
 
     static const std::vector<std::string>                                                   _kMistHeaders;
     static const std::vector<std::string>                                                   _kHrDiagramHeaders;

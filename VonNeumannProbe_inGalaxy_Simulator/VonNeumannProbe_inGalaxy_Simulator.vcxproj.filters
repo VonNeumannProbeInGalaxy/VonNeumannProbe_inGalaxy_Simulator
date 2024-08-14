@@ -95,6 +95,9 @@
     <ClInclude Include="Sources\Engine\Core\Logger.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\Random.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\AstroObject\CelestialObject.inl">

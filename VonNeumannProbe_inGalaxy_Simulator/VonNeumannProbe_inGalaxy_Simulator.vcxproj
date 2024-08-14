@@ -161,6 +161,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\Engine\Core\Random.hpp" />
     <ClInclude Include="Sources\Engine\Core\AssetLoader\Csv.hpp" />
     <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\Planet.h" />
