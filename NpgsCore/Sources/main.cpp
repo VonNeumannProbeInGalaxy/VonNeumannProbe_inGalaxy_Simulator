@@ -42,6 +42,8 @@ int main() {
     int MaxThread = std::thread::hardware_concurrency();
     auto Pool = Npgs::ThreadPool::GetInstance(MaxThread);
 
+    std::println("Npgs run with {} threads.", MaxThread);
+
     int MaxStars = 0;
     std::println("Enter the star count:");
     std::cin >> MaxStars;
@@ -58,7 +60,7 @@ int main() {
 
     std::vector<std::future<Npgs::Modules::StellarGenerator::BasicProperties>> Futures;
     for (int i = 0; i != MaxStars; ++i) {
-        Futures.emplace_back(Pool->Commit([i, &Generators]() -> Npgs::Modules::StellarGenerator::BasicProperties {
+        Futures.emplace_back(Pool->Commit([&, i]() -> Npgs::Modules::StellarGenerator::BasicProperties {
             int ThreadId = i % Generators.size();
             return Generators[ThreadId].GenBasicProperties();
         }));
@@ -84,7 +86,6 @@ int main() {
         }));
     }
 
-
     for (auto& Future : StarFutures) {
         Future.wait();
     }
@@ -98,7 +99,7 @@ int main() {
     Duration = End - Start;
 
     std::println("Interpolate completed in {} seconds.", Duration.count());
-    // std::system("pause");
+    std::system("pause");
 #else
     //PrintTitle();
 
