@@ -49,64 +49,37 @@ static void ExpandMistData(std::vector<double>& StarData, double TargetMass);
 
 // StellarGenerator implementations
 // --------------------------------
-StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit, double AgeLowerLimit, double AgeUpperLimit, double FeHLowerLimit, double FeHUpperLimit) :
+StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit, double AgeLowerLimit, double AgeUpperLimit) :
     _RandomEngine(Seed),
     _LogMassGenerator(std::log10(MassLowerLimit), std::log10(300.0)),
     _AgeGenerator(AgeLowerLimit, AgeUpperLimit),
     _CommonGenerator(0.0, 1.0),
-    _FeHGenerators({
-        std::make_shared<LogNormalDistribution>(-0.3, 0.5),
-        std::make_shared<NormalDistribution>(-0.3, 0.15),
-        std::make_shared<NormalDistribution>(-0.08, 0.12),
-        std::make_shared<NormalDistribution>(0.05, 0.16)
-    }),
-    _FeHLowerLimit(FeHLowerLimit), _FeHUpperLimit(FeHUpperLimit)
+    _FeHGenerator(-0.1, 0.3)
 {}
 
 StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     BasicProperties Properties;
 
-    double PosX     = _CommonGenerator.Generate(_RandomEngine) * 1000.0;
-    double PosY     = _CommonGenerator.Generate(_RandomEngine) * 1000.0;
-    double PosZ     = _CommonGenerator.Generate(_RandomEngine) * 1000.0;
-    double Distance = _CommonGenerator.Generate(_RandomEngine) * 10000.0;
+    double PosX     = _CommonGenerator(_RandomEngine) * 1000.0;
+    double PosY     = _CommonGenerator(_RandomEngine) * 1000.0;
+    double PosZ     = _CommonGenerator(_RandomEngine) * 1000.0;
+    double Distance = _CommonGenerator(_RandomEngine) * 10000.0;
     Properties.StarSys.Name     = "S-" + std::to_string(PosX) + "-" + std::to_string(PosY) + "-" + std::to_string(PosZ) + "-" + std::to_string(Distance);
     Properties.StarSys.Position = glm::dvec3(PosX, PosY, PosZ);
     Properties.StarSys.Distance = Distance;
+
+    double FeH = 0.0;
+    do {
+        FeH = _FeHGenerator(_RandomEngine);
+    } while (FeH > 0.5 || FeH < -4.0);
+
+    Properties.FeH = FeH;
 
     double Mass = GenerateMass(0.086, true);
     Properties.Mass = Mass;
 
     double Age = GenerateAge(2.6);
     Properties.Age = Age;
-
-    std::shared_ptr<Distribution> FeHGenerator = nullptr;
-
-    double FeHLowerLimit = _FeHLowerLimit;
-    double FeHUpperLimit = _FeHUpperLimit;
-
-    if (Age > 8e9) {
-        FeHGenerator  = _FeHGenerators[0];
-        FeHLowerLimit = -_FeHUpperLimit;
-        FeHUpperLimit = -_FeHLowerLimit;
-    } else if (Age > 6e9) {
-        FeHGenerator = _FeHGenerators[1];
-    } else if (Age > 4e9) {
-        FeHGenerator = _FeHGenerators[2];
-    } else {
-        FeHGenerator = _FeHGenerators[3];
-    }
-
-    double FeH = 0.0;
-    do {
-        FeH = FeHGenerator->Generate(_RandomEngine);
-    } while (FeH > FeHUpperLimit || FeH < FeHLowerLimit);
-
-    if (Age > 8e9) {
-        FeH *= -1.0;
-    }
-
-    Properties.FeH = FeH;
 
     return Properties;
 }
@@ -223,9 +196,9 @@ double StellarGenerator::GenerateAge(double MaxPdf) {
     double Age         = 0.0;
     double Probability = 0.0;
     do {
-        Age = _AgeGenerator.Generate(_RandomEngine);
+        Age = _AgeGenerator(_RandomEngine);
         Probability = DefaultAgePdf(Age / 1e9);
-    } while (_CommonGenerator.Generate(_RandomEngine) * MaxPdf > Probability);
+    } while (_CommonGenerator(_RandomEngine) * MaxPdf > Probability);
 
     return Age;
 }
@@ -234,9 +207,9 @@ double StellarGenerator::GenerateMass(double MaxPdf, bool bIsBinary) {
     double LogMass     = 0.0;
     double Probability = 0.0;
     do {
-        LogMass = _LogMassGenerator.Generate(_RandomEngine);
+        LogMass = _LogMassGenerator(_RandomEngine);
         Probability = DefaultLogMassPdf(LogMass, bIsBinary);
-    } while (_CommonGenerator.Generate(_RandomEngine) * MaxPdf > Probability);
+    } while (_CommonGenerator(_RandomEngine) * MaxPdf > Probability);
 
     return std::pow(10.0, LogMass);
 }

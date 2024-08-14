@@ -94,7 +94,7 @@ int main() {
     for (std::size_t i = 0; i < StarFutures.size(); ++i) {
         auto Star = StarFutures[i].get();
         //if (Star.GetMass() / Npgs::kSolarMass >= 1)
-        //PrintInfo(Star);
+            PrintInfo(Star);
     }
 
 
@@ -110,13 +110,13 @@ int main() {
     //PrintTitle();
 
     Npgs::Modules::StellarGenerator Generator(42, 0.075);
-    for (int i = 0; i != 10000; ++i) {
+    for (int i = 0; i != 100; ++i) {
         auto Properties = Generator.GenBasicProperties();
-        //auto Star = Generator.GenerateStar(Properties);
-        //if (Star.GetMass() / Npgs::kSolarMass < 0.1) {
-        //    std::println("Basic properties - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
-        //    PrintInfo(Star);
-        //}
+        auto Star = Generator.GenerateStar(Properties);
+        if (Star.GetMass() / Npgs::kSolarMass < 0.1) {
+            std::println("Basic properties - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
+            PrintInfo(Star);
+        }
     }
 
     // auto Star = Generator.GenerateStar({ {}, 1.14e10, 0.114, 0.09 });
