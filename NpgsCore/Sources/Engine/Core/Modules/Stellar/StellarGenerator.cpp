@@ -183,13 +183,20 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
 
 template<typename CsvType>
 std::shared_ptr<CsvType> StellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers) {
-    std::shared_lock Lock(_CacheMutex);
-    if (Assets::AssetManager::GetAsset<CsvType>(Filename) == nullptr) {
-        auto CsvAsset = std::make_shared<CsvType>(Filename, Headers);
-        Assets::AssetManager::AddAsset<CsvType>(Filename, CsvAsset);
+    {
+        std::shared_lock Lock(_CacheMutex);
+        auto Asset = Assets::AssetManager::GetAsset<CsvType>(Filename);
+        if (Asset != nullptr) {
+            return Asset;
+        }
     }
 
-    return Assets::AssetManager::GetAsset<CsvType>(Filename);
+
+    std::unique_lock Lock(_CacheMutex);
+    auto CsvAsset = std::make_shared<CsvType>(Filename, Headers);
+    Assets::AssetManager::AddAsset<CsvType>(Filename, CsvAsset);
+
+    return CsvAsset;
 }
 
 double StellarGenerator::GenerateAge(double MaxPdf) {
@@ -251,7 +258,9 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
         }
 
         _CacheMutex.lock();
-        _MassFileCache.emplace(FeHStr, Masses);
+        if (!_MassFileCache.contains(FeHStr)) {
+            _MassFileCache.emplace(FeHStr, Masses);
+        }
     }
     _CacheMutex.unlock();
 
@@ -371,7 +380,9 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::s
         }
 
         _CacheMutex.lock();
-        _PhaseChangesCache.emplace(DataCsv, Result);
+        if (!_PhaseChangesCache.contains(DataCsv)) {
+            _PhaseChangesCache.emplace(DataCsv, Result);
+        }
     }
     _CacheMutex.unlock();
 
