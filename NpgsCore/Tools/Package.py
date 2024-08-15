@@ -15,6 +15,6 @@ def copy_files_with_structure(src_dir, dst_dir, extensions):
 if __name__ == "__main__":
     source_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '../Sources'))
     destination_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '../Includes'))
-    file_extensions = ['.h', '.inl']
+    file_extensions = ['.h', '.inl', '.hpp']
 
     copy_files_with_structure(source_directory, destination_directory, file_extensions)

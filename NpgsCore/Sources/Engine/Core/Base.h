@@ -4,8 +4,8 @@
 // ---------
 #ifdef _WIN64
 #   ifdef _MSVC_LANG
-#       ifdef NPGS_DLL_BUILD
-#           ifdef NPGS_EXPORT
+#       ifdef NPGS_DLL_EXPORT
+#           ifdef NPGS_DLL_EXPORT_BUILD
 #               define NPGS_API __declspec(dllexport)
 #           else
 #               define NPGS_API __declspec(dllimport)

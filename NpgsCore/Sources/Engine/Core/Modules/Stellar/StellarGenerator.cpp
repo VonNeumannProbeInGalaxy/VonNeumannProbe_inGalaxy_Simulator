@@ -47,6 +47,7 @@ static std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerato
 static std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor);
 static std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor);
 static void ExpandMistData(std::vector<double>& StarData, double TargetMass);
+static AstroObject::Star ProcessDeathStar(const StellarGenerator::BasicProperties& Properties);
 
 // StellarGenerator implementations
 // --------------------------------
@@ -935,6 +936,10 @@ void ExpandMistData(std::vector<double>& StarData, double TargetMass) {
     LogTeff = std::log10(Teff);
 
     LogR = std::log10(RadiusSol);
+}
+
+AstroObject::Star ProcessDeathStar(const StellarGenerator::BasicProperties& Properties) {
+
 }
 
 _MODULES_END
