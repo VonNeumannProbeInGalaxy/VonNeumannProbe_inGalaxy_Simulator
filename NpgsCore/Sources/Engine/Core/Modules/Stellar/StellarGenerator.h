@@ -19,6 +19,7 @@ class NPGS_API StellarGenerator {
 public:
     using BaryCenter = AstroObject::CelestialBody::BaryCenter;
     using MistData   = Assets::Csv<double, 12>;
+    using WdMistData = Assets::Csv<double, 5>;
     using HrDiagram  = Assets::Csv<double, 6>;
 
     struct BasicProperties {
@@ -54,8 +55,8 @@ private:
 
     double GenerateAge(double MaxPdf);
     double GenerateMass(double MaxPdf, bool bIsBinary);
-    std::vector<double> GetActuallyMistData(const BasicProperties& Properties);
-    std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassFactor);
+    std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf = false, bool bIsSingleWd = true);
+    std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassFactor, bool bIsWhiteDwarf = false);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
     void CalcSpectralType(AstroObject::Star& StarData, double SurfaceH1);
     StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star& StarData);
@@ -76,6 +77,11 @@ public:
     static const int _kXIndex;
     static const int _kLifetimeIndex;
 
+    static const int _kWdStarAgeIndex;
+    static const int _kWdLogRIndex;
+    static const int _kWdLogTeffIndex;
+    static const int _kWdLogCenterTIndex;
+    static const int _kWdLogCenterRhoIndex;
 private:
     std::mt19937                                 _RandomEngine;
     UniformRealDistribution                      _LogMassGenerator;
@@ -87,6 +93,7 @@ private:
     double _FeHUpperLimit;
 
     static const std::vector<std::string>                                                   _kMistHeaders;
+    static const std::vector<std::string>                                                   _kWdMistHeaders;
     static const std::vector<std::string>                                                   _kHrDiagramHeaders;
     static std::unordered_map<std::string, std::vector<double>>                             _MassFileCache;
     static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>>  _PhaseChangesCache;

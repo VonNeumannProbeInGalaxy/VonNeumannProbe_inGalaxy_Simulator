@@ -27,10 +27,11 @@ _MODULES_BEGIN
 
 // Tool macros
 // -----------
-#define GenerateDeathStarPlaceholder() {                                                                                                                                                                            \
+#define GenerateDeathStarPlaceholder(Lifetime) {                                                                                                                                                                     \
     StellarClass::SpectralType DeathStarClass{ StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 }; \
     AstroObject::Star DeathStar;                                                                                                                                                                                     \
-    DeathStar.SetStellarClass(StellarClass(StellarClass::StarType::kDeathStarPlaceholder, DeathStarClass));                                                                                                                     \
+    DeathStar.SetStellarClass(StellarClass(StellarClass::StarType::kDeathStarPlaceholder, DeathStarClass));                                                                                                          \
+    DeathStar.SetLifetime(Lifetime);                                                                                                                                                                                 \
     throw DeathStar;                                                                                                                                                                                                 \
 }
 
@@ -44,6 +45,8 @@ static std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<
 static void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays);
 static std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::HrDiagram>& Data, double BvColorIndex);
 static std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::MistData>& Data, double EvolutionProgress);
+static std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::WdMistData>& Data, double TargetAge);
+static std::vector<double> InterpolateRows(const auto& Data, double Target, const std::string& Header, int Index);
 static std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor);
 static std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor);
 static void ExpandMistData(std::vector<double>& StarData, double TargetMass);
@@ -251,47 +254,58 @@ double StellarGenerator::GenerateMass(double MaxPdf, bool bIsBinary) {
     return std::pow(10.0, LogMass);
 }
 
-std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties& Properties) {
+std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd) {
     double TargetAge  = Properties.Age;
     double TargetFeH  = Properties.FeH;
     double TargetMass = Properties.Mass;
 
-    const std::array<double, 8> PresetFeH{ -4.0, -3.0, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5 };
-
-    double ClosestFeH = *std::min_element(PresetFeH.begin(), PresetFeH.end(), [TargetFeH](double Lhs, double Rhs) -> bool {
-        return std::abs(Lhs - TargetFeH) < std::abs(Rhs - TargetFeH);
-    });
-
-    TargetFeH = ClosestFeH;
-
+    std::string PrefixDir;
+    std::string MassStr;
     std::stringstream MassStream;
-    MassStream << std::fixed << std::setfill('0') << std::setw(6) << std::setprecision(2) << TargetMass;
-    std::string MassStr = MassStream.str() + "0";
-
     std::pair<std::string, std::string> Files;
-    std::stringstream FeHStream;
-    FeHStream << std::fixed << std::setprecision(1) << TargetFeH;
-    std::string FeHStr = FeHStream.str();
-    if (TargetFeH >= 0.0) {
-        FeHStr.insert(FeHStr.begin(), '+');
+
+    if (!bIsWhiteDwarf) {
+        const std::array<double, 8> PresetFeH{ -4.0, -3.0, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5 };
+
+        double ClosestFeH = *std::min_element(PresetFeH.begin(), PresetFeH.end(), [TargetFeH](double Lhs, double Rhs) -> bool {
+            return std::abs(Lhs - TargetFeH) < std::abs(Rhs - TargetFeH);
+        });
+
+        TargetFeH = ClosestFeH;
+
+        MassStream << std::fixed << std::setfill('0') << std::setw(6) << std::setprecision(2) << TargetMass;
+        MassStr = MassStream.str() + "0";
+
+        std::stringstream FeHStream;
+        FeHStream << std::fixed << std::setprecision(1) << TargetFeH;
+        PrefixDir = FeHStream.str();
+        if (TargetFeH >= 0.0) {
+            PrefixDir.insert(PrefixDir.begin(), '+');
+        }
+        PrefixDir.insert(0, "Assets/Models/MIST/[Fe_H]=");
+    } else {
+        if (bIsSingleWd) {
+            PrefixDir = "Assets/Models/MIST/WhiteDwarfs/Thin";
+        } else {
+            PrefixDir = "Assets/Models/MIST/WhiteDwarfs/Thick";
+        }
     }
-    FeHStr.insert(0, "Assets/Models/MIST/[Fe_H]=");
 
     std::vector<double> Masses;
     _CacheMutex.lock();
-    if (_MassFileCache.contains(FeHStr)) {
-        Masses = _MassFileCache[FeHStr];
+    if (_MassFileCache.contains(PrefixDir)) {
+        Masses = _MassFileCache[PrefixDir];
     } else {
         _CacheMutex.unlock();
-        for (const auto& Entry : std::filesystem::directory_iterator(FeHStr)) {
+        for (const auto& Entry : std::filesystem::directory_iterator(PrefixDir)) {
             std::string Filename = Entry.path().filename().string();
             double Mass = std::stod(Filename.substr(0, Filename.find("Ms_track.csv")));
             Masses.emplace_back(Mass);
         }
 
         _CacheMutex.lock();
-        if (!_MassFileCache.contains(FeHStr)) {
-            _MassFileCache.emplace(FeHStr, Masses);
+        if (!_MassFileCache.contains(PrefixDir)) {
+            _MassFileCache.emplace(PrefixDir, Masses);
         }
     }
     _CacheMutex.unlock();
@@ -319,7 +333,7 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
 
     MassStream << std::fixed << std::setfill('0') << std::setw(6) << std::setprecision(2) << LowerMass;
     MassStr = MassStream.str() + "0";
-    std::string LowerMassFile = FeHStr + "/" + MassStr + "Ms_track.csv";
+    std::string LowerMassFile = PrefixDir + "/" + MassStr + "Ms_track.csv";
 
     MassStr.clear();
     MassStream.str("");
@@ -327,7 +341,7 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
 
     MassStream << std::fixed << std::setfill('0') << std::setw(6) << std::setprecision(2) << UpperMass;
     MassStr = MassStream.str() + "0";
-    std::string UpperMassFile = FeHStr + "/" + MassStr + "Ms_track.csv";
+    std::string UpperMassFile = PrefixDir + "/" + MassStr + "Ms_track.csv";
 
     Files.first = LowerMassFile;
     Files.second = UpperMassFile;
@@ -337,57 +351,68 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
     return Result;
 }
 
-std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassFactor) {
+std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassFactor, bool bIsWhiteDwarf) {
     std::vector<double> Result;
 
-    if (Files.first != Files.second) [[likely]] {
-        std::shared_ptr<MistData> LowerData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
-        std::shared_ptr<MistData> UpperData = LoadCsvAsset<MistData>(Files.second, _kMistHeaders);
+    if (!bIsWhiteDwarf) {
+        if (Files.first != Files.second) [[likely]] {
+            std::shared_ptr<MistData> LowerData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
+            std::shared_ptr<MistData> UpperData = LoadCsvAsset<MistData>(Files.second, _kMistHeaders);
 
-        auto LowerPhaseChanges = FindPhaseChanges(LowerData);
-        auto UpperPhaseChanges = FindPhaseChanges(UpperData);
+            auto LowerPhaseChanges = FindPhaseChanges(LowerData);
+            auto UpperPhaseChanges = FindPhaseChanges(UpperData);
 
-        std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ LowerPhaseChanges, UpperPhaseChanges };
-        double EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
+            std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ LowerPhaseChanges, UpperPhaseChanges };
+            double EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
 
-        double LowerLifetime = PhaseChangePair.first.back()[_kStarAgeIndex];
-        double UpperLifetime = PhaseChangePair.second.back()[_kStarAgeIndex];
+            double LowerLifetime = PhaseChangePair.first.back()[_kStarAgeIndex];
+            double UpperLifetime = PhaseChangePair.second.back()[_kStarAgeIndex];
 
-        std::vector<double> LowerRows = InterpolateRows(LowerData, EvolutionProgress);
-        std::vector<double> UpperRows = InterpolateRows(UpperData, EvolutionProgress);
+            std::vector<double> LowerRows = InterpolateRows(LowerData, EvolutionProgress);
+            std::vector<double> UpperRows = InterpolateRows(UpperData, EvolutionProgress);
 
-        LowerRows.emplace_back(LowerLifetime);
-        UpperRows.emplace_back(UpperLifetime);
+            LowerRows.emplace_back(LowerLifetime);
+            UpperRows.emplace_back(UpperLifetime);
 
-        Result = InterpolateFinalData({ LowerRows, UpperRows }, MassFactor);
-    } else [[unlikely]] {
-        std::shared_ptr<MistData> StarData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
-        auto   PhaseChanges      = FindPhaseChanges(StarData);
-        double EvolutionProgress = 0.0;
-        double Lifetime          = 0.0;
-        if (TargetMass >= 0.1) {
-            std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ PhaseChanges, {} };
-            EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
-            Lifetime = PhaseChanges.back()[_kStarAgeIndex];
-            Result = InterpolateRows(StarData, EvolutionProgress);
-            Result.emplace_back(Lifetime);
-        } else {
-            double OriginalLowerPhaseChangePoint = PhaseChanges[1][_kStarAgeIndex];
-            double OriginalUpperPhaseChangePoint = PhaseChanges[2][_kStarAgeIndex];
-            double LowerPhaseChangePoint = OriginalLowerPhaseChangePoint * std::pow(TargetMass / 0.1, -1.3);
-            double UpperPhaseChangePoint = OriginalUpperPhaseChangePoint * std::pow(TargetMass / 0.1, -1.3);
-            Lifetime = UpperPhaseChangePoint;
-            if (TargetAge < LowerPhaseChangePoint) {
-                EvolutionProgress = TargetAge / LowerPhaseChangePoint - 1;
-            } else if (LowerPhaseChangePoint <= TargetAge && TargetAge <= UpperPhaseChangePoint) {
-                EvolutionProgress = (TargetAge - LowerPhaseChangePoint) / (UpperPhaseChangePoint - LowerPhaseChangePoint);
-            } else if (TargetAge > UpperPhaseChangePoint) {
-                GenerateDeathStarPlaceholder();
+            Result = InterpolateFinalData({ LowerRows, UpperRows }, MassFactor);
+        } else [[unlikely]] {
+            std::shared_ptr<MistData> StarData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
+            auto   PhaseChanges = FindPhaseChanges(StarData);
+            double EvolutionProgress = 0.0;
+            double Lifetime = 0.0;
+            if (TargetMass >= 0.1) {
+                std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ PhaseChanges, {} };
+                EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
+                Lifetime = PhaseChanges.back()[_kStarAgeIndex];
+                Result = InterpolateRows(StarData, EvolutionProgress);
+                Result.emplace_back(Lifetime);
+            } else {
+                double OriginalLowerPhaseChangePoint = PhaseChanges[1][_kStarAgeIndex];
+                double OriginalUpperPhaseChangePoint = PhaseChanges[2][_kStarAgeIndex];
+                double LowerPhaseChangePoint = OriginalLowerPhaseChangePoint * std::pow(TargetMass / 0.1, -1.3);
+                double UpperPhaseChangePoint = OriginalUpperPhaseChangePoint * std::pow(TargetMass / 0.1, -1.3);
+                Lifetime = UpperPhaseChangePoint;
+                if (TargetAge < LowerPhaseChangePoint) {
+                    EvolutionProgress = TargetAge / LowerPhaseChangePoint - 1;
+                } else if (LowerPhaseChangePoint <= TargetAge && TargetAge <= UpperPhaseChangePoint) {
+                    EvolutionProgress = (TargetAge - LowerPhaseChangePoint) / (UpperPhaseChangePoint - LowerPhaseChangePoint);
+                } else if (TargetAge > UpperPhaseChangePoint) {
+                    GenerateDeathStarPlaceholder(Lifetime);
+                }
+
+                Result = InterpolateRows(StarData, EvolutionProgress);
+                Result.emplace_back(Lifetime);
+                ExpandMistData(Result, TargetMass);
             }
+        }
+    } else {
+        if (Files.first != Files.second) [[likely]] {
+            std::shared_ptr<WdMistData> LowerData = LoadCsvAsset<WdMistData>(Files.first, _kWdMistHeaders);
+            std::shared_ptr<WdMistData> UpperData = LoadCsvAsset<WdMistData>(Files.second, _kWdMistHeaders);
 
-            Result = InterpolateRows(StarData, EvolutionProgress);
-            Result.emplace_back(Lifetime);
-            ExpandMistData(Result, TargetMass);
+            
+        } else [[unlikely]] {
+            std::shared_ptr<WdMistData> StarData = LoadCsvAsset<WdMistData>(Files.first, _kWdMistHeaders);
         }
     }
 
@@ -608,33 +633,123 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
 AstroObject::Star StellarGenerator::ProcessDeathStar(const StellarGenerator::BasicProperties& Properties) {
     AstroObject::Star DeathStar(Properties);
 
-    if (Properties.FeH <= -2.0) {
-        if (Properties.Mass >= 140 && Properties.Mass < 250) {
-            DeathStar.SetEvolutionEnding(AstroObject::Star::Ending::kPairInstabilitySupernova);
-        } else if (Properties.Mass >= 250) {
-            DeathStar.SetEvolutionEnding(AstroObject::Star::Ending::kPhotondisintegration);
-            StellarClass DeathStellarClass(StellarClass::StarType::kBlackHole, StellarClass::SpectralType{ StellarClass::SpectralClass::kSpectral_X });
+    double InputAge  = Properties.Age;
+    double InputFeH  = Properties.FeH;
+    double InputMass = Properties.Mass;
+
+    AstroObject::Star::Phase   EvolutionPhase{};
+    AstroObject::Star::Ending  EvolutionEnding{};
+    StellarClass::StarType     DeathStarType{};
+    StellarClass::SpectralType DeathStarClass{};
+
+    double DeathStarAge  = InputAge - DeathStar.GetLifetime();
+    double DeathStarMass = 0.0;
+
+    if (InputFeH <= -2.0) {
+        if (InputMass >= 140 && InputMass < 250) {
+            EvolutionPhase  = AstroObject::Star::Phase::kPrevMainSequence;
+            EvolutionEnding = AstroObject::Star::Ending::kPairInstabilitySupernova;
+            DeathStarType   = StellarClass::StarType::kDeathStarPlaceholder;
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        } else if (InputMass >= 250) {
+            EvolutionPhase  = AstroObject::Star::Phase::kBlackHole;
+            EvolutionEnding = AstroObject::Star::Ending::kPhotondisintegration;
+            DeathStarType   = StellarClass::StarType::kBlackHole;
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_X, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+            DeathStarMass   = 0.5 * InputMass;
+        }
+    } else {
+        if (InputMass > -0.75 && InputMass < 0.8) {
+            DeathStarMass = (0.9795 - 0.393 * InputMass) * InputMass;
+        } else if (InputMass >= 0.8 && InputMass < 7.9) {
+            DeathStarMass = -0.00012336 * std::pow(InputMass, 6) + 0.003160 * std::pow(InputMass, 5) - 0.02960 * std::pow(InputMass, 4) + 0.12350 * std::pow(InputMass, 3) - 0.21550 * std::pow(InputMass, 2) + 0.19022 * InputMass + 0.46575;
+        } else if (InputMass >= 7.9 && InputMass < 10.0) {
+            DeathStarMass = 1.301 + 0.008095 * InputMass;
+        } else if (InputMass >= 10.0 && InputMass < 21.0) {
+            DeathStarMass = 1.246 + 0.0136 * InputMass;
+        } else if (InputMass >= 21.0 && InputMass < 23.3537) {
+            DeathStarMass = std::pow(10, (1.334 - 0.009987 * InputMass));
+        } else if (InputMass >= 23.3537 && InputMass < 33.75) {
+            DeathStarMass = std::pow(12.1 - 0.763 * InputMass + 0.0137 * InputMass, 2.0);
+        } else if (InputMass >= 33.75 && InputMass < 40) {
+            DeathStarMass = std::pow(10, (0.882 + 0.0105 * InputMass));
+        } else {
+            DeathStarMass = 0.5 * InputMass;
+        }
+
+        if (InputMass >= 0.75 && InputMass < 0.5) {
+            EvolutionPhase  = AstroObject::Star::Phase::kHeliumWhiteDwarf;
+            EvolutionEnding = AstroObject::Star::Ending::kSlowColdingDown;
+            DeathStarType   = StellarClass::StarType::kWhiteDwarf;
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        } else if (InputMass >= 0.5 && InputMass < 8.0) {
+            EvolutionPhase  = AstroObject::Star::Phase::kCarbonOxygenWhiteDwarf;
+            EvolutionEnding = AstroObject::Star::Ending::kEnvelopeDisperse;
+            DeathStarType   = StellarClass::StarType::kWhiteDwarf;
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        } else if (InputMass >= 8.0 && InputMass < 9.759) {
+            EvolutionPhase  = AstroObject::Star::Phase::kOxygenNeonMagnWhiteDwarf;
+            EvolutionEnding = AstroObject::Star::Ending::kEnvelopeDisperse;
+            DeathStarType   = StellarClass::StarType::kWhiteDwarf;
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        } else if (InputMass >= 9.759 && InputMass < 10.0) {
+            EvolutionPhase  = AstroObject::Star::Phase::kNeutronStar;
+            EvolutionEnding = AstroObject::Star::Ending::kElectronCaptureSupernova;
+            DeathStarType   = StellarClass::StarType::kNeutronStar;
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        } else if (InputMass >= 10.0 && InputMass < 21.0) {
+            EvolutionPhase  = AstroObject::Star::Phase::kNeutronStar;
+            EvolutionEnding = AstroObject::Star::Ending::kIronCoreCollapseSupernova;
+            DeathStarType   = StellarClass::StarType::kNeutronStar;
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        } else if (InputMass >= 21.0 && InputMass < 23.3537) {
+            EvolutionPhase  = AstroObject::Star::Phase::kBlackHole;
+            EvolutionEnding = AstroObject::Star::Ending::kIronCoreCollapseSupernova;
+            DeathStarType   = StellarClass::StarType::kBlackHole;
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_X, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        } else if (InputMass >= 23.3537 && InputMass < 33.75) {
+            EvolutionPhase  = AstroObject::Star::Phase::kNeutronStar;
+            EvolutionEnding = AstroObject::Star::Ending::kIronCoreCollapseSupernova;
+            DeathStarType   = StellarClass::StarType::kNeutronStar;
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        } else {
+            EvolutionPhase  = AstroObject::Star::Phase::kBlackHole;
+            EvolutionEnding = AstroObject::Star::Ending::kRelativisticJetHypernova;
+            DeathStarType   = StellarClass::StarType::kBlackHole;
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
         }
     }
+
+
+
+    DeathStar.SetEvolutionEnding(EvolutionEnding);
+    DeathStar.SetStellarClass(StellarClass(DeathStarType, DeathStarClass));
 
     return DeathStar;
 }
 
-const int StellarGenerator::_kStarAgeIndex      = 0;
-const int StellarGenerator::_kStarMassIndex     = 1;
-const int StellarGenerator::_kStarMdotIndex     = 2;
-const int StellarGenerator::_kLogTeffIndex      = 3;
-const int StellarGenerator::_kLogRIndex         = 4;
-const int StellarGenerator::_kLogSurfZIndex     = 5;
-const int StellarGenerator::_kSurfaceH1Index    = 6;
-const int StellarGenerator::_kSurfaceHe3Index   = 7;
-const int StellarGenerator::_kLogCenterTIndex   = 8;
-const int StellarGenerator::_kLogCenterRhoIndex = 9;
-const int StellarGenerator::_kPhaseIndex        = 10;
-const int StellarGenerator::_kXIndex            = 11;
-const int StellarGenerator::_kLifetimeIndex     = 12;
+const int StellarGenerator::_kStarAgeIndex        = 0;
+const int StellarGenerator::_kStarMassIndex       = 1;
+const int StellarGenerator::_kStarMdotIndex       = 2;
+const int StellarGenerator::_kLogTeffIndex        = 3;
+const int StellarGenerator::_kLogRIndex           = 4;
+const int StellarGenerator::_kLogSurfZIndex       = 5;
+const int StellarGenerator::_kSurfaceH1Index      = 6;
+const int StellarGenerator::_kSurfaceHe3Index     = 7;
+const int StellarGenerator::_kLogCenterTIndex     = 8;
+const int StellarGenerator::_kLogCenterRhoIndex   = 9;
+const int StellarGenerator::_kPhaseIndex          = 10;
+const int StellarGenerator::_kXIndex              = 11;
+const int StellarGenerator::_kLifetimeIndex       = 12;
+
+const int StellarGenerator::_kWdStarAgeIndex      = 0;
+const int StellarGenerator::_kWdLogRIndex         = 1;
+const int StellarGenerator::_kWdLogTeffIndex      = 2;
+const int StellarGenerator::_kWdLogCenterTIndex   = 3;
+const int StellarGenerator::_kWdLogCenterRhoIndex = 4;
 
 const std::vector<std::string> StellarGenerator::_kMistHeaders{ "star_age", "star_mass", "star_mdot", "log_Teff", "log_R", "log_surf_z", "surface_h1", "surface_he3", "log_center_T", "log_center_Rho", "phase", "x" };
+const std::vector<std::string> StellarGenerator::_kWdMistHeaders{ "star_age", "log_R", "log_Teff", "log_center_T", "log_center_Rho" };
 const std::vector<std::string> StellarGenerator::_kHrDiagramHeaders{ "B-V", "Ia", "Ib", "II", "III", "IV" };
 std::unordered_map<std::string, std::vector<double>> StellarGenerator::_MassFileCache;
 std::unordered_map<std::shared_ptr<StellarGenerator::MistData>, std::vector<std::vector<double>>> StellarGenerator::_PhaseChangesCache;
@@ -784,7 +899,8 @@ std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::ve
     std::vector<double> PhaseChangeTimePoints = InterpolateArray({ LowerPhaseChangeTimePoints, UpperPhaseChangeTimePoints }, MassFactor);
 
     if (TargetAge > PhaseChangeTimePoints.back()) {
-        GenerateDeathStarPlaceholder();
+        double Lifetime = LowerPhaseChangeTimePoints.back() + (UpperPhaseChangeTimePoints.back() - LowerPhaseChangeTimePoints.back()) * MassFactor;
+        GenerateDeathStarPlaceholder(Lifetime);
     }
 
     std::vector<std::pair<double, double>> TimePointPairs;
@@ -880,23 +996,73 @@ std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::HrDi
 }
 
 std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::MistData>& Data, double EvolutionProgress) {
+    std::vector<double> Result = InterpolateRows(Data, EvolutionProgress, "x", StellarGenerator::_kPhaseIndex);
+
+    //std::pair<std::vector<double>, std::vector<double>> SurroundingRows;
+    //try {
+    //    SurroundingRows = Data->FindSurroundingValues("x", EvolutionProgress);
+    //} catch (std::out_of_range& e) {
+    //    NpgsCoreError(std::string(e.what()));
+    //}
+
+    //if (SurroundingRows.first != SurroundingRows.second) {
+    //    int LowerTempPhase = static_cast<int>(SurroundingRows.first[StellarGenerator::_kPhaseIndex]);
+    //    int UpperTempPhase = static_cast<int>(SurroundingRows.second[StellarGenerator::_kPhaseIndex]);
+    //    if (LowerTempPhase != UpperTempPhase) {
+    //        SurroundingRows.second[StellarGenerator::_kXIndex] = LowerTempPhase + 1;
+    //    }
+    //    double ProgressFactor = (EvolutionProgress - SurroundingRows.first[StellarGenerator::_kXIndex]) / (SurroundingRows.second[StellarGenerator::_kXIndex] - SurroundingRows.first[StellarGenerator::_kXIndex]);
+    //    Result = InterpolateFinalData(SurroundingRows, ProgressFactor);
+    //} else {
+    //    Result = SurroundingRows.first;
+    //}
+
+    return Result;
+}
+
+std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::WdMistData>& Data, double TargetAge) {
     std::vector<double> Result;
 
     std::pair<std::vector<double>, std::vector<double>> SurroundingRows;
     try {
-        SurroundingRows = Data->FindSurroundingValues("x", EvolutionProgress);
+        SurroundingRows = Data->FindSurroundingValues("star_age", TargetAge);
     } catch (std::out_of_range& e) {
         NpgsCoreError(std::string(e.what()));
     }
 
     if (SurroundingRows.first != SurroundingRows.second) {
-        int LowerTempPhase = static_cast<int>(SurroundingRows.first[StellarGenerator::_kPhaseIndex]);
-        int UpperTempPhase = static_cast<int>(SurroundingRows.second[StellarGenerator::_kPhaseIndex]);
-        if (LowerTempPhase != UpperTempPhase) {
-            SurroundingRows.second[StellarGenerator::_kXIndex] = LowerTempPhase + 1;
+        int LowerStarAge = static_cast<int>(SurroundingRows.first[StellarGenerator::_kWdStarAgeIndex]);
+        int UpperStarAge = static_cast<int>(SurroundingRows.second[StellarGenerator::_kWdStarAgeIndex]);
+        if (LowerStarAge != UpperStarAge) {
+            SurroundingRows.second[StellarGenerator::_kWdStarAgeIndex] = LowerStarAge + 1;
         }
-        double ProgressFactor = (EvolutionProgress - SurroundingRows.first[StellarGenerator::_kXIndex]) / (SurroundingRows.second[StellarGenerator::_kXIndex] - SurroundingRows.first[StellarGenerator::_kXIndex]);
-        Result = InterpolateFinalData(SurroundingRows, ProgressFactor);
+        double AgeFactor = (TargetAge - SurroundingRows.first[StellarGenerator::_kWdStarAgeIndex]) / (SurroundingRows.second[StellarGenerator::_kWdStarAgeIndex] - SurroundingRows.first[StellarGenerator::_kWdStarAgeIndex]);
+        Result = InterpolateFinalData(SurroundingRows, AgeFactor);
+    } else {
+        Result = SurroundingRows.first;
+    }
+
+    return Result;
+}
+
+std::vector<double> InterpolateRows(const auto& Data, double Target, const std::string& Header, int Index) {
+    std::vector<double> Result;
+
+    std::pair<std::vector<double>, std::vector<double>> SurroundingRows;
+    try {
+        SurroundingRows = Data->FindSurroundingValues(Header, Target);
+    } catch (std::out_of_range& e) {
+        NpgsCoreError(std::string(e.what()));
+    }
+
+    if (SurroundingRows.first != SurroundingRows.second) {
+        int LowerValue = static_cast<int>(SurroundingRows.first[Index]);
+        int UpperValue = static_cast<int>(SurroundingRows.second[Index]);
+        if (LowerValue != UpperValue) {
+            SurroundingRows.second[Index] = LowerValue + 1;
+        }
+        double AgeFactor = (Target - SurroundingRows.first[Index]) / (SurroundingRows.second[Index] - SurroundingRows.first[Index]);
+        Result = InterpolateFinalData(SurroundingRows, AgeFactor);
     } else {
         Result = SurroundingRows.first;
     }

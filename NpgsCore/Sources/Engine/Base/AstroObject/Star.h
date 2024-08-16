@@ -16,19 +16,19 @@ _ASTROOBJECT_BEGIN
 class NPGS_API Star : public CelestialBody {
 public:
     enum class Phase : int {
-        kPrevMainSequence       = -1,
-        kMainSequence           =  0,
-        kRedGiant               =  2,
-        kCoreHeBurn             =  3,
-        kEarlyAgb               =  4,
-        kThermalPulseAgb        =  5,
-        kPostAgb                =  6,
-        kWolfRayet              =  9,
-        kHeliumWhiteDwarf       =  11,
-        kCarbonOxygenWhiteDwarf =  12,
-        kOxygenNeonWhiteDwarf   =  13,
-        kNeutronStar            =  14,
-        kBlackHole              =  15
+        kPrevMainSequence         = -1,
+        kMainSequence             =  0,
+        kRedGiant                 =  2,
+        kCoreHeBurn               =  3,
+        kEarlyAgb                 =  4,
+        kThermalPulseAgb          =  5,
+        kPostAgb                  =  6,
+        kWolfRayet                =  9,
+        kHeliumWhiteDwarf         =  11,
+        kCarbonOxygenWhiteDwarf   =  12,
+        kOxygenNeonMagnWhiteDwarf =  13,
+        kNeutronStar              =  14,
+        kBlackHole                =  15
     };
 
     enum class Ending {
@@ -36,6 +36,7 @@ public:
         kEnvelopeDisperse,
         kElectronCaptureSupernova,
         kIronCoreCollapseSupernova,
+        kRelativisticJetHypernova,
         kPairInstabilitySupernova,
         kPhotondisintegration,
     };
