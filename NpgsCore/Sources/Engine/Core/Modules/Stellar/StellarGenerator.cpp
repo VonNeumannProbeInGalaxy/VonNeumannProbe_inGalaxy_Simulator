@@ -127,7 +127,7 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         StarData = GetActuallyMistData(Properties);
     } catch (AstroObject::Star&) {
         NpgsCoreError("Star dead - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
-        StarData = ProcessDeathStar(Properties);
+        // return ProcessDeathStar(Properties);
     }
 
     if (StarData.empty()) {
@@ -605,8 +605,19 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
     return LuminosityClass;
 }
 
-std::vector<double> StellarGenerator::ProcessDeathStar(const StellarGenerator::BasicProperties& Properties) {
-    
+AstroObject::Star StellarGenerator::ProcessDeathStar(const StellarGenerator::BasicProperties& Properties) {
+    AstroObject::Star DeathStar(Properties);
+
+    if (Properties.FeH <= -2.0) {
+        if (Properties.Mass >= 140 && Properties.Mass < 250) {
+            DeathStar.SetEvolutionEnding(AstroObject::Star::Ending::kPairInstabilitySupernova);
+        } else if (Properties.Mass >= 250) {
+            DeathStar.SetEvolutionEnding(AstroObject::Star::Ending::kPhotondisintegration);
+            StellarClass DeathStellarClass(StellarClass::StarType::kBlackHole, StellarClass::SpectralType{ StellarClass::SpectralClass::kSpectral_X });
+        }
+    }
+
+    return DeathStar;
 }
 
 const int StellarGenerator::_kStarAgeIndex      = 0;

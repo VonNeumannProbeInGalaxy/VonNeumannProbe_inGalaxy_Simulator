@@ -14,12 +14,10 @@ public:
 
     enum class StarType : std::uint32_t {
         kNormalStar             = 0,
-        kHeliumWhiteDwarf       = 1,
-        kCarbonOxygenWhiteDwarf = 2,
-        kOxygenNeonWhiteDwarf   = 3,
-        kNeutronStar            = 4,
-        kBlackHole              = 5,
-        kDeathStarPlaceholder   = 6
+        kWhiteDwarf             = 1,
+        kNeutronStar            = 2,
+        kBlackHole              = 3,
+        kDeathStarPlaceholder   = 4
     };
 
     enum class SpectralClass : std::uint32_t {

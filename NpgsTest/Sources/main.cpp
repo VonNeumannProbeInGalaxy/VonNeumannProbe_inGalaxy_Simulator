@@ -43,6 +43,7 @@ int main() {
     auto Pool = Npgs::ThreadPool::GetInstance(MaxThread);
 
     std::println("Npgs run with {} threads.", MaxThread);
+    std::println("Current work directory: {}.", std::filesystem::current_path().string());
 
     int MaxStars = 0;
     std::println("Enter the star count:");

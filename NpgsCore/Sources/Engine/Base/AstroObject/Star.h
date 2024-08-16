@@ -16,18 +16,28 @@ _ASTROOBJECT_BEGIN
 class NPGS_API Star : public CelestialBody {
 public:
     enum class Phase : int {
-        kPrevMainSequence = -1,
-        kMainSequence     =  0,
-        kRedGiant         =  2,
-        kCoreHeBurn       =  3,
-        kEarlyAgb         =  4,
-        kThermalPulseAgb  =  5,
-        kPostAgb          =  6,
-        kWolfRayet        =  9
+        kPrevMainSequence       = -1,
+        kMainSequence           =  0,
+        kRedGiant               =  2,
+        kCoreHeBurn             =  3,
+        kEarlyAgb               =  4,
+        kThermalPulseAgb        =  5,
+        kPostAgb                =  6,
+        kWolfRayet              =  9,
+        kHeliumWhiteDwarf       =  11,
+        kCarbonOxygenWhiteDwarf =  12,
+        kOxygenNeonWhiteDwarf   =  13,
+        kNeutronStar            =  14,
+        kBlackHole              =  15
     };
 
     enum class Ending {
-
+        kSlowColdingDown,
+        kEnvelopeDisperse,
+        kElectronCaptureSupernova,
+        kIronCoreCollapseSupernova,
+        kPairInstabilitySupernova,
+        kPhotondisintegration,
     };
 
     struct ExtendedProperties {
@@ -45,9 +55,10 @@ public:
         double EvolutionProgress;       // 演化进度
         double Lifetime;                // 寿命，单位 yr
 
-        Modules::StellarClass StellarClass;
+        Phase  EvolutionPhase;
+        Ending EvolutionEnding;
 
-        Phase EvolutionPhase;
+        Modules::StellarClass StellarClass;
     };
 
 public:
@@ -72,10 +83,11 @@ public:
     Star& SetCoreDensity(double CoreDensity);
     Star& SetStellarWindSpeed(double StellarWindSpeed);
     Star& SetStellarWindMassLossRate(double StellarWindMassLossRate);
-    Star& SetStellarClass(const Modules::StellarClass& StellarClass);
-    Star& SetEvolutionPhase(Phase EvolutionPhase);
     Star& SetEvolutionProgress(double EvolutionProgress);
     Star& SetLifetime(double Lifetime);
+    Star& SetEvolutionPhase(Phase EvolutionPhase);
+    Star& SetEvolutionEnding(Ending EvolutionEnding);
+    Star& SetStellarClass(const Modules::StellarClass& StellarClass);
 
     // Getters
     // Getters for ExtendedProperties
@@ -91,10 +103,11 @@ public:
     double GetCoreDensity() const;
     double GetStellarWindSpeed() const;
     double GetStellarWindMassLossRate() const;
-    const Modules::StellarClass& GetStellarClass() const;
-    Phase GetEvolutionPhase() const;
     double GetEvolutionProgress() const;
     double GetLifetime() const;
+    Phase  GetEvolutionPhase() const;
+    Ending GetEvolutionEnding() const;
+    const Modules::StellarClass& GetStellarClass() const;
 
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_O;
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_B;

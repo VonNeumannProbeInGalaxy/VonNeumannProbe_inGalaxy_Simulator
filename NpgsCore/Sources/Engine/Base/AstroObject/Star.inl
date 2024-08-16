@@ -69,8 +69,13 @@ inline Star& Star::SetStellarWindMassLossRate(double StellarWindMassLossRate) {
     return *this;
 }
 
-inline Star& Star::SetStellarClass(const Modules::StellarClass& StellarClass) {
-    _StarExtraProperties.StellarClass = StellarClass;
+inline Star& Star::SetEvolutionProgress(double EvolutionProgress) {
+    _StarExtraProperties.EvolutionProgress = EvolutionProgress;
+    return *this;
+}
+
+inline Star& Star::SetLifetime(double Lifetime) {
+    _StarExtraProperties.Lifetime = Lifetime;
     return *this;
 }
 
@@ -79,13 +84,13 @@ inline Star& Star::SetEvolutionPhase(Phase EvolutionPhase) {
     return *this;
 }
 
-inline Star& Star::SetEvolutionProgress(double EvolutionProgress) {
-    _StarExtraProperties.EvolutionProgress = EvolutionProgress;
+inline Star& Star::SetEvolutionEnding(Ending EvolutionEnding) {
+    _StarExtraProperties.EvolutionEnding = EvolutionEnding;
     return *this;
 }
 
-inline Star& Star::SetLifetime(double Lifetime) {
-    _StarExtraProperties.Lifetime = Lifetime;
+inline Star& Star::SetStellarClass(const Modules::StellarClass& StellarClass) {
+    _StarExtraProperties.StellarClass = StellarClass;
     return *this;
 }
 
@@ -133,20 +138,24 @@ inline double Star::GetStellarWindMassLossRate() const {
     return _StarExtraProperties.StellarWindMassLossRate;
 }
 
-inline const Modules::StellarClass& Star::GetStellarClass() const {
-    return _StarExtraProperties.StellarClass;
-}
-
-inline Star::Phase Star::GetEvolutionPhase() const {
-    return _StarExtraProperties.EvolutionPhase;
-}
-
 inline double Star::GetEvolutionProgress() const {
     return _StarExtraProperties.EvolutionProgress;
 }
 
 inline double Star::GetLifetime() const {
     return _StarExtraProperties.Lifetime;
+}
+
+inline Star::Phase Star::GetEvolutionPhase() const {
+    return _StarExtraProperties.EvolutionPhase;
+}
+
+inline Star::Ending Star::GetEvolutionEnding() const {
+    return _StarExtraProperties.EvolutionEnding;
+}
+
+inline const Modules::StellarClass& Star::GetStellarClass() const {
+    return _StarExtraProperties.StellarClass;
 }
 
 _ASTROOBJECT_END
