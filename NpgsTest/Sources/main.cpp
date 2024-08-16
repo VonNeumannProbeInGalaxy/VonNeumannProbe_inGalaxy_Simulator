@@ -1,4 +1,4 @@
-﻿#include "Npgs.h"
+#include "Npgs.h"
 
 #ifdef NDEBUG
 #define MULTITHREAD

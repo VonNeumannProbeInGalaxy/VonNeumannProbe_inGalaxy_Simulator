@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <functional>
 #include <string>
@@ -24,6 +24,10 @@ public:
         kThermalPulseAgb  =  5,
         kPostAgb          =  6,
         kWolfRayet        =  9
+    };
+
+    enum class Ending {
+
     };
 
     struct ExtendedProperties {

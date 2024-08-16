@@ -1,4 +1,4 @@
-﻿#include "StellarGenerator.h"
+#include "StellarGenerator.h"
 
 #include <cmath>
 
@@ -30,7 +30,7 @@ _MODULES_BEGIN
 #define GenerateDeathStarPlaceholder() {                                                                                                                                                                            \
     StellarClass::SpectralType DeathStarClass{ StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 }; \
     AstroObject::Star DeathStar;                                                                                                                                                                                     \
-    DeathStar.SetStellarClass(StellarClass(StellarClass::StarType::kDeathStar, DeathStarClass));                                                                                                                     \
+    DeathStar.SetStellarClass(StellarClass(StellarClass::StarType::kDeathStarPlaceholder, DeathStarClass));                                                                                                                     \
     throw DeathStar;                                                                                                                                                                                                 \
 }
 
@@ -47,7 +47,6 @@ static std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerato
 static std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor);
 static std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Factor);
 static void ExpandMistData(std::vector<double>& StarData, double TargetMass);
-static AstroObject::Star ProcessDeathStar(const StellarGenerator::BasicProperties& Properties);
 
 // StellarGenerator implementations
 // --------------------------------
@@ -128,6 +127,7 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         StarData = GetActuallyMistData(Properties);
     } catch (AstroObject::Star&) {
         NpgsCoreError("Star dead - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
+        StarData = ProcessDeathStar(Properties);
     }
 
     if (StarData.empty()) {
@@ -605,6 +605,10 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
     return LuminosityClass;
 }
 
+std::vector<double> StellarGenerator::ProcessDeathStar(const StellarGenerator::BasicProperties& Properties) {
+    
+}
+
 const int StellarGenerator::_kStarAgeIndex      = 0;
 const int StellarGenerator::_kStarMassIndex     = 1;
 const int StellarGenerator::_kStarMdotIndex     = 2;
@@ -936,10 +940,6 @@ void ExpandMistData(std::vector<double>& StarData, double TargetMass) {
     LogTeff = std::log10(Teff);
 
     LogR = std::log10(RadiusSol);
-}
-
-AstroObject::Star ProcessDeathStar(const StellarGenerator::BasicProperties& Properties) {
-
 }
 
 _MODULES_END

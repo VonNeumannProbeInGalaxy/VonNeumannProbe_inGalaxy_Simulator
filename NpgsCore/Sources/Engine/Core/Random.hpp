@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <random>
 #include "Engine/Core/Base.h"

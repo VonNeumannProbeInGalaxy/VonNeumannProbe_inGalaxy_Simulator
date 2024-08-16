@@ -1,4 +1,4 @@
-﻿#include "Planet.h"
+#include "Planet.h"
 
 _NPGS_BEGIN
 _ASTROOBJECT_BEGIN

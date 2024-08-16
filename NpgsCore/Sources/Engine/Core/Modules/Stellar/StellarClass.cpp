@@ -1,4 +1,4 @@
-﻿#include "StellarClass.h"
+#include "StellarClass.h"
 
 #include <cctype>
 #include <cmath>

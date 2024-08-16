@@ -1,4 +1,4 @@
-﻿#include "CelestialObject.h"
+#include "CelestialObject.h"
 
 _NPGS_BEGIN
 _ASTROOBJECT_BEGIN

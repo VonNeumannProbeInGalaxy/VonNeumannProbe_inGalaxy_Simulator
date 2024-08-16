@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <array>
 #include <memory>
@@ -59,6 +59,7 @@ private:
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
     void CalcSpectralType(AstroObject::Star& StarData, double SurfaceH1);
     StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star& StarData);
+    std::vector<double> ProcessDeathStar(const StellarGenerator::BasicProperties& Properties);
 
 public:
     static const int _kStarAgeIndex;
