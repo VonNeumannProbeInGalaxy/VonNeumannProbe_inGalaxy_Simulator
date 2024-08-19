@@ -1,4 +1,4 @@
-sstar_age,log_R,log_Teff,log_center_T,log_center_Rho
+star_age,log_R,log_Teff,log_center_T,log_center_Rho
 0.000000e+00,-1.6860181,4.889252e+00,7.954503e+00,6.186075e+00
 8.000000e+04,-1.7032151,4.836895e+00,7.944927e+00,6.191249e+00
 1.600000e+05,-1.7123561,4.812433e+00,7.935972e+00,6.195704e+00

@@ -34,7 +34,6 @@ public:
         double RotationPeriod;           // 自转周期，单位 s
         double Oblateness;               // 扁率
         double AxisTilt;                 // 自转轴倾角，单位度
-        double Albedo;                   // 反照率
         double Age;                      // 年龄，单位年
         double EscapeVelocity;           // 逃逸速度，单位 m/s
         double MagneticField;            // 磁场强度，单位 T
@@ -61,7 +60,6 @@ public:
     CelestialBody& SetRotationPeriod(double RotationPeriod);
     CelestialBody& SetOblateness(double Oblateness);
     CelestialBody& SetAxisTilt(double AxisTilt);
-    CelestialBody& SetAlbedo(double Albedo);
     CelestialBody& SetAge(double Age);
     CelestialBody& SetEscapeVelocity(double EscapeVelocity);
     CelestialBody& SetMagneticField(double MagneticField);
@@ -87,7 +85,6 @@ public:
     double GetRotationPeriod() const;
     double GetOblateness() const;
     double GetAxisTilt() const;
-    double GetAlbedo() const;
     double GetAge() const;
     double GetEscapeVelocity() const;
     double GetMagneticField() const;

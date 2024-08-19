@@ -23,6 +23,7 @@ public:
     };
 
     struct ExtendedProperties {
+        double Albedo;                // 反照率
         double AverageDensity;        // 平均密度，单位 kg/m^3
         double SurfaceGravity;        // 表面重力，单位 m/s^2
         double GreenhouseFactor;      // 温室效应因子
@@ -50,6 +51,7 @@ public:
     // Setters
     // Setters for ExtendedProperties
     // ------------------------------
+    Planet& SetAbledo(double Albedo);
     Planet& SetAverageDensity(double AverageDensity);
     Planet& SetSurfaceGravity(double SurfaceGravity);
     Planet& SetGreenhouseFactor(double GreenhouseFactor);
@@ -67,6 +69,7 @@ public:
     // Getters
     // Getters for ExtendedProperties
     // ------------------------------
+    double GetAbledo() const;
     double GetAverageDensity() const;
     double GetSurfaceGravity() const;
     double GetGreenhouseFactor() const;

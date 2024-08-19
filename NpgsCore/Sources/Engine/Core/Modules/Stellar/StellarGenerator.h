@@ -41,13 +41,13 @@ public:
 
 public:
     StellarGenerator() = default;
-    StellarGenerator(int Seed, double MassLowerLimit, double AgeLowerLimit = 0.0, double AgeUpperLimit = 1.26e10, double FeHLowerLimit = -4.0, double FeHUpperLimit = 0.5);
+    StellarGenerator(int Seed, double MassLowerLimit = 0.1, double MassUpperLimit = 300.0, double AgeLowerLimit = 0.0, double AgeUpperLimit = 1.26e10, double FeHLowerLimit = -4.0, double FeHUpperLimit = 0.5);
     ~StellarGenerator() = default;
 
 public:
     BasicProperties GenBasicProperties();
-    AstroObject::Star GenerateStar();
-    AstroObject::Star GenerateStar(const BasicProperties& Properties);
+    std::shared_ptr<AstroObject::CelestialBody> GenerateStar();
+    std::shared_ptr<AstroObject::CelestialBody> GenerateStar(const BasicProperties& Properties);
     
 private:
     template <typename CsvType>
@@ -56,11 +56,12 @@ private:
     double GenerateAge(double MaxPdf);
     double GenerateMass(double MaxPdf, bool bIsBinary);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf = false, bool bIsSingleWd = true);
-    std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassFactor, bool bIsWhiteDwarf = false);
+    std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassFactor);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
     void CalcSpectralType(AstroObject::Star& StarData, double SurfaceH1);
     StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star& StarData);
-    AstroObject::Star ProcessDeathStar(const StellarGenerator::BasicProperties& Properties);
+    void ProcessDeathStar(AstroObject::Star& DeathStar);
+    void GenerateMagnetic(AstroObject::Star& StarData);
 
 public:
     static const int _kStarAgeIndex;

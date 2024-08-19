@@ -28,7 +28,8 @@ public:
         kCarbonOxygenWhiteDwarf   =  12,
         kOxygenNeonMagnWhiteDwarf =  13,
         kNeutronStar              =  14,
-        kBlackHole                =  15
+        kBlackHole                =  15,
+        kNull                     =  16
     };
 
     enum class Ending {

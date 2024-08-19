@@ -55,7 +55,7 @@ public:
         kSpectral_DQ            = 23,
         kSpectral_DX            = 24,
         kSpectral_DZ            = 25,
-        kSpectral_Q             = 36, // 中子星
+        kSpectral_Q             = 26, // 中子星
         kSpectral_X             = 27  // 黑洞
     };
 

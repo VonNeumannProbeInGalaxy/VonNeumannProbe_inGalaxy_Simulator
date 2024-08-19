@@ -53,11 +53,6 @@ inline CelestialBody& CelestialBody::SetAxisTilt(double AxisTilt) {
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetAlbedo(double Albedo) {
-    _Properties.Albedo = Albedo;
-    return *this;
-}
-
 inline CelestialBody& CelestialBody::SetAge(double Age) {
     _Properties.Age = Age;
     return *this;
@@ -140,10 +135,6 @@ inline double CelestialBody::GetOblateness() const {
 
 inline double CelestialBody::GetAxisTilt() const {
     return _Properties.AxisTilt;
-}
-
-inline double CelestialBody::GetAlbedo() const {
-    return _Properties.Albedo;
 }
 
 inline double CelestialBody::GetAge() const {
