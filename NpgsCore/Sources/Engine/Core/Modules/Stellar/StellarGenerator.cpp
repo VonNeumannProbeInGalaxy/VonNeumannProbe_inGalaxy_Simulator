@@ -61,7 +61,7 @@ StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit, double MassU
         std::make_shared<NormalDistribution>(-0.3, 0.15),
         std::make_shared<NormalDistribution>(-0.08, 0.12),
         std::make_shared<NormalDistribution>(0.05, 0.16)
-        }),
+    }),
     _FeHLowerLimit(FeHLowerLimit), _FeHUpperLimit(FeHUpperLimit)
 {}
 
