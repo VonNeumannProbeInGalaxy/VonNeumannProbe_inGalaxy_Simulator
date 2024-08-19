@@ -6,12 +6,12 @@
 
 static void PrintTitle() {
     std::system("cls");
-    std::println("{:>6} {:>8} {:>8} {:7} {:>5} {:>13} {:>7} {:>6} {:>8} {:>11} {:>8} {:>9} {:>5} {:>8} {:>8} {:>8} {:>8} {:>8}",
-        "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "SurfZ", "SurfNuc", "SurfVol", "Magnetic", "Lifetime");
+    std::println("{:>6} {:>8} {:>8} {:7} {:>5} {:>13} {:>7} {:>7} {:>8} {:>11} {:>8} {:>9} {:>5} {:>8} {:>8} {:>8} {:>15} {:>9} {:>8}",
+        "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "SurfZ", "SurfNuc", "SurfVol", "Magnetic", "Lifetime", "Spin");
 }
 
 static void PrintInfo(const Npgs::AstroObject::Star& Star) {
-    std::println("{:6.2f} {:8.2f} {:8.2E} {:7} {:5.2f} {:13.4f} {:7.2f} {:6} {:8.2E} {:11.2E} {:8.2E} {:9} {:5} {:8.2E} {:8.2E} {:8.2E} {:8.5f} {:8.2E}",
+    std::println("{:6.2f} {:8.2f} {:8.2E} {:7} {:5.2f} {:13.4f} {:7.2f} {:7.1f} {:8.2E} {:11.2E} {:8.2E} {:9} {:5} {:8.2E} {:8.2E} {:8.2E} {:15.5f} {:9.2E} {:8.2E}",
         Star.GetMass() / Npgs::kSolarMass,
         Star.GetRadius() / Npgs::kSolarRadius,
         Star.GetAge(),
@@ -19,7 +19,7 @@ static void PrintInfo(const Npgs::AstroObject::Star& Star) {
         Star.GetFeH(),
         Star.GetLuminosity() / Npgs::kSolarLuminosity,
         Star.GetAbsoluteMagnitude(),
-        static_cast<int>(std::round(Star.GetTeff())),
+        Star.GetTeff(),
         Star.GetCoreTemp(),
         Star.GetCoreDensity(),
         Star.GetStellarWindMassLossRate(),
@@ -29,7 +29,8 @@ static void PrintInfo(const Npgs::AstroObject::Star& Star) {
         Star.GetSurfaceEnergeticNuclide(),
         Star.GetSurfaceVolatiles(),
         Star.GetMagneticField(),
-        Star.GetLifetime()
+        Star.GetLifetime(),
+        Star.GetSpin()
     );
 }
 
@@ -50,12 +51,12 @@ int main() {
     std::cin >> MaxStars;
 
     std::vector<Npgs::Modules::StellarGenerator> Generators;
-    // std::random_device RandomDevice;
+    std::random_device RandomDevice;
     for (int i = 0; i != MaxThread; ++i) {
-        // std::mt19937 RandomEngine(RandomDevice());
-        // std::uniform_int_distribution<int> UniformDistribution(1, 10000);
-        // Generators.emplace_back(UniformDistribution(RandomEngine), 0.1);
-        Generators.emplace_back(i * 42, 0.1);
+        std::mt19937 RandomEngine(RandomDevice());
+        std::uniform_int_distribution<int> UniformDistribution(1, 10000);
+        Generators.emplace_back(UniformDistribution(RandomEngine), 0.1);
+        // Generators.emplace_back(i * 42, 0.1);
     }
 
     auto Start = std::chrono::high_resolution_clock::now();
@@ -92,14 +93,14 @@ int main() {
         Future.wait();
     }
 
-    PrintTitle();
+    //PrintTitle();
 
-    for (auto& Future : StarFutures) {
-        auto Star = Future.get();
-        if (Star.GetMass() / Npgs::kSolarMass > 1) {
-            PrintInfo(Star);
-        }
-    }
+    //for (auto& Future : StarFutures) {
+    //    auto Star = Future.get();
+    //    if (Star.GetMass() / Npgs::kSolarMass > 1) {
+    //        PrintInfo(Star);
+    //    }
+    //}
 
     Pool->Terminate();
     Npgs::ThreadPool::Destroy();
@@ -113,17 +114,14 @@ int main() {
     PrintTitle();
 
     Npgs::Modules::StellarGenerator Generator(42, 5);
-    //for (int i = 0; i != 100; ++i) {
-    //    auto Properties = Generator.GenBasicProperties();
-    //    auto Star = Generator.GenerateStar(Properties);
-    //    //if (Star.GetMass() / Npgs::kSolarMass > 5) {
-    //        std::println("Basic properties - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
-    //        PrintInfo(Star);
-    //    //}
-    //}
-
-    auto Star = Generator.GenerateStar({ {}, 1e7, 0.0, 32 });
-    PrintInfo(Star);
+    for (int i = 0; i != 1000; ++i) {
+        auto Properties = Generator.GenBasicProperties();
+        auto Star = Generator.GenerateStar(Properties);
+        //if (Star.GetMass() / Npgs::kSolarMass > 5) {
+            std::println("Basic properties - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
+            PrintInfo(Star);
+        //}
+    }
 
 #endif
 

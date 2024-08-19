@@ -135,6 +135,10 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         DeathStar.SetMass(Properties.Mass);
         DeathStar.SetFeH(Properties.FeH);
         ProcessDeathStar(DeathStar);
+        if (DeathStar.GetEvolutionPhase() == AstroObject::Star::Phase::kNull) {
+            DeathStar = GenerateStar();
+        }
+
         return DeathStar;
     }
 
@@ -783,7 +787,8 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar) {
         }
 
         if (DeathStarAge > StarAge) {
-            LogTeff = std::log10(std::pow(10.0, LogTeff) * std::pow((StarAge / DeathStarAge), 7.0 / 4.0));
+            double T1  = std::pow(10.0, LogTeff);
+            LogTeff    = std::log10(T1 * std::pow((20 * StarAge) / (DeathStarAge + 19 * StarAge), 7.0 / 4.0));
             LogCenterT = std::numeric_limits<double>::min();
         }
 
@@ -949,19 +954,23 @@ void StellarGenerator::GenerateSpin(AstroObject::Star& StarData) {
 
     switch (StarType) {
     case StellarClass::StarType::kNormalStar: {
-        if (MassSol <= 1.4) {
-            double Term1 = 4.81438 + 0.27978 * std::exp(MassSol) - 1.21782 * MassSol + 0.21678 * std::pow(MassSol, 2);
-            double Term2 = std::pow(RadiusSol / std::pow(MassSol, 0.9), 1.5);
-            double Term3 = std::pow(2, std::sqrt(StarAge * 1e-9));
-
-            Spin = Term1 * Term2 * Term3;
-        } else {
-            double Term1 = 4.81438 + 0.27978 * std::exp(MassSol) - 1.21782 * MassSol + 0.21678 * std::pow(MassSol, 2);
-            double Term2 = std::pow(RadiusSol / (1.1062 * std::pow(MassSol, 0.6)), 1.5);
-            double Term3 = std::pow(2, std::sqrt(StarAge * 1e-9));
-
-            Spin = Term1 * Term2 * Term3;
+        double Base = 1.0;
+        if (StarData.GetStellarClass().Data().SpecialMark & static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_p)) {
+            UniformRealDistribution Dist(2.0, 9.0);
+            Base = Dist.Generate(_RandomEngine);
         }
+
+        double LgMass = std::log10(MassSol);
+        double Term1  = std::pow(10, 4.81438 + 0.27978 * std::exp(LgMass) - 1.21782 * LgMass + 0.21678 * std::pow(LgMass, 2));
+        double Term2  = 0.0;
+        double Term3  = std::pow(2, std::sqrt(Base * StarAge * 1e-9));
+        if (MassSol <= 1.4) {
+            Term2 = std::pow(RadiusSol / std::pow(MassSol, 0.9), 1.5);
+        } else {
+            Term2 = std::pow(RadiusSol / (1.1062 * std::pow(MassSol, 0.6)), 1.5);
+        }
+
+        Spin = Term1 * Term2 * Term3;
 
         break;
     }
