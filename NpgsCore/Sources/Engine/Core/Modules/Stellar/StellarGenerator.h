@@ -55,7 +55,7 @@ private:
 
     double GenerateAge(double MaxPdf);
     double GenerateMass(double MaxPdf, bool bIsBinary);
-    std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf = false, bool bIsSingleWd = true);
+    std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassFactor);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
     void CalcSpectralType(AstroObject::Star& StarData, double SurfaceH1);

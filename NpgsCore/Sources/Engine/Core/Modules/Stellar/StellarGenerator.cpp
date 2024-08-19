@@ -115,22 +115,19 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
 
 AstroObject::Star StellarGenerator::GenerateStar() {
     BasicProperties BasicData = GenBasicProperties();
-    // std::println("{}, {}, {}", BasicData.Age, BasicData.FeH, BasicData.Mass);
     return GenerateStar(BasicData);
 }
 
 AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properties) {
     AstroObject::Star Star(Properties);
-    // std::println("Age: {:.2E}\tFeH: {:.2f}\tMass: {}", Properties.Age, Properties.FeH, Properties.Mass);
     std::vector<double> StarData;
 
     try {
-        StarData = GetActuallyMistData(Properties);
+        StarData = GetActuallyMistData(Properties, false, true);
     } catch (AstroObject::Star& DeathStar) {
-        // NpgsCoreError("Star dead - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
         DeathStar.SetAge(Properties.Age);
-        DeathStar.SetMass(Properties.Mass);
         DeathStar.SetFeH(Properties.FeH);
+        DeathStar.SetMass(Properties.Mass);
         ProcessDeathStar(DeathStar);
         if (DeathStar.GetEvolutionPhase() == AstroObject::Star::Phase::kNull) {
             DeathStar = GenerateStar();
@@ -143,26 +140,26 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         return {};
     }
 
-    double Age                     = StarData[_kStarAgeIndex];
-    double MassSol                 = StarData[_kStarMassIndex];
-    double RadiusSol               = std::pow(10.0, StarData[_kLogRIndex]);
-    double Teff                    = std::pow(10.0, StarData[_kLogTeffIndex]);
-    double SurfaceFeH              = std::pow(10.0, StarData[_kLogSurfZIndex]);
-    double SurfaceH1               = StarData[_kSurfaceH1Index];
-    double SurfaceHe3              = StarData[_kSurfaceHe3Index];
-    double CoreTemp                = std::pow(10.0, StarData[_kLogCenterTIndex]);
-    double CoreDensity             = std::pow(10.0, StarData[_kLogCenterRhoIndex]);
-    double MassLossRate            = StarData[_kStarMdotIndex];
-    double EvolutionProgress       = StarData[_kXIndex];
-    double Lifetime                = StarData[_kLifetimeIndex];
+    double Age               = StarData[_kStarAgeIndex];
+    double MassSol           = StarData[_kStarMassIndex];
+    double RadiusSol         = std::pow(10.0, StarData[_kLogRIndex]);
+    double Teff              = std::pow(10.0, StarData[_kLogTeffIndex]);
+    double SurfaceFeH        = std::pow(10.0, StarData[_kLogSurfZIndex]);
+    double SurfaceH1         = StarData[_kSurfaceH1Index];
+    double SurfaceHe3        = StarData[_kSurfaceHe3Index];
+    double CoreTemp          = std::pow(10.0, StarData[_kLogCenterTIndex]);
+    double CoreDensity       = std::pow(10.0, StarData[_kLogCenterRhoIndex]);
+    double MassLossRate      = StarData[_kStarMdotIndex];
+    double EvolutionProgress = StarData[_kXIndex];
+    double Lifetime          = StarData[_kLifetimeIndex];
 
-    double LuminositySol           = std::pow(RadiusSol, 2.0) * std::pow((Teff / kSolarTeff), 4.0);
-    double AbsoluteMagnitude       = kSolarAbsoluteMagnitude - 2.5 * std::log10(LuminositySol);
-    double EscapeVelocity          = std::sqrt((2 * kGravityConstant * MassSol * kSolarMass) / (RadiusSol * kSolarRadius));
+    double LuminositySol     = std::pow(RadiusSol, 2.0) * std::pow((Teff / kSolarTeff), 4.0);
+    double AbsoluteMagnitude = kSolarAbsoluteMagnitude - 2.5 * std::log10(LuminositySol);
+    double EscapeVelocity    = std::sqrt((2 * kGravityConstant * MassSol * kSolarMass) / (RadiusSol * kSolarRadius));
 
-    double LifeProgress            = Age / Lifetime;
-    double WindSpeedFactor         = 3.0 - LifeProgress;
-    double StellarWindSpeed        = WindSpeedFactor * EscapeVelocity;
+    double LifeProgress      = Age / Lifetime;
+    double WindSpeedFactor   = 3.0 - LifeProgress;
+    double StellarWindSpeed  = WindSpeedFactor * EscapeVelocity;
 
     double SurfaceEnergeticNuclide = (SurfaceH1 * 0.00002 + SurfaceHe3);
     double SurfaceVolatiles        = 1.0 - SurfaceFeH - SurfaceEnergeticNuclide;
@@ -1130,14 +1127,14 @@ std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std
     if (PhaseChanges.size() != 2 || PhaseChanges.front()[StellarGenerator::_kPhaseIndex] != PhaseChanges.back()[StellarGenerator::_kPhaseIndex]) {
         LowerTimePoint = std::lower_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](const std::vector<double>& Lhs, double Rhs) -> bool {
-            return Lhs[0] < Rhs;
-        }
+                return Lhs[0] < Rhs;
+            }
         );
 
         UpperTimePoint = std::upper_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](double Lhs, const std::vector<double>& Rhs) -> bool {
-            return Lhs < Rhs[0];
-        }
+                return Lhs < Rhs[0];
+            }
         );
 
         if (LowerTimePoint == UpperTimePoint) {
@@ -1189,7 +1186,7 @@ std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::ve
 }
 
 void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) {
-    auto TrimArray = [](std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) {
+    auto TrimArray = [](std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) -> void {
         auto LastArray1 = Arrays.first.back();
         auto LastArray2 = Arrays.second.back();
         auto SubLastArray1 = *std::prev(Arrays.first.end(), 2);
