@@ -50,19 +50,19 @@ int main() {
     std::cin >> MaxStars;
 
     std::vector<Npgs::Modules::StellarGenerator> Generators;
-    std::random_device RandomDevice;
+    // std::random_device RandomDevice;
     for (int i = 0; i != MaxThread; ++i) {
-        std::mt19937 RandomEngine(RandomDevice());
-        std::uniform_int_distribution<int> UniformDistribution(1, 10000);
-        Generators.emplace_back(UniformDistribution(RandomEngine), 0.1);
-        // Generators.emplace_back(i * 42, 0.1);
+        // std::mt19937 RandomEngine(RandomDevice());
+        // std::uniform_int_distribution<int> UniformDistribution(1, 10000);
+        // Generators.emplace_back(UniformDistribution(RandomEngine), 0.1);
+        Generators.emplace_back(i * 42, 0.1);
     }
 
     auto Start = std::chrono::high_resolution_clock::now();
 
     std::vector<std::future<Npgs::Modules::StellarGenerator::BasicProperties>> Futures;
     for (int i = 0; i != MaxStars; ++i) {
-        Futures.emplace_back(Pool->Commit([&, i]() {
+        Futures.emplace_back(Pool->Commit([&, i]() -> Npgs::Modules::StellarGenerator::BasicProperties {
             int ThreadId = i % Generators.size();
             return Generators[ThreadId].GenBasicProperties();
         }));
@@ -79,9 +79,9 @@ int main() {
 
     Start = std::chrono::high_resolution_clock::now();
 
-    std::vector<std::future<std::shared_ptr<Npgs::AstroObject::CelestialBody>>> StarFutures;
+    std::vector<std::future<Npgs::AstroObject::Star>> StarFutures;
     for (int i = 0; i != MaxStars; ++i) {
-        StarFutures.emplace_back(Pool->Commit([&, i]() {
+        StarFutures.emplace_back(Pool->Commit([&, i]() -> Npgs::AstroObject::Star {
             int ThreadId = i % Generators.size();
             auto Properties = Futures[i].get();
             return Generators[ThreadId].GenerateStar(Properties);
@@ -96,8 +96,8 @@ int main() {
 
     for (auto& Future : StarFutures) {
         auto Star = Future.get();
-        if (Star->GetMass() / Npgs::kSolarMass > 1) {
-            PrintInfo(*Star);
+        if (Star.GetMass() / Npgs::kSolarMass > 1) {
+            PrintInfo(Star);
         }
     }
 
@@ -112,15 +112,18 @@ int main() {
 #else
     PrintTitle();
 
-    Npgs::Modules::StellarGenerator Generator(42, 0.1);
-    for (int i = 0; i != 100; ++i) {
-        auto Properties = Generator.GenBasicProperties();
-        auto Star = Generator.GenerateStar(Properties);
-        if (Star.GetMass() / Npgs::kSolarMass > 0.1) {
-            std::println("Basic properties - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
-            PrintInfo(Star);
-        }
-    }
+    Npgs::Modules::StellarGenerator Generator(42, 5);
+    //for (int i = 0; i != 100; ++i) {
+    //    auto Properties = Generator.GenBasicProperties();
+    //    auto Star = Generator.GenerateStar(Properties);
+    //    //if (Star.GetMass() / Npgs::kSolarMass > 5) {
+    //        std::println("Basic properties - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
+    //        PrintInfo(Star);
+    //    //}
+    //}
+
+    auto Star = Generator.GenerateStar({ {}, 1e7, 0.0, 32 });
+    PrintInfo(Star);
 
 #endif
 

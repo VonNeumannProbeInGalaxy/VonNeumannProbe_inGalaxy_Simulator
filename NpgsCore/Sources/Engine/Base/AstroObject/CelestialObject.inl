@@ -38,8 +38,8 @@ inline CelestialBody& CelestialBody::SetMass(double Mass) {
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetRotationPeriod(double RotationPeriod) {
-    _Properties.RotationPeriod = RotationPeriod;
+inline CelestialBody& CelestialBody::SetSpin(double Spin) {
+    _Properties.Spin = Spin;
     return *this;
 }
 
@@ -125,8 +125,8 @@ inline double CelestialBody::GetMass() const {
     return _Properties.Mass;
 }
 
-inline double CelestialBody::GetRotationPeriod() const {
-    return _Properties.RotationPeriod;
+inline double CelestialBody::GetSpin() const {
+    return _Properties.Spin;
 }
 
 inline double CelestialBody::GetOblateness() const {

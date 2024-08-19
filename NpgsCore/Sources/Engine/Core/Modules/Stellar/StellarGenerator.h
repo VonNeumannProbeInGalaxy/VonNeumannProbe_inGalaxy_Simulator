@@ -46,8 +46,8 @@ public:
 
 public:
     BasicProperties GenBasicProperties();
-    std::shared_ptr<AstroObject::CelestialBody> GenerateStar();
-    std::shared_ptr<AstroObject::CelestialBody> GenerateStar(const BasicProperties& Properties);
+    AstroObject::Star GenerateStar();
+    AstroObject::Star GenerateStar(const BasicProperties& Properties);
     
 private:
     template <typename CsvType>
@@ -62,6 +62,7 @@ private:
     StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star& StarData);
     void ProcessDeathStar(AstroObject::Star& DeathStar);
     void GenerateMagnetic(AstroObject::Star& StarData);
+    void GenerateSpin(AstroObject::Star& StarData);
 
 public:
     static const int _kStarAgeIndex;
