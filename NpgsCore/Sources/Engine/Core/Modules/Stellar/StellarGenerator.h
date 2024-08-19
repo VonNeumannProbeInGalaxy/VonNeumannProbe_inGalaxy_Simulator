@@ -31,9 +31,9 @@ public:
         explicit operator AstroObject::Star() const {
             AstroObject::Star Star;
             Star.SetParentBody(StarSys);
-            Star.SetMass(Mass);
             Star.SetAge(Age);
             Star.SetFeH(FeH);
+            Star.SetMass(Mass);
 
             return Star;
         }
@@ -48,7 +48,7 @@ public:
     BasicProperties GenBasicProperties();
     AstroObject::Star GenerateStar();
     AstroObject::Star GenerateStar(const BasicProperties& Properties);
-    
+
 private:
     template <typename CsvType>
     static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
@@ -84,6 +84,7 @@ public:
     static const int _kWdLogTeffIndex;
     static const int _kWdLogCenterTIndex;
     static const int _kWdLogCenterRhoIndex;
+
 private:
     std::mt19937                                 _RandomEngine;
     UniformRealDistribution                      _LogMassGenerator;
@@ -97,9 +98,9 @@ private:
     static const std::vector<std::string>                                                   _kMistHeaders;
     static const std::vector<std::string>                                                   _kWdMistHeaders;
     static const std::vector<std::string>                                                   _kHrDiagramHeaders;
-    static std::unordered_map<std::string, std::vector<double>>                             _MassFileCache;
-    static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>>  _PhaseChangesCache;
-    static std::shared_mutex                                                                _CacheMutex;
+    static std::unordered_map<std::string, std::vector<double>>                             _kMassFileCache;
+    static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>>  _kPhaseChangesCache;
+    static std::shared_mutex                                                                _kCacheMutex;
 };
 
 _MODULES_END

@@ -198,7 +198,7 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
 }
 
 StellarClass::SpectralType StellarClass::Data() const {
-    StarType     Type{};
+    StarType Type{};
     SpectralType StructSpectralType{};
 
     Type                               = static_cast<StarType>(_SpectralType >> 62 & 0x3);
@@ -219,12 +219,12 @@ StellarClass::SpectralType StellarClass::Data() const {
 
 bool StellarClass::Load(const SpectralType& SpectralType) {
     // 光谱型位结构
-    // ---------------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------------
     // std::uint64_t
     // |----|-------|------|------|---|------|------|------|------|-------------------------------------|
     // | 00 | 00000 | 0000 | 0000 | 0 | 0000 | 0000 | 0000 | 0000 | 00000000 00000000 00000000 00000000 |
     // |----|-------|------|------|---|------|------|------|------|-------------------------------------|
-    // 恒星类型 光谱  亚型高位 亚型低位 Am m 光谱 m 亚型高位 m亚型低位 光度级 特殊标识
+    // 恒星类型 光谱  亚型高位 亚型低位 Am m 光谱 m 亚型高位 m 亚型低位 光度级 特殊标识
 
     std::uint64_t Data         = 0;
     std::uint32_t SubclassHigh = static_cast<std::uint32_t>(SpectralType.Subclass);

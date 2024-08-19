@@ -5,6 +5,8 @@
 #include <mutex>
 #include <queue>
 #include <thread>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "Engine/Core/Base.h"
@@ -38,13 +40,14 @@ private:
     ~ThreadPool() {}
 
 private:
-    static ThreadPool*                _Instance;
-    static std::once_flag             _Once;
     std::vector<std::thread>          _Threads;
     std::queue<std::function<void()>> _Tasks;
     std::mutex                        _Mutex;
     std::condition_variable           _Condition;
     bool                              _Terminate;
+
+    static ThreadPool*                _kInstance;
+    static std::once_flag             _kOnce;
 };
 
 _NPGS_END

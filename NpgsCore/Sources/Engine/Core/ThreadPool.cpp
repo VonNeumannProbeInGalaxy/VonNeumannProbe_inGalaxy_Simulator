@@ -1,27 +1,23 @@
 #include "ThreadPool.h"
 
-#include <future>
-#include <type_traits>
-#include <utility>
-
 _NPGS_BEGIN
 
 ThreadPool* ThreadPool::GetInstance(int ThreadCount) {
-    std::call_once(_Once, Init, ThreadCount);
-    return _Instance;
+    std::call_once(_kOnce, Init, ThreadCount);
+    return _kInstance;
 }
 
 void ThreadPool::Init(int ThreadCount) {
-    if (_Instance == nullptr) {
-        _Instance = new ThreadPool(ThreadCount);
+    if (_kInstance == nullptr) {
+        _kInstance = new ThreadPool(ThreadCount);
     }
 }
 
 void ThreadPool::Destroy() {
-    if (_Instance != nullptr) {
-        _Instance->Terminate();
-        delete _Instance;
-        _Instance = nullptr;
+    if (_kInstance != nullptr) {
+        _kInstance->Terminate();
+        delete _kInstance;
+        _kInstance = nullptr;
     }
 }
 
@@ -59,7 +55,7 @@ ThreadPool::ThreadPool(std::size_t ThreadCount) : _Terminate(false) {
     }
 }
 
-ThreadPool* ThreadPool::_Instance = nullptr;
-std::once_flag ThreadPool::_Once;
+ThreadPool* ThreadPool::_kInstance = nullptr;
+std::once_flag ThreadPool::_kOnce;
 
 _NPGS_END

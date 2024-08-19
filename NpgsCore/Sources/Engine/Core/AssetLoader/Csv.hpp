@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <concepts>
 #include <functional>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -50,7 +49,7 @@ public:
         throw std::out_of_range("Data not found.");
     }
 
-    BasicType FindSingleValue(const std::string& DataHeader, const BasicType& DataValue, const std::string& TargetHeader) const {
+    BasicType FindMatchingValue(const std::string& DataHeader, const BasicType& DataValue, const std::string& TargetHeader) const {
         std::size_t DataIndex   = GetHeaderIndex(DataHeader);
         std::size_t TargetIndex = GetHeaderIndex(TargetHeader);
         for (const auto& Row : _Data) {

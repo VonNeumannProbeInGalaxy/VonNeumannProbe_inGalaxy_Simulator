@@ -3,7 +3,6 @@
 #include <cmath>
 
 #include <algorithm>
-#include <array>
 #include <filesystem>
 #include <functional>
 #include <iomanip>
@@ -17,9 +16,7 @@
 
 #include <glm/glm.hpp>
 
-#ifdef _DEBUG
 #define ENABLE_LOGGER
-#endif // _DEBUG
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/Logger.h"
 
@@ -64,7 +61,7 @@ StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit, double MassU
         std::make_shared<NormalDistribution>(-0.3, 0.15),
         std::make_shared<NormalDistribution>(-0.08, 0.12),
         std::make_shared<NormalDistribution>(0.05, 0.16)
-    }),
+        }),
     _FeHLowerLimit(FeHLowerLimit), _FeHUpperLimit(FeHUpperLimit)
 {}
 
@@ -126,7 +123,7 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
     AstroObject::Star Star(Properties);
     // std::println("Age: {:.2E}\tFeH: {:.2f}\tMass: {}", Properties.Age, Properties.FeH, Properties.Mass);
     std::vector<double> StarData;
-    
+
     try {
         StarData = GetActuallyMistData(Properties);
     } catch (AstroObject::Star& DeathStar) {
@@ -146,26 +143,26 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
         return {};
     }
 
-    double Age               = StarData[_kStarAgeIndex];
-    double MassSol           = StarData[_kStarMassIndex];
-    double RadiusSol         = std::pow(10.0, StarData[_kLogRIndex]);
-    double Teff              = std::pow(10.0, StarData[_kLogTeffIndex]);
-    double SurfaceFeH        = std::pow(10.0, StarData[_kLogSurfZIndex]);
-    double SurfaceH1         = StarData[_kSurfaceH1Index];
-    double SurfaceHe3        = StarData[_kSurfaceHe3Index];
-    double CoreTemp          = std::pow(10.0, StarData[_kLogCenterTIndex]);
-    double CoreDensity       = std::pow(10.0, StarData[_kLogCenterRhoIndex]);
-    double MassLossRate      = StarData[_kStarMdotIndex];
-    double EvolutionProgress = StarData[_kXIndex];
-    double Lifetime          = StarData[_kLifetimeIndex];
+    double Age                     = StarData[_kStarAgeIndex];
+    double MassSol                 = StarData[_kStarMassIndex];
+    double RadiusSol               = std::pow(10.0, StarData[_kLogRIndex]);
+    double Teff                    = std::pow(10.0, StarData[_kLogTeffIndex]);
+    double SurfaceFeH              = std::pow(10.0, StarData[_kLogSurfZIndex]);
+    double SurfaceH1               = StarData[_kSurfaceH1Index];
+    double SurfaceHe3              = StarData[_kSurfaceHe3Index];
+    double CoreTemp                = std::pow(10.0, StarData[_kLogCenterTIndex]);
+    double CoreDensity             = std::pow(10.0, StarData[_kLogCenterRhoIndex]);
+    double MassLossRate            = StarData[_kStarMdotIndex];
+    double EvolutionProgress       = StarData[_kXIndex];
+    double Lifetime                = StarData[_kLifetimeIndex];
 
-    double LuminositySol     = std::pow(RadiusSol, 2.0) * std::pow((Teff / kSolarTeff), 4.0);
-    double AbsoluteMagnitude = kSolarAbsoluteMagnitude - 2.5 * std::log10(LuminositySol);
-    double EscapeVelocity    = std::sqrt((2 * kGravityConstant * MassSol * kSolarMass) / (RadiusSol * kSolarRadius));
+    double LuminositySol           = std::pow(RadiusSol, 2.0) * std::pow((Teff / kSolarTeff), 4.0);
+    double AbsoluteMagnitude       = kSolarAbsoluteMagnitude - 2.5 * std::log10(LuminositySol);
+    double EscapeVelocity          = std::sqrt((2 * kGravityConstant * MassSol * kSolarMass) / (RadiusSol * kSolarRadius));
 
-    double LifeProgress      = Age / Lifetime;
-    double WindSpeedFactor   = 3.0 - LifeProgress;
-    double StellarWindSpeed  = WindSpeedFactor * EscapeVelocity;
+    double LifeProgress            = Age / Lifetime;
+    double WindSpeedFactor         = 3.0 - LifeProgress;
+    double StellarWindSpeed        = WindSpeedFactor * EscapeVelocity;
 
     double SurfaceEnergeticNuclide = (SurfaceH1 * 0.00002 + SurfaceHe3);
     double SurfaceVolatiles        = 1.0 - SurfaceFeH - SurfaceEnergeticNuclide;
@@ -200,15 +197,14 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
 template<typename CsvType>
 std::shared_ptr<CsvType> StellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers) {
     {
-        std::shared_lock Lock(_CacheMutex);
+        std::shared_lock Lock(_kCacheMutex);
         auto Asset = Assets::AssetManager::GetAsset<CsvType>(Filename);
         if (Asset != nullptr) {
             return Asset;
         }
     }
 
-
-    std::unique_lock Lock(_CacheMutex);
+    std::unique_lock Lock(_kCacheMutex);
     auto CsvAsset = std::make_shared<CsvType>(Filename, Headers);
     Assets::AssetManager::AddAsset<CsvType>(Filename, CsvAsset);
 
@@ -275,23 +271,23 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
     }
 
     std::vector<double> Masses;
-    _CacheMutex.lock();
-    if (_MassFileCache.contains(PrefixDir)) {
-        Masses = _MassFileCache[PrefixDir];
+    _kCacheMutex.lock();
+    if (_kMassFileCache.contains(PrefixDir)) {
+        Masses = _kMassFileCache[PrefixDir];
     } else {
-        _CacheMutex.unlock();
+        _kCacheMutex.unlock();
         for (const auto& Entry : std::filesystem::directory_iterator(PrefixDir)) {
             std::string Filename = Entry.path().filename().string();
             double Mass = std::stod(Filename.substr(0, Filename.find("Ms_track.csv")));
             Masses.emplace_back(Mass);
         }
 
-        _CacheMutex.lock();
-        if (!_MassFileCache.contains(PrefixDir)) {
-            _MassFileCache.emplace(PrefixDir, Masses);
+        _kCacheMutex.lock();
+        if (!_kMassFileCache.contains(PrefixDir)) {
+            _kMassFileCache.emplace(PrefixDir, Masses);
         }
     }
-    _CacheMutex.unlock();
+    _kCacheMutex.unlock();
 
     auto it = std::lower_bound(Masses.begin(), Masses.end(), TargetMass);
     if (it == Masses.end()) {
@@ -413,11 +409,11 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv) {
     std::vector<std::vector<double>> Result;
 
-    _CacheMutex.lock();
-    if (_PhaseChangesCache.contains(DataCsv)) {
-        Result = _PhaseChangesCache[DataCsv];
+    _kCacheMutex.lock();
+    if (_kPhaseChangesCache.contains(DataCsv)) {
+        Result = _kPhaseChangesCache[DataCsv];
     } else {
-        _CacheMutex.unlock();
+        _kCacheMutex.unlock();
         auto* DataArray = DataCsv->Data();
         int CurrentPhase = -2;
         for (const auto& Row : *DataArray) {
@@ -427,12 +423,12 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::s
             }
         }
 
-        _CacheMutex.lock();
-        if (!_PhaseChangesCache.contains(DataCsv)) {
-            _PhaseChangesCache.emplace(DataCsv, Result);
+        _kCacheMutex.lock();
+        if (!_kPhaseChangesCache.contains(DataCsv)) {
+            _kPhaseChangesCache.emplace(DataCsv, Result);
         }
     }
-    _CacheMutex.unlock();
+    _kCacheMutex.unlock();
 
     return Result;
 }
@@ -683,7 +679,7 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar) {
     AstroObject::Star::Ending  EvolutionEnding{};
     StellarClass::StarType     DeathStarType{};
     StellarClass::SpectralType DeathStarClass{};
-    
+
     double DeathStarAge  = InputAge - DeathStar.GetLifetime();
     double DeathStarMass = 0.0;
 
@@ -896,7 +892,7 @@ void StellarGenerator::GenerateMagnetic(AstroObject::Star& StarData) {
             auto SpectralType = StarData.GetStellarClass().Data();
             if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence &&
                 (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_A ||
-                 SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
+                    SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
                 BernoulliDistribution ProbabilityGenerator(0.15);
                 if (ProbabilityGenerator.Generate(_RandomEngine)) {
                     MagneticGenerator = std::make_unique<UniformRealDistribution>(1000.0, 10000.0);
@@ -948,7 +944,7 @@ void StellarGenerator::GenerateSpin(AstroObject::Star& StarData) {
 
     StellarClass::StarType StarType = StarData.GetStellarClass().GetStarType();
     double StarAge   = StarData.GetAge();
-    double MassSol   = StarData.GetMass()   / kSolarMass;
+    double MassSol   = StarData.GetMass() / kSolarMass;
     double RadiusSol = StarData.GetRadius() / kSolarRadius;
     double Spin      = 0.0;
 
@@ -1019,9 +1015,9 @@ const int StellarGenerator::_kWdLogCenterRhoIndex = 4;
 const std::vector<std::string> StellarGenerator::_kMistHeaders{ "star_age", "star_mass", "star_mdot", "log_Teff", "log_R", "log_surf_z", "surface_h1", "surface_he3", "log_center_T", "log_center_Rho", "phase", "x" };
 const std::vector<std::string> StellarGenerator::_kWdMistHeaders{ "star_age", "log_R", "log_Teff", "log_center_T", "log_center_Rho" };
 const std::vector<std::string> StellarGenerator::_kHrDiagramHeaders{ "B-V", "Ia", "Ib", "II", "III", "IV" };
-std::unordered_map<std::string, std::vector<double>> StellarGenerator::_MassFileCache;
-std::unordered_map<std::shared_ptr<StellarGenerator::MistData>, std::vector<std::vector<double>>> StellarGenerator::_PhaseChangesCache;
-std::shared_mutex StellarGenerator::_CacheMutex;
+std::unordered_map<std::string, std::vector<double>> StellarGenerator::_kMassFileCache;
+std::unordered_map<std::shared_ptr<StellarGenerator::MistData>, std::vector<std::vector<double>>> StellarGenerator::_kPhaseChangesCache;
+std::shared_mutex StellarGenerator::_kCacheMutex;
 
 // Tool functions implementations
 // ------------------------------
@@ -1134,14 +1130,14 @@ std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std
     if (PhaseChanges.size() != 2 || PhaseChanges.front()[StellarGenerator::_kPhaseIndex] != PhaseChanges.back()[StellarGenerator::_kPhaseIndex]) {
         LowerTimePoint = std::lower_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](const std::vector<double>& Lhs, double Rhs) -> bool {
-                return Lhs[0] < Rhs;
-            }
+            return Lhs[0] < Rhs;
+        }
         );
 
         UpperTimePoint = std::upper_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](double Lhs, const std::vector<double>& Rhs) -> bool {
-                return Lhs < Rhs[0];
-            }
+            return Lhs < Rhs[0];
+        }
         );
 
         if (LowerTimePoint == UpperTimePoint) {
@@ -1341,16 +1337,16 @@ void ExpandMistData(std::vector<double>& StarData, double TargetMass) {
     double Teff          = std::pow(10.0, StarData[StellarGenerator::_kLogTeffIndex]);
     double LuminositySol = std::pow(RadiusSol, 2.0) * std::pow((Teff / kSolarTeff), 4.0);
 
-    double& StarMass   = StarData[StellarGenerator::_kStarMassIndex];
-    double& StarMdot   = StarData[StellarGenerator::_kStarMdotIndex];
-    double& LogR       = StarData[StellarGenerator::_kLogRIndex];
-    double& LogTeff    = StarData[StellarGenerator::_kLogTeffIndex];
+    double& StarMass = StarData[StellarGenerator::_kStarMassIndex];
+    double& StarMdot = StarData[StellarGenerator::_kStarMdotIndex];
+    double& LogR     = StarData[StellarGenerator::_kLogRIndex];
+    double& LogTeff  = StarData[StellarGenerator::_kLogTeffIndex];
 
     double LogL = std::log10(LuminositySol);
 
     StarMass = TargetMass * (StarMass / 0.1);
     StarMdot = TargetMass * (StarMdot / 0.1);
-    
+
     RadiusSol     = std::pow(10.0, LogR) * std::pow(TargetMass / 0.1, 2.3);
     LuminositySol = std::pow(10.0, LogL) * std::pow(TargetMass / 0.1, 2.3);
 

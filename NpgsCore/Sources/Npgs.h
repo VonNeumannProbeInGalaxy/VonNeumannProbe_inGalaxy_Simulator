@@ -13,4 +13,5 @@
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/Logger.h"
+#include "Engine/Core/Random.hpp"
 #include "Engine/Core/ThreadPool.h"
