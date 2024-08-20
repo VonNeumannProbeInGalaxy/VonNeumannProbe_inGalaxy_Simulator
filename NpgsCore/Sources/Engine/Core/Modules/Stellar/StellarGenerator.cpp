@@ -546,17 +546,11 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, double Surf
                     if (EvolutionPhase == AstroObject::Star::Phase::kPrevMainSequence) {
                         SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
                     } else if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence) {
-                        if (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_O) {
-                            if (SurfaceH1 > 0.6) {
-                                SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
-                            } else {
-                                SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
-                            }
+                        if (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_O && SurfaceH1 < 0.6) {
+                            SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
                         } else {
                             SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
                         }
-                    } else if (EvolutionPhase == AstroObject::Star::Phase::kRedGiant) {
-                        SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_III;
                     } else {
                         SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
                     }
@@ -676,19 +670,21 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
         return std::abs(Lhs - LuminositySol) < std::abs(Rhs - LuminositySol);
     });
 
+    while (LuminosityData.size() != 6) {
+        LuminosityData.emplace_back(-1);
+    }
+
     StellarClass::LuminosityClass LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
-    if (LuminositySol > LuminosityData[2] && (ClosestValue == LuminosityData[1] || ClosestValue == LuminosityData[2])) {
+    if (LuminositySol <= LuminosityData[1] && (ClosestValue == LuminosityData[1] || ClosestValue == LuminosityData[2])) {
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Iab;
-    } else if (LuminositySol < LuminosityData[2] && ClosestValue == LuminosityData[2]) {
-        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Ib;
-    } else if (LuminositySol < LuminosityData[2] && ClosestValue == LuminosityData[3]) {
-        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_II;
-    } else if (LuminosityData[3] != -1) {
-        if (LuminositySol < LuminosityData[3] && ClosestValue == LuminosityData[4]) {
+    } else if (LuminositySol < LuminosityData[2]) {
+        if (ClosestValue == LuminosityData[2]) {
+            LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Ib;
+        } else if (ClosestValue == LuminosityData[3]) {
+            LuminosityClass = StellarClass::LuminosityClass::kLuminosity_II;
+        } else if (ClosestValue == LuminosityData[4]) {
             LuminosityClass = StellarClass::LuminosityClass::kLuminosity_III;
-        }
-    } else if (LuminosityData[4] != -1) {
-        if (LuminositySol < LuminosityData[4] && ClosestValue == LuminosityData[5]) {
+        } else if (ClosestValue == LuminosityData[5]) {
             LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IV;
         }
     }
@@ -918,7 +914,7 @@ void StellarGenerator::GenerateMagnetic(AstroObject::Star& StarData) {
             auto SpectralType = StarData.GetStellarClass().Data();
             if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence &&
                 (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_A ||
-                    SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
+                 SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
                 BernoulliDistribution ProbabilityGenerator(0.15);
                 if (ProbabilityGenerator.Generate(_RandomEngine)) {
                     MagneticGenerator = std::make_unique<UniformRealDistribution>(1000.0, 10000.0);
@@ -1282,10 +1278,6 @@ std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::HrDi
     }
 
     Result = InterpolateArray(SurroundingRows, Factor);
-
-    while (Result.size() <= 6) {
-        Result.emplace_back(-1);
-    }
 
     return Result;
 }

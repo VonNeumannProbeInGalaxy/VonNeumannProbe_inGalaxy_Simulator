@@ -109,7 +109,7 @@ int main() {
     std::println("Benchmark completed in {} seconds.", Duration.count());
     std::system("pause");
 #else
-    // PrintTitle();
+    PrintTitle();
 
     Npgs::Modules::StellarGenerator Generator(42, 0.075);
     for (int i = 0; i != 1000; ++i) {
