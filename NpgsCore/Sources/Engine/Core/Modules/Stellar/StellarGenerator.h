@@ -53,6 +53,7 @@ private:
     template <typename CsvType>
     static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
 
+    void InitMistData();
     double GenerateAge(double MaxPdf);
     double GenerateMass(double MaxPdf, bool bIsBinary);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd);
@@ -98,6 +99,7 @@ private:
     static const std::vector<std::string>                                                   _kMistHeaders;
     static const std::vector<std::string>                                                   _kWdMistHeaders;
     static const std::vector<std::string>                                                   _kHrDiagramHeaders;
+    static bool                                                                             _kbMistDataInitiated;
     static std::unordered_map<std::string, std::vector<double>>                             _kMassFileCache;
     static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>>  _kPhaseChangesCache;
     static std::shared_mutex                                                                _kCacheMutex;

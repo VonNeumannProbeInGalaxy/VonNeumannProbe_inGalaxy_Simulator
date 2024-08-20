@@ -63,7 +63,9 @@ StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit, double MassU
         std::make_shared<NormalDistribution>(0.05, 0.16)
     }),
     _FeHLowerLimit(FeHLowerLimit), _FeHUpperLimit(FeHUpperLimit)
-{}
+{
+    InitMistData();
+}
 
 StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     BasicProperties Properties;
@@ -208,6 +210,46 @@ std::shared_ptr<CsvType> StellarGenerator::LoadCsvAsset(const std::string& Filen
     return CsvAsset;
 }
 
+void StellarGenerator::InitMistData() {
+    if (_kbMistDataInitiated) {
+        return;
+    }
+
+    const std::array<std::string, 10> kPresetPrefix{
+        "Assets/Models/MIST/[Fe_H]=-4.0", 
+        "Assets/Models/MIST/[Fe_H]=-3.0",
+        "Assets/Models/MIST/[Fe_H]=-2.0",
+        "Assets/Models/MIST/[Fe_H]=-1.5",
+        "Assets/Models/MIST/[Fe_H]=-1.0",
+        "Assets/Models/MIST/[Fe_H]=-0.5",
+        "Assets/Models/MIST/[Fe_H]=+0.0",
+        "Assets/Models/MIST/[Fe_H]=+0.5",
+        "Assets/Models/MIST/WhiteDwarfs/Thin",
+        "Assets/Models/MIST/WhiteDwarfs/Thick"
+    };
+
+    std::vector<double> Masses;
+
+    for (const auto& PrefixDir : kPresetPrefix) {
+        for (const auto& Entry : std::filesystem::directory_iterator(PrefixDir)) {
+            std::string Filename = Entry.path().filename().string();
+            double Mass = std::stod(Filename.substr(0, Filename.find("Ms_track.csv")));
+            Masses.emplace_back(Mass);
+
+            if (PrefixDir.find("WhiteDwarfs") != std::string::npos) {
+                LoadCsvAsset<WdMistData>(PrefixDir + "/" + Filename, _kWdMistHeaders);
+            } else {
+                LoadCsvAsset<MistData>(PrefixDir + "/" + Filename, _kMistHeaders);
+            }
+        }
+
+        _kMassFileCache.emplace(PrefixDir, Masses);
+        Masses.clear();
+    }
+
+    _kbMistDataInitiated = true;
+}
+
 double StellarGenerator::GenerateAge(double MaxPdf) {
     double Age         = 0.0;
     double Probability = 0.0;
@@ -241,9 +283,9 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
     std::pair<std::string, std::string> Files;
 
     if (!bIsWhiteDwarf) {
-        const std::array<double, 8> PresetFeH{ -4.0, -3.0, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5 };
+        const std::array<double, 8> kPresetFeH{ -4.0, -3.0, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5 };
 
-        double ClosestFeH = *std::min_element(PresetFeH.begin(), PresetFeH.end(), [TargetFeH](double Lhs, double Rhs) -> bool {
+        double ClosestFeH = *std::min_element(kPresetFeH.begin(), kPresetFeH.end(), [TargetFeH](double Lhs, double Rhs) -> bool {
             return std::abs(Lhs - TargetFeH) < std::abs(Rhs - TargetFeH);
         });
 
@@ -268,23 +310,10 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
     }
 
     std::vector<double> Masses;
-    _kCacheMutex.lock();
-    if (_kMassFileCache.contains(PrefixDir)) {
+    {
+        std::shared_lock Lock(_kCacheMutex);
         Masses = _kMassFileCache[PrefixDir];
-    } else {
-        _kCacheMutex.unlock();
-        for (const auto& Entry : std::filesystem::directory_iterator(PrefixDir)) {
-            std::string Filename = Entry.path().filename().string();
-            double Mass = std::stod(Filename.substr(0, Filename.find("Ms_track.csv")));
-            Masses.emplace_back(Mass);
-        }
-
-        _kCacheMutex.lock();
-        if (!_kMassFileCache.contains(PrefixDir)) {
-            _kMassFileCache.emplace(PrefixDir, Masses);
-        }
     }
-    _kCacheMutex.unlock();
 
     auto it = std::lower_bound(Masses.begin(), Masses.end(), TargetMass);
     if (it == Masses.end()) {
@@ -1012,6 +1041,7 @@ const int StellarGenerator::_kWdLogCenterRhoIndex = 4;
 const std::vector<std::string> StellarGenerator::_kMistHeaders{ "star_age", "star_mass", "star_mdot", "log_Teff", "log_R", "log_surf_z", "surface_h1", "surface_he3", "log_center_T", "log_center_Rho", "phase", "x" };
 const std::vector<std::string> StellarGenerator::_kWdMistHeaders{ "star_age", "log_R", "log_Teff", "log_center_T", "log_center_Rho" };
 const std::vector<std::string> StellarGenerator::_kHrDiagramHeaders{ "B-V", "Ia", "Ib", "II", "III", "IV" };
+bool StellarGenerator::_kbMistDataInitiated = false;
 std::unordered_map<std::string, std::vector<double>> StellarGenerator::_kMassFileCache;
 std::unordered_map<std::shared_ptr<StellarGenerator::MistData>, std::vector<std::vector<double>>> StellarGenerator::_kPhaseChangesCache;
 std::shared_mutex StellarGenerator::_kCacheMutex;

@@ -38,8 +38,6 @@ int main() {
     Npgs::Logger::Init();
 
 #ifdef MULTITHREAD
-    std::mutex Mutex;
-
     int MaxThread = std::thread::hardware_concurrency();
     auto Pool = Npgs::ThreadPool::GetInstance(MaxThread);
 
@@ -50,6 +48,8 @@ int main() {
     std::println("Enter the star count:");
     std::cin >> MaxStars;
 
+    auto Start = std::chrono::high_resolution_clock::now();
+
     std::vector<Npgs::Modules::StellarGenerator> Generators;
     std::random_device RandomDevice;
     for (int i = 0; i != MaxThread; ++i) {
@@ -59,7 +59,10 @@ int main() {
         // Generators.emplace_back(i * 42, 0.1);
     }
 
-    auto Start = std::chrono::high_resolution_clock::now();
+    auto End = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> Duration = End - Start;
+
+    std::println("MIST init completed in {} seconds.", Duration.count());
 
     std::vector<std::future<Npgs::Modules::StellarGenerator::BasicProperties>> Futures;
     for (int i = 0; i != MaxStars; ++i) {
@@ -72,11 +75,6 @@ int main() {
     for (auto& Future : Futures) {
         Future.wait();
     }
-
-    auto End = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> Duration = End - Start;
-
-    std::println("Star basic data generation completed in {} seconds.", Duration.count());
 
     Start = std::chrono::high_resolution_clock::now();
 
@@ -108,21 +106,18 @@ int main() {
     End = std::chrono::high_resolution_clock::now();
     Duration = End - Start;
 
-    std::println("Interpolate completed in {} seconds.", Duration.count());
+    std::println("Benchmark completed in {} seconds.", Duration.count());
     std::system("pause");
 #else
-    PrintTitle();
+    // PrintTitle();
 
-    Npgs::Modules::StellarGenerator Generator(42, 5);
+    Npgs::Modules::StellarGenerator Generator(42, 0.075);
     for (int i = 0; i != 1000; ++i) {
         auto Properties = Generator.GenBasicProperties();
         auto Star = Generator.GenerateStar(Properties);
-        //if (Star.GetMass() / Npgs::kSolarMass > 5) {
-            std::println("Basic properties - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
-            PrintInfo(Star);
-        //}
+        std::println("Basic properties - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
+        PrintInfo(Star);
     }
-
 #endif
 
     return 0;
