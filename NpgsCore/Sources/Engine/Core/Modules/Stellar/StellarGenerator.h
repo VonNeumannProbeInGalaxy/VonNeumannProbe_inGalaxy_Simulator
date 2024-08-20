@@ -41,7 +41,7 @@ public:
 
 public:
     StellarGenerator() = default;
-    StellarGenerator(int Seed, double MassLowerLimit = 0.1, double MassUpperLimit = 300.0, double AgeLowerLimit = 0.0, double AgeUpperLimit = 1.26e10, double FeHLowerLimit = -4.0, double FeHUpperLimit = 0.5);
+    StellarGenerator(int Seed, double MassLowerLimit = 0.1, double MassUpperLimit = 300.0, double AgeLowerLimit = 0.0, double AgeUpperLimit = 1.26e10, double FeHLowerLimit = -4.0, double FeHUpperLimit = 0.5, double CoilTempLimit = 1514.114, double dEpdM = 2e6);
     ~StellarGenerator() = default;
 
 public:
@@ -92,9 +92,12 @@ private:
     UniformRealDistribution                      _AgeGenerator;
     UniformRealDistribution                      _CommonGenerator;
     std::array<std::shared_ptr<Distribution>, 4> _FeHGenerators;
+    std::array<std::shared_ptr<Distribution>, 8> _MagneticGenerators;
 
     double _FeHLowerLimit;
     double _FeHUpperLimit;
+    double _CoilTempLimit;
+    double _dEpdM;
 
     static const std::vector<std::string>                                                   _kMistHeaders;
     static const std::vector<std::string>                                                   _kWdMistHeaders;

@@ -32,6 +32,7 @@ public:
     };
 
     enum class Ending {
+        kWhiteDwarfMerge,
         kSlowColdingDown,
         kEnvelopeDisperse,
         kElectronCaptureSupernova,
@@ -55,6 +56,7 @@ public:
         double StellarWindMassLossRate; // 恒星风质量损失率，单位 kg/s
         double EvolutionProgress;       // 演化进度
         double Lifetime;                // 寿命，单位 yr
+        double MinCoilMass;             // 最小举星器赤道偏转线圈质量，单位 kg
 
         Phase  EvolutionPhase;
         Ending EvolutionEnding;
@@ -86,6 +88,7 @@ public:
     Star& SetStellarWindMassLossRate(double StellarWindMassLossRate);
     Star& SetEvolutionProgress(double EvolutionProgress);
     Star& SetLifetime(double Lifetime);
+    Star& SetMinCoilMass(double MinCoilMass);
     Star& SetEvolutionPhase(Phase EvolutionPhase);
     Star& SetEvolutionEnding(Ending EvolutionEnding);
     Star& SetStellarClass(const Modules::StellarClass& StellarClass);
@@ -106,6 +109,7 @@ public:
     double GetStellarWindMassLossRate() const;
     double GetEvolutionProgress() const;
     double GetLifetime() const;
+    double GetMinCoilMass() const;
     Phase  GetEvolutionPhase() const;
     Ending GetEvolutionEnding() const;
     const Modules::StellarClass& GetStellarClass() const;

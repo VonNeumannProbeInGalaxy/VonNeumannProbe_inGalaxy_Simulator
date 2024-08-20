@@ -79,6 +79,11 @@ inline Star& Star::SetLifetime(double Lifetime) {
     return *this;
 }
 
+inline Star& Star::SetMinCoilMass(double MinCoilMass) {
+    _StarExtraProperties.MinCoilMass = MinCoilMass;
+    return *this;
+}
+
 inline Star& Star::SetEvolutionPhase(Phase EvolutionPhase) {
     _StarExtraProperties.EvolutionPhase = EvolutionPhase;
     return *this;
@@ -144,6 +149,10 @@ inline double Star::GetEvolutionProgress() const {
 
 inline double Star::GetLifetime() const {
     return _StarExtraProperties.Lifetime;
+}
+
+inline double Star::GetMinCoilMass() const {
+    return _StarExtraProperties.MinCoilMass;
 }
 
 inline Star::Phase Star::GetEvolutionPhase() const {

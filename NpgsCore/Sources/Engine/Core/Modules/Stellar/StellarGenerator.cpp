@@ -51,7 +51,7 @@ static void ExpandMistData(std::vector<double>& StarData, double TargetMass);
 
 // StellarGenerator implementations
 // --------------------------------
-StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit, double MassUpperLimit, double AgeLowerLimit, double AgeUpperLimit, double FeHLowerLimit, double FeHUpperLimit) :
+StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit, double MassUpperLimit, double AgeLowerLimit, double AgeUpperLimit, double FeHLowerLimit, double FeHUpperLimit, double CoilTempLimit, double dEpdM) :
     _RandomEngine(Seed),
     _LogMassGenerator(std::log10(MassLowerLimit), std::log10(MassUpperLimit)),
     _AgeGenerator(AgeLowerLimit, AgeUpperLimit),
@@ -61,8 +61,19 @@ StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit, double MassU
         std::make_shared<NormalDistribution>(-0.3, 0.15),
         std::make_shared<NormalDistribution>(-0.08, 0.12),
         std::make_shared<NormalDistribution>(0.05, 0.16)
+        }),
+    _MagneticGenerators({
+        std::make_shared<UniformRealDistribution>(std::log10(500.0), std::log10(3000.0)),
+        std::make_shared<UniformRealDistribution>(1.0, 3.0),
+        std::make_shared<UniformRealDistribution>(0.0, 1.0),
+        std::make_shared<UniformRealDistribution>(3.0, 4.0),
+        std::make_shared<UniformRealDistribution>(-1.0, 0.0),
+        std::make_shared<UniformRealDistribution>(2.0, 3.0),
+        std::make_shared<UniformRealDistribution>(0.5, 4.5),
+        std::make_shared<UniformRealDistribution>(1e9, 1e11)
     }),
-    _FeHLowerLimit(FeHLowerLimit), _FeHUpperLimit(FeHUpperLimit)
+    _FeHLowerLimit(FeHLowerLimit), _FeHUpperLimit(FeHUpperLimit),
+    _CoilTempLimit(CoilTempLimit), _dEpdM(dEpdM)
 {
     InitMistData();
 }
@@ -189,6 +200,18 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
     CalcSpectralType(Star, SurfaceH1);
     GenerateMagnetic(Star);
     GenerateSpin(Star);
+
+    double MagneticField = Star.GetMagneticField();
+    double Mass          = Star.GetMass();
+    double Radius        = Star.GetRadius();
+    double Luminosity    = Star.GetLuminosity();
+
+    double MinCoilMass = std::max(
+        (6.6156e14)  * std::pow(MagneticField, 2) * std::pow(Luminosity, 1.5) * std::pow(_CoilTempLimit, -6) * std::pow(_dEpdM, -1),
+        (2.34865e29) * std::pow(MagneticField, 2) * std::pow(Luminosity, 2.0) * std::pow(_CoilTempLimit, -8) * std::pow(Mass, -1)
+    );
+
+    Star.SetMinCoilMass(MinCoilMass);
 
     return Star;
 }
@@ -675,9 +698,10 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
     }
 
     StellarClass::LuminosityClass LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
-    if (LuminositySol <= LuminosityData[1] && (ClosestValue == LuminosityData[1] || ClosestValue == LuminosityData[2])) {
+    if (LuminositySol <= LuminosityData[1] && LuminositySol >= LuminosityData[2] &&
+       (ClosestValue  == LuminosityData[1] || ClosestValue  == LuminosityData[2])) {
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Iab;
-    } else if (LuminositySol < LuminosityData[2]) {
+    } else {
         if (ClosestValue == LuminosityData[2]) {
             LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Ib;
         } else if (ClosestValue == LuminosityData[3]) {
@@ -775,6 +799,26 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar) {
             EvolutionEnding = AstroObject::Star::Ending::kRelativisticJetHypernova;
             DeathStarType   = StellarClass::StarType::kBlackHole;
             DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        }
+    }
+
+    if (DeathStarType == StellarClass::StarType::kNeutronStar) {
+        BernoulliDistribution Probability(0.005);
+        if (Probability.Generate(_RandomEngine)) {
+            EvolutionEnding = AstroObject::Star::Ending::kWhiteDwarfMerge;
+            UniformRealDistribution MassDist(1.38, 2.76);
+            double MassSol = MassDist.Generate(_RandomEngine);
+            if (MassSol > 2.7) {
+                EvolutionPhase = AstroObject::Star::Phase::kBlackHole;
+                DeathStarType  = StellarClass::StarType::kBlackHole;
+                DeathStarClass = { StellarClass::SpectralClass::kSpectral_X, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+            } else {
+                EvolutionPhase = AstroObject::Star::Phase::kNeutronStar;
+                DeathStarType  = StellarClass::StarType::kNeutronStar;
+                DeathStarClass = { StellarClass::SpectralClass::kSpectral_Q, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+            }
+
+            DeathStarMass = MassSol;
         }
     }
 
@@ -894,7 +938,7 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar) {
 }
 
 void StellarGenerator::GenerateMagnetic(AstroObject::Star& StarData) {
-    std::unique_ptr<Distribution> MagneticGenerator = nullptr;
+    std::shared_ptr<Distribution> MagneticGenerator = nullptr;
 
     StellarClass::StarType StarType = StarData.GetStellarClass().GetStarType();
     double MassSol = StarData.GetMass() / kSolarMass;
@@ -905,42 +949,42 @@ void StellarGenerator::GenerateMagnetic(AstroObject::Star& StarData) {
     switch (StarType) {
     case StellarClass::StarType::kNormalStar: {
         if (MassSol >= 0.075 && MassSol < 0.33) {
-            MagneticGenerator = std::make_unique<UniformRealDistribution>(500.0, 3000.0);
+            MagneticGenerator = _MagneticGenerators[0];
         } else if (MassSol >= 0.33 && MassSol < 0.6) {
-            MagneticGenerator = std::make_unique<UniformRealDistribution>(100.0, 1000.0);
+            MagneticGenerator = _MagneticGenerators[1];
         } else if (MassSol >= 0.6 && MassSol < 1.5) {
-            MagneticGenerator = std::make_unique<UniformRealDistribution>(1.0, 10.0);
+            MagneticGenerator = _MagneticGenerators[2];
         } else if (MassSol >= 1.5 && MassSol < 20) {
             auto SpectralType = StarData.GetStellarClass().Data();
             if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence &&
-                (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_A ||
-                 SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
+               (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_A ||
+                SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
                 BernoulliDistribution ProbabilityGenerator(0.15);
                 if (ProbabilityGenerator.Generate(_RandomEngine)) {
-                    MagneticGenerator = std::make_unique<UniformRealDistribution>(1000.0, 10000.0);
+                    MagneticGenerator = _MagneticGenerators[3];
                     SpectralType.SpecialMark |= static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_p);
                     StarData.SetStellarClass(StellarClass(StellarClass::StarType::kNormalStar, SpectralType));
                 } else {
-                    MagneticGenerator = std::make_unique<UniformRealDistribution>(0.1, 1.0);
+                    MagneticGenerator = _MagneticGenerators[4];
                 }
             } else {
-                MagneticGenerator = std::make_unique<UniformRealDistribution>(0.1, 1.0);
+                MagneticGenerator = _MagneticGenerators[4];
             }
         } else {
-            MagneticGenerator = std::make_unique<UniformRealDistribution>(100.0, 1000.0);
+            MagneticGenerator = _MagneticGenerators[5];
         }
 
-        MagneticField = MagneticGenerator->Generate(_RandomEngine) / 10000;
+        MagneticField = std::pow(10.0, MagneticGenerator->Generate(_RandomEngine)) / 10000;
 
         break;
     }
     case StellarClass::StarType::kWhiteDwarf: {
-        MagneticGenerator = std::make_unique<UniformRealDistribution>(0.5, 4.5);
+        MagneticGenerator = _MagneticGenerators[6];
         MagneticField     = std::pow(10.0, MagneticGenerator->Generate(_RandomEngine));
         break;
     }
     case StellarClass::StarType::kNeutronStar: {
-        MagneticGenerator = std::make_unique<UniformRealDistribution>(1e9, 1e11);
+        MagneticGenerator = _MagneticGenerators[7];
         double B0         = MagneticGenerator->Generate(_RandomEngine);
         double B          = B0 / (std::pow((0.034 * StarData.GetAge() / 1e4), 1.17) + 0.84);
         MagneticField     = B;
