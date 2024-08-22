@@ -59,9 +59,7 @@ int main() {
     std::vector<Npgs::Modules::StellarGenerator> Generators;
     std::random_device RandomDevice;
     for (int i = 0; i != MaxThread; ++i) {
-        std::mt19937 RandomEngine(RandomDevice());
-        std::uniform_int_distribution<int> UniformDistribution(1, 10000);
-        Generators.emplace_back(UniformDistribution(RandomEngine), 0.075);
+        Generators.emplace_back(RandomDevice(), 0.075);
         // Generators.emplace_back(i * 42, 0.075);
     }
 
@@ -100,7 +98,7 @@ int main() {
     for (auto& Future : StarFutures) {
         auto Star = Future.get();
         //if (!std::isnan(Star.GetRadius()) && Star.GetMass() / Npgs::kSolarMass > 30) {
-            PrintInfo(Output, Star);
+            //PrintInfo(Output, Star);
         //}
     }
 

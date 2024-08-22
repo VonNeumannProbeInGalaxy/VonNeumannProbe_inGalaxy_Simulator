@@ -13,7 +13,6 @@ public:
     struct BaryCenter {
         std::string Name;                // 质心名字
         glm::dvec3 Position;             // 位置，使用 3 个 double 分量的向量存储
-        double Distance;                 // 距离，单位 pc
     };
 
     struct OrbitProperties {

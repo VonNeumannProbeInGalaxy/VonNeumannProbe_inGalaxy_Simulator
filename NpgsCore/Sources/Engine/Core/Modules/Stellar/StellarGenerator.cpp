@@ -81,13 +81,8 @@ StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit, double MassU
 StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     BasicProperties Properties;
 
-    double PosX     = _CommonGenerator.Generate(_RandomEngine) * 1000.0;
-    double PosY     = _CommonGenerator.Generate(_RandomEngine) * 1000.0;
-    double PosZ     = _CommonGenerator.Generate(_RandomEngine) * 1000.0;
-    double Distance = _CommonGenerator.Generate(_RandomEngine) * 10000.0;
-    Properties.StarSys.Name     = "S-" + std::to_string(PosX) + "-" + std::to_string(PosY) + "-" + std::to_string(PosZ) + "-" + std::to_string(Distance);
-    Properties.StarSys.Position = glm::dvec3(PosX, PosY, PosZ);
-    Properties.StarSys.Distance = Distance;
+    Properties.StarSys.Name     = "";
+    Properties.StarSys.Position = glm::dvec3();
 
     double Mass = GenerateMass(0.086, true);
     Properties.Mass = Mass;
