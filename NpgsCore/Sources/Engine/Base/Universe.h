@@ -1,7 +1,7 @@
 #pragma once
 
+#include <random>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -14,14 +14,20 @@ _NPGS_BEGIN
 
 class NPGS_API Universe {
 public:
-    Universe() = default;
+    Universe(int Seed);
+    Universe(std::random_device& RandomDevice);
     ~Universe() = default;
 
     void AddStar(const std::string& Name, AstroObject::CelestialBody::BaryCenter& StarSys, const AstroObject::Star& Star);
-    const std::vector<std::pair<std::string, AstroObject::CelestialBody::BaryCenter>>& GetStarSystems() const;
+
+// private:
+    std::vector<glm::vec3> GenerateSlots(float PointRadius, int SampleLimit, int NumSample, float Density);
 
 private:
-    std::vector<std::pair<std::string, AstroObject::CelestialBody::BaryCenter>> _StarSystems;
+    std::vector<AstroObject::CelestialBody::BaryCenter> _StarSystems;
+
+    std::mt19937 _RandomEngine;
+    UniformRealDistribution<float> _Dist;
 };
 
 _NPGS_END

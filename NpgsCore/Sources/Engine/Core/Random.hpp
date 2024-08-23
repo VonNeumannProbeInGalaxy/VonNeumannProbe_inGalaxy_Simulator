@@ -5,49 +5,53 @@
 
 _NPGS_BEGIN
 
+template <typename Ty = double>
 class NPGS_API Distribution {
 public:
     virtual ~Distribution() = default;
-    virtual double Generate(std::mt19937& Engine) = 0;
+    virtual Ty Generate(std::mt19937& Engine) = 0;
 };
 
-class NPGS_API UniformRealDistribution : public Distribution {
+template <typename Ty = double>
+class NPGS_API UniformRealDistribution : public Distribution<Ty> {
 public:
-    UniformRealDistribution(double Min, double Max) : _Distribution(Min, Max) {}
+    UniformRealDistribution(Ty Min, Ty Max) : _Distribution(Min, Max) {}
 
-    double Generate(std::mt19937& Engine) override {
+    Ty Generate(std::mt19937& Engine) override {
         return _Distribution(Engine);
     }
 
 private:
-    std::uniform_real_distribution<double> _Distribution;
+    std::uniform_real_distribution<Ty> _Distribution;
 };
 
-class NPGS_API NormalDistribution : public Distribution {
+template <typename Ty = double>
+class NPGS_API NormalDistribution : public Distribution<Ty> {
 public:
-    NormalDistribution(double Mean, double Sigma) : _Distribution(Mean, Sigma) {}
+    NormalDistribution(Ty Mean, Ty Sigma) : _Distribution(Mean, Sigma) {}
 
-    double Generate(std::mt19937& Engine) override {
+    Ty Generate(std::mt19937& Engine) override {
         return _Distribution(Engine);
     }
 
 private:
-    std::normal_distribution<double> _Distribution;
+    std::normal_distribution<Ty> _Distribution;
 };
 
-class NPGS_API LogNormalDistribution : public Distribution {
+template <typename Ty = double>
+class NPGS_API LogNormalDistribution : public Distribution<Ty> {
 public:
-    LogNormalDistribution(double Mean, double Sigma) : _Distribution(Mean, Sigma) {}
+    LogNormalDistribution(Ty Mean, Ty Sigma) : _Distribution(Mean, Sigma) {}
 
-    double Generate(std::mt19937& Engine) override {
+    Ty Generate(std::mt19937& Engine) override {
         return _Distribution(Engine);
     }
 
 private:
-    std::lognormal_distribution<double> _Distribution;
+    std::lognormal_distribution<Ty> _Distribution;
 };
 
-class NPGS_API BernoulliDistribution : public Distribution {
+class NPGS_API BernoulliDistribution : public Distribution<double> {
 public:
     BernoulliDistribution(double Probability) : _Distribution(Probability) {}
 

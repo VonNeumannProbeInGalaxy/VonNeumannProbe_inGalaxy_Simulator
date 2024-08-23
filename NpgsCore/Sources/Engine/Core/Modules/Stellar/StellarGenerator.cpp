@@ -57,20 +57,20 @@ StellarGenerator::StellarGenerator(int Seed, double MassLowerLimit, double MassU
     _AgeGenerator(AgeLowerLimit, AgeUpperLimit),
     _CommonGenerator(0.0, 1.0),
     _FeHGenerators({
-        std::make_shared<LogNormalDistribution>(-0.3, 0.5),
-        std::make_shared<NormalDistribution>(-0.3, 0.15),
-        std::make_shared<NormalDistribution>(-0.08, 0.12),
-        std::make_shared<NormalDistribution>(0.05, 0.16)
+        std::make_shared<LogNormalDistribution<double>>(-0.3, 0.5),
+        std::make_shared<NormalDistribution<double>>(-0.3, 0.15),
+        std::make_shared<NormalDistribution<double>>(-0.08, 0.12),
+        std::make_shared<NormalDistribution<double>>(0.05, 0.16)
         }),
     _MagneticGenerators({
-        std::make_shared<UniformRealDistribution>(std::log10(500.0), std::log10(3000.0)),
-        std::make_shared<UniformRealDistribution>(1.0, 3.0),
-        std::make_shared<UniformRealDistribution>(0.0, 1.0),
-        std::make_shared<UniformRealDistribution>(3.0, 4.0),
-        std::make_shared<UniformRealDistribution>(-1.0, 0.0),
-        std::make_shared<UniformRealDistribution>(2.0, 3.0),
-        std::make_shared<UniformRealDistribution>(0.5, 4.5),
-        std::make_shared<UniformRealDistribution>(1e9, 1e11)
+        std::make_shared<UniformRealDistribution<double>>(std::log10(500.0), std::log10(3000.0)),
+        std::make_shared<UniformRealDistribution<double>>(1.0, 3.0),
+        std::make_shared<UniformRealDistribution<double>>(0.0, 1.0),
+        std::make_shared<UniformRealDistribution<double>>(3.0, 4.0),
+        std::make_shared<UniformRealDistribution<double>>(-1.0, 0.0),
+        std::make_shared<UniformRealDistribution<double>>(2.0, 3.0),
+        std::make_shared<UniformRealDistribution<double>>(0.5, 4.5),
+        std::make_shared<UniformRealDistribution<double>>(1e9, 1e11)
     }),
     _FeHLowerLimit(FeHLowerLimit), _FeHUpperLimit(FeHUpperLimit),
     _CoilTempLimit(CoilTempLimit), _dEpdM(dEpdM)
@@ -90,7 +90,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     double Age = GenerateAge(2.6);
     Properties.Age = Age;
 
-    std::shared_ptr<Distribution> FeHGenerator = nullptr;
+    std::shared_ptr<Distribution<double>> FeHGenerator = nullptr;
 
     double FeHLowerLimit = _FeHLowerLimit;
     double FeHUpperLimit = _FeHUpperLimit;
@@ -933,7 +933,7 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar) {
 }
 
 void StellarGenerator::GenerateMagnetic(AstroObject::Star& StarData) {
-    std::shared_ptr<Distribution> MagneticGenerator = nullptr;
+    std::shared_ptr<Distribution<double>> MagneticGenerator = nullptr;
 
     StellarClass::StarType StarType = StarData.GetStellarClass().GetStarType();
     double MassSol = StarData.GetMass() / kSolarMass;
@@ -1001,7 +1001,7 @@ void StellarGenerator::GenerateMagnetic(AstroObject::Star& StarData) {
 }
 
 void StellarGenerator::GenerateSpin(AstroObject::Star& StarData) {
-    std::unique_ptr<Distribution> SpinGenerator = nullptr;
+    std::unique_ptr<Distribution<double>> SpinGenerator = nullptr;
 
     StellarClass::StarType StarType = StarData.GetStellarClass().GetStarType();
     double StarAge   = StarData.GetAge();
@@ -1032,7 +1032,7 @@ void StellarGenerator::GenerateSpin(AstroObject::Star& StarData) {
         break;
     }
     case StellarClass::StarType::kWhiteDwarf: {
-        SpinGenerator = std::make_unique<UniformRealDistribution>(3.0, 5.0);
+        SpinGenerator = std::make_unique<UniformRealDistribution<double>>(3.0, 5.0);
         Spin = std::pow(10, SpinGenerator->Generate(_RandomEngine));
         break;
     }
@@ -1041,7 +1041,7 @@ void StellarGenerator::GenerateSpin(AstroObject::Star& StarData) {
         break;
     }
     case StellarClass::StarType::kBlackHole: {
-        SpinGenerator = std::make_unique<UniformRealDistribution>(0.001, 0.998);
+        SpinGenerator = std::make_unique<UniformRealDistribution<double>>(0.001, 0.998);
         Spin = SpinGenerator->Generate(_RandomEngine);
         break;
     }

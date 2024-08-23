@@ -87,22 +87,22 @@ public:
     static const int _kWdLogCenterRhoIndex;
 
 private:
-    std::mt19937                                 _RandomEngine;
-    UniformRealDistribution                      _LogMassGenerator;
-    UniformRealDistribution                      _AgeGenerator;
-    UniformRealDistribution                      _CommonGenerator;
-    std::array<std::shared_ptr<Distribution>, 4> _FeHGenerators;
-    std::array<std::shared_ptr<Distribution>, 8> _MagneticGenerators;
+    std::mt19937 _RandomEngine;
+    UniformRealDistribution<double> _LogMassGenerator;
+    UniformRealDistribution<double> _AgeGenerator;
+    UniformRealDistribution<double> _CommonGenerator;
+    std::array<std::shared_ptr<Distribution<double>>, 4> _FeHGenerators;
+    std::array<std::shared_ptr<Distribution<double>>, 8> _MagneticGenerators;
 
     double _FeHLowerLimit;
     double _FeHUpperLimit;
     double _CoilTempLimit;
     double _dEpdM;
 
-    static const std::vector<std::string>                                                   _kMistHeaders;
-    static const std::vector<std::string>                                                   _kWdMistHeaders;
-    static const std::vector<std::string>                                                   _kHrDiagramHeaders;
-    static bool                                                                             _kbMistDataInitiated;
+    static const std::vector<std::string> _kMistHeaders;
+    static const std::vector<std::string> _kWdMistHeaders;
+    static const std::vector<std::string> _kHrDiagramHeaders;
+    static bool                           _kbMistDataInitiated;
     static std::unordered_map<std::string, std::vector<double>>                             _kMassFileCache;
     static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>>  _kPhaseChangesCache;
     static std::shared_mutex                                                                _kCacheMutex;

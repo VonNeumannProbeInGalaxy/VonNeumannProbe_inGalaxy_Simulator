@@ -1,7 +1,7 @@
 #include "Npgs.h"
 
 #ifdef NDEBUG
-#define MULTITHREAD
+//#define MULTITHREAD
 #endif
 
 static std::string FormatTitle() {
@@ -40,8 +40,8 @@ static void PrintInfo(std::ofstream& Filename, const Npgs::AstroObject::Star& St
 
 int main() {
     Npgs::Logger::Init();
-    std::ofstream Output("Output.csv", std::ios::out);
-    Output << FormatTitle() << std::endl;
+    //std::ofstream Output("Output.csv", std::ios::out);
+    // Output << FormatTitle() << std::endl;
 
 #ifdef MULTITHREAD
     int MaxThread = std::thread::hardware_concurrency();
@@ -67,6 +67,8 @@ int main() {
     std::chrono::duration<double> Duration = End - Start;
 
     std::println("MIST init completed in {} seconds.", Duration.count());
+
+    Start = std::chrono::high_resolution_clock::now();
 
     std::vector<std::future<Npgs::Modules::StellarGenerator::BasicProperties>> Futures;
     for (int i = 0; i != MaxStars; ++i) {
@@ -111,16 +113,45 @@ int main() {
     std::println("Benchmark completed in {} seconds.", Duration.count());
     std::system("pause");
 #else
-    Npgs::Modules::StellarGenerator Generator(42, 0.075);
-    for (int i = 0; i != 1000; ++i) {
-        auto Properties = Generator.GenBasicProperties();
-        auto Star = Generator.GenerateStar(Properties);
-        std::println("Basic properties - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
-        PrintInfo(Output, Star);
+    //Npgs::Modules::StellarGenerator Generator(42, 0.075);
+    //for (int i = 0; i != 1000; ++i) {
+    //    auto Properties = Generator.GenBasicProperties();
+    //    auto Star = Generator.GenerateStar(Properties);
+    //    std::println("Basic properties - Age: {}, FeH: {}, Mass: {}", Properties.Age, Properties.FeH, Properties.Mass);
+    //    PrintInfo(Output, Star);
+    //}
+
+    //Npgs::Universe u(10);
+    //auto r = u.GenerateSlots(0.1, 30, 1000000, 0.004);
+
+    //for (auto& e : r) {
+    //    Output << e.x << "," << e.y << "," << e.z << std::endl;
+    //}
+
+        // 创建一个八叉树，中心在(0, 0, 0)，半径为10
+    Npgs::Octree octree(glm::vec3(0.0f), 10.0f);
+
+    // 插入一些点
+    octree.Insert(glm::vec3(1.0f, 2.0f, 3.0f));
+    octree.Insert(glm::vec3(-1.0f, -2.0f, -3.0f));
+    octree.Insert(glm::vec3(4.0f, 5.0f, 6.0f));
+    octree.Insert(glm::vec3(-4.0f, -5.0f, -6.0f));
+    octree.Insert(glm::vec3(7.0f, 8.0f, 9.0f));
+    octree.Insert(glm::vec3(-7.0f, -8.0f, -9.0f));
+
+    //// 查询一个点附近的点
+    std::vector<glm::vec3> results;
+    octree.Query(glm::vec3(0.0f, 0.0f, 0.0f), 10.0f, results);
+
+    //// 打印查询结果
+    std::cout << "Query results:\n";
+    for (const auto& point : results) {
+        std::cout << "Point: (" << point.x << ", " << point.y << ", " << point.z << ")\n";
     }
+
 #endif
 
-    Output.close();
+    //Output.close();
 
     return 0;
 }
