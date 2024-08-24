@@ -11,16 +11,18 @@
 
 _NPGS_BEGIN
 
-class OctreeNode {
+class NPGS_API OctreeNode {
 public:
     OctreeNode(const glm::vec3& Center, float Radius, OctreeNode* Prev);
 
     bool Contains(const glm::vec3& Point) const;
     int GetOctant(const glm::vec3& Point) const;
+    bool IntersectsSphere(const glm::vec3& Point, float Radius) const;
 
     const glm::vec3& GetCenter() const;
     float GetRadius() const;
-    std::unique_ptr<OctreeNode>& GetNext(int Index);
+    std::unique_ptr<OctreeNode>& GetNextMutable(int Index);
+    const std::unique_ptr<OctreeNode>& GetNext(int Index) const;
 
     void AddPoint(const glm::vec3& Point);
     const std::vector<glm::vec3>& GetPoints() const;
@@ -39,9 +41,11 @@ public:
 
     void Insert(const glm::vec3& Point);
     void Query(const glm::vec3& Point, float Radius, std::vector<glm::vec3>& Results) const;
-    
+
     template <typename Func>
     void Traverse(Func&& Pred) const;
+
+    std::size_t GetSize() const;
 
 private:
     void InsertImpl(OctreeNode* Node, const glm::vec3& Point, int Depth);
@@ -59,6 +63,8 @@ private:
             TraverseImpl(Node->GetNext(i).get(), Pred);
         }
     }
+
+    std::size_t GetSizeImpl(const OctreeNode* Node) const;
 
 private:
     std::unique_ptr<OctreeNode> _Root;

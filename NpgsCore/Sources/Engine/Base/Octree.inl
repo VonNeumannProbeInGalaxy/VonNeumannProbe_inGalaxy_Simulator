@@ -21,6 +21,16 @@ inline int OctreeNode::GetOctant(const glm::vec3& Point) const {
     return Octant;
 }
 
+inline bool OctreeNode::IntersectsSphere(const glm::vec3& Point, float Radius) const {
+    glm::vec3 MinBound = _Center - glm::vec3(_Radius);
+    glm::vec3 MaxBound = _Center + glm::vec3(_Radius);
+
+    glm::vec3 ClosestPoint = glm::clamp(Point, MinBound, MaxBound);
+    float Distance = glm::distance(Point, ClosestPoint);
+
+    return Distance <= Radius;
+}
+
 inline const glm::vec3& OctreeNode::GetCenter() const {
     return _Center;
 }
@@ -29,7 +39,11 @@ inline float OctreeNode::GetRadius() const {
     return _Radius;
 }
 
-inline std::unique_ptr<OctreeNode>& OctreeNode::GetNext(int Index) {
+inline std::unique_ptr<OctreeNode>& OctreeNode::GetNextMutable(int Index) {
+    return _Next[Index];
+}
+
+inline const std::unique_ptr<OctreeNode>& OctreeNode::GetNext(int Index) const {
     return _Next[Index];
 }
 
@@ -52,6 +66,10 @@ inline void Octree::Query(const glm::vec3& Point, float Radius, std::vector<glm:
 template <typename Func>
 inline void Octree::Traverse(Func&& Pred) const {
     TraverseImpl(_Root.get(), std::forward<Func>(Pred));
+}
+
+inline std::size_t Octree::GetSize() const {
+    return GetSizeImpl(_Root.get());
 }
 
 _NPGS_END

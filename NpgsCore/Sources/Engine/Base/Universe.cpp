@@ -25,8 +25,7 @@ Universe::Universe(std::random_device& RandomDevice) : _RandomEngine(RandomDevic
 
 void Universe::AddStar(const std::string& Name, AstroObject::CelestialBody::BaryCenter& StarSys, const AstroObject::Star& Star) {}
 
-std::vector<glm::vec3> Universe::GenerateSlots(float PointRadius, int SampleLimit, int NumSample, float Density) {
-    std::vector<glm::vec3> Samples;
+void Universe::GenerateSlots(float PointRadius, int SampleLimit, int NumSample, float Density) {
     std::vector<glm::vec3> ProcessList;
     std::unordered_map<std::tuple<int, int, int>, glm::vec3, TupleHash> Grid;
 
@@ -34,8 +33,10 @@ std::vector<glm::vec3> Universe::GenerateSlots(float PointRadius, int SampleLimi
     float Diameter = 2 * Radius;
     float CellSize = PointRadius / std::sqrt(3.0);
 
+    _StarOctree = std::make_unique<Octree>(glm::vec3(0.0), Radius);
+
     auto AddSample = [&](const glm::vec3& Sample) -> void {
-        Samples.emplace_back(Sample);
+        _StarOctree->Insert(Sample);
         ProcessList.emplace_back(Sample);
         int x = static_cast<int>((Sample.x + Radius) / CellSize);
         int y = static_cast<int>((Sample.y + Radius) / CellSize);
@@ -46,7 +47,7 @@ std::vector<glm::vec3> Universe::GenerateSlots(float PointRadius, int SampleLimi
     glm::vec3 InitialSample(0.0);
     AddSample(InitialSample);
 
-    while (!ProcessList.empty() && Samples.size() < NumSample) {
+    while (!ProcessList.empty() && _StarOctree->GetSize() < NumSample) {
         int Index = static_cast<int>(_Dist.Generate(_RandomEngine) * ProcessList.size());
         glm::vec3 CurrentSample = ProcessList[Index];
         bool bFound = false;
@@ -58,32 +59,10 @@ std::vector<glm::vec3> Universe::GenerateSlots(float PointRadius, int SampleLimi
             glm::vec3 NewSample = CurrentSample + glm::vec3(std::cos(Angle1) * std::cos(Angle2), std::sin(Angle1) * std::cos(Angle2), std::sin(Angle2)) * Distance;
 
             if (glm::length(NewSample) <= Radius) {
-                int x = static_cast<int>((NewSample.x + Radius) / CellSize);
-                int y = static_cast<int>((NewSample.y + Radius) / CellSize);
-                int z = static_cast<int>((NewSample.z + Radius) / CellSize);
-                bool bValid = true;
-                for (int dx = -2; dx <= 2; ++dx) {
-                    for (int dy = -2; dy <= 2; ++dy) {
-                        for (int dz = -2; dz <= 2; ++dz) {
-                            int NewX = x + dx;
-                            int NewY = y + dy;
-                            int NewZ = z + dz;
-                            auto it = Grid.find(std::make_tuple(NewX, NewY, NewZ));
-                            if (it != Grid.end() && glm::distance(NewSample, it->second) < PointRadius) {
-                                bValid = false;
-                                break;
-                            }
-                        }
+                std::vector<glm::vec3> Results;
+                _StarOctree->Query(NewSample, PointRadius, Results);
 
-                        if (!bValid) {
-                            break;
-                        }
-                    }
-
-                    if (!bValid) {
-                        break;
-                    }
-                }
+                bool bValid = Results.empty();
 
                 if (bValid) {
                     AddSample(NewSample);
@@ -97,8 +76,6 @@ std::vector<glm::vec3> Universe::GenerateSlots(float PointRadius, int SampleLimi
             ProcessList.erase(ProcessList.begin() + Index);
         }
     }
-
-    return Samples;
 }
 
 _NPGS_END

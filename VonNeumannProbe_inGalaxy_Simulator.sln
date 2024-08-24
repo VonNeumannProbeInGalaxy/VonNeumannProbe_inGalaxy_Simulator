@@ -5,11 +5,6 @@ VisualStudioVersion = 17.11.35017.193
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NpgsCore", "NpgsCore\NpgsCore.vcxproj", "{A3A96004-FD3B-4D24-B61A-26DFFCE12120}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NpgsTest", "NpgsTest\NpgsTest.vcxproj", "{4C967A9D-8FC2-4FCF-9096-C2CD8B91DD98}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A3A96004-FD3B-4D24-B61A-26DFFCE12120} = {A3A96004-FD3B-4D24-B61A-26DFFCE12120}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -26,14 +21,6 @@ Global
 		{A3A96004-FD3B-4D24-B61A-26DFFCE12120}.Release|x64.Build.0 = Release|x64
 		{A3A96004-FD3B-4D24-B61A-26DFFCE12120}.Release|x86.ActiveCfg = Release|Win32
 		{A3A96004-FD3B-4D24-B61A-26DFFCE12120}.Release|x86.Build.0 = Release|Win32
-		{4C967A9D-8FC2-4FCF-9096-C2CD8B91DD98}.Debug|x64.ActiveCfg = Debug|x64
-		{4C967A9D-8FC2-4FCF-9096-C2CD8B91DD98}.Debug|x64.Build.0 = Debug|x64
-		{4C967A9D-8FC2-4FCF-9096-C2CD8B91DD98}.Debug|x86.ActiveCfg = Debug|Win32
-		{4C967A9D-8FC2-4FCF-9096-C2CD8B91DD98}.Debug|x86.Build.0 = Debug|Win32
-		{4C967A9D-8FC2-4FCF-9096-C2CD8B91DD98}.Release|x64.ActiveCfg = Release|x64
-		{4C967A9D-8FC2-4FCF-9096-C2CD8B91DD98}.Release|x64.Build.0 = Release|x64
-		{4C967A9D-8FC2-4FCF-9096-C2CD8B91DD98}.Release|x86.ActiveCfg = Release|Win32
-		{4C967A9D-8FC2-4FCF-9096-C2CD8B91DD98}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

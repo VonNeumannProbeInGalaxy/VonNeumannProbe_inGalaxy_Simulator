@@ -22,7 +22,7 @@ void Octree::InsertImpl(OctreeNode* Node, const glm::vec3& Point, int Depth) {
             NewCenter.x += (i & 4) ? Radius * 0.5f : -Radius * 0.5f;
             NewCenter.y += (i & 2) ? Radius * 0.5f : -Radius * 0.5f;
             NewCenter.z += (i & 1) ? Radius * 0.5f : -Radius * 0.5f;
-            Node->GetNext(i) = std::make_unique<OctreeNode>(NewCenter, Radius * 0.5f, Node);
+            Node->GetNextMutable(i) = std::make_unique<OctreeNode>(NewCenter, Radius * 0.5f, Node);
         }
     }
 
@@ -35,17 +35,35 @@ void Octree::InsertImpl(OctreeNode* Node, const glm::vec3& Point, int Depth) {
 }
 
 void Octree::QueryImpl(OctreeNode* Node, const glm::vec3& Point, float Radius, std::vector<glm::vec3>& Results) const {
+    if (Node == nullptr || Node->GetNext(0) == nullptr) {
+        return;
+    }
+
     for (const auto& StoredPoint : Node->GetPoints()) {
         if (glm::distance(StoredPoint, Point) <= Radius) {
             Results.emplace_back(StoredPoint);
         }
     }
 
-    if (Node->GetNext(0) != nullptr) {
-        for (int i = 0; i != 8; ++i) {
-            QueryImpl(Node->GetNext(i).get(), Point, Radius, Results);
+    for (int i = 0; i != 8; ++i) {
+        OctreeNode* NextNode = Node->GetNext(i).get();
+        if (NextNode != nullptr && NextNode->IntersectsSphere(Point, Radius)) {
+            QueryImpl(NextNode, Point, Radius, Results);
         }
     }
+}
+
+std::size_t Octree::GetSizeImpl(const OctreeNode* Node) const {
+    if (Node == nullptr) {
+        return 0;
+    }
+
+    std::size_t Size = Node->GetPoints().size();
+    for (int i = 0; i != 8; ++i) {
+        Size += GetSizeImpl(Node->GetNext(i).get());
+    }
+
+    return Size;
 }
 
 _NPGS_END

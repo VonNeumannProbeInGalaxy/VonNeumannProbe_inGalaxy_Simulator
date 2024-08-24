@@ -48,6 +48,9 @@
     <ClCompile Include="Sources\Engine\Base\Octree.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h">
