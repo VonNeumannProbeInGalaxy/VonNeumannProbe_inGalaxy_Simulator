@@ -40,7 +40,7 @@ static void PrintInfo(std::ofstream& Filename, const Npgs::AstroObject::Star& St
 
 int main() {
     Npgs::Logger::Init();
-    //std::ofstream Output("Output.csv", std::ios::out);
+    // std::ofstream Output("Output.csv", std::ios::out);
     // Output << FormatTitle() << std::endl;
 
 #ifdef MULTITHREAD
@@ -128,30 +128,48 @@ int main() {
     //    Output << e.x << "," << e.y << "," << e.z << std::endl;
     //}
 
-        // 创建一个八叉树，中心在(0, 0, 0)，半径为10
-    Npgs::Octree octree(glm::vec3(0.0f), 10.0f);
+    // 创建一个八叉树
+    Npgs::Octree octree(glm::vec3(0.0f), 150.0f);
 
-    // 插入一些点
-    octree.Insert(glm::vec3(1.0f, 2.0f, 3.0f));
-    octree.Insert(glm::vec3(-1.0f, -2.0f, -3.0f));
-    octree.Insert(glm::vec3(4.0f, 5.0f, 6.0f));
-    octree.Insert(glm::vec3(-4.0f, -5.0f, -6.0f));
-    octree.Insert(glm::vec3(7.0f, 8.0f, 9.0f));
-    octree.Insert(glm::vec3(-7.0f, -8.0f, -9.0f));
+    // 随机数生成器
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(-100.0f, 100.0f);
 
-    //// 查询一个点附近的点
+    // 生成并插入随机点
+    for (int i = 0; i < 1000; ++i) {
+        glm::vec3 point(dis(gen), dis(gen), dis(gen));
+        octree.Insert(point);
+    }
+
+    // 遍历八叉树并打印每个节点的中心和半径
+    std::size_t total = 0;
+    octree.Traverse([&total](const Npgs::OctreeNode& node) {
+        if (node.GetPoints().size() != 0) {
+            //std::cout << "Node Center: (" << node.GetCenter().x << ", " << node.GetCenter().y << ", " << node.GetCenter().z << "), Radius: " << node.GetRadius() << "\n";
+            //std::cout << "Stored points: " << node.GetPoints().size() << "\n";
+            total += node.GetPoints().size();
+        }
+    });
+
+    std::cout << "Total stord points: " << total << "\n";
+
+    // 查询一个点附近的点
     std::vector<glm::vec3> results;
     octree.Query(glm::vec3(0.0f, 0.0f, 0.0f), 10.0f, results);
 
-    //// 打印查询结果
+    // 打印查询结果
     std::cout << "Query results:\n";
+    int count = 0;
+    std::cout << results.size() << std::endl;
     for (const auto& point : results) {
-        std::cout << "Point: (" << point.x << ", " << point.y << ", " << point.z << ")\n";
+        ++count;
+        std::cout << count << " Point: (" << point.x << ", " << point.y << ", " << point.z << ")\n";
     }
 
 #endif
 
-    //Output.close();
+    // Output.close();
 
     return 0;
 }

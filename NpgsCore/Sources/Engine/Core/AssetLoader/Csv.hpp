@@ -62,7 +62,7 @@ public:
     }
 
     template <typename Func = std::less<>>
-    std::pair<RowArray, RowArray> FindSurroundingValues(const std::string& DataHeader, const BasicType& TargetValue, bool bSorted = true, Func Pred = Func()) {
+    std::pair<RowArray, RowArray> FindSurroundingValues(const std::string& DataHeader, const BasicType& TargetValue, bool bSorted = true, Func&& Pred = Func()) {
         std::size_t DataIndex = GetHeaderIndex(DataHeader);
 
         std::function<bool(const BasicType&, const BasicType&)> Comparator = Pred;
