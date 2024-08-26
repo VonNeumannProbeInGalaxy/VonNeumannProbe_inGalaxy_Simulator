@@ -16,18 +16,23 @@ public:
     OctreeNode(const glm::vec3& Center, float Radius, OctreeNode* Prev);
 
     bool Contains(const glm::vec3& Point) const;
-    int GetOctant(const glm::vec3& Point) const;
-    bool IntersectsSphere(const glm::vec3& Point, float Radius) const;
+    int CalcOctant(const glm::vec3& Point) const;
+    bool IntersectSphere(const glm::vec3& Point, float Radius) const;
 
+    const bool GetValidation() const;
     const glm::vec3& GetCenter() const;
     float GetRadius() const;
     std::unique_ptr<OctreeNode>& GetNextMutable(int Index);
     const std::unique_ptr<OctreeNode>& GetNext(int Index) const;
 
     void AddPoint(const glm::vec3& Point);
+    std::vector<glm::vec3>& GetPointsMutable();
     const std::vector<glm::vec3>& GetPoints() const;
+    void SetValidation(bool bValidation);
+    bool IsLeafNode() const;
 
 private:
+    bool      _bIsValid;
     glm::vec3 _Center;
     float     _Radius;
     OctreeNode* _Prev;
@@ -39,16 +44,21 @@ class NPGS_API Octree {
 public:
     Octree(const glm::vec3& Center, float Radius, int MaxDepth = 8);
 
+    void BuildEmptyTree(float LeafRadius);
     void Insert(const glm::vec3& Point);
+    void Delete(const glm::vec3& Point);
     void Query(const glm::vec3& Point, float Radius, std::vector<glm::vec3>& Results) const;
 
     template <typename Func>
     void Traverse(Func&& Pred) const;
 
+    std::size_t GetCapacity() const;
     std::size_t GetSize() const;
 
 private:
+    void BuildEmptyTreeImpl(OctreeNode* Node, float LeafRadius, int Depth);
     void InsertImpl(OctreeNode* Node, const glm::vec3& Point, int Depth);
+    void DeleteImpl(OctreeNode* Node, const glm::vec3& Point);
     void QueryImpl(OctreeNode* Node, const glm::vec3& Point, float Radius, std::vector<glm::vec3>& Results) const;
 
     template <typename Func>
@@ -64,6 +74,7 @@ private:
         }
     }
 
+    std::size_t GetCapacityImpl(const OctreeNode* Node) const;
     std::size_t GetSizeImpl(const OctreeNode* Node) const;
 
 private:

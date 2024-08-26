@@ -11,6 +11,7 @@
 #include "Engine/Base/Octree.h"
 #include "Engine/Core/Modules/Stellar/StellarGenerator.h"
 #include "Engine/Core/Base.h"
+#include "Engine/Core/Random.hpp"
 
 _NPGS_BEGIN
 
@@ -23,7 +24,8 @@ public:
     void AddStar(const std::string& Name, AstroObject::CelestialBody::BaryCenter& StarSys, const AstroObject::Star& Star);
 
 // private:
-    void GenerateSlots(float PointRadius, int SampleLimit, int NumSample, float Density);
+    void GenerateSlots(int SampleLimit, std::size_t NumSamples, float Density);
+    void GenerateSlots(float DistMin, std::size_t NumSamples, float Density);
 
 private:
     std::vector<AstroObject::CelestialBody::BaryCenter> _StarSystems;
@@ -32,7 +34,7 @@ private:
     UniformRealDistribution<float> _Dist;
 
 public: // for debug
-    std::unique_ptr<Octree> _StarOctree;
+    std::unique_ptr<Octree> _StellarOctree;
 };
 
 _NPGS_END

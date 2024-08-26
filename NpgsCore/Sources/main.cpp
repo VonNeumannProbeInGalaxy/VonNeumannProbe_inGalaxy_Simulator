@@ -122,11 +122,19 @@ int main() {
     //}
 
     Npgs::Universe u(10);
-    u.GenerateSlots(0.1, 30, 1000, 0.004);
+    u.GenerateSlots(0.1f, 1000, 0.004);
+    std::vector<glm::vec3> r;
 
-    u._StarOctree->Traverse([&Output](const Npgs::OctreeNode& Node) {
-        for (auto& Point : Node.GetPoints()) {
-            Output << Point.x << "," << Point.y << "," << Point.z << std::endl;
+    u._StellarOctree->Traverse([&](const Npgs::OctreeNode& Node) {
+        if (Node.IsLeafNode()) {
+            for (auto& Point : Node.GetPoints()) {
+                u._StellarOctree->Query(Point, 0.1f, r);
+                if (!r.empty())
+                    std::println("Invalid point: ({}, {}, {})", Point.x, Point.y, Point.z);
+                Output << Point.x << "," << Point.y << "," << Point.z << std::endl;
+            }
+
+            r.clear();
         }
     });
 
