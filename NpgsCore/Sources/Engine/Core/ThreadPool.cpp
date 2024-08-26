@@ -2,6 +2,10 @@
 
 _NPGS_BEGIN
 
+ThreadPool* ThreadPool::GetInstance() {
+    return _kInstance;
+}
+
 ThreadPool* ThreadPool::GetInstance(int ThreadCount) {
     std::call_once(_kOnce, Init, ThreadCount);
     return _kInstance;

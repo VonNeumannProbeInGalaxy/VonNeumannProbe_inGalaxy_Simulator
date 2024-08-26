@@ -15,6 +15,7 @@ _NPGS_BEGIN
 
 class NPGS_API ThreadPool {
 public:
+    static ThreadPool* GetInstance();
     static ThreadPool* GetInstance(int ThreadCount);
     static void Init(int ThreadCount);
     static void Destroy();

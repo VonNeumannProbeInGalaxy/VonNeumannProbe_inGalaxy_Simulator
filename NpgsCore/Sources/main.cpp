@@ -122,21 +122,25 @@ int main() {
     //}
 
     Npgs::Universe u(10);
-    u.GenerateSlots(0.1f, 1000, 0.004);
+    auto Start = std::chrono::high_resolution_clock::now();
+    u.GenerateSlots(0.1f, 5000000, 0.004f);
+    auto End = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> Duration = End - Start;
+    std::println("Build star slots cost {} seconds.", Duration.count());
     std::vector<glm::vec3> r;
 
-    u._StellarOctree->Traverse([&](const Npgs::OctreeNode& Node) {
-        if (Node.IsLeafNode()) {
-            for (auto& Point : Node.GetPoints()) {
-                u._StellarOctree->Query(Point, 0.1f, r);
-                if (!r.empty())
-                    std::println("Invalid point: ({}, {}, {})", Point.x, Point.y, Point.z);
-                Output << Point.x << "," << Point.y << "," << Point.z << std::endl;
-            }
+    //u._StellarOctree->Traverse([&](const Npgs::OctreeNode& Node) {
+    //    if (Node.IsLeafNode()) {
+    //        for (auto& Point : Node.GetPoints()) {
+    //            u._StellarOctree->Query(Point, 0.1f, r);
+    //            if (!r.empty())
+    //                std::println("Invalid point: ({}, {}, {})", Point.x, Point.y, Point.z);
+    //            Output << Point.x << "," << Point.y << "," << Point.z << std::endl;
+    //        }
 
-            r.clear();
-        }
-    });
+    //        r.clear();
+    //    }
+    //});
 
     //// 创建一个八叉树
     //Npgs::Octree octree(glm::vec3(0.0f), 150.0f);

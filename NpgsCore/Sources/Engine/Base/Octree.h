@@ -2,6 +2,7 @@
 
 #include <array>
 #include <functional>
+#include <future>
 #include <memory>
 #include <vector>
 
@@ -26,6 +27,8 @@ public:
     const std::unique_ptr<OctreeNode>& GetNext(int Index) const;
 
     void AddPoint(const glm::vec3& Point);
+    void DeletePoint(const glm::vec3& Point);
+    void RemoveStorage();
     std::vector<glm::vec3>& GetPointsMutable();
     const std::vector<glm::vec3>& GetPoints() const;
     void SetValidation(bool bValidation);
@@ -49,6 +52,9 @@ public:
     void Delete(const glm::vec3& Point);
     void Query(const glm::vec3& Point, float Radius, std::vector<glm::vec3>& Results) const;
 
+    template <typename Func = std::function<bool(const OctreeNode&)>>
+    bool Find(const glm::vec3& Point, Func&& Pred = [](const OctreeNode&) -> bool { return true; }) const;
+
     template <typename Func>
     void Traverse(Func&& Pred) const;
 
@@ -62,7 +68,28 @@ private:
     void QueryImpl(OctreeNode* Node, const glm::vec3& Point, float Radius, std::vector<glm::vec3>& Results) const;
 
     template <typename Func>
-    void TraverseImpl(OctreeNode* Node, Func&& Pred) const {
+    bool FindImpl(OctreeNode* Node, const glm::vec3& Point, Func&& Pred) const {
+        if (Node == nullptr) {
+            return false;
+        }
+
+        if (Node->Contains(Point)) {
+            if (Pred(*Node)) {
+                return true;
+            }
+        }
+
+        for (int i = 0; i != 8; ++i) {
+            if (FindImpl(Node->GetNext(i).get(), Point, Pred)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    template <typename Func>
+    void TraverseImpl(OctreeNode* Node, Func&& Pred, int Depth) const {
         if (Node == nullptr) {
             return;
         }
@@ -70,7 +97,7 @@ private:
         Pred(*Node);
 
         for (int i = 0; i != 8; ++i) {
-            TraverseImpl(Node->GetNext(i).get(), Pred);
+            TraverseImpl(Node->GetNext(i).get(), Pred, Depth + 1);
         }
     }
 

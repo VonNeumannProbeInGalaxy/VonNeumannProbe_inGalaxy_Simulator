@@ -93,7 +93,7 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
     _StellarOctree = std::make_unique<Octree>(glm::vec3(0.0), RootRadius);
     _StellarOctree->BuildEmptyTree(LeafRadius);
 
-    std::println("{}", _StellarOctree->GetCapacity());
+    // std::println("{}", _StellarOctree->GetCapacity());
 
     _StellarOctree->Traverse([Radius](OctreeNode& Node) -> void {
         if (Node.IsLeafNode() && glm::length(Node.GetCenter()) > Radius) {
@@ -101,7 +101,7 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
         }
     });
 
-    std::println("{}", _StellarOctree->GetCapacity());
+    // std::println("{}", _StellarOctree->GetCapacity());
 
     std::size_t ValidLeafCount = _StellarOctree->GetCapacity();
     std::vector<OctreeNode*> LeafNodes;
@@ -142,7 +142,7 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
         }
     }
 
-    std::println("{}", _StellarOctree->GetCapacity());
+    // std::println("{}", _StellarOctree->GetCapacity());
 
     UniformRealDistribution<float> Dist(-LeafRadius, LeafRadius - DistMin);
 
@@ -156,6 +156,16 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
             );
             Node.AddPoint(StellarSlot);
         }
+    });
+
+    _StellarOctree->Find(glm::vec3(LeafRadius), [](OctreeNode& Node) -> bool {
+        if (!Node.IsLeafNode()) {
+            return false;
+        }
+
+        Node.RemoveStorage();
+        Node.AddPoint(glm::vec3(0.0f));
+        return true;
     });
 }
 

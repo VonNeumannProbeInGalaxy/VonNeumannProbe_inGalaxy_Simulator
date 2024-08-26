@@ -57,6 +57,17 @@ inline void OctreeNode::AddPoint(const glm::vec3& Point) {
     _Points.emplace_back(Point);
 }
 
+inline void OctreeNode::DeletePoint(const glm::vec3& Point) {
+    auto it = std::find(_Points.begin(), _Points.end(), Point);
+    if (it != _Points.end()) {
+        _Points.erase(it);
+    }
+}
+
+inline void OctreeNode::RemoveStorage() {
+    _Points.clear();
+}
+
 inline std::vector<glm::vec3>& OctreeNode::GetPointsMutable() {
     return _Points;
 }
@@ -96,9 +107,14 @@ inline void Octree::Query(const glm::vec3& Point, float Radius, std::vector<glm:
     QueryImpl(_Root.get(), Point, Radius, Results);
 }
 
+template<typename Func>
+inline bool Octree::Find(const glm::vec3& Point, Func&& Pred) const {
+    return FindImpl(_Root.get(), Point, std::forward<Func>(Pred));
+}
+
 template <typename Func>
 inline void Octree::Traverse(Func&& Pred) const {
-    TraverseImpl(_Root.get(), std::forward<Func>(Pred));
+    TraverseImpl(_Root.get(), std::forward<Func>(Pred), 0);
 }
 
 inline std::size_t Octree::GetCapacity() const {
