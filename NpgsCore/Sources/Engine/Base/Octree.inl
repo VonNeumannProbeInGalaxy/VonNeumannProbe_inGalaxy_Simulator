@@ -125,4 +125,8 @@ inline std::size_t Octree::GetSize() const {
     return GetSizeImpl(_Root.get());
 }
 
+inline const OctreeNode* const Octree::GetRoot() const {
+    return _Root.get();
+}
+
 _NPGS_END

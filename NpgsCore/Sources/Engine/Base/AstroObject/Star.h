@@ -44,7 +44,6 @@ public:
 
     struct ExtendedProperties {
         double Luminosity;              // 辐射光度，单位 W
-        double AbsoluteMagnitude;       // 绝对热星等
         double FeH;                     // 金属丰度
         double SurfaceFeH;              // 表面金属丰度
         double SurfaceEnergeticNuclide; // 表面含能核素质量分数
@@ -57,6 +56,8 @@ public:
         double EvolutionProgress;       // 演化进度
         double Lifetime;                // 寿命，单位 yr
         double MinCoilMass;             // 最小举星器赤道偏转线圈质量，单位 kg
+
+        glm::vec2 Normal;               // 法向量，球坐标表示，(theta, phi)
 
         Phase  EvolutionPhase;
         Ending EvolutionEnding;
@@ -76,7 +77,6 @@ public:
     // Setters for ExtendedProperties
     // ------------------------------
     Star& SetLuminosity(double Luminosity);
-    Star& SetAbsoluteMagnitude(double AbsoluteMagnitude);
     Star& SetFeH(double FeH);
     Star& SetSurfaceFeH(double SurfaceFeH);
     Star& SetSurfaceEnergeticNuclide(double SurfaceEnergeticNuclide);
@@ -89,6 +89,7 @@ public:
     Star& SetEvolutionProgress(double EvolutionProgress);
     Star& SetLifetime(double Lifetime);
     Star& SetMinCoilMass(double MinCoilMass);
+    Star& SetNormal(const glm::vec2 Normal);
     Star& SetEvolutionPhase(Phase EvolutionPhase);
     Star& SetEvolutionEnding(Ending EvolutionEnding);
     Star& SetStellarClass(const Modules::StellarClass& StellarClass);
@@ -97,7 +98,6 @@ public:
     // Getters for ExtendedProperties
     // ------------------------------
     double GetLuminosity() const;
-    double GetAbsoluteMagnitude() const;
     double GetFeH() const;
     double GetSurfaceFeH() const;
     double GetSurfaceEnergeticNuclide() const;
@@ -110,6 +110,7 @@ public:
     double GetEvolutionProgress() const;
     double GetLifetime() const;
     double GetMinCoilMass() const;
+    const glm::vec2& GetNormal() const;
     Phase  GetEvolutionPhase() const;
     Ending GetEvolutionEnding() const;
     const Modules::StellarClass& GetStellarClass() const;

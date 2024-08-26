@@ -11,6 +11,7 @@
 #include "Engine/Base/Octree.h"
 #include "Engine/Core/Modules/Stellar/StellarGenerator.h"
 #include "Engine/Core/Base.h"
+#include "Engine/Core/ThreadPool.h"
 #include "Engine/Core/Random.hpp"
 
 _NPGS_BEGIN
@@ -19,22 +20,23 @@ class NPGS_API Universe {
 public:
     Universe(int Seed);
     Universe(std::random_device& RandomDevice);
-    ~Universe() = default;
+    ~Universe();
 
-    void AddStar(const std::string& Name, AstroObject::CelestialBody::BaryCenter& StarSys, const AstroObject::Star& Star);
-
-// private:
-    void GenerateSlots(int SampleLimit, std::size_t NumSamples, float Density);
-    void GenerateSlots(float DistMin, std::size_t NumSamples, float Density);
+    void FillStar(int NumStars);
 
 private:
-    std::vector<AstroObject::CelestialBody::BaryCenter> _StarSystems;
+    void GenerateSlots(int SampleLimit, std::size_t NumSamples, float Density);
+    void GenerateSlots(float DistMin, std::size_t NumSamples, float Density);
+    
+    template <typename Ty>
+    void CopyToVector(std::vector<Ty>& Stars) const;
 
-    std::mt19937 _RandomEngine;
+private:
+    int                            _Seed;
+    std::mt19937                   _RandomEngine;
+    std::unique_ptr<Octree>        _StellarOctree;
+    ThreadPool*                    _ThreadPool;
     UniformRealDistribution<float> _Dist;
-
-public: // for debug
-    std::unique_ptr<Octree> _StellarOctree;
 };
 
 _NPGS_END

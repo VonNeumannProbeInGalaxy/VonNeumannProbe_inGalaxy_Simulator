@@ -172,6 +172,9 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
     double SurfaceEnergeticNuclide = (SurfaceH1 * 0.00002 + SurfaceHe3);
     double SurfaceVolatiles        = 1.0 - SurfaceFeH - SurfaceEnergeticNuclide;
 
+    float Theta = _CommonGenerator.Generate(_RandomEngine) * 2.0f * kPi;
+    float Phi   = _CommonGenerator.Generate(_RandomEngine) * kPi;
+
     AstroObject::Star::Phase EvolutionPhase = static_cast<AstroObject::Star::Phase>(StarData[_kPhaseIndex]);
 
     Star.SetAge(Age);
@@ -179,7 +182,6 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
     Star.SetRadius(RadiusSol * kSolarRadius);
     Star.SetEscapeVelocity(EscapeVelocity);
     Star.SetLuminosity(LuminositySol * kSolarLuminosity);
-    Star.SetAbsoluteMagnitude(AbsoluteMagnitude);
     Star.SetTeff(Teff);
     Star.SetSurfaceFeH(SurfaceFeH);
     Star.SetSurfaceEnergeticNuclide(SurfaceEnergeticNuclide);
@@ -191,6 +193,7 @@ AstroObject::Star StellarGenerator::GenerateStar(const BasicProperties& Properti
     Star.SetEvolutionProgress(EvolutionProgress);
     Star.SetEvolutionPhase(EvolutionPhase);
     Star.SetLifetime(Lifetime);
+    Star.SetNormal(glm::vec2(Theta, Phi));
 
     CalcSpectralType(Star, SurfaceH1);
     GenerateMagnetic(Star);
@@ -906,15 +909,16 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar) {
     double EvolutionProgress = 11.0;
 
     double LuminositySol     = std::pow(RadiusSol, 2.0) * std::pow((Teff / kSolarTeff), 4.0);
-    double AbsoluteMagnitude = kSolarAbsoluteMagnitude - 2.5 * std::log10(LuminositySol);
     double EscapeVelocity    = std::sqrt((2 * kGravityConstant * MassSol * kSolarMass) / (RadiusSol * kSolarRadius));
+
+    float Theta = _CommonGenerator.Generate(_RandomEngine) * 2.0f * kPi;
+    float Phi   = _CommonGenerator.Generate(_RandomEngine) * kPi;
 
     DeathStar.SetAge(Age);
     DeathStar.SetMass(MassSol * kSolarMass);
     DeathStar.SetRadius(RadiusSol * kSolarRadius);
     DeathStar.SetEscapeVelocity(EscapeVelocity);
     DeathStar.SetLuminosity(LuminositySol * kSolarLuminosity);
-    DeathStar.SetAbsoluteMagnitude(AbsoluteMagnitude);
     DeathStar.SetTeff(Teff);
     DeathStar.SetSurfaceFeH(SurfaceFeH);
     DeathStar.SetSurfaceEnergeticNuclide(SurfaceEnergeticNuclide);
@@ -924,6 +928,7 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar) {
     DeathStar.SetEvolutionProgress(EvolutionProgress);
     DeathStar.SetEvolutionPhase(EvolutionPhase);
     DeathStar.SetLifetime(std::numeric_limits<double>::max());
+    DeathStar.SetNormal(glm::vec2(Theta, Phi));
     DeathStar.SetEvolutionEnding(EvolutionEnding);
     DeathStar.SetStellarClass(StellarClass(DeathStarType, DeathStarClass));
 

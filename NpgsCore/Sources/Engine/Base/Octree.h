@@ -60,6 +60,7 @@ public:
 
     std::size_t GetCapacity() const;
     std::size_t GetSize() const;
+    const OctreeNode* const GetRoot() const;
 
 private:
     void BuildEmptyTreeImpl(OctreeNode* Node, float LeafRadius, int Depth);

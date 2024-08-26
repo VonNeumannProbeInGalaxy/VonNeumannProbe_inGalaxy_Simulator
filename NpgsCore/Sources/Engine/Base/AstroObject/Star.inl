@@ -19,11 +19,6 @@ inline Star& Star::SetLuminosity(double Luminosity) {
     return *this;
 }
 
-inline Star& Star::SetAbsoluteMagnitude(double AbsoluteMagnitude) {
-    _StarExtraProperties.AbsoluteMagnitude = AbsoluteMagnitude;
-    return *this;
-}
-
 inline Star& Star::SetFeH(double FeH) {
     _StarExtraProperties.FeH = FeH;
     return *this;
@@ -84,6 +79,11 @@ inline Star& Star::SetMinCoilMass(double MinCoilMass) {
     return *this;
 }
 
+inline Star& Star::SetNormal(const glm::vec2 Normal) {
+    _StarExtraProperties.Normal = Normal;
+    return *this;
+}
+
 inline Star& Star::SetEvolutionPhase(Phase EvolutionPhase) {
     _StarExtraProperties.EvolutionPhase = EvolutionPhase;
     return *this;
@@ -101,10 +101,6 @@ inline Star& Star::SetStellarClass(const Modules::StellarClass& StellarClass) {
 
 inline double Star::GetLuminosity() const {
     return _StarExtraProperties.Luminosity;
-}
-
-inline double Star::GetAbsoluteMagnitude() const {
-    return _StarExtraProperties.AbsoluteMagnitude;
 }
 
 inline double Star::GetFeH() const {
@@ -153,6 +149,10 @@ inline double Star::GetLifetime() const {
 
 inline double Star::GetMinCoilMass() const {
     return _StarExtraProperties.MinCoilMass;
+}
+
+inline const glm::vec2& Star::GetNormal() const {
+    return _StarExtraProperties.Normal;
 }
 
 inline Star::Phase Star::GetEvolutionPhase() const {
