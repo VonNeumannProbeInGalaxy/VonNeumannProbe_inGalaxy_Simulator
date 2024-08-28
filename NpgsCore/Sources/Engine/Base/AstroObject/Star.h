@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -27,8 +28,10 @@ public:
         kCarbonOxygenWhiteDwarf   =  12,
         kOxygenNeonMagnWhiteDwarf =  13,
         kNeutronStar              =  14,
-        kBlackHole                =  15,
-        kNull                     =  16
+        kStellarBlackHole         =  15,
+        kMiddleBlackHole          =  114514,
+        kSuperMassiveBlackHole    =  1919810,
+        kNull                     =  std::numeric_limits<int>::max()
     };
 
     enum class Death {

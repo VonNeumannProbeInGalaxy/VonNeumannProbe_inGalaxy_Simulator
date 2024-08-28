@@ -37,14 +37,14 @@ static void PrintInfo(std::ofstream& Filename, const Npgs::AstroObject::Star& St
 int main() {
     Npgs::Logger::Init();
 
-    Npgs::Universe u(42, 2000000);
+    Npgs::Universe u(42, 100, 100);
     auto& s = u.FillUniverse();
 
-    //std::ofstream Output("Output.csv", std::ios::out);
-    //Output << FormatTitle() << std::endl;
-    //for (auto& Star : s) {
-    //    PrintInfo(Output, Star);
-    //}
+    std::ofstream Output("Output.csv", std::ios::out);
+    Output << FormatTitle() << std::endl;
+    for (auto& Star : s) {
+        PrintInfo(Output, Star);
+    }
 
     return 0;
 }

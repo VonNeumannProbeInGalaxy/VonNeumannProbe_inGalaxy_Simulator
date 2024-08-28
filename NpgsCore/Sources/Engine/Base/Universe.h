@@ -17,7 +17,7 @@ _NPGS_BEGIN
 
 class NPGS_API Universe {
 public:
-    Universe(int Seed, std::size_t NumStars, std::size_t NumExtraLbvs = 0, std::size_t NumExtraNeutronStars = 0, std::size_t NumExtraBlackHoles = 0, std::size_t NumExtraMergeStars = 0);
+    Universe(int Seed, std::size_t NumStars, std::size_t NumExtraSupergiants = 0, std::size_t NumExtraLbvs = 0, std::size_t NumExtraNeutronStars = 0, std::size_t NumExtraBlackHoles = 0, std::size_t NumExtraMergeStars = 0);
     ~Universe();
 
     const std::vector<AstroObject::Star>& FillUniverse();
@@ -38,6 +38,7 @@ private:
     UniformRealDistribution<float>             _Dist;
 
     std::size_t _NumStars;
+    std::size_t _NumExtraSupergiants;
     std::size_t _NumExtraLbvs;
     std::size_t _NumExtraNeutronStars;
     std::size_t _NumExtraBlackHoles;

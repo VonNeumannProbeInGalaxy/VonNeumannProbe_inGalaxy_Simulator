@@ -28,11 +28,20 @@ public:
         kUniformByExponent
     };
 
+    enum class GenOption {
+        kNormal,
+        kSupergiant,
+        kDeathStar,
+        kMergeStar
+    };
+
     struct BasicProperties {
         BaryCenter StarSys;
         double     Age;
         double     FeH;
         double     Mass;
+
+        GenOption Option;
 
         explicit operator AstroObject::Star() const {
             AstroObject::Star Star;
@@ -47,16 +56,17 @@ public:
 
 public:
     StellarGenerator() = default;
-    StellarGenerator(int Seed, double MassLowerLimit =  0.1,     double MassUpperLimit = 300.0,   GenDistribution MassDistribution = GenDistribution::kFromPdf,
-                               double AgeLowerLimit  =  0.0,     double AgeUpperLimit  = 1.26e10, GenDistribution AgeDistribution  = GenDistribution::kFromPdf,
-                               double FeHLowerLimit  = -4.0,     double FeHUpperLimit  = 0.5,     GenDistribution FeHDistribution  = GenDistribution::kFromPdf,
-                               double CoilTempLimit  = 1514.114, double dEpdM = 2e6);
+    StellarGenerator(int Seed, GenOption Option = GenOption::kNormal,
+        double MassLowerLimit =  0.1,     double MassUpperLimit = 300.0,   GenDistribution MassDistribution = GenDistribution::kFromPdf,
+        double AgeLowerLimit  =  0.0,     double AgeUpperLimit  = 1.26e10, GenDistribution AgeDistribution  = GenDistribution::kFromPdf,
+        double FeHLowerLimit  = -4.0,     double FeHUpperLimit  = 0.5,     GenDistribution FeHDistribution  = GenDistribution::kFromPdf,
+        double CoilTempLimit  = 1514.114, double dEpdM = 2e6);
     ~StellarGenerator() = default;
 
 public:
     BasicProperties GenBasicProperties();
     AstroObject::Star GenerateStar();
-    AstroObject::Star GenerateStar(const BasicProperties& Properties);
+    AstroObject::Star GenerateStar(BasicProperties& Properties);
 
 private:
     template <typename CsvType>
@@ -115,6 +125,7 @@ private:
     GenDistribution _MassDistribution;
     GenDistribution _AgeDistribution;
     GenDistribution _FeHDistribution;
+    GenOption       _Option;
 
     static const std::vector<std::string> _kMistHeaders;
     static const std::vector<std::string> _kWdMistHeaders;

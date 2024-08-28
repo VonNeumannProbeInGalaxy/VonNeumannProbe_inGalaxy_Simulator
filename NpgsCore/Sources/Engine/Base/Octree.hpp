@@ -97,6 +97,10 @@ public:
         return nullptr;
     }
 
+    void RemoveLinks() {
+        _DataLink.clear();
+    }
+
     std::vector<glm::vec3>& GetPointsMutable() {
         return _Points;
     }

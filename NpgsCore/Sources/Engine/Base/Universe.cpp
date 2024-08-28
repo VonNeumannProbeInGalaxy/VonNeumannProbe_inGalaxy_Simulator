@@ -27,9 +27,9 @@ struct TupleHash {
     }
 };
 
-Universe::Universe(int Seed, std::size_t NumStars, std::size_t NumExtraLbvs, std::size_t NumExtraNeutronStars, std::size_t NumExtraBlackHoles, std::size_t NumExtraMergeStars) :
+Universe::Universe(int Seed, std::size_t NumStars, std::size_t NumExtraSupergiants, std::size_t NumExtraLbvs, std::size_t NumExtraNeutronStars, std::size_t NumExtraBlackHoles, std::size_t NumExtraMergeStars) :
     _Seed(Seed), _RandomEngine(Seed), _ThreadPool(ThreadPool::GetInstance(std::thread::hardware_concurrency())), _Dist(0.0f, 1.0f),
-    _NumStars(NumStars), _NumExtraLbvs(NumExtraLbvs), _NumExtraNeutronStars(NumExtraNeutronStars), _NumExtraBlackHoles(NumExtraBlackHoles), _NumExtraMergeStars(NumExtraMergeStars)
+    _NumStars(NumStars), _NumExtraSupergiants(NumExtraSupergiants), _NumExtraLbvs(NumExtraLbvs), _NumExtraNeutronStars(NumExtraNeutronStars), _NumExtraBlackHoles(NumExtraBlackHoles), _NumExtraMergeStars(NumExtraMergeStars)
 {}
 
 Universe::~Universe() {
@@ -44,12 +44,13 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
     std::vector<Npgs::Modules::StellarGenerator> Generators;
 
     auto CreateGenerators =
-        [&, this](double MassLowerLimit =  0.1, double MassUpperLimit = 300.0,   Modules::StellarGenerator::GenDistribution MassDistribution = Modules::StellarGenerator::GenDistribution::kFromPdf,
-                  double AgeLowerLimit  =  0.0, double AgeUpperLimit  = 1.26e10, Modules::StellarGenerator::GenDistribution AgeDistribution  = Modules::StellarGenerator::GenDistribution::kFromPdf,
-                  double FeHLowerLimit  = -4.0, double FeHUpperLimit  = 0.5,     Modules::StellarGenerator::GenDistribution FeHDistribution  = Modules::StellarGenerator::GenDistribution::kFromPdf) -> void {
+        [&, this](Modules::StellarGenerator::GenOption Option = Modules::StellarGenerator::GenOption::kNormal,
+            double MassLowerLimit =  0.1, double MassUpperLimit = 300.0,   Modules::StellarGenerator::GenDistribution MassDistribution = Modules::StellarGenerator::GenDistribution::kFromPdf,
+            double AgeLowerLimit  =  0.0, double AgeUpperLimit  = 1.26e10, Modules::StellarGenerator::GenDistribution AgeDistribution  = Modules::StellarGenerator::GenDistribution::kFromPdf,
+            double FeHLowerLimit  = -4.0, double FeHUpperLimit  = 0.5,     Modules::StellarGenerator::GenDistribution FeHDistribution  = Modules::StellarGenerator::GenDistribution::kFromPdf) -> void {
         for (int i = 0; i != MaxThread; ++i) {
             float Seed = static_cast<float>(i * _Seed);
-            Generators.emplace_back(Seed, MassLowerLimit, MassUpperLimit, MassDistribution, AgeLowerLimit, AgeUpperLimit, AgeDistribution, FeHLowerLimit, FeHUpperLimit, FeHDistribution);
+            Generators.emplace_back(Seed, Option, MassLowerLimit, MassUpperLimit, MassDistribution, AgeLowerLimit, AgeUpperLimit, AgeDistribution, FeHLowerLimit, FeHUpperLimit, FeHDistribution);
         }
     };
 
@@ -62,34 +63,40 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
         }
     };
 
+    if (_NumExtraSupergiants != 0) {
+        Generators.clear();
+        CreateGenerators(Modules::StellarGenerator::GenOption::kSupergiant, 1.0, 300.0, Modules::StellarGenerator::GenDistribution::kFromPdf, 1e5, 1e7, Modules::StellarGenerator::GenDistribution::kUniform);
+        GeneratoBasicProperties(_NumExtraSupergiants);
+    }
+
     if (_NumExtraLbvs != 0) {
         Generators.clear();
-        CreateGenerators(8.0, 300.0, Modules::StellarGenerator::GenDistribution::kUniform, 0.0, 1e7, Modules::StellarGenerator::GenDistribution::kUniform);
+        CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 8.0, 300.0, Modules::StellarGenerator::GenDistribution::kUniform, 0.0, 3.5e6, Modules::StellarGenerator::GenDistribution::kUniform);
         GeneratoBasicProperties(_NumExtraLbvs);
     }
 
     if (_NumExtraNeutronStars != 0) {
         Generators.clear();
-        CreateGenerators(10.0, 20.0, Modules::StellarGenerator::GenDistribution::kUniform, 1e7, 1e8, Modules::StellarGenerator::GenDistribution::kUniformByExponent);
+        CreateGenerators(Modules::StellarGenerator::GenOption::kDeathStar, 10.0, 20.0, Modules::StellarGenerator::GenDistribution::kUniform, 1e7, 1e8, Modules::StellarGenerator::GenDistribution::kUniformByExponent);
         GeneratoBasicProperties(_NumExtraNeutronStars);
     }
 
     if (_NumExtraBlackHoles != 0) {
         Generators.clear();
-        CreateGenerators(35.0, 300.0, Modules::StellarGenerator::GenDistribution::kUniform, 0.0, 1.26e10, Modules::StellarGenerator::GenDistribution::kFromPdf, -2.0, 0.5);
+        CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 35.0, 300.0, Modules::StellarGenerator::GenDistribution::kUniform, 1e7, 1.26e10, Modules::StellarGenerator::GenDistribution::kFromPdf, -2.0, 0.5);
         GeneratoBasicProperties(_NumExtraBlackHoles);
     }
 
     if (_NumExtraMergeStars != 0) {
         Generators.clear();
-        CreateGenerators(0.0, 0.0, Modules::StellarGenerator::GenDistribution::kUniform, 1e6, 1e8, Modules::StellarGenerator::GenDistribution::kUniformByExponent);
+        CreateGenerators(Modules::StellarGenerator::GenOption::kMergeStar, 0.0, 0.0, Modules::StellarGenerator::GenDistribution::kUniform, 1e6, 1e8, Modules::StellarGenerator::GenDistribution::kUniformByExponent);
         GeneratoBasicProperties(_NumExtraMergeStars);
     }
 
     std::size_t NumCommonStars = _NumStars - _NumExtraLbvs - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
 
     Generators.clear();
-    CreateGenerators(0.075);
+    CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 0.075);
     GeneratoBasicProperties(NumCommonStars);
 
     for (auto& Future : Futures) {
@@ -149,7 +156,7 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
     }
 
     NpgsCoreInfo("Reset home star...");
-    NodeType* Node = _StellarOctree->Find(glm::vec3(0.0f), [](const NodeType& Node) -> bool {
+    NodeType* HomeNode = _StellarOctree->Find(glm::vec3(0.0f), [](const NodeType& Node) -> bool {
         if (Node.IsLeafNode()) {
             auto& Points = Node.GetPoints();
             return std::find(Points.begin(), Points.end(), glm::vec3(0.0f)) != Points.end();
@@ -158,14 +165,15 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
         }
     });
 
-    auto* HomeStar = Node->GetLink([](AstroObject::Star* Star) -> bool {
+    auto* HomeStar = HomeNode->GetLink([](AstroObject::Star* Star) -> bool {
         return Star->GetParentBody().Position == glm::vec3(0.0f);
     });
-
+    HomeNode->RemoveStorage();
+    HomeNode->AddPoint(glm::vec3(0.0f));
     HomeStar->SetNormal(glm::vec2(0.0f));
 
     glm::vec3 FrontStarPos = _Stars.front().GetParentBody().Position;
-    Node = _StellarOctree->Find(FrontStarPos, [&FrontStarPos](const NodeType& Node) -> bool {
+    auto FrontNode = _StellarOctree->Find(FrontStarPos, [&FrontStarPos](const NodeType& Node) -> bool {
         if (Node.IsLeafNode()) {
             auto& Points = Node.GetPoints();
             return std::find(Points.begin(), Points.end(), FrontStarPos) != Points.end();
@@ -174,11 +182,16 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
         }
     });
 
-    auto* FrontStar = Node->GetLink([FrontStarPos](AstroObject::Star* Star) -> bool {
+    auto* FrontStar = FrontNode->GetLink([FrontStarPos](AstroObject::Star* Star) -> bool {
         return Star->GetParentBody().Position == FrontStarPos;
     });
 
     std::swap(*HomeStar, *FrontStar);
+
+    HomeNode->RemoveLinks();
+    HomeNode->AddLink(FrontStar);
+    FrontNode->RemoveLinks();
+    FrontNode->AddLink(HomeStar);
 
     NpgsCoreInfo("Star generation completed.");
     _ThreadPool->Terminate();
