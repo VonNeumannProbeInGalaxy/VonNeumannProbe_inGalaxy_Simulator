@@ -146,7 +146,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\Engine\Base\Octree.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\Planet.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\Star.cpp" />
@@ -163,7 +162,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Engine\Base\Octree.h" />
+    <ClInclude Include="Sources\Engine\Base\Octree.hpp" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\Planet.h" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\Star.h" />
@@ -185,7 +184,6 @@
     <None Include="Sources\Engine\Base\AstroObject\CelestialObject.inl" />
     <None Include="Sources\Engine\Base\AstroObject\Planet.inl" />
     <None Include="Sources\Engine\Base\AstroObject\Star.inl" />
-    <None Include="Sources\Engine\Base\Octree.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

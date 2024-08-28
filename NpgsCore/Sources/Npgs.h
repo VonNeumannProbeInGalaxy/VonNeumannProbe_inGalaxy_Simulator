@@ -3,7 +3,7 @@
 #include "Engine/Base/AstroObject/CelestialObject.h"
 #include "Engine/Base/AstroObject/Planet.h"
 #include "Engine/Base/AstroObject/Star.h"
-#include "Engine/Base/Octree.h"
+#include "Engine/Base/Octree.hpp"
 #include "Engine/Base/Universe.h"
 
 #include "Engine/Core/AssetLoader/AssetManager.h"

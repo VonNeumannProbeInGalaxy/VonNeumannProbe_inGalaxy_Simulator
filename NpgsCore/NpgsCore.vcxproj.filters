@@ -45,9 +45,6 @@
     <ClCompile Include="Sources\stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Base\Octree.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Sources\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -101,7 +98,7 @@
     <ClInclude Include="Sources\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Base\Octree.h">
+    <ClInclude Include="Sources\Engine\Base\Octree.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -113,9 +110,6 @@
       <Filter>头文件</Filter>
     </None>
     <None Include="Sources\Engine\Base\AstroObject\Star.inl">
-      <Filter>头文件</Filter>
-    </None>
-    <None Include="Sources\Engine\Base\Octree.inl">
       <Filter>头文件</Filter>
     </None>
   </ItemGroup>

@@ -22,6 +22,12 @@ public:
     using WdMistData = Assets::Csv<double, 5>;
     using HrDiagram  = Assets::Csv<double, 6>;
 
+    enum class GenDistribution {
+        kFromPdf,
+        kUniform,
+        kUniformByExponent
+    };
+
     struct BasicProperties {
         BaryCenter StarSys;
         double     Age;
@@ -41,7 +47,10 @@ public:
 
 public:
     StellarGenerator() = default;
-    StellarGenerator(int Seed, double MassLowerLimit = 0.1, double MassUpperLimit = 300.0, double AgeLowerLimit = 0.0, double AgeUpperLimit = 1.26e10, double FeHLowerLimit = -4.0, double FeHUpperLimit = 0.5, double CoilTempLimit = 1514.114, double dEpdM = 2e6);
+    StellarGenerator(int Seed, double MassLowerLimit =  0.1,     double MassUpperLimit = 300.0,   GenDistribution MassDistribution = GenDistribution::kFromPdf,
+                               double AgeLowerLimit  =  0.0,     double AgeUpperLimit  = 1.26e10, GenDistribution AgeDistribution  = GenDistribution::kFromPdf,
+                               double FeHLowerLimit  = -4.0,     double FeHUpperLimit  = 0.5,     GenDistribution FeHDistribution  = GenDistribution::kFromPdf,
+                               double CoilTempLimit  = 1514.114, double dEpdM = 2e6);
     ~StellarGenerator() = default;
 
 public:
@@ -61,7 +70,7 @@ private:
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
     void CalcSpectralType(AstroObject::Star& StarData, double SurfaceH1);
     StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star& StarData);
-    void ProcessDeathStar(AstroObject::Star& DeathStar);
+    void ProcessDeathStar(AstroObject::Star& DeathStar, double MergeStarProbability = 0.005);
     void GenerateMagnetic(AstroObject::Star& StarData);
     void GenerateSpin(AstroObject::Star& StarData);
 
@@ -94,10 +103,18 @@ private:
     std::array<std::shared_ptr<Distribution<double>>, 4> _FeHGenerators;
     std::array<std::shared_ptr<Distribution<double>>, 8> _MagneticGenerators;
 
+    double _MassLowerLimit;
+    double _MassUpperLimit;
+    double _AgeLowerLimit;
+    double _AgeUpperLimit;
     double _FeHLowerLimit;
     double _FeHUpperLimit;
     double _CoilTempLimit;
     double _dEpdM;
+
+    GenDistribution _MassDistribution;
+    GenDistribution _AgeDistribution;
+    GenDistribution _FeHDistribution;
 
     static const std::vector<std::string> _kMistHeaders;
     static const std::vector<std::string> _kWdMistHeaders;

@@ -31,7 +31,8 @@ public:
         kNull                     =  16
     };
 
-    enum class Ending {
+    enum class Death {
+        kStillAlive,
         kWhiteDwarfMerge,
         kSlowColdingDown,
         kEnvelopeDisperse,
@@ -59,8 +60,8 @@ public:
 
         glm::vec2 Normal;               // 法向量，球坐标表示，(theta, phi)
 
-        Phase  EvolutionPhase;
-        Ending EvolutionEnding;
+        Phase EvolutionPhase;
+        Death EvolutionEnding;
 
         Modules::StellarClass StellarClass;
     };
@@ -91,7 +92,7 @@ public:
     Star& SetMinCoilMass(double MinCoilMass);
     Star& SetNormal(const glm::vec2 Normal);
     Star& SetEvolutionPhase(Phase EvolutionPhase);
-    Star& SetEvolutionEnding(Ending EvolutionEnding);
+    Star& SetEvolutionEnding(Death EvolutionEnding);
     Star& SetStellarClass(const Modules::StellarClass& StellarClass);
 
     // Getters
@@ -111,8 +112,8 @@ public:
     double GetLifetime() const;
     double GetMinCoilMass() const;
     const glm::vec2& GetNormal() const;
-    Phase  GetEvolutionPhase() const;
-    Ending GetEvolutionEnding() const;
+    Phase GetEvolutionPhase() const;
+    Death GetEvolutionEnding() const;
     const Modules::StellarClass& GetStellarClass() const;
 
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_O;

@@ -89,7 +89,7 @@ inline Star& Star::SetEvolutionPhase(Phase EvolutionPhase) {
     return *this;
 }
 
-inline Star& Star::SetEvolutionEnding(Ending EvolutionEnding) {
+inline Star& Star::SetEvolutionEnding(Death EvolutionEnding) {
     _StarExtraProperties.EvolutionEnding = EvolutionEnding;
     return *this;
 }
@@ -159,7 +159,7 @@ inline Star::Phase Star::GetEvolutionPhase() const {
     return _StarExtraProperties.EvolutionPhase;
 }
 
-inline Star::Ending Star::GetEvolutionEnding() const {
+inline Star::Death Star::GetEvolutionEnding() const {
     return _StarExtraProperties.EvolutionEnding;
 }
 

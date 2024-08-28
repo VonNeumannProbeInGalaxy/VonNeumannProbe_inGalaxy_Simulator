@@ -9,7 +9,6 @@
 #include <tuple>
 #include <type_traits>
 #include <unordered_map>
-#include <vector>
 
 #define ENABLE_LOGGER
 #include "Engine/Core/Constants.h"
@@ -28,38 +27,70 @@ struct TupleHash {
     }
 };
 
-Universe::Universe(int Seed)
-    : _Seed(Seed), _RandomEngine(Seed), _ThreadPool(ThreadPool::GetInstance(std::thread::hardware_concurrency())), _Dist(0.0f, 1.0f)
-{}
-
-Universe::Universe(std::random_device& RandomDevice)
-    : _Seed(RandomDevice()), _RandomEngine(RandomDevice()), _ThreadPool(ThreadPool::GetInstance(std::thread::hardware_concurrency())), _Dist(0.0f, 1.0f)
+Universe::Universe(int Seed, std::size_t NumStars, std::size_t NumExtraLbvs, std::size_t NumExtraNeutronStars, std::size_t NumExtraBlackHoles, std::size_t NumExtraMergeStars) :
+    _Seed(Seed), _RandomEngine(Seed), _ThreadPool(ThreadPool::GetInstance(std::thread::hardware_concurrency())), _Dist(0.0f, 1.0f),
+    _NumStars(NumStars), _NumExtraLbvs(NumExtraLbvs), _NumExtraNeutronStars(NumExtraNeutronStars), _NumExtraBlackHoles(NumExtraBlackHoles), _NumExtraMergeStars(NumExtraMergeStars)
 {}
 
 Universe::~Universe() {
     _ThreadPool->Destroy();
 }
 
-void Universe::FillStar(int NumStars) {
+const std::vector<AstroObject::Star>& Universe::FillUniverse() {
     int MaxThread = std::thread::hardware_concurrency();
-
-    std::vector<Npgs::Modules::StellarGenerator> Generators;
-    std::random_device RandomDevice;
-    for (int i = 0; i != MaxThread; ++i) {
-        float Seed = RandomDevice();
-        // float Seed = i * _Seed;
-        Generators.emplace_back(Seed, 0.075);
-        NpgsCoreInfo("Stellar generator {} seed has been set to {}.", i, Seed);
-    }
 
     NpgsCoreInfo("Generating basic properties as {} threads...", MaxThread);
     std::vector<std::future<Npgs::Modules::StellarGenerator::BasicProperties>> Futures;
-    for (int i = 0; i != NumStars; ++i) {
-        Futures.emplace_back(_ThreadPool->Commit([&, i]() -> Npgs::Modules::StellarGenerator::BasicProperties {
-            int ThreadId = i % Generators.size();
-            return Generators[ThreadId].GenBasicProperties();
-        }));
+    std::vector<Npgs::Modules::StellarGenerator> Generators;
+
+    auto CreateGenerators =
+        [&, this](double MassLowerLimit =  0.1, double MassUpperLimit = 300.0,   Modules::StellarGenerator::GenDistribution MassDistribution = Modules::StellarGenerator::GenDistribution::kFromPdf,
+                  double AgeLowerLimit  =  0.0, double AgeUpperLimit  = 1.26e10, Modules::StellarGenerator::GenDistribution AgeDistribution  = Modules::StellarGenerator::GenDistribution::kFromPdf,
+                  double FeHLowerLimit  = -4.0, double FeHUpperLimit  = 0.5,     Modules::StellarGenerator::GenDistribution FeHDistribution  = Modules::StellarGenerator::GenDistribution::kFromPdf) -> void {
+        for (int i = 0; i != MaxThread; ++i) {
+            float Seed = static_cast<float>(i * _Seed);
+            Generators.emplace_back(Seed, MassLowerLimit, MassUpperLimit, MassDistribution, AgeLowerLimit, AgeUpperLimit, AgeDistribution, FeHLowerLimit, FeHUpperLimit, FeHDistribution);
+        }
+    };
+
+    auto GeneratoBasicProperties = [&, this](std::size_t NumStars) -> void {
+        for (std::size_t i = 0; i != NumStars; ++i) {
+            Futures.emplace_back(_ThreadPool->Commit([&, i]() -> Npgs::Modules::StellarGenerator::BasicProperties {
+                int ThreadId = i % Generators.size();
+                return Generators[ThreadId].GenBasicProperties();
+            }));
+        }
+    };
+
+    if (_NumExtraLbvs != 0) {
+        Generators.clear();
+        CreateGenerators(8.0, 300.0, Modules::StellarGenerator::GenDistribution::kUniform, 0.0, 1e7, Modules::StellarGenerator::GenDistribution::kUniform);
+        GeneratoBasicProperties(_NumExtraLbvs);
     }
+
+    if (_NumExtraNeutronStars != 0) {
+        Generators.clear();
+        CreateGenerators(10.0, 20.0, Modules::StellarGenerator::GenDistribution::kUniform, 1e7, 1e8, Modules::StellarGenerator::GenDistribution::kUniformByExponent);
+        GeneratoBasicProperties(_NumExtraNeutronStars);
+    }
+
+    if (_NumExtraBlackHoles != 0) {
+        Generators.clear();
+        CreateGenerators(35.0, 300.0, Modules::StellarGenerator::GenDistribution::kUniform, 0.0, 1.26e10, Modules::StellarGenerator::GenDistribution::kFromPdf, -2.0, 0.5);
+        GeneratoBasicProperties(_NumExtraBlackHoles);
+    }
+
+    if (_NumExtraMergeStars != 0) {
+        Generators.clear();
+        CreateGenerators(0.0, 0.0, Modules::StellarGenerator::GenDistribution::kUniform, 1e6, 1e8, Modules::StellarGenerator::GenDistribution::kUniformByExponent);
+        GeneratoBasicProperties(_NumExtraMergeStars);
+    }
+
+    std::size_t NumCommonStars = _NumStars - _NumExtraLbvs - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
+
+    Generators.clear();
+    CreateGenerators(0.075);
+    GeneratoBasicProperties(NumCommonStars);
 
     for (auto& Future : Futures) {
         Future.wait();
@@ -69,7 +100,7 @@ void Universe::FillStar(int NumStars) {
     NpgsCoreInfo("Interpolating stellar data as {} threads...", MaxThread);
 
     std::vector<std::future<Npgs::AstroObject::Star>> StarFutures;
-    for (int i = 0; i != NumStars; ++i) {
+    for (std::size_t i = 0; i != _NumStars; ++i) {
         StarFutures.emplace_back(_ThreadPool->Commit([&, i]() -> Npgs::AstroObject::Star {
             int ThreadId = i % Generators.size();
             auto Properties = Futures[i].get();
@@ -81,53 +112,90 @@ void Universe::FillStar(int NumStars) {
         Future.wait();
     }
 
-    std::vector<AstroObject::Star> Stars;
     for (auto& Future : StarFutures) {
         auto Star = Future.get();
-        Stars.emplace_back(Star);
+        _Stars.emplace_back(Star);
     }
 
     NpgsCoreInfo("Star detail interpolation completed.");
     NpgsCoreInfo("Building stellar octree...");
-
-    GenerateSlots(0.1f, NumStars, 0.004f);
-
+    GenerateSlots(0.1f, _NumStars, 0.004f);
     NpgsCoreInfo("Stellar octree has been built.");
-    NpgsCoreInfo("Sorting...");
 
+    std::shuffle(_Stars.begin(), _Stars.end(), _RandomEngine);
     std::vector<glm::vec3> Slots;
-    CopyToVector(Slots);
-    std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) -> bool {
+    OctreeLinkToStars(_Stars, Slots);
+
+    NpgsCoreInfo("Sorting...");
+    std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
         return glm::length(Point1) < glm::length(Point2);
     });
 
+    NpgsCoreInfo("Assigning name...");
     std::string Name;
     std::ostringstream Stream;
-    for (std::size_t i = 0; i != Stars.size(); ++i) {
-        Stream.str("");
-        Stream << "Star-" << std::setfill('0') << std::setw(8) << std::to_string(i);
+    for (auto& Star : _Stars) {
+        glm::vec3 Position = Star.GetParentBody().Position;
+        auto it = std::lower_bound(Slots.begin(), Slots.end(), Position, [](const glm::vec3& Point1, const glm::vec3& Point2) -> bool {
+            return glm::length(Point1) < glm::length(Point2);
+        });
+        std::ptrdiff_t Offset = it - Slots.begin();
+        Stream << "S-" << std::setfill('0') << std::setw(8) << std::to_string(Offset);
         Name = Stream.str();
-        Stars[i].SetName(Name);
-        Stars[i].SetParentBody(AstroObject::CelestialBody::BaryCenter(Name, Slots[i]));
+        Star.SetName(Name);
+        Star.SetParentBody(AstroObject::CelestialBody::BaryCenter(Name, Position));
+        Stream.str("");
+        Stream.clear();
     }
 
-    Stars[0].SetNormal(glm::vec2(0.0f));
+    NpgsCoreInfo("Reset home star...");
+    NodeType* Node = _StellarOctree->Find(glm::vec3(0.0f), [](const NodeType& Node) -> bool {
+        if (Node.IsLeafNode()) {
+            auto& Points = Node.GetPoints();
+            return std::find(Points.begin(), Points.end(), glm::vec3(0.0f)) != Points.end();
+        } else {
+            return false;
+        }
+    });
 
-    NpgsCoreInfo("Star generated.");
+    auto* HomeStar = Node->GetLink([](AstroObject::Star* Star) -> bool {
+        return Star->GetParentBody().Position == glm::vec3(0.0f);
+    });
 
+    HomeStar->SetNormal(glm::vec2(0.0f));
+
+    glm::vec3 FrontStarPos = _Stars.front().GetParentBody().Position;
+    Node = _StellarOctree->Find(FrontStarPos, [&FrontStarPos](const NodeType& Node) -> bool {
+        if (Node.IsLeafNode()) {
+            auto& Points = Node.GetPoints();
+            return std::find(Points.begin(), Points.end(), FrontStarPos) != Points.end();
+        } else {
+            return false;
+        }
+    });
+
+    auto* FrontStar = Node->GetLink([FrontStarPos](AstroObject::Star* Star) -> bool {
+        return Star->GetParentBody().Position == FrontStarPos;
+    });
+
+    std::swap(*HomeStar, *FrontStar);
+
+    NpgsCoreInfo("Star generation completed.");
     _ThreadPool->Terminate();
+
+    return _Stars;
 }
 
 void Universe::GenerateSlots(int SampleLimit, std::size_t NumSamples, float Density) {
     std::vector<glm::vec3> ProcessList;
     std::unordered_map<std::tuple<int, int, int>, glm::vec3, TupleHash> Grid;
 
-    float PointRadius = std::pow((3 / (4 * kPi * Density)), (1.0f / 3.0f));
-    float Radius      = std::pow((3 * NumSamples / (4 * kPi * Density)), (1.0f / 3.0f));
+    float PointRadius = static_cast<float>(std::pow((3 / (4 * kPi * Density)), (1.0f / 3.0f)));
+    float Radius      = static_cast<float>(std::pow((3 * NumSamples / (4 * kPi * Density)), (1.0f / 3.0f)));
     float Diameter    = 2 * Radius;
-    float CellSize    = PointRadius / std::sqrt(3.0);
+    float CellSize    = PointRadius / std::sqrt(3.0f);
 
-    _StellarOctree = std::make_unique<Octree>(glm::vec3(0.0), Radius);
+    _StellarOctree = std::make_unique<Octree<AstroObject::Star>>(glm::vec3(0.0), Radius);
 
     std::size_t TotalSamples = 0;
 
@@ -150,8 +218,8 @@ void Universe::GenerateSlots(int SampleLimit, std::size_t NumSamples, float Dens
         bool bFound = false;
 
         for (int i = 0; i != SampleLimit; ++i) {
-            float Angle1   = _Dist.Generate(_RandomEngine) * 2 * kPi;
-            float Angle2   = _Dist.Generate(_RandomEngine) * 2 * kPi;
+            float Angle1   = _Dist.Generate(_RandomEngine) * 2.0f * static_cast<float>(kPi);
+            float Angle2   = _Dist.Generate(_RandomEngine) * 2.0f * static_cast<float>(kPi);
             float Distance = _Dist.Generate(_RandomEngine) * Radius; // _Dist.Generate(_RandomEngine) * (2 * PointRadius - 0.1f) + 0.1f;
             glm::vec3 NewSample = CurrentSample + glm::vec3(std::cos(Angle1) * std::cos(Angle2), std::sin(Angle1) * std::cos(Angle2), std::sin(Angle2)) * Distance;
 
@@ -176,25 +244,25 @@ void Universe::GenerateSlots(int SampleLimit, std::size_t NumSamples, float Dens
 }
 
 void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Density) {
-    float Radius     = std::pow((3 * NumSamples / (4 * kPi * Density)), (1.0f / 3.0f));
-    float LeafSize   = std::pow((1.0f / Density), (1.0f / 3.0f));
+    float Radius     = static_cast<float>(std::pow((3 * NumSamples / (4 * kPi * Density)), (1.0f / 3.0f)));
+    float LeafSize   = static_cast<float>(std::pow((1.0f / Density), (1.0f / 3.0f)));
     int   Power      = static_cast<int>(std::ceil(std::log2(Radius / LeafSize)));
     float LeafRadius = LeafSize * 0.5f;
-    float RootRadius = LeafSize * std::pow(2, Power);
+    float RootRadius = LeafSize * static_cast<float>(std::pow(2, Power));
 
-    _StellarOctree = std::make_unique<Octree>(glm::vec3(0.0), RootRadius);
+    _StellarOctree = std::make_unique<Octree<AstroObject::Star>>(glm::vec3(0.0), RootRadius);
     _StellarOctree->BuildEmptyTree(LeafRadius);
 
-    _StellarOctree->Traverse([Radius](OctreeNode& Node) -> void {
+    _StellarOctree->Traverse([Radius](NodeType& Node) -> void {
         if (Node.IsLeafNode() && glm::length(Node.GetCenter()) > Radius) {
             Node.SetValidation(false);
         }
     });
 
     std::size_t ValidLeafCount = _StellarOctree->GetCapacity();
-    std::vector<OctreeNode*> LeafNodes;
+    std::vector<NodeType*> LeafNodes;
 
-    auto CollectLeafNodes = [&LeafNodes](OctreeNode& Node) -> void {
+    auto CollectLeafNodes = [&LeafNodes](NodeType& Node) -> void {
         if (Node.IsLeafNode()) {
             LeafNodes.emplace_back(&Node);
         }
@@ -232,7 +300,7 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
 
     UniformRealDistribution<float> Dist(-LeafRadius, LeafRadius - DistMin);
 
-    _StellarOctree->Traverse([&Dist, LeafRadius, DistMin, this](OctreeNode& Node) -> void {
+    _StellarOctree->Traverse([&Dist, LeafRadius, DistMin, this](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
             glm::vec3 Center(Node.GetCenter());
             glm::vec3 StellarSlot(
@@ -244,23 +312,23 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
         }
     });
 
-    _StellarOctree->Find(glm::vec3(LeafRadius), [](OctreeNode& Node) -> bool {
-        if (!Node.IsLeafNode()) {
-            return false;
-        }
-
-        Node.RemoveStorage();
-        Node.AddPoint(glm::vec3(0.0f));
-        return true;
+    NodeType* Node = _StellarOctree->Find(glm::vec3(LeafRadius), [](const NodeType& Node) -> bool {
+        return (Node.IsLeafNode());
     });
+
+    Node->RemoveStorage();
+    Node->AddPoint(glm::vec3(0.0f));
 }
 
-template<typename Ty>
-void Universe::CopyToVector(std::vector<Ty>& Stars) const {
-    _StellarOctree->Traverse([&Stars](const OctreeNode& Node) -> void {
+void Universe::OctreeLinkToStars(std::vector<AstroObject::Star>& Stars, std::vector<glm::vec3>& Slots) const {
+    std::size_t Index = 0;
+    _StellarOctree->Traverse([&](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
             for (const auto& Point : Node.GetPoints()) {
-                Stars.emplace_back(Point);
+                Stars[Index].SetParentBody(AstroObject::CelestialBody::BaryCenter{ "", Point });
+                Node.AddLink(&Stars[Index]);
+                Slots.emplace_back(Point);
+                ++Index;
             }
         }
     });
