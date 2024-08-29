@@ -24,8 +24,13 @@ inline Star& Star::SetFeH(double FeH) {
     return *this;
 }
 
-inline Star& Star::SetSurfaceFeH(double SurfaceFeH) {
-    _StarExtraProperties.SurfaceFeH = SurfaceFeH;
+inline Star& Star::SetSurfaceH1(double SurfaceH1) {
+    _StarExtraProperties.SurfaceH1 = SurfaceH1;
+    return *this;
+}
+
+inline Star& Star::SetSurfaceZ(double SurfaceZ) {
+    _StarExtraProperties.SurfaceZ = SurfaceZ;
     return *this;
 }
 
@@ -107,8 +112,12 @@ inline double Star::GetFeH() const {
     return _StarExtraProperties.FeH;
 }
 
-inline double Star::GetSurfaceFeH() const {
-    return _StarExtraProperties.SurfaceFeH;
+inline double Star::GetSurfaceH1() const {
+    return _StarExtraProperties.SurfaceH1;
+}
+
+inline double Star::GetSurfaceZ() const {
+    return _StarExtraProperties.SurfaceZ;
 }
 
 inline double Star::GetSurfaceEnergeticNuclide() const {

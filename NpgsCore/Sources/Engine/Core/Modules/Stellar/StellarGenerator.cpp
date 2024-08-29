@@ -213,7 +213,7 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
     double MassSol           = StarData[_kStarMassIndex];
     double RadiusSol         = std::pow(10.0, StarData[_kLogRIndex]);
     double Teff              = std::pow(10.0, StarData[_kLogTeffIndex]);
-    double SurfaceFeH        = std::pow(10.0, StarData[_kLogSurfZIndex]);
+    double SurfaceZ          = std::pow(10.0, StarData[_kLogSurfZIndex]);
     double SurfaceH1         = StarData[_kSurfaceH1Index];
     double SurfaceHe3        = StarData[_kSurfaceHe3Index];
     double CoreTemp          = std::pow(10.0, StarData[_kLogCenterTIndex]);
@@ -231,7 +231,7 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
     double StellarWindSpeed  = WindSpeedFactor * EscapeVelocity;
 
     double SurfaceEnergeticNuclide = (SurfaceH1 * 0.00002 + SurfaceHe3);
-    double SurfaceVolatiles        = 1.0 - SurfaceFeH - SurfaceEnergeticNuclide;
+    double SurfaceVolatiles        = 1.0 - SurfaceZ - SurfaceEnergeticNuclide;
 
     float Theta = static_cast<float>(_CommonGenerator.Generate(_RandomEngine) * 2.0f * kPi);
     float Phi   = static_cast<float>(_CommonGenerator.Generate(_RandomEngine) * kPi);
@@ -244,7 +244,8 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
     Star.SetEscapeVelocity(EscapeVelocity);
     Star.SetLuminosity(LuminositySol * kSolarLuminosity);
     Star.SetTeff(Teff);
-    Star.SetSurfaceFeH(SurfaceFeH);
+    Star.SetSurfaceH1(SurfaceH1);
+    Star.SetSurfaceZ(SurfaceZ);
     Star.SetSurfaceEnergeticNuclide(SurfaceEnergeticNuclide);
     Star.SetSurfaceVolatiles(SurfaceVolatiles);
     Star.SetCoreTemp(CoreTemp);
@@ -256,7 +257,7 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
     Star.SetLifetime(Lifetime);
     Star.SetNormal(glm::vec2(Theta, Phi));
 
-    CalcSpectralType(Star, SurfaceH1);
+    CalcSpectralType(Star, StarData.back());
     GenerateMagnetic(Star);
     GenerateSpin(Star);
 
@@ -298,16 +299,16 @@ void StellarGenerator::InitMistData() {
     }
 
     const std::array<std::string, 10> kPresetPrefix{
-        "Assets/Models/MIST/[Fe_H]=-4.0", 
-        "Assets/Models/MIST/[Fe_H]=-3.0",
-        "Assets/Models/MIST/[Fe_H]=-2.0",
-        "Assets/Models/MIST/[Fe_H]=-1.5",
-        "Assets/Models/MIST/[Fe_H]=-1.0",
-        "Assets/Models/MIST/[Fe_H]=-0.5",
-        "Assets/Models/MIST/[Fe_H]=+0.0",
-        "Assets/Models/MIST/[Fe_H]=+0.5",
-        "Assets/Models/MIST/WhiteDwarfs/Thin",
-        "Assets/Models/MIST/WhiteDwarfs/Thick"
+        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-4.0"),
+        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-3.0"),
+        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-2.0"),
+        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-1.5"),
+        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-1.0"),
+        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-0.5"),
+        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=+0.0"),
+        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=+0.5"),
+        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/WhiteDwarfs/Thin"),
+        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/WhiteDwarfs/Thick")
     };
 
     std::vector<double> Masses;
@@ -382,12 +383,12 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
         if (TargetFeH >= 0.0) {
             PrefixDir.insert(PrefixDir.begin(), '+');
         }
-        PrefixDir.insert(0, "Assets/Models/MIST/[Fe_H]=");
+        PrefixDir.insert(0, Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]="));
     } else {
         if (bIsSingleWd) {
-            PrefixDir = "Assets/Models/MIST/WhiteDwarfs/Thin";
+            PrefixDir = Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/WhiteDwarfs/Thin");
         } else {
-            PrefixDir = "Assets/Models/MIST/WhiteDwarfs/Thick";
+            PrefixDir = Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/WhiteDwarfs/Thick");
         }
     }
 
@@ -438,6 +439,7 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
     Files.second = UpperMassFile;
 
     std::vector<double> Result = InterpolateMistData(Files, TargetAge, TargetMass, MassFactor);
+    Result.emplace_back(TargetFeH);
 
     return Result;
 }
@@ -465,8 +467,8 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ LowerPhaseChanges, UpperPhaseChanges };
             double EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassFactor);
 
-            double LowerLifetime = LowerPhaseChanges.back()[_kStarAgeIndex];
-            double UpperLifetime = UpperPhaseChanges.back()[_kStarAgeIndex];
+            double LowerLifetime = PhaseChangePair.first.back()[_kStarAgeIndex];
+            double UpperLifetime = PhaseChangePair.second.back()[_kStarAgeIndex];
 
             std::vector<double> LowerRows = InterpolateRows(LowerData, EvolutionProgress);
             std::vector<double> UpperRows = InterpolateRows(UpperData, EvolutionProgress);
@@ -550,7 +552,7 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::s
     return Result;
 }
 
-void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, double SurfaceH1) {
+void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, double FeH) {
     double Teff = StarData.GetTeff();
     auto EvolutionPhase = StarData.GetEvolutionPhase();
 
@@ -561,12 +563,15 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, double Surf
     std::vector<std::pair<int, int>> SpectralSubclassMap;
     double Subclass = 0.0;
 
+    double SurfaceH1    = StarData.GetSurfaceH1();
+    double MinSurfaceH1 = AstroObject::Star::_kFeHSurfaceH1Map.at(FeH) - 0.01;
+
     std::function<void(AstroObject::Star::Phase, double)> CalcSpectralSubclass = [&](AstroObject::Star::Phase Phase, double SurfaceH1) -> void {
         std::uint32_t SpectralClass = Phase == AstroObject::Star::Phase::kWolfRayet ? 11 : 0;
 
         if (Phase != AstroObject::Star::Phase::kWolfRayet) {
             if (Phase == AstroObject::Star::Phase::kMainSequence) {
-                if (SurfaceH1 < 0.6) {
+                if (SurfaceH1 < 0.5) {
                     EvolutionPhase = AstroObject::Star::Phase::kWolfRayet;
                     CalcSpectralSubclass(EvolutionPhase, SurfaceH1);
                     return;
@@ -635,9 +640,9 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, double Surf
 
                 if (EvolutionPhase != AstroObject::Star::Phase::kWolfRayet) {
                     if (EvolutionPhase == AstroObject::Star::Phase::kPrevMainSequence) {
-                        SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
+                        SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
                     } else if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence) {
-                        if (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_O && SurfaceH1 < 0.6) {
+                        if (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_O && SurfaceH1 < MinSurfaceH1) {
                             SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
                         } else {
                             SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
@@ -649,10 +654,14 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, double Surf
                     SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
                 }
             } else {
-                if (SurfaceH1 > 0.6) {
+                if (SurfaceH1 > MinSurfaceH1) {
                     SpectralType.HSpectralClass = StellarClass::SpectralClass::kSpectral_O;
                     SpectralType.Subclass = 2;
                     SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
+                } else if (SurfaceH1 > 0.5) {
+                    SpectralType.HSpectralClass = StellarClass::SpectralClass::kSpectral_O;
+                    SpectralType.Subclass = 2;
+                    SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
                 } else {
                     CalcSpectralSubclass(AstroObject::Star::Phase::kWolfRayet, SurfaceH1);
                 }
@@ -715,16 +724,22 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, double Surf
 StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroObject::Star& StarData) {
     double MassLossRateSolPerYear = StarData.GetStellarWindMassLossRate() * kYearInSeconds / kSolarMass;
     double MassSol = StarData.GetMass() / kSolarMass;
+    StellarClass::LuminosityClass LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
+
     if (MassLossRateSolPerYear > 1e-4 && MassSol >= 15) {
-        return StellarClass::LuminosityClass::kLuminosity_IaPlus;
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IaPlus;
     }
 
     double LuminositySol = StarData.GetLuminosity() / kSolarLuminosity;
     if (LuminositySol > 650000) {
-        return StellarClass::LuminosityClass::kLuminosity_0;
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_0;
     }
 
-    std::shared_ptr<HrDiagram> HrDiagramData = LoadCsvAsset<HrDiagram>("Assets/Models/H-R Diagram/H-R Diagram.csv", _kHrDiagramHeaders);
+    if (LuminosityClass != StellarClass::LuminosityClass::kLuminosity_Unknown) {
+        return LuminosityClass;
+    }
+
+    std::shared_ptr<HrDiagram> HrDiagramData = LoadCsvAsset<HrDiagram>(Assets::GetAssetFilepath(Assets::AssetType::kModel, "H-R Diagram/H-R Diagram.csv"), _kHrDiagramHeaders);
 
     double Teff = StarData.GetTeff();
     double BvColorIndex = 0.0;
@@ -765,7 +780,6 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
         LuminosityData.emplace_back(-1);
     }
 
-    StellarClass::LuminosityClass LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
     if (LuminositySol <= LuminosityData[1] && LuminositySol >= LuminosityData[2] &&
        (ClosestValue  == LuminosityData[1] || ClosestValue  == LuminosityData[2])) {
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Iab;
@@ -900,7 +914,7 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar, double Mer
     double LogCenterT              = 0.0;
     double LogCenterRho            = 0.0;
 
-    double SurfaceFeH              = 0.0;
+    double SurfaceZ                = 0.0;
     double SurfaceEnergeticNuclide = 0.0;
     double SurfaceVolatiles        = 0.0;
 
@@ -926,7 +940,7 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar, double Mer
             LogCenterT = std::numeric_limits<double>::min();
         }
 
-        SurfaceFeH              = 0.0;
+        SurfaceZ                = 0.0;
         SurfaceEnergeticNuclide = 0.0;
         SurfaceVolatiles        = 1.0;
 
@@ -952,7 +966,7 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar, double Mer
         double Teff = 1.5e8 * std::pow((DeathStarAge - 1e5) + 22000, -0.5);
         LogTeff = std::log10(Teff);
 
-        SurfaceFeH              = std::numeric_limits<double>::quiet_NaN();
+        SurfaceZ                = std::numeric_limits<double>::quiet_NaN();
         SurfaceEnergeticNuclide = std::numeric_limits<double>::quiet_NaN();
         SurfaceVolatiles        = std::numeric_limits<double>::quiet_NaN();
 
@@ -963,7 +977,7 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar, double Mer
         LogTeff                 = std::numeric_limits<double>::quiet_NaN();
         LogCenterT              = std::numeric_limits<double>::quiet_NaN();
         LogCenterRho            = std::numeric_limits<double>::quiet_NaN();
-        SurfaceFeH              = std::numeric_limits<double>::quiet_NaN();
+        SurfaceZ                = std::numeric_limits<double>::quiet_NaN();
         SurfaceEnergeticNuclide = std::numeric_limits<double>::quiet_NaN();
         SurfaceVolatiles        = std::numeric_limits<double>::quiet_NaN();
 
@@ -994,7 +1008,7 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar, double Mer
     DeathStar.SetEscapeVelocity(EscapeVelocity);
     DeathStar.SetLuminosity(LuminositySol * kSolarLuminosity);
     DeathStar.SetTeff(Teff);
-    DeathStar.SetSurfaceFeH(SurfaceFeH);
+    DeathStar.SetSurfaceZ(SurfaceZ);
     DeathStar.SetSurfaceEnergeticNuclide(SurfaceEnergeticNuclide);
     DeathStar.SetSurfaceVolatiles(SurfaceVolatiles);
     DeathStar.SetCoreTemp(CoreTemp);
@@ -1180,14 +1194,14 @@ static double DefaultLogMassPdf(double Fuck, bool bIsBinary) {
             g = (0.158 / (std::pow(10.0, Fuck) * std::log(10.0))) * std::exp(-1.0 * (std::pow(Fuck - std::log10(0.08), 2.0)) / (2.0 * std::pow(0.69, 2.0))) * std::pow(10.0, Fuck) * std::log(10.0);
         } else {
             double n01 = 0.0193937;
-            g = n01 * std::pow(std::pow(10.0, Fuck), -2.35) * std::pow(10.0, Fuck) * std::log(10.0);
+            g = n01 * std::pow(std::pow(10.0, Fuck), -2.3) * std::pow(10.0, Fuck) * std::log(10.0);
         }
     } else {
         if (std::pow(10.0, Fuck) <= 1.0) {
             g = (0.086 / (std::pow(10.0, Fuck) * std::log(10.0))) * std::exp(-1.0 * (std::pow(Fuck - std::log10(0.22), 2.0)) / (2.0 * std::pow(0.57, 2.0))) * std::pow(10.0, Fuck) * std::log(10.0);
         } else {
             double n02 = 0.0191992;
-            g = n02 * std::pow(std::pow(10.0, Fuck), -2.35) * std::pow(10.0, Fuck) * std::log(10.0);
+            g = n02 * std::pow(std::pow(10.0, Fuck), -2.3) * std::pow(10.0, Fuck) * std::log(10.0);
         }
     }
 
@@ -1352,15 +1366,15 @@ void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::ve
         Arrays.second.resize(MinSize);
     } else if (Arrays.first.back()[StellarGenerator::_kPhaseIndex] != 9 && Arrays.second.back()[StellarGenerator::_kPhaseIndex] == 9) {
         if (Arrays.first.size() + 1 == Arrays.second.size()) {
-            Arrays.first.back()[StellarGenerator::_kPhaseIndex] = 9;
-            Arrays.first.back()[StellarGenerator::_kXIndex] = 9.0;
             Arrays.second.pop_back();
+            Arrays.second.back()[StellarGenerator::_kPhaseIndex] = Arrays.first.back()[StellarGenerator::_kPhaseIndex];
+            Arrays.second.back()[StellarGenerator::_kXIndex] = Arrays.first.back()[StellarGenerator::_kXIndex];
         } else {
             std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
             Arrays.first.resize(MinSize - 1);
             Arrays.second.resize(MinSize - 1);
-            Arrays.first.back()[StellarGenerator::_kPhaseIndex] = Arrays.second.back()[StellarGenerator::_kPhaseIndex];
-            Arrays.first.back()[StellarGenerator::_kXIndex] = Arrays.second.back()[StellarGenerator::_kXIndex];
+            Arrays.second.back()[StellarGenerator::_kPhaseIndex] = Arrays.first.back()[StellarGenerator::_kPhaseIndex];
+            Arrays.second.back()[StellarGenerator::_kXIndex] = Arrays.first.back()[StellarGenerator::_kXIndex];
         }
     } else if (Arrays.first.back()[StellarGenerator::_kPhaseIndex] == 9 && Arrays.second.back()[StellarGenerator::_kPhaseIndex] == 9) {
         TrimArray(Arrays);
@@ -1382,7 +1396,7 @@ std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::HrDi
     try {
         SurroundingRows = Data->FindSurroundingValues("B-V", BvColorIndex);
     } catch (std::out_of_range& e) {
-        NpgsCoreError(std::string(e.what()));
+        NpgsCoreError(std::string("H-R Diagram interpolation capture exception: ") + std::string(e.what()));
     }
 
     double Factor = (BvColorIndex - SurroundingRows.first[0]) / (SurroundingRows.second[0] - SurroundingRows.first[0]);
@@ -1416,7 +1430,8 @@ std::vector<double> InterpolateRows(const auto& Data, double Target, const std::
         SurroundingRows = Data->FindSurroundingValues(Header, Target);
     } catch (std::out_of_range& e) {
         if (!bIsWhiteDwarf) {
-            NpgsCoreError(std::string(e.what()));
+            NpgsCoreError(std::string("Stellar data interpolation capture exception: ") + std::string(e.what()));
+            NpgsCoreError("Header: {}, Target: {}", Header, Target);
         } else {
             SurroundingRows.first  = Data->Data()->back();
             SurroundingRows.second = Data->Data()->back();

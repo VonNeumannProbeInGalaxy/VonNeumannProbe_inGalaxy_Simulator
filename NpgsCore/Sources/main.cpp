@@ -20,7 +20,7 @@ static std::string FormatInfo(const Npgs::AstroObject::Star& Star) {
         Star.GetStellarWindMassLossRate() * Npgs::kYearInSeconds / Npgs::kSolarMass,
         static_cast<int>(std::round(Star.GetStellarWindSpeed())),
         static_cast<int>(Star.GetEvolutionPhase()),
-        Star.GetSurfaceFeH(),
+        Star.GetSurfaceZ(),
         Star.GetSurfaceEnergeticNuclide(),
         Star.GetSurfaceVolatiles(),
         Star.GetMagneticField(),
@@ -36,28 +36,31 @@ static void PrintInfo(std::ofstream& Filename, const Npgs::AstroObject::Star& St
 
 int main() {
     Npgs::Logger::Init();
-    // std::ofstream Output("Output.csv", std::ios::out);
+    std::ofstream Output("Output.csv", std::ios::out);
 
     std::println("Enter the star count.");
 
     std::size_t c = 0;
     std::cin >> c;
 
-    Npgs::Universe u(42, c);
-    auto& s = u.FillUniverse();
+    unsigned s = 0;
+    std::println("Enter the seed.");
+    std::cin >> s;
+
+    Npgs::Universe u(s, c);
+    auto& st = u.FillUniverse();
+
+    Output << FormatTitle() << std::endl;
+    // Output << "Class," << "Lum" << std::endl;
+    for (auto& Star : st) {
+        //Output << Star.GetStellarClass().ToString() << "," << Star.GetLuminosity() / Npgs::kSolarLuminosity << std::endl;
+        if (Star.GetStellarClass().ToString().find('M') != std::string::npos)
+            PrintInfo(Output, Star);
+    }
 
     //Npgs::Modules::StellarGenerator g(42);
-    //
-    //std::vector<Npgs::Modules::StellarGenerator::BasicProperties> r;
-
-    //for (int i = 0; i != 2000000; ++i) {
-    //    r.push_back(g.GenBasicProperties());
-    //}
-
-    ////Output << FormatTitle() << std::endl;
-    ////for (auto& Star : s) {
-    ////    PrintInfo(Output, Star);
-    ////}
+    //Npgs::Modules::StellarGenerator::BasicProperties b{ {}, 5776762.9187316513, 0.0, 37.203746724061673 };
+    //g.GenerateStar(b);
 
     return 0;
 }

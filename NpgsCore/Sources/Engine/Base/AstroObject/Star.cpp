@@ -37,13 +37,24 @@ const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> Star::_kInit
     { 0, {} }
 };
 
-const std::unordered_map<Star::Phase, ::Npgs::Modules::StellarClass::LuminosityClass> Star::_kLuminosity{
+const std::unordered_map<Star::Phase, ::Npgs::Modules::StellarClass::LuminosityClass> Star::_kLuminosityMap{
     { Star::Phase::kMainSequence,     ::Npgs::Modules::StellarClass::LuminosityClass::kLuminosity_V   },
     { Star::Phase::kRedGiant,         ::Npgs::Modules::StellarClass::LuminosityClass::kLuminosity_III },
     { Star::Phase::kCoreHeBurn,       ::Npgs::Modules::StellarClass::LuminosityClass::kLuminosity_IV  },
     { Star::Phase::kEarlyAgb,         ::Npgs::Modules::StellarClass::LuminosityClass::kLuminosity_II  },
     { Star::Phase::kThermalPulseAgb,  ::Npgs::Modules::StellarClass::LuminosityClass::kLuminosity_I   },
     { Star::Phase::kPostAgb,          ::Npgs::Modules::StellarClass::LuminosityClass::kLuminosity_I   }
+};
+
+const std::unordered_map<double, double> Star::_kFeHSurfaceH1Map{
+    { -4.0, 0.75098 },
+    { -3.0, 0.75095 },
+    { -2.0, 0.75063 },
+    { -1.5, 0.74986 },
+    { -1.0, 0.74743 },
+    { -0.5, 0.73973 },
+    {  0.0, 0.7154  },
+    {  0.5, 0.63846 }
 };
 
 _ASTROOBJECT_END

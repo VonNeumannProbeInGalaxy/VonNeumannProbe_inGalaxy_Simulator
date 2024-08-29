@@ -12,6 +12,16 @@
 _NPGS_BEGIN
 _ASSETS_BEGIN
 
+enum class AssetType {
+    kBinaryShader,
+    kFont,
+    kModel,
+    kShader,
+    kTexture
+};
+
+std::string GetAssetFilepath(AssetType Type, const std::string& Filename);
+
 template <typename AssetType>
 concept Copyable = std::copyable<AssetType>;
 

@@ -49,7 +49,8 @@ public:
     struct ExtendedProperties {
         double Luminosity;              // 辐射光度，单位 W
         double FeH;                     // 金属丰度
-        double SurfaceFeH;              // 表面金属丰度
+        double SurfaceH1;               // 表面氕质量分数
+        double SurfaceZ;                // 表面金属丰度
         double SurfaceEnergeticNuclide; // 表面含能核素质量分数
         double SurfaceVolatiles;        // 表面挥发物质量分数
         double Teff;                    // 有效温度
@@ -82,7 +83,8 @@ public:
     // ------------------------------
     Star& SetLuminosity(double Luminosity);
     Star& SetFeH(double FeH);
-    Star& SetSurfaceFeH(double SurfaceFeH);
+    Star& SetSurfaceH1(double SurfaceH1);
+    Star& SetSurfaceZ(double SurfaceZ);
     Star& SetSurfaceEnergeticNuclide(double SurfaceEnergeticNuclide);
     Star& SetSurfaceVolatiles(double SurfaceVolatiles);
     Star& SetTeff(double Teff);
@@ -103,7 +105,8 @@ public:
     // ------------------------------
     double GetLuminosity() const;
     double GetFeH() const;
-    double GetSurfaceFeH() const;
+    double GetSurfaceH1() const;
+    double GetSurfaceZ() const;
     double GetSurfaceEnergeticNuclide() const;
     double GetSurfaceVolatiles() const;
     double GetTeff() const;
@@ -134,7 +137,9 @@ public:
     static const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> _kInitialCommonMap;
     static const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> _kInitialWolfRayetMap;
 
-    static const std::unordered_map<Phase, Npgs::Modules::StellarClass::LuminosityClass> _kLuminosity;
+    static const std::unordered_map<Phase, Npgs::Modules::StellarClass::LuminosityClass> _kLuminosityMap;
+
+    static const std::unordered_map<double, double> _kFeHSurfaceH1Map;
 
 private:
     ExtendedProperties _StarExtraProperties{};
