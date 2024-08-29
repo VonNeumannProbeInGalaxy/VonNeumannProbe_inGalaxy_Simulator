@@ -50,13 +50,13 @@ int main() {
     Npgs::Universe u(s, c);
     auto& st = u.FillUniverse();
 
-    Output << FormatTitle() << std::endl;
-    // Output << "Class," << "Lum" << std::endl;
-    for (auto& Star : st) {
-        //Output << Star.GetStellarClass().ToString() << "," << Star.GetLuminosity() / Npgs::kSolarLuminosity << std::endl;
-        if (Star.GetStellarClass().ToString().find('M') != std::string::npos)
-            PrintInfo(Output, Star);
-    }
+    //Output << FormatTitle() << std::endl;
+    //Output << "Class," << "Lum" << std::endl;
+    //for (auto& Star : st) {
+    //    Output << Star.GetStellarClass().ToString() << "," << Star.GetLuminosity() / Npgs::kSolarLuminosity << std::endl;
+    //    if (Star.GetStellarClass().ToString().find('M') != std::string::npos)
+    //        PrintInfo(Output, Star);
+    //}
 
     //Npgs::Modules::StellarGenerator g(42);
     //Npgs::Modules::StellarGenerator::BasicProperties b{ {}, 5776762.9187316513, 0.0, 37.203746724061673 };

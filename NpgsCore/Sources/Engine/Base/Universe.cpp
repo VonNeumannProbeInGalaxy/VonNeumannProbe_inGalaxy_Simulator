@@ -56,21 +56,21 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
         }
     };
 
-    auto GenerateBasicProperties = [&, this](std::size_t NumStars) -> void {
-        for (std::size_t i = 0; i != NumStars; ++i) {
-            Futures.emplace_back(_ThreadPool->Commit([&, i]() -> Npgs::Modules::StellarGenerator::BasicProperties {
-                std::size_t ThreadId = i % Generators.size();
-                return Generators[ThreadId].GenBasicProperties();
-            }));
-        }
-    };
-
     // auto GenerateBasicProperties = [&, this](std::size_t NumStars) -> void {
     //     for (std::size_t i = 0; i != NumStars; ++i) {
-    //         std::size_t ThreadId = i % Generators.size();
-    //         BasicProperties.emplace_back(Generators[ThreadId].GenBasicProperties());
+    //         Futures.emplace_back(_ThreadPool->Commit([&, i]() -> Npgs::Modules::StellarGenerator::BasicProperties {
+    //             std::size_t ThreadId = i % Generators.size();
+    //             return Generators[ThreadId].GenBasicProperties();
+    //         }));
     //     }
     // };
+
+    auto GenerateBasicProperties = [&, this](std::size_t NumStars) -> void {
+        for (std::size_t i = 0; i != NumStars; ++i) {
+            std::size_t ThreadId = i % Generators.size();
+            BasicProperties.emplace_back(Generators[ThreadId].GenBasicProperties());
+        }
+    };
 
     if (_NumExtraSupergiants != 0) {
         Generators.clear();
@@ -80,7 +80,7 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
 
     if (_NumExtraLbvs != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 8.0, 300.0, Modules::StellarGenerator::GenDistribution::kUniform, 0.0, 3.5e6, Modules::StellarGenerator::GenDistribution::kUniform);
+        CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 280.0, 300.0, Modules::StellarGenerator::GenDistribution::kUniform, 0.0, 3.5e6, Modules::StellarGenerator::GenDistribution::kUniform);
         GenerateBasicProperties(_NumExtraLbvs);
     }
 
@@ -105,8 +105,8 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
     std::size_t NumCommonStars = _NumStars - _NumExtraLbvs - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
 
     Generators.clear();
-    // CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 0.075);
-    CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 8.0, 300.0, Npgs::Modules::StellarGenerator::GenDistribution::kFromPdf, 0.0, 1e7);
+    CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 0.075);
+    // CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 200.0, 300.0, Npgs::Modules::StellarGenerator::GenDistribution::kFromPdf, 0.0, 1e7);
     GenerateBasicProperties(NumCommonStars);
 
     for (auto& Future : Futures) {
@@ -114,14 +114,14 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
     }
 
     NpgsCoreInfo("Basic properties generation completed.");
-    NpgsCoreInfo("Interpolating stellar data as {} threads...", MaxThread);
+    NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
 
     std::vector<std::future<Npgs::AstroObject::Star>> StarFutures;
     for (std::size_t i = 0; i != _NumStars; ++i) {
         StarFutures.emplace_back(_ThreadPool->Commit([&, i]() -> Npgs::AstroObject::Star {
             std::size_t ThreadId = i % Generators.size();
-            // auto& Properties = BasicProperties[i]; 
-            auto Properties = Futures[i].get();
+            auto& Properties = BasicProperties[i]; 
+            // auto Properties = Futures[i].get();
             return Generators[ThreadId].GenerateStar(Properties);
         }));
     }
@@ -136,7 +136,7 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
     }
 
     // Temp
-    return _Stars;
+    // return _Stars;
 
     NpgsCoreInfo("Star detail interpolation completed.");
     NpgsCoreInfo("Building stellar octree...");

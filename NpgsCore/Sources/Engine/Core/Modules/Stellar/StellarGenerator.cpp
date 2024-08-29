@@ -91,24 +91,46 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
         Properties.Mass =  0.0;
     } else {
         switch (_MassDistribution) {
-        case GenDistribution::kFromPdf:
-            Properties.Mass = GenerateMass(0.086, true);
+        case GenDistribution::kFromPdf: {
+            double MaxProbability = 0.086;
+            double LogMassLower = std::log10(_MassLowerLimit);
+            double LogMassUpper = std::log10(_MassUpperLimit);
+            if (!(LogMassLower < 0.22 && LogMassUpper > 0.22)) {
+                if (LogMassLower > 0.22) {
+                    MaxProbability = std::min(DefaultLogMassPdf(LogMassUpper, true), 0.086);
+                } else if (LogMassUpper < 0.22) {
+                    MaxProbability = std::min(DefaultLogMassPdf(LogMassLower, true), 0.086);
+                }
+            }
+            Properties.Mass = GenerateMass(MaxProbability, true);
             break;
-        case GenDistribution::kUniform:
+        }
+        case GenDistribution::kUniform: {
             Properties.Mass = _MassLowerLimit + _CommonGenerator.Generate(_RandomEngine) * (_MassUpperLimit - _MassLowerLimit);
             break;
+        }
         default:
             break;
         }
     }
 
     switch (_AgeDistribution) {
-    case GenDistribution::kFromPdf:
-        Properties.Age = GenerateAge(2.6);
+    case GenDistribution::kFromPdf: {
+        double MaxProbability = 2.6;
+        if (!(_AgeLowerLimit < 8e9 && _AgeUpperLimit > 8e9)) {
+            if (_AgeLowerLimit > 8e9) {
+                MaxProbability = std::min(DefaultAgePdf(_AgeUpperLimit), 2.6);
+            } else if (_AgeUpperLimit < 8e9) {
+                MaxProbability = std::min(DefaultAgePdf(_AgeLowerLimit), 2.6);
+            }
+        }
+        Properties.Age = GenerateAge(MaxProbability);
         break;
-    case GenDistribution::kUniform:
+    }
+    case GenDistribution::kUniform: {
         Properties.Age = _AgeLowerLimit + _CommonGenerator.Generate(_RandomEngine) * (_AgeUpperLimit - _AgeLowerLimit);
         break;
+    }
     case GenDistribution::kUniformByExponent: {
         double Random = _CommonGenerator.Generate(_RandomEngine);
         double LogAgeLower = std::log10(_AgeLowerLimit);
