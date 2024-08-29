@@ -36,15 +36,28 @@ static void PrintInfo(std::ofstream& Filename, const Npgs::AstroObject::Star& St
 
 int main() {
     Npgs::Logger::Init();
+    // std::ofstream Output("Output.csv", std::ios::out);
 
-    Npgs::Universe u(42, 100, 100);
+    std::println("Enter the star count.");
+
+    std::size_t c = 0;
+    std::cin >> c;
+
+    Npgs::Universe u(42, c);
     auto& s = u.FillUniverse();
 
-    std::ofstream Output("Output.csv", std::ios::out);
-    Output << FormatTitle() << std::endl;
-    for (auto& Star : s) {
-        PrintInfo(Output, Star);
-    }
+    //Npgs::Modules::StellarGenerator g(42);
+    //
+    //std::vector<Npgs::Modules::StellarGenerator::BasicProperties> r;
+
+    //for (int i = 0; i != 2000000; ++i) {
+    //    r.push_back(g.GenBasicProperties());
+    //}
+
+    ////Output << FormatTitle() << std::endl;
+    ////for (auto& Star : s) {
+    ////    PrintInfo(Output, Star);
+    ////}
 
     return 0;
 }

@@ -16,9 +16,9 @@ _NPGS_BEGIN
 class NPGS_API ThreadPool {
 public:
     static ThreadPool* GetInstance();
-    static ThreadPool* GetInstance(int ThreadCount);
-    static void Init(int ThreadCount);
+    static void Init();
     static void Destroy();
+    static int GetMaxThreadCount();
 
 public:
     template <typename Func, typename... Args>
@@ -37,7 +37,7 @@ public:
     void Terminate();
 
 private:
-    ThreadPool(std::size_t ThreadCount);
+    ThreadPool();
     ~ThreadPool() {}
 
 private:
@@ -49,6 +49,7 @@ private:
 
     static ThreadPool*                _kInstance;
     static std::once_flag             _kOnce;
+    static int                        _kPhysicalCoreCount;
 };
 
 _NPGS_END

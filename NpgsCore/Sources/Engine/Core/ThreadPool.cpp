@@ -1,19 +1,22 @@
 #include "ThreadPool.h"
 
+#define NOMINMAX
+#include <Windows.h>
+
 _NPGS_BEGIN
 
+static int GetPhysicalCoreCount();
+static void SetThreadAffinity(std::thread& Thread, int CoreId);
+
 ThreadPool* ThreadPool::GetInstance() {
+    std::call_once(_kOnce, Init);
     return _kInstance;
 }
 
-ThreadPool* ThreadPool::GetInstance(int ThreadCount) {
-    std::call_once(_kOnce, Init, ThreadCount);
-    return _kInstance;
-}
-
-void ThreadPool::Init(int ThreadCount) {
+void ThreadPool::Init() {
     if (_kInstance == nullptr) {
-        _kInstance = new ThreadPool(ThreadCount);
+        _kPhysicalCoreCount = GetPhysicalCoreCount();
+        _kInstance = new ThreadPool();
     }
 }
 
@@ -23,6 +26,10 @@ void ThreadPool::Destroy() {
         delete _kInstance;
         _kInstance = nullptr;
     }
+}
+
+int ThreadPool::GetMaxThreadCount() {
+    return _kPhysicalCoreCount;
 }
 
 void ThreadPool::Terminate() {
@@ -38,8 +45,8 @@ void ThreadPool::Terminate() {
     }
 }
 
-ThreadPool::ThreadPool(std::size_t ThreadCount) : _Terminate(false) {
-    for (std::size_t i = 0; i != ThreadCount; ++i) {
+ThreadPool::ThreadPool() : _Terminate(false) {
+    for (std::size_t i = 0; i != _kPhysicalCoreCount; ++i) {
         _Threads.emplace_back([this]() -> void {
             while (true) {
                 std::function<void()> Task;
@@ -56,10 +63,39 @@ ThreadPool::ThreadPool(std::size_t ThreadCount) : _Terminate(false) {
                 Task();
             }
         });
+
+        SetThreadAffinity(_Threads.back(), i);
     }
 }
 
 ThreadPool* ThreadPool::_kInstance = nullptr;
 std::once_flag ThreadPool::_kOnce;
+int ThreadPool::_kPhysicalCoreCount = 0;
+
+int GetPhysicalCoreCount() {
+    DWORD Length = 0;
+    GetLogicalProcessorInformationEx(RelationProcessorCore, nullptr, &Length);
+    std::vector<std::uint8_t> Buffer(Length);
+    auto* BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(Buffer.data());
+    GetLogicalProcessorInformationEx(RelationProcessorCore, BufferPtr, &Length);
+
+    int CoreCount = 0;
+    while (Length > 0) {
+        if (BufferPtr->Relationship == RelationProcessorCore) {
+            ++CoreCount;
+        }
+
+        Length -= BufferPtr->Size;
+        BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(reinterpret_cast<std::uint8_t*>(BufferPtr) + BufferPtr->Size);
+    }
+
+    return CoreCount;
+}
+
+void SetThreadAffinity(std::thread& Thread, int CoreId) {
+    HANDLE Handle = Thread.native_handle();
+    DWORD_PTR Mask = static_cast<DWORD_PTR>(Bit(CoreId * 2));
+    SetThreadAffinityMask(Handle, Mask);
+}
 
 _NPGS_END

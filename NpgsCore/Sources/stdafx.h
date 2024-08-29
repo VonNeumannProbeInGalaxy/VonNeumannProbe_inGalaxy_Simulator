@@ -6,3 +6,6 @@
 #include <fast-cpp-csv-parser/csv.h>
 #include <glm/glm.hpp>
 #include <spdlog/spdlog.h>
+
+#define NOMINMAX
+#include <Windows.h>
