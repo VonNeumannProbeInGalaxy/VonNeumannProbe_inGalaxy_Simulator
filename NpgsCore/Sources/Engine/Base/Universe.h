@@ -21,6 +21,7 @@ public:
     ~Universe();
 
     const std::vector<AstroObject::Star>& FillUniverse();
+    const void ReplaceStar(std::size_t DistanceRank, const AstroObject::Star& StarData);
 
 private:
     void GenerateSlots(int SampleLimit, std::size_t NumSamples, float Density);

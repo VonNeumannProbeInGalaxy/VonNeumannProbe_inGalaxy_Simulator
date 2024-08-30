@@ -13,7 +13,7 @@
 #include <unordered_map>
 
 #define ENABLE_LOGGER
-#define OUTPUT_DATA
+// #define OUTPUT_DATA
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/Logger.h"
 #include "Engine/Core/Random.hpp"
@@ -189,7 +189,7 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
         Stream << "S-" << std::setfill('0') << std::setw(8) << std::to_string(Offset);
         Name = Stream.str();
         Star.SetName(Name);
-        Star.SetParentBody(AstroObject::CelestialBody::BaryCenter(Name, Position));
+        Star.SetParentBody(AstroObject::CelestialBody::BaryCenter(Name, Position, Offset));
         Stream.str("");
         Stream.clear();
     }
@@ -211,31 +211,18 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
     HomeNode->AddPoint(glm::vec3(0.0f));
     HomeStar->SetNormal(glm::vec2(0.0f));
 
-    glm::vec3 FrontStarPos = _Stars.front().GetParentBody().Position;
-    auto FrontNode = _StellarOctree->Find(FrontStarPos, [&FrontStarPos](const NodeType& Node) -> bool {
-        if (Node.IsLeafNode()) {
-            auto& Points = Node.GetPoints();
-            return std::find(Points.begin(), Points.end(), FrontStarPos) != Points.end();
-        } else {
-            return false;
-        }
-    });
-
-    auto* FrontStar = FrontNode->GetLink([FrontStarPos](AstroObject::Star* Star) -> bool {
-        return Star->GetParentBody().Position == FrontStarPos;
-    });
-
-    std::swap(*HomeStar, *FrontStar);
-
-    HomeNode->RemoveLinks();
-    HomeNode->AddLink(FrontStar);
-    FrontNode->RemoveLinks();
-    FrontNode->AddLink(HomeStar);
-
     NpgsCoreInfo("Star generation completed.");
     _ThreadPool->Terminate();
 
     return _Stars;
+}
+
+const void Universe::ReplaceStar(std::size_t DistanceRank, const AstroObject::Star& StarData) {
+    for (auto& Star : _Stars) {
+        if (DistanceRank == Star.GetParentBody().DistanceRank) {
+            Star = StarData;
+        }
+    }
 }
 
 void Universe::GenerateSlots(int SampleLimit, std::size_t NumSamples, float Density) {

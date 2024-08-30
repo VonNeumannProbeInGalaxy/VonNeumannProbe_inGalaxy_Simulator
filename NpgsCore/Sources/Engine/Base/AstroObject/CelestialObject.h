@@ -13,6 +13,7 @@ public:
     struct BaryCenter {
         std::string Name;                // 质心名字
         glm::vec3 Position;              // 位置，使用 3 个 float 分量的向量存储
+        std::size_t DistanceRank;        // 距离，但是是排名
     };
 
     struct OrbitProperties {

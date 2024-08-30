@@ -92,6 +92,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     } else {
         switch (_MassDistribution) {
         case GenDistribution::kFromPdf: {
+            // TODO: 单星质量 MaxPdf
             double MaxProbability = 0.086;
             double LogMassLower = std::log10(_MassLowerLimit);
             double LogMassUpper = std::log10(_MassUpperLimit);

@@ -9,17 +9,23 @@ _ASTROOBJECT_BEGIN
 class NPGS_API Planet : public CelestialBody {
 public:
     enum class PlanetType {
-        kTerrestrial,
-        kGasGiant,
+        kRocky,
+        kTerra,
+        kIcePlant,
+        kChthonian,
+        kOceanic,
+        kSubIcegiant,
         kIceGiant,
-        kDwarfPlanet,
-        kAsteroid,
-        kComet,
-        kRoguePlanet,
-        kRogueMoon,
-        kPulsarPlanet,
-        kExoplanet,
-        kUnknown
+        kGasGiant,
+        kHotSubIcegiant,
+        kHotIceGiant,
+        kHotJupiter
+    };
+
+    enum class MoonType {
+        kRocky,
+        kTerra,
+        kIceMoon
     };
 
     struct ExtendedProperties {

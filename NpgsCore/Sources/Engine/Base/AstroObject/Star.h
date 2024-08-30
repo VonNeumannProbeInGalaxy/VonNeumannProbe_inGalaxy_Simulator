@@ -129,6 +129,9 @@ public:
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_G;
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_K;
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_M;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_L;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_T;
+    static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_Y;
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_WC;
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_WN;
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_WO;
