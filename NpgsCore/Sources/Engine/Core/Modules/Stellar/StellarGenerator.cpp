@@ -25,12 +25,12 @@ _MODULES_BEGIN
 
 // Tool macros
 // -----------
-#define GenerateDeathStarPlaceholder(Lifetime) {                                                                                                                                                                     \
-    StellarClass::SpectralType DeathStarClass{ StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 }; \
-    AstroObject::Star DeathStar;                                                                                                                                                                                     \
-    DeathStar.SetStellarClass(StellarClass(StellarClass::StarType::kDeathStarPlaceholder, DeathStarClass));                                                                                                          \
-    DeathStar.SetLifetime(Lifetime);                                                                                                                                                                                 \
-    throw DeathStar;                                                                                                                                                                                                 \
+#define GenerateDeathStarPlaceholder(Lifetime) {                                                                                                                                                                           \
+    StellarClass::SpectralType DeathStarClass{ StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false }; \
+    AstroObject::Star DeathStar;                                                                                                                                                                                           \
+    DeathStar.SetStellarClass(StellarClass(StellarClass::StarType::kDeathStarPlaceholder, DeathStarClass));                                                                                                                \
+    DeathStar.SetLifetime(Lifetime);                                                                                                                                                                                       \
+    throw DeathStar;                                                                                                                                                                                                       \
 }
 
 // Tool functions
@@ -851,12 +851,12 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar, double Mer
         EvolutionPhase  = AstroObject::Star::Phase::kNull;
         EvolutionEnding = AstroObject::Star::Death::kPairInstabilitySupernova;
         DeathStarType   = StellarClass::StarType::kDeathStarPlaceholder;
-        DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
     } else if (InputFeH <= -2.0 && InputMass >= 250) {
         EvolutionPhase  = AstroObject::Star::Phase::kStellarBlackHole;
         EvolutionEnding = AstroObject::Star::Death::kPhotondisintegration;
         DeathStarType   = StellarClass::StarType::kBlackHole;
-        DeathStarClass  = { StellarClass::SpectralClass::kSpectral_X, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+        DeathStarClass  = { StellarClass::SpectralClass::kSpectral_X, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
         DeathStarMass   = 0.5 * InputMass;
     } else {
         if (InputMass > -0.75 && InputMass < 0.8) {
@@ -881,42 +881,42 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar, double Mer
             EvolutionPhase  = AstroObject::Star::Phase::kHeliumWhiteDwarf;
             EvolutionEnding = AstroObject::Star::Death::kSlowColdingDown;
             DeathStarType   = StellarClass::StarType::kWhiteDwarf;
-            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
         } else if (InputMass >= 0.5 && InputMass < 8.0) {
             EvolutionPhase  = AstroObject::Star::Phase::kCarbonOxygenWhiteDwarf;
             EvolutionEnding = AstroObject::Star::Death::kEnvelopeDisperse;
             DeathStarType   = StellarClass::StarType::kWhiteDwarf;
-            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
         } else if (InputMass >= 8.0 && InputMass < 9.759) {
             EvolutionPhase  = AstroObject::Star::Phase::kOxygenNeonMagnWhiteDwarf;
             EvolutionEnding = AstroObject::Star::Death::kEnvelopeDisperse;
             DeathStarType   = StellarClass::StarType::kWhiteDwarf;
-            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
         } else if (InputMass >= 9.759 && InputMass < 10.0) {
             EvolutionPhase  = AstroObject::Star::Phase::kNeutronStar;
             EvolutionEnding = AstroObject::Star::Death::kElectronCaptureSupernova;
             DeathStarType   = StellarClass::StarType::kNeutronStar;
-            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
         } else if (InputMass >= 10.0 && InputMass < 21.0) {
             EvolutionPhase  = AstroObject::Star::Phase::kNeutronStar;
             EvolutionEnding = AstroObject::Star::Death::kIronCoreCollapseSupernova;
             DeathStarType   = StellarClass::StarType::kNeutronStar;
-            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
         } else if (InputMass >= 21.0 && InputMass < 23.3537) {
             EvolutionPhase  = AstroObject::Star::Phase::kStellarBlackHole;
             EvolutionEnding = AstroObject::Star::Death::kIronCoreCollapseSupernova;
             DeathStarType   = StellarClass::StarType::kBlackHole;
-            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_X, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_X, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
         } else if (InputMass >= 23.3537 && InputMass < 33.75) {
             EvolutionPhase  = AstroObject::Star::Phase::kNeutronStar;
             EvolutionEnding = AstroObject::Star::Death::kIronCoreCollapseSupernova;
             DeathStarType   = StellarClass::StarType::kNeutronStar;
-            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
         } else {
             EvolutionPhase  = AstroObject::Star::Phase::kStellarBlackHole;
             EvolutionEnding = AstroObject::Star::Death::kRelativisticJetHypernova;
             DeathStarType   = StellarClass::StarType::kBlackHole;
-            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_Q, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+            DeathStarClass  = { StellarClass::SpectralClass::kSpectral_X, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
         }
     }
 
@@ -924,20 +924,20 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar, double Mer
         BernoulliDistribution MergeProbability(MergeStarProbability);
         if (MergeProbability.Generate(_RandomEngine)) {
             EvolutionEnding = AstroObject::Star::Death::kWhiteDwarfMerge;
-            BernoulliDistribution BlackHoleProbability(0.114);
+            BernoulliDistribution BlackHoleProbability(0.114514);
             double MassSol = 0.0;
             if (BlackHoleProbability.Generate(_RandomEngine)) {
                 UniformRealDistribution MassDist(2.6, 2.76);
-                MassSol = MassDist.Generate(_RandomEngine);
+                MassSol        = MassDist.Generate(_RandomEngine);
                 EvolutionPhase = AstroObject::Star::Phase::kStellarBlackHole;
                 DeathStarType  = StellarClass::StarType::kBlackHole;
-                DeathStarClass = { StellarClass::SpectralClass::kSpectral_X, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+                DeathStarClass = { StellarClass::SpectralClass::kSpectral_X, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
             } else {
                 UniformRealDistribution MassDist(1.38, 2.18072);
-                MassSol = MassDist.Generate(_RandomEngine);
+                MassSol        = MassDist.Generate(_RandomEngine);
                 EvolutionPhase = AstroObject::Star::Phase::kNeutronStar;
                 DeathStarType  = StellarClass::StarType::kNeutronStar;
-                DeathStarClass = { StellarClass::SpectralClass::kSpectral_Q, 0, false, StellarClass::SpectralClass::kSpectral_Unknown, 0, StellarClass::LuminosityClass::kLuminosity_Unknown, 0 };
+                DeathStarClass = { StellarClass::SpectralClass::kSpectral_Q, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
             }
 
             DeathStarMass = MassSol;

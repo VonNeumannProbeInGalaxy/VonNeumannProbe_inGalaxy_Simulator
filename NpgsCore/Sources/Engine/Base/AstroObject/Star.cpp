@@ -52,15 +52,15 @@ const std::unordered_map<Star::Phase, ::Npgs::Modules::StellarClass::LuminosityC
     { Star::Phase::kPostAgb,          ::Npgs::Modules::StellarClass::LuminosityClass::kLuminosity_I   }
 };
 
-const std::unordered_map<double, double> Star::_kFeHSurfaceH1Map{
-    { -4.0, 0.75098 },
-    { -3.0, 0.75095 },
-    { -2.0, 0.75063 },
-    { -1.5, 0.74986 },
-    { -1.0, 0.74743 },
-    { -0.5, 0.73973 },
-    {  0.0, 0.7154  },
-    {  0.5, 0.63846 }
+const std::unordered_map<float, float> Star::_kFeHSurfaceH1Map{
+    { -4.0f, 0.75098f },
+    { -3.0f, 0.75095f },
+    { -2.0f, 0.75063f },
+    { -1.5f, 0.74986f },
+    { -1.0f, 0.74743f },
+    { -0.5f, 0.73973f },
+    {  0.0f, 0.7154f  },
+    {  0.5f, 0.63846f }
 };
 
 _ASTROOBJECT_END

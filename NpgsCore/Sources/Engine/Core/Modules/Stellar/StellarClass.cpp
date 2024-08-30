@@ -46,7 +46,7 @@ static ParseState ParseLuminosityClassIa(unsigned char Char, StellarClass::Lumin
 static ParseState ParseLuminosityClassII(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass);
 static ParseState ParseLuminosityClassV(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass);
 static ParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, StellarClass::SpecialPeculiarity& SpecialMark, std::size_t& Index);
-static std::string SpectralToStr(StellarClass::SpectralClass Spectral, double Subclass);
+static std::string SpectralToStr(StellarClass::SpectralClass Spectral, float Subclass);
 static std::string LuminosityClassToStr(StellarClass::LuminosityClass Luminosity);
 static std::string SpecialMarkToStr(StellarClass::SpecialPeculiarities SpecialMark);
 
@@ -65,10 +65,10 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
 
     StarType StarType = StarType::kNormalStar;
     SpectralClass HSpectralClass = SpectralClass::kSpectral_Unknown;
-    double Subclass = 0.0;
+    float Subclass = 0.0f;
     bool bIsAmStar = false;
     SpectralClass MSpectralClass = SpectralClass::kSpectral_Unknown;
-    double AmSubclass = 0.0;
+    float AmSubclass = 0.0f;
     LuminosityClass LuminosityClass = LuminosityClass::kLuminosity_Unknown;
     SpecialPeculiarity SpecialMark = static_cast<std::uint32_t>(SpecialPeculiarities::kCode_Null);
 
@@ -154,9 +154,9 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
         case ParseState::kSubclassDecimalFinal:
             if (std::isdigit(Char)) {
                 if (!bParsingAmStar) {
-                    Subclass += 0.1 * (Char - '0');
+                    Subclass += 0.1f * (Char - '0');
                 } else {
-                    AmSubclass += 0.1 * (Char - '0');
+                    AmSubclass += 0.1f * (Char - '0');
                 }
             }
 
@@ -194,7 +194,7 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
         }
     }
 
-    return { StarType, { HSpectralClass, Subclass, bIsAmStar, MSpectralClass, AmSubclass, LuminosityClass, SpecialMark } };
+    return { StarType, { HSpectralClass, MSpectralClass, LuminosityClass, SpecialMark, Subclass, AmSubclass, bIsAmStar } };
 }
 
 StellarClass::SpectralType StellarClass::Data() const {
@@ -203,15 +203,15 @@ StellarClass::SpectralType StellarClass::Data() const {
 
     Type                               = static_cast<StarType>(_SpectralType >> 62 & 0x3);
     StructSpectralType.HSpectralClass  = static_cast<SpectralClass>(_SpectralType >> 57 & 0x1F);
-    StructSpectralType.Subclass        = (_SpectralType >> 53 & 0xF) + (_SpectralType >> 49 & 0xF) / 10.0;
+    StructSpectralType.Subclass        = (_SpectralType >> 53 & 0xF) + (_SpectralType >> 49 & 0xF) / 10.0f;
     StructSpectralType.bIsAmStar       = _SpectralType >> 48 & 0x1;
     StructSpectralType.MSpectralClass  = static_cast<SpectralClass>(_SpectralType >> 44 & 0xF);
-    StructSpectralType.AmSubclass      = (_SpectralType >> 40 & 0xF) + (_SpectralType >> 36 & 0xF) / 10.0;
+    StructSpectralType.AmSubclass      = (_SpectralType >> 40 & 0xF) + (_SpectralType >> 36 & 0xF) / 10.0f;
     StructSpectralType.LuminosityClass = static_cast<LuminosityClass>(_SpectralType >> 32 & 0xF);
     StructSpectralType.SpecialMark     = static_cast<SpecialPeculiarity>(_SpectralType & 0x1FFFFFFFF);
 
     if (StructSpectralType.HSpectralClass == SpectralClass::kSpectral_Unknown) {
-        StructSpectralType = { SpectralClass::kSpectral_Unknown, 0.0, false, SpectralClass::kSpectral_Unknown, 0.0, LuminosityClass::kLuminosity_Unknown, 0 };
+        StructSpectralType = { SpectralClass::kSpectral_Unknown, SpectralClass::kSpectral_Unknown, LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
     }
 
     return StructSpectralType;
@@ -228,8 +228,8 @@ bool StellarClass::Load(const SpectralType& SpectralType) {
 
     std::uint64_t Data         = 0;
     std::uint32_t SubclassHigh = static_cast<std::uint32_t>(SpectralType.Subclass);
-    double        Intermediate = std::round((SpectralType.Subclass - SubclassHigh) * 1000.0) / 1000.0;
-    std::uint32_t SubclassLow  = static_cast<std::uint32_t>(Intermediate * 10.0);
+    float         Intermediate = std::round((SpectralType.Subclass - SubclassHigh) * 1000.0f) / 1000.0f;
+    std::uint32_t SubclassLow  = static_cast<std::uint32_t>(Intermediate * 10.0f);
 
     Data |= static_cast<std::uint64_t>(_StarType)                    << 62;
     Data |= static_cast<std::uint64_t>(SpectralType.HSpectralClass)  << 57;
@@ -239,8 +239,8 @@ bool StellarClass::Load(const SpectralType& SpectralType) {
     Data |= static_cast<std::uint64_t>(SpectralType.MSpectralClass)  << 44;
 
     SubclassHigh = static_cast<std::uint32_t>(SpectralType.AmSubclass);
-    Intermediate = std::round((SpectralType.AmSubclass - SubclassHigh) * 1000.0) / 1000.0;
-    SubclassLow  = static_cast<std::uint32_t>(Intermediate * 10.0);
+    Intermediate = std::round((SpectralType.AmSubclass - SubclassHigh) * 1000.0f) / 1000.0f;
+    SubclassLow  = static_cast<std::uint32_t>(Intermediate * 10.0f);
 
     Data |= static_cast<std::uint64_t>(SubclassHigh)                 << 40;
     Data |= static_cast<std::uint64_t>(SubclassLow)                  << 36;
@@ -559,13 +559,13 @@ ParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, StellarC
     }
 }
 
-std::string SpectralToStr(StellarClass::SpectralClass Spectral, double Subclass) {
+std::string SpectralToStr(StellarClass::SpectralClass Spectral, float Subclass) {
     std::ostringstream Stream;
 
     if (Subclass == std::floor(Subclass)) {
         Stream << std::fixed << std::setprecision(0) << Subclass;
     } else {
-        Subclass = std::round(Subclass * 10.0) / 10.0;
+        Subclass = std::round(Subclass * 10.0f) / 10.0f;
         Stream << std::fixed << std::setprecision(1) << Subclass;
     }
 

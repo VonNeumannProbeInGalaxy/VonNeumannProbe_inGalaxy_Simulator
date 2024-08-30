@@ -115,13 +115,13 @@ public:
     };
 
     struct SpectralType {
-        SpectralClass HSpectralClass;
-        double Subclass;
-        bool bIsAmStar;
-        SpectralClass MSpectralClass;
-        double AmSubclass;
-        LuminosityClass LuminosityClass;
+        SpectralClass      HSpectralClass;
+        SpectralClass      MSpectralClass;
+        LuminosityClass    LuminosityClass;
         SpecialPeculiarity SpecialMark;
+        float              Subclass;
+        float              AmSubclass;
+        bool               bIsAmStar;
     };
 
 public:
@@ -142,8 +142,8 @@ public:
     }
 
 private:
-    StarType      _StarType;
     std::uint64_t _SpectralType;
+    StarType      _StarType;
 };
 
 _MODULES_END

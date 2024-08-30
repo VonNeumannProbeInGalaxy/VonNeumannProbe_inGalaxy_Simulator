@@ -28,42 +28,37 @@ inline CelestialBody& CelestialBody::SetName(const std::string& Name) {
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetRadius(double Radius) {
-    _Properties.Radius = Radius;
-    return *this;
-}
-
-inline CelestialBody& CelestialBody::SetMass(double Mass) {
-    _Properties.Mass = Mass;
-    return *this;
-}
-
-inline CelestialBody& CelestialBody::SetSpin(double Spin) {
-    _Properties.Spin = Spin;
-    return *this;
-}
-
-inline CelestialBody& CelestialBody::SetOblateness(double Oblateness) {
-    _Properties.Oblateness = Oblateness;
-    return *this;
-}
-
-inline CelestialBody& CelestialBody::SetAxisTilt(double AxisTilt) {
-    _Properties.AxisTilt = AxisTilt;
-    return *this;
-}
-
 inline CelestialBody& CelestialBody::SetAge(double Age) {
     _Properties.Age = Age;
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetEscapeVelocity(double EscapeVelocity) {
+inline CelestialBody& CelestialBody::SetRadius(float Radius) {
+    _Properties.Radius = Radius;
+    return *this;
+}
+
+inline CelestialBody& CelestialBody::SetSpin(float Spin) {
+    _Properties.Spin = Spin;
+    return *this;
+}
+
+inline CelestialBody& CelestialBody::SetOblateness(float Oblateness) {
+    _Properties.Oblateness = Oblateness;
+    return *this;
+}
+
+inline CelestialBody& CelestialBody::SetAxisTilt(float AxisTilt) {
+    _Properties.AxisTilt = AxisTilt;
+    return *this;
+}
+
+inline CelestialBody& CelestialBody::SetEscapeVelocity(float EscapeVelocity) {
     _Properties.EscapeVelocity = EscapeVelocity;
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetMagneticField(double MagneticField) {
+inline CelestialBody& CelestialBody::SetMagneticField(float MagneticField) {
     _Properties.MagneticField = MagneticField;
     return *this;
 }
@@ -73,42 +68,42 @@ inline CelestialBody& CelestialBody::SetParentBody(const BaryCenter& ParentBody)
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetEpoch(double Epoch) {
+inline CelestialBody& CelestialBody::SetEpoch(float Epoch) {
     _Properties.Orbit.Epoch = Epoch;
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetPeriod(double Period) {
+inline CelestialBody& CelestialBody::SetPeriod(float Period) {
     _Properties.Orbit.Period = Period;
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetSemiMajorAxis(double SemiMajorAxis) {
+inline CelestialBody& CelestialBody::SetSemiMajorAxis(float SemiMajorAxis) {
     _Properties.Orbit.SemiMajorAxis = SemiMajorAxis;
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetEccentricity(double Eccentricity) {
+inline CelestialBody& CelestialBody::SetEccentricity(float Eccentricity) {
     _Properties.Orbit.Eccentricity = Eccentricity;
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetInclination(double Inclination) {
+inline CelestialBody& CelestialBody::SetInclination(float Inclination) {
     _Properties.Orbit.Inclination = Inclination;
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetLongitudeOfAscendingNode(double LongitudeOfAscendingNode) {
+inline CelestialBody& CelestialBody::SetLongitudeOfAscendingNode(float LongitudeOfAscendingNode) {
     _Properties.Orbit.LongitudeOfAscendingNode = LongitudeOfAscendingNode;
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetArgumentOfPeriapsis(double ArgumentOfPeriapsis) {
+inline CelestialBody& CelestialBody::SetArgumentOfPeriapsis(float ArgumentOfPeriapsis) {
     _Properties.Orbit.ArgumentOfPeriapsis = ArgumentOfPeriapsis;
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetMeanAnomaly(double MeanAnomaly) {
+inline CelestialBody& CelestialBody::SetMeanAnomaly(float MeanAnomaly) {
     _Properties.Orbit.MeanAnomaly = MeanAnomaly;
     return *this;
 }
@@ -117,35 +112,31 @@ inline std::string CelestialBody::GetName() const {
     return _Properties.Name;
 }
 
-inline double CelestialBody::GetRadius() const {
-    return _Properties.Radius;
-}
-
-inline double CelestialBody::GetMass() const {
-    return _Properties.Mass;
-}
-
-inline double CelestialBody::GetSpin() const {
-    return _Properties.Spin;
-}
-
-inline double CelestialBody::GetOblateness() const {
-    return _Properties.Oblateness;
-}
-
-inline double CelestialBody::GetAxisTilt() const {
-    return _Properties.AxisTilt;
-}
-
 inline double CelestialBody::GetAge() const {
     return _Properties.Age;
 }
 
-inline double CelestialBody::GetEscapeVelocity() const {
+inline float CelestialBody::GetRadius() const {
+    return _Properties.Radius;
+}
+
+inline float CelestialBody::GetSpin() const {
+    return _Properties.Spin;
+}
+
+inline float CelestialBody::GetOblateness() const {
+    return _Properties.Oblateness;
+}
+
+inline float CelestialBody::GetAxisTilt() const {
+    return _Properties.AxisTilt;
+}
+
+inline float CelestialBody::GetEscapeVelocity() const {
     return _Properties.EscapeVelocity;
 }
 
-inline double CelestialBody::GetMagneticField() const {
+inline float CelestialBody::GetMagneticField() const {
     return _Properties.MagneticField;
 }
 
@@ -153,35 +144,35 @@ inline CelestialBody::BaryCenter CelestialBody::GetParentBody() const {
     return _Properties.Orbit.ParentBody;
 }
 
-inline double CelestialBody::GetEpoch() const {
+inline float CelestialBody::GetEpoch() const {
     return _Properties.Orbit.Epoch;
 }
 
-inline double CelestialBody::GetPeriod() const {
+inline float CelestialBody::GetPeriod() const {
     return _Properties.Orbit.Period;
 }
 
-inline double CelestialBody::GetSemiMajorAxis() const {
+inline float CelestialBody::GetSemiMajorAxis() const {
     return _Properties.Orbit.SemiMajorAxis;
 }
 
-inline double CelestialBody::GetEccentricity() const {
+inline float CelestialBody::GetEccentricity() const {
     return _Properties.Orbit.Eccentricity;
 }
 
-inline double CelestialBody::GetInclination() const {
+inline float CelestialBody::GetInclination() const {
     return _Properties.Orbit.Inclination;
 }
 
-inline double CelestialBody::GetLongitudeOfAscendingNode() const {
+inline float CelestialBody::GetLongitudeOfAscendingNode() const {
     return _Properties.Orbit.LongitudeOfAscendingNode;
 }
 
-inline double CelestialBody::GetArgumentOfPeriapsis() const {
+inline float CelestialBody::GetArgumentOfPeriapsis() const {
     return _Properties.Orbit.ArgumentOfPeriapsis;
 }
 
-inline double CelestialBody::GetMeanAnomaly() const {
+inline float CelestialBody::GetMeanAnomaly() const {
     return _Properties.Orbit.MeanAnomaly;
 }
 

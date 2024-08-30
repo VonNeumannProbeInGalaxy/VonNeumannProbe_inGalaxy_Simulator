@@ -40,17 +40,19 @@ int main() {
 
     Logger::Init();
 
-    std::println("Enter the star count:");
-    std::size_t StarCount = 0;
-    std::cin >> StarCount;
+    std::println("{}", sizeof(StellarClass));
 
-    std::println("Enter the seed:");
-    unsigned Seed = 0;
-    std::cin >> Seed;
+    //std::println("Enter the star count:");
+    //std::size_t StarCount = 0;
+    //std::cin >> StarCount;
 
-    Universe Space(Seed, StarCount);
-    auto& Stars = Space.FillUniverse();
-    Space.ReplaceStar(999, {});
+    //std::println("Enter the seed:");
+    //unsigned Seed = 0;
+    //std::cin >> Seed;
+
+    //Universe Space(Seed, StarCount);
+    //auto& Stars = Space.FillUniverse();
+    //Space.ReplaceStar(999, {});
 
     //std::size_t MMainSequence = 0;
     //std::size_t KMainSequence = 0;

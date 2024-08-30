@@ -14,72 +14,77 @@ inline const Star::ExtendedProperties& Star::GetExtendedProperties() const {
     return _StarExtraProperties;
 }
 
+inline Star& Star::SetMass(double Mass) {
+    _StarExtraProperties.Mass = Mass;
+    return *this;
+}
+
 inline Star& Star::SetLuminosity(double Luminosity) {
     _StarExtraProperties.Luminosity = Luminosity;
     return *this;
 }
 
-inline Star& Star::SetFeH(double FeH) {
+inline Star& Star::SetFeH(float FeH) {
     _StarExtraProperties.FeH = FeH;
     return *this;
 }
 
-inline Star& Star::SetSurfaceH1(double SurfaceH1) {
+inline Star& Star::SetSurfaceH1(float SurfaceH1) {
     _StarExtraProperties.SurfaceH1 = SurfaceH1;
     return *this;
 }
 
-inline Star& Star::SetSurfaceZ(double SurfaceZ) {
+inline Star& Star::SetSurfaceZ(float SurfaceZ) {
     _StarExtraProperties.SurfaceZ = SurfaceZ;
     return *this;
 }
 
-inline Star& Star::SetSurfaceEnergeticNuclide(double SurfaceEnergeticNuclide) {
+inline Star& Star::SetSurfaceEnergeticNuclide(float SurfaceEnergeticNuclide) {
     _StarExtraProperties.SurfaceEnergeticNuclide = SurfaceEnergeticNuclide;
     return *this;
 }
 
-inline Star& Star::SetSurfaceVolatiles(double SurfaceVolatiles) {
+inline Star& Star::SetSurfaceVolatiles(float SurfaceVolatiles) {
     _StarExtraProperties.SurfaceVolatiles = SurfaceVolatiles;
     return *this;
 }
 
-inline Star& Star::SetTeff(double Teff) {
+inline Star& Star::SetTeff(float Teff) {
     _StarExtraProperties.Teff = Teff;
     return *this;
 }
 
-inline Star& Star::SetCoreTemp(double CoreTemp) {
+inline Star& Star::SetCoreTemp(float CoreTemp) {
     _StarExtraProperties.CoreTemp = CoreTemp;
     return *this;
 }
 
-inline Star& Star::SetCoreDensity(double CoreDensity) {
+inline Star& Star::SetCoreDensity(float CoreDensity) {
     _StarExtraProperties.CoreDensity = CoreDensity;
     return *this;
 }
 
-inline Star& Star::SetStellarWindSpeed(double StellarWindSpeed) {
+inline Star& Star::SetStellarWindSpeed(float StellarWindSpeed) {
     _StarExtraProperties.StellarWindSpeed = StellarWindSpeed;
     return *this;
 }
 
-inline Star& Star::SetStellarWindMassLossRate(double StellarWindMassLossRate) {
+inline Star& Star::SetStellarWindMassLossRate(float StellarWindMassLossRate) {
     _StarExtraProperties.StellarWindMassLossRate = StellarWindMassLossRate;
     return *this;
 }
 
-inline Star& Star::SetEvolutionProgress(double EvolutionProgress) {
+inline Star& Star::SetEvolutionProgress(float EvolutionProgress) {
     _StarExtraProperties.EvolutionProgress = EvolutionProgress;
     return *this;
 }
 
-inline Star& Star::SetLifetime(double Lifetime) {
+inline Star& Star::SetLifetime(float Lifetime) {
     _StarExtraProperties.Lifetime = Lifetime;
     return *this;
 }
 
-inline Star& Star::SetMinCoilMass(double MinCoilMass) {
+inline Star& Star::SetMinCoilMass(float MinCoilMass) {
     _StarExtraProperties.MinCoilMass = MinCoilMass;
     return *this;
 }
@@ -104,59 +109,63 @@ inline Star& Star::SetStellarClass(const Modules::StellarClass& StellarClass) {
     return *this;
 }
 
+inline double Star::GetMass() const {
+    return _StarExtraProperties.Mass;
+}
+
 inline double Star::GetLuminosity() const {
     return _StarExtraProperties.Luminosity;
 }
 
-inline double Star::GetFeH() const {
+inline float Star::GetFeH() const {
     return _StarExtraProperties.FeH;
 }
 
-inline double Star::GetSurfaceH1() const {
+inline float Star::GetSurfaceH1() const {
     return _StarExtraProperties.SurfaceH1;
 }
 
-inline double Star::GetSurfaceZ() const {
+inline float Star::GetSurfaceZ() const {
     return _StarExtraProperties.SurfaceZ;
 }
 
-inline double Star::GetSurfaceEnergeticNuclide() const {
+inline float Star::GetSurfaceEnergeticNuclide() const {
     return _StarExtraProperties.SurfaceEnergeticNuclide;
 }
 
-inline double Star::GetSurfaceVolatiles() const {
+inline float Star::GetSurfaceVolatiles() const {
     return _StarExtraProperties.SurfaceVolatiles;
 }
 
-inline double Star::GetTeff() const {
+inline float Star::GetTeff() const {
     return _StarExtraProperties.Teff;
 }
 
-inline double Star::GetCoreTemp() const {
+inline float Star::GetCoreTemp() const {
     return _StarExtraProperties.CoreTemp;
 }
 
-inline double Star::GetCoreDensity() const {
+inline float Star::GetCoreDensity() const {
     return _StarExtraProperties.CoreDensity;
 }
 
-inline double Star::GetStellarWindSpeed() const {
+inline float Star::GetStellarWindSpeed() const {
     return _StarExtraProperties.StellarWindSpeed;
 }
 
-inline double Star::GetStellarWindMassLossRate() const {
+inline float Star::GetStellarWindMassLossRate() const {
     return _StarExtraProperties.StellarWindMassLossRate;
 }
 
-inline double Star::GetEvolutionProgress() const {
+inline float Star::GetEvolutionProgress() const {
     return _StarExtraProperties.EvolutionProgress;
 }
 
-inline double Star::GetLifetime() const {
+inline float Star::GetLifetime() const {
     return _StarExtraProperties.Lifetime;
 }
 
-inline double Star::GetMinCoilMass() const {
+inline float Star::GetMinCoilMass() const {
     return _StarExtraProperties.MinCoilMass;
 }
 
