@@ -17,7 +17,7 @@ _NPGS_BEGIN
 
 class NPGS_API Universe {
 public:
-    Universe(int Seed, std::size_t NumStars, std::size_t NumExtraSupergiants = 0, std::size_t NumExtraLbvs = 0, std::size_t NumExtraNeutronStars = 0, std::size_t NumExtraBlackHoles = 0, std::size_t NumExtraMergeStars = 0);
+    Universe(unsigned Seed, std::size_t NumStars, std::size_t NumExtraGiants = 0, std::size_t NumExtraMassiveStars = 0, std::size_t NumExtraNeutronStars = 0, std::size_t NumExtraBlackHoles = 0, std::size_t NumExtraMergeStars = 0, double UniverseAge = 1.38e10);
     ~Universe();
 
     const std::vector<AstroObject::Star>& FillUniverse();
@@ -30,19 +30,20 @@ private:
 private:
     using NodeType = Octree<AstroObject::Star>::NodeType;
 
-    int                                        _Seed;
     std::mt19937                               _RandomEngine;
     std::unique_ptr<Octree<AstroObject::Star>> _StellarOctree;
     std::vector<AstroObject::Star>             _Stars;
     ThreadPool*                                _ThreadPool;
-    UniformRealDistribution<float>             _Dist;
+    UniformRealDistribution<float>             _CommonGenerator;
+    UniformRealDistribution<float>             _SeedGenerator;
 
     std::size_t _NumStars;
-    std::size_t _NumExtraSupergiants;
-    std::size_t _NumExtraLbvs;
+    std::size_t _NumExtraGiants;
+    std::size_t _NumExtraMassiveStars;
     std::size_t _NumExtraNeutronStars;
     std::size_t _NumExtraBlackHoles;
     std::size_t _NumExtraMergeStars;
+    double      _UniverseAge;
 };
 
 _NPGS_END

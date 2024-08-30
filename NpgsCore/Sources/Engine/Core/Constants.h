@@ -14,7 +14,7 @@ constexpr inline double kSolarTeff              = 5772;
 constexpr inline double kSolarCoreTemp          = 1.57e7;
 constexpr inline double kSolarAbsoluteMagnitude = 4.83;
 
-constexpr inline int    kSpeedOflight           = 299792458;
+constexpr inline int    kSpeedOfLight           = 299792458;
 constexpr inline double kGravityConstant        = 6.67430e-11;
 constexpr inline double kPi                     = 3.1415926535897932;
 constexpr inline double kStefanBoltzmann        = 5.670374419e-8;

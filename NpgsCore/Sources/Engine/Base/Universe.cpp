@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <future>
 #include <iomanip>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -12,6 +13,7 @@
 #include <unordered_map>
 
 #define ENABLE_LOGGER
+#define OUTPUT_DATA
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/Logger.h"
 #include "Engine/Core/Random.hpp"
@@ -28,10 +30,18 @@ struct TupleHash {
     }
 };
 
-Universe::Universe(int Seed, std::size_t NumStars, std::size_t NumExtraSupergiants, std::size_t NumExtraLbvs, std::size_t NumExtraNeutronStars, std::size_t NumExtraBlackHoles, std::size_t NumExtraMergeStars) :
-    _Seed(Seed), _RandomEngine(Seed), _ThreadPool(ThreadPool::GetInstance()), _Dist(0.0f, 1.0f),
-    _NumStars(NumStars), _NumExtraSupergiants(NumExtraSupergiants), _NumExtraLbvs(NumExtraLbvs), _NumExtraNeutronStars(NumExtraNeutronStars), _NumExtraBlackHoles(NumExtraBlackHoles), _NumExtraMergeStars(NumExtraMergeStars)
-{}
+Universe::Universe(unsigned Seed, std::size_t NumStars, std::size_t NumExtraGiants, std::size_t NumExtraMassiveStars, std::size_t NumExtraNeutronStars, std::size_t NumExtraBlackHoles, std::size_t NumExtraMergeStars, double UniverseAge) :
+    _RandomEngine(Seed), _ThreadPool(ThreadPool::GetInstance()), _CommonGenerator(0.0f, 1.0f), _SeedGenerator(0.0f, static_cast<float>(std::numeric_limits<unsigned>::max())),
+    _NumStars(NumStars), _NumExtraGiants(NumExtraGiants), _NumExtraMassiveStars(NumExtraMassiveStars), _NumExtraNeutronStars(NumExtraNeutronStars), _NumExtraBlackHoles(NumExtraBlackHoles), _NumExtraMergeStars(NumExtraMergeStars), _UniverseAge(UniverseAge)
+{
+    std::seed_seq SeedSeq{
+        static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+        static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+        static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+        static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine))
+    };
+    _RandomEngine.seed(SeedSeq);
+}
 
 Universe::~Universe() {
     _ThreadPool->Destroy();
@@ -51,8 +61,21 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
             double AgeLowerLimit  =  0.0, double AgeUpperLimit  = 1.26e10, Modules::StellarGenerator::GenDistribution AgeDistribution  = Modules::StellarGenerator::GenDistribution::kFromPdf,
             double FeHLowerLimit  = -4.0, double FeHUpperLimit  = 0.5,     Modules::StellarGenerator::GenDistribution FeHDistribution  = Modules::StellarGenerator::GenDistribution::kFromPdf) -> void {
         for (int i = 0; i != MaxThread; ++i) {
-            float Seed = static_cast<float>(i * _Seed);
-            Generators.emplace_back(Seed, Option, MassLowerLimit, MassUpperLimit, MassDistribution, AgeLowerLimit, AgeUpperLimit, AgeDistribution, FeHLowerLimit, FeHUpperLimit, FeHDistribution);
+            std::seed_seq SeedSeq{
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
+                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine))
+            };
+            Generators.emplace_back(SeedSeq, Option, _UniverseAge, MassLowerLimit, MassUpperLimit, MassDistribution, AgeLowerLimit, AgeUpperLimit, AgeDistribution, FeHLowerLimit, FeHUpperLimit, FeHDistribution);
         }
     };
 
@@ -72,16 +95,16 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
         }
     };
 
-    if (_NumExtraSupergiants != 0) {
+    if (_NumExtraGiants != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenOption::kSupergiant, 1.0, 300.0);
-        GenerateBasicProperties(_NumExtraSupergiants);
+        CreateGenerators(Modules::StellarGenerator::GenOption::kGiant, 1.0, 30.0);
+        GenerateBasicProperties(_NumExtraGiants);
     }
 
-    if (_NumExtraLbvs != 0) {
+    if (_NumExtraMassiveStars != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 280.0, 300.0, Modules::StellarGenerator::GenDistribution::kUniform, 0.0, 3.5e6, Modules::StellarGenerator::GenDistribution::kUniform);
-        GenerateBasicProperties(_NumExtraLbvs);
+        CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 20.0, 300.0, Modules::StellarGenerator::GenDistribution::kUniform, 0.0, 3.5e6, Modules::StellarGenerator::GenDistribution::kUniform);
+        GenerateBasicProperties(_NumExtraMassiveStars);
     }
 
     if (_NumExtraNeutronStars != 0) {
@@ -102,11 +125,11 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
         GenerateBasicProperties(_NumExtraMergeStars);
     }
 
-    std::size_t NumCommonStars = _NumStars - _NumExtraLbvs - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
+    std::size_t NumCommonStars = _NumStars - _NumExtraGiants - _NumExtraMassiveStars - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
 
     Generators.clear();
     CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 0.075);
-    // CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 200.0, 300.0, Npgs::Modules::StellarGenerator::GenDistribution::kFromPdf, 0.0, 1e7);
+    // CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 8.0, 300.0);
     GenerateBasicProperties(NumCommonStars);
 
     for (auto& Future : Futures) {
@@ -135,8 +158,10 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
         _Stars.emplace_back(Star);
     }
 
-    // Temp
-    // return _Stars;
+#ifdef OUTPUT_DATA
+    NpgsCoreInfo("Outputing data...");
+    return _Stars;
+#endif // OUTPUT_DATA
 
     NpgsCoreInfo("Star detail interpolation completed.");
     NpgsCoreInfo("Building stellar octree...");
@@ -240,14 +265,14 @@ void Universe::GenerateSlots(int SampleLimit, std::size_t NumSamples, float Dens
     AddSample(InitialSample);
 
     while (!ProcessList.empty() && TotalSamples < NumSamples) {
-        int Index = static_cast<int>(_Dist.Generate(_RandomEngine) * ProcessList.size());
+        int Index = static_cast<int>(_CommonGenerator.Generate(_RandomEngine) * ProcessList.size());
         glm::vec3 CurrentSample = ProcessList[Index];
         bool bFound = false;
 
         for (int i = 0; i != SampleLimit; ++i) {
-            float Angle1   = _Dist.Generate(_RandomEngine) * 2.0f * static_cast<float>(kPi);
-            float Angle2   = _Dist.Generate(_RandomEngine) * 2.0f * static_cast<float>(kPi);
-            float Distance = _Dist.Generate(_RandomEngine) * Radius; // _Dist.Generate(_RandomEngine) * (2 * PointRadius - 0.1f) + 0.1f;
+            float Angle1   = _CommonGenerator.Generate(_RandomEngine) * 2.0f * static_cast<float>(kPi);
+            float Angle2   = _CommonGenerator.Generate(_RandomEngine) * 2.0f * static_cast<float>(kPi);
+            float Distance = _CommonGenerator.Generate(_RandomEngine) * Radius; // _Dist.Generate(_RandomEngine) * (2 * PointRadius - 0.1f) + 0.1f;
             glm::vec3 NewSample = CurrentSample + glm::vec3(std::cos(Angle1) * std::cos(Angle2), std::sin(Angle1) * std::cos(Angle2), std::sin(Angle2)) * Distance;
 
             if (glm::length(NewSample) <= Radius) {

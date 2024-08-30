@@ -4,7 +4,7 @@ import os
 import csv
 
 # 加载图像
-image_path = "Z:\\Source\\Repos\\VonNeumannProbe_inGalaxy_Simulator\\VonNeumannProbe_inGalaxy_Simulator\\Tools\\H-R_Diagram_Curve.png"  # 请替换为你的图像文件路径
+image_path = "Z:\\Source\\Repos\\VonNeumannProbe_inGalaxy_Simulator\\NpgsCore\\Tools\\H-R_Diagram_Curve.png"  # 请替换为你的图像文件路径
 image = cv2.imread(image_path)
 if image is None:
     raise FileNotFoundError(f"无法加载图像文件: {image_path}")
@@ -20,7 +20,8 @@ color_ranges = {
     'Ib': ([170, 100, 100], [180, 255, 255]), # 红色
     'II': ([50, 100, 100], [70, 255, 255]),   # 绿色
     'III': ([25, 100, 100], [35, 255, 255]),  # 黄色
-    'IV': ([125, 100, 100], [150, 255, 255])  # 紫色
+    'IV': ([125, 100, 100], [150, 255, 255]), # 紫色
+    'V':  ([0, 0, 255], [180, 0, 255])        # 白色
 }
 
 # 转换像素坐标为实际坐标的函数

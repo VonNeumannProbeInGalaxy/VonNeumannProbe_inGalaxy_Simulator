@@ -20,7 +20,7 @@ public:
     using BaryCenter = AstroObject::CelestialBody::BaryCenter;
     using MistData   = Assets::Csv<double, 12>;
     using WdMistData = Assets::Csv<double, 5>;
-    using HrDiagram  = Assets::Csv<double, 6>;
+    using HrDiagram  = Assets::Csv<double, 7>;
 
     enum class GenDistribution {
         kFromPdf,
@@ -30,7 +30,7 @@ public:
 
     enum class GenOption {
         kNormal,
-        kSupergiant,
+        kGiant,
         kDeathStar,
         kMergeStar
     };
@@ -56,7 +56,7 @@ public:
 
 public:
     StellarGenerator() = default;
-    StellarGenerator(int Seed, GenOption Option = GenOption::kNormal,
+    StellarGenerator(const std::seed_seq& SeedSeq, GenOption Option = GenOption::kNormal, double UniverseAge = 1.38e10,
         double MassLowerLimit =  0.1,     double MassUpperLimit = 300.0,   GenDistribution MassDistribution = GenDistribution::kFromPdf,
         double AgeLowerLimit  =  0.0,     double AgeUpperLimit  = 1.26e10, GenDistribution AgeDistribution  = GenDistribution::kFromPdf,
         double FeHLowerLimit  = -4.0,     double FeHUpperLimit  = 0.5,     GenDistribution FeHDistribution  = GenDistribution::kFromPdf,
@@ -113,6 +113,7 @@ private:
     std::array<std::shared_ptr<Distribution<double>>, 4> _FeHGenerators;
     std::array<std::shared_ptr<Distribution<double>>, 8> _MagneticGenerators;
 
+    double _UniverseAge;
     double _MassLowerLimit;
     double _MassUpperLimit;
     double _AgeLowerLimit;

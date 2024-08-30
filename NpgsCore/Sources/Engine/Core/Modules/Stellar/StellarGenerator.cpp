@@ -35,7 +35,7 @@ _MODULES_BEGIN
 
 // Tool functions
 // --------------
-static double DefaultAgePdf(double Age);
+static double DefaultAgePdf(double Age, double UniverseAge);
 static double DefaultLogMassPdf(double Mass, bool bIsBinary);
 static double CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassFactor);
 static std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
@@ -51,8 +51,8 @@ static void ExpandMistData(std::vector<double>& StarData, double TargetMass);
 
 // StellarGenerator implementations
 // --------------------------------
-StellarGenerator::StellarGenerator(int Seed, GenOption Option, double MassLowerLimit, double MassUpperLimit, GenDistribution MassDistribution, double AgeLowerLimit, double AgeUpperLimit, GenDistribution AgeDistribution, double FeHLowerLimit, double FeHUpperLimit, GenDistribution FeHDistribution, double CoilTempLimit, double dEpdM) :
-    _RandomEngine(Seed), _Option(Option),
+StellarGenerator::StellarGenerator(const std::seed_seq& SeedSeq, GenOption Option, double UniverseAge, double MassLowerLimit, double MassUpperLimit, GenDistribution MassDistribution, double AgeLowerLimit, double AgeUpperLimit, GenDistribution AgeDistribution, double FeHLowerLimit, double FeHUpperLimit, GenDistribution FeHDistribution, double CoilTempLimit, double dEpdM) :
+    _RandomEngine(SeedSeq), _Option(Option), _UniverseAge(UniverseAge),
     _LogMassGenerator(std::log10(MassLowerLimit), std::log10(MassUpperLimit)),
     _AgeGenerator(AgeLowerLimit, AgeUpperLimit),
     _CommonGenerator(0.0, 1.0),
@@ -61,7 +61,7 @@ StellarGenerator::StellarGenerator(int Seed, GenOption Option, double MassLowerL
         std::make_shared<NormalDistribution<double>>(-0.3, 0.15),
         std::make_shared<NormalDistribution<double>>(-0.08, 0.12),
         std::make_shared<NormalDistribution<double>>(0.05, 0.16)
-        }),
+    }),
     _MagneticGenerators({
         std::make_shared<UniformRealDistribution<double>>(std::log10(500.0), std::log10(3000.0)),
         std::make_shared<UniformRealDistribution<double>>(1.0, 3.0),
@@ -97,9 +97,9 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
             double LogMassUpper = std::log10(_MassUpperLimit);
             if (!(LogMassLower < 0.22 && LogMassUpper > 0.22)) {
                 if (LogMassLower > 0.22) {
-                    MaxProbability = std::min(DefaultLogMassPdf(LogMassUpper, true), 0.086);
+                    MaxProbability = DefaultLogMassPdf(LogMassLower, true);
                 } else if (LogMassUpper < 0.22) {
-                    MaxProbability = std::min(DefaultLogMassPdf(LogMassLower, true), 0.086);
+                    MaxProbability = DefaultLogMassPdf(LogMassUpper, true);
                 }
             }
             Properties.Mass = GenerateMass(MaxProbability, true);
@@ -117,11 +117,11 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     switch (_AgeDistribution) {
     case GenDistribution::kFromPdf: {
         double MaxProbability = 2.6;
-        if (!(_AgeLowerLimit < 8e9 && _AgeUpperLimit > 8e9)) {
-            if (_AgeLowerLimit > 8e9) {
-                MaxProbability = std::min(DefaultAgePdf(_AgeUpperLimit), 2.6);
-            } else if (_AgeUpperLimit < 8e9) {
-                MaxProbability = std::min(DefaultAgePdf(_AgeLowerLimit), 2.6);
+        if (!(_AgeLowerLimit < _UniverseAge - 1.38e10 + 8e9 && _AgeUpperLimit > _UniverseAge - 1.38e10 + 8e9)) {
+            if (_AgeLowerLimit > _UniverseAge - 1.38e10 + 8e9) {
+                MaxProbability = DefaultAgePdf(_AgeLowerLimit, _UniverseAge / 1e9);
+            } else if (_AgeUpperLimit < _UniverseAge - 1.38e10 + 8e9) {
+                MaxProbability = DefaultAgePdf(_AgeUpperLimit, _UniverseAge / 1e9);
             }
         }
         Properties.Age = GenerateAge(MaxProbability);
@@ -147,13 +147,13 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     double FeHLowerLimit = _FeHLowerLimit;
     double FeHUpperLimit = _FeHUpperLimit;
 
-    if (Properties.Age > 8e9) {
+    if (Properties.Age > _UniverseAge - 1.38e10 + 8e9) {
         FeHGenerator = _FeHGenerators[0];
         FeHLowerLimit = -_FeHUpperLimit;
         FeHUpperLimit = -_FeHLowerLimit;
-    } else if (Properties.Age > 6e9) {
+    } else if (Properties.Age > _UniverseAge - 1.38e10 + 6e9) {
         FeHGenerator = _FeHGenerators[1];
-    } else if (Properties.Age > 4e9) {
+    } else if (Properties.Age > _UniverseAge - 1.38e10 + 4e9) {
         FeHGenerator = _FeHGenerators[2];
     } else {
         FeHGenerator = _FeHGenerators[3];
@@ -164,7 +164,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
         FeH = FeHGenerator->Generate(_RandomEngine);
     } while (FeH > FeHUpperLimit || FeH < FeHLowerLimit);
 
-    if (Properties.Age > 8e9) {
+    if (Properties.Age > _UniverseAge - 1.38e10 + 8e9) {
         FeH *= -1.0;
     }
 
@@ -201,9 +201,14 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
 
         break;
     }
-    case GenOption::kSupergiant: {
+    case GenOption::kGiant: {
         Properties.Age = -1.0;
-        StarData = GetActuallyMistData(Properties, false, true);
+        try {
+            StarData = GetActuallyMistData(Properties, false, true);
+        } catch (AstroObject::Star&) {
+            return GenerateStar();
+        }
+
         break;
     }
     case GenOption::kDeathStar: {
@@ -360,7 +365,7 @@ double StellarGenerator::GenerateAge(double MaxPdf) {
     double Probability = 0.0;
     do {
         Age = _AgeGenerator.Generate(_RandomEngine);
-        Probability = DefaultAgePdf(Age / 1e9);
+        Probability = DefaultAgePdf(Age / 1e9, _UniverseAge / 1e9);
     } while (_CommonGenerator.Generate(_RandomEngine) * MaxPdf > Probability);
 
     return Age;
@@ -481,9 +486,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
                 double LowerLifetime = LowerPhaseChanges.back()[_kStarAgeIndex];
                 double UpperLifetime = UpperPhaseChanges.back()[_kStarAgeIndex];
                 double Lifetime = LowerLifetime + (UpperLifetime - LowerLifetime) * MassFactor;
-                UniformRealDistribution ForwardExponent(5.0, 6.0);
-                double ForwardTime = std::pow(10.0, ForwardExponent.Generate(_RandomEngine));
-                TargetAge = Lifetime - ForwardTime;
+                TargetAge = Lifetime - 500000;
             }
 
             std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ LowerPhaseChanges, UpperPhaseChanges };
@@ -651,6 +654,12 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, double FeH)
             }
         }
 
+        if (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_WO) {
+            if (Subclass > 4) {
+                Subclass = 4;
+            }
+        }
+
         SpectralType.Subclass = Subclass;
     };
 
@@ -748,13 +757,13 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
     double MassSol = StarData.GetMass() / kSolarMass;
     StellarClass::LuminosityClass LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
 
-    if (MassLossRateSolPerYear > 1e-4 && MassSol >= 15) {
-        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IaPlus;
-    }
-
     double LuminositySol = StarData.GetLuminosity() / kSolarLuminosity;
     if (LuminositySol > 650000) {
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_0;
+    }
+
+    if (MassLossRateSolPerYear > 1e-4 && MassSol >= 15) {
+        LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IaPlus;
     }
 
     if (LuminosityClass != StellarClass::LuminosityClass::kLuminosity_Unknown) {
@@ -771,7 +780,7 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
         BvColorIndex = 0.344 * std::pow(std::log10(Teff), 2) - 3.402 * std::log10(Teff) + 8.037;
     }
 
-    if (BvColorIndex < -0.3 || BvColorIndex > 1.8363636363636362) {
+    if (BvColorIndex < -0.3 || BvColorIndex > 1.9727272727272729) {
         if (LuminositySol > 100000) {
             return StellarClass::LuminosityClass::kLuminosity_Ia;
         } else if (LuminositySol > 50000) {
@@ -784,8 +793,10 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
             return StellarClass::LuminosityClass::kLuminosity_III;
         } else if (LuminositySol > 10) {
             return StellarClass::LuminosityClass::kLuminosity_IV;
-        } else {
+        } else if (LuminositySol > 0.05) {
             return StellarClass::LuminosityClass::kLuminosity_V;
+        } else {
+            return StellarClass::LuminosityClass::kLuminosity_VI;
         }
     }
 
@@ -798,7 +809,7 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
         return std::abs(Lhs - LuminositySol) < std::abs(Rhs - LuminositySol);
     });
 
-    while (LuminosityData.size() != 6) {
+    while (LuminosityData.size() < 7) {
         LuminosityData.emplace_back(-1);
     }
 
@@ -814,6 +825,8 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
             LuminosityClass = StellarClass::LuminosityClass::kLuminosity_III;
         } else if (ClosestValue == LuminosityData[5]) {
             LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IV;
+        } else if (ClosestValue == LuminosityData[6]) {
+            LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
         }
     }
 
@@ -1190,7 +1203,7 @@ const int StellarGenerator::_kWdLogCenterRhoIndex = 4;
 
 const std::vector<std::string> StellarGenerator::_kMistHeaders{ "star_age", "star_mass", "star_mdot", "log_Teff", "log_R", "log_surf_z", "surface_h1", "surface_he3", "log_center_T", "log_center_Rho", "phase", "x" };
 const std::vector<std::string> StellarGenerator::_kWdMistHeaders{ "star_age", "log_R", "log_Teff", "log_center_T", "log_center_Rho" };
-const std::vector<std::string> StellarGenerator::_kHrDiagramHeaders{ "B-V", "Ia", "Ib", "II", "III", "IV" };
+const std::vector<std::string> StellarGenerator::_kHrDiagramHeaders{ "B-V", "Ia", "Ib", "II", "III", "IV", "V"};
 bool StellarGenerator::_kbMistDataInitiated = false;
 std::unordered_map<std::string, std::vector<double>> StellarGenerator::_kMassFileCache;
 std::unordered_map<std::shared_ptr<StellarGenerator::MistData>, std::vector<std::vector<double>>> StellarGenerator::_kPhaseChangesCache;
@@ -1198,32 +1211,32 @@ std::shared_mutex StellarGenerator::_kCacheMutex;
 
 // Tool functions implementations
 // ------------------------------
-double DefaultAgePdf(double Fuck) {
+double DefaultAgePdf(double Fuck, double UniverseAge) {
     double pt = 0.0;
-    if (Fuck < 8.0) {
-        pt = std::exp(Fuck / 8.4);
+    if (Fuck - (UniverseAge - 13.8) < 8.0) {
+        pt = std::exp((Fuck - (UniverseAge - 13.8) / 8.4));
     } else {
-        pt = 2.6 * std::exp((-0.5 * std::pow(Fuck - 8.0, 2.0)) / (std::pow(1.5, 2.0)));
+        pt = 2.6 * std::exp((-0.5 * std::pow((Fuck - (UniverseAge - 13.8)) - 8.0, 2.0)) / (std::pow(1.5, 2.0)));
     }
 
     return pt;
 }
 
-static double DefaultLogMassPdf(double Fuck, bool bIsBinary) {
+double DefaultLogMassPdf(double Fuck, bool bIsBinary) {
     double g = 0.0;
     if (!bIsBinary) {
         if (std::pow(10.0, Fuck) <= 1.0) {
-            g = (0.158 / (std::pow(10.0, Fuck) * std::log(10.0))) * std::exp(-1.0 * (std::pow(Fuck - std::log10(0.08), 2.0)) / (2.0 * std::pow(0.69, 2.0))) * std::pow(10.0, Fuck) * std::log(10.0);
+            g = 0.158 * std::exp(-1.0 * std::pow(Fuck + 1.0, 2.0) / 1.101128);
         } else {
-            double n01 = 0.0193937;
-            g = n01 * std::pow(std::pow(10.0, Fuck), -2.3) * std::pow(10.0, Fuck) * std::log(10.0);
+            double n01 = 0.0637159803708227;
+            g = n01 * std::pow(std::pow(10.0, Fuck), -0.65);
         }
     } else {
         if (std::pow(10.0, Fuck) <= 1.0) {
-            g = (0.086 / (std::pow(10.0, Fuck) * std::log(10.0))) * std::exp(-1.0 * (std::pow(Fuck - std::log10(0.22), 2.0)) / (2.0 * std::pow(0.57, 2.0))) * std::pow(10.0, Fuck) * std::log(10.0);
+            g = 0.086 * std::exp(-1.0 * std::pow(Fuck + 0.6575773191777937, 2.0) / 1.101128);
         } else {
-            double n02 = 0.0191992;
-            g = n02 * std::pow(std::pow(10.0, Fuck), -2.3) * std::pow(10.0, Fuck) * std::log(10.0);
+            double n02 = 0.0580701561716448;
+            g = n02 * std::pow(std::pow(10.0, Fuck), -0.65);
         }
     }
 
