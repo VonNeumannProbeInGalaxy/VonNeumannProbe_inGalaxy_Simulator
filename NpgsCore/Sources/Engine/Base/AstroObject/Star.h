@@ -16,43 +16,43 @@ _ASTROOBJECT_BEGIN
 class NPGS_API Star : public CelestialBody {
 public:
     enum class Phase : int {
-        kPrevMainSequence         = -1,
-        kMainSequence             =  0,
-        kRedGiant                 =  2,
-        kCoreHeBurn               =  3,
-        kEarlyAgb                 =  4,
-        kThermalPulseAgb          =  5,
-        kPostAgb                  =  6,
-        kWolfRayet                =  9,
-        kHeliumWhiteDwarf         =  11,
-        kCarbonOxygenWhiteDwarf   =  12,
-        kOxygenNeonMagnWhiteDwarf =  13,
-        kNeutronStar              =  14,
-        kStellarBlackHole         =  15,
-        kMiddleBlackHole          =  114514,
-        kSuperMassiveBlackHole    =  1919810,
-        kNull                     =  std::numeric_limits<int>::max()
+        kPrevMainSequence          = -1,
+        kMainSequence              =  0,
+        kRedGiant                  =  2,
+        kCoreHeBurn                =  3,
+        kEarlyAgb                  =  4,
+        kThermalPulseAgb           =  5,
+        kPostAgb                   =  6,
+        kWolfRayet                 =  9,
+        kHeliumWhiteDwarf          =  11,
+        kCarbonOxygenWhiteDwarf    =  12,
+        kOxygenNeonMagnWhiteDwarf  =  13,
+        kNeutronStar               =  14,
+        kStellarBlackHole          =  15,
+        kMiddleBlackHole           =  114514,
+        kSuperMassiveBlackHole     =  1919810,
+        kNull                      =  std::numeric_limits<int>::max()
     };
 
-    enum class Death {
-        kStillAlive,
-        kWhiteDwarfMerge,
-        kSlowColdingDown,
-        kEnvelopeDisperse,
-        kElectronCaptureSupernova,
-        kIronCoreCollapseSupernova,
-        kRelativisticJetHypernova,
-        kPairInstabilitySupernova,
-        kPhotondisintegration,
+    enum class Death : int {
+        kStillAlive                = 0,
+        kWhiteDwarfMerge           = 1,
+        kSlowColdingDown           = 2,
+        kEnvelopeDisperse          = 3,
+        kElectronCaptureSupernova  = 4,
+        kIronCoreCollapseSupernova = 5,
+        kRelativisticJetHypernova  = 6,
+        kPairInstabilitySupernova  = 7,
+        kPhotondisintegration      = 8,
     };
 
     struct ExtendedProperties {
         Modules::StellarClass StellarClass;
 
-        glm::vec2 Normal;               // 法向量，球坐标表示，(theta, phi)
-
         double Mass;                    // 质量，单位 kg
         double Luminosity;              // 辐射光度，单位 W
+        double Lifetime;                // 寿命，单位 yr
+        double EvolutionProgress;       // 演化进度
         float  FeH;                     // 金属丰度
         float  SurfaceH1;               // 表面氕质量分数
         float  SurfaceZ;                // 表面金属丰度
@@ -63,8 +63,6 @@ public:
         float  CoreDensity;             // 核心密度，单位 kg/m^3
         float  StellarWindSpeed;        // 恒星风速度，单位 m/s
         float  StellarWindMassLossRate; // 恒星风质量损失率，单位 kg/s
-        float  EvolutionProgress;       // 演化进度
-        float  Lifetime;                // 寿命，单位 yr
         float  MinCoilMass;             // 最小举星器赤道偏转线圈质量，单位 kg
 
         Phase EvolutionPhase;
@@ -84,6 +82,8 @@ public:
     // ------------------------------
     Star& SetMass(double Mass);
     Star& SetLuminosity(double Luminosity);
+    Star& SetLifetime(double Lifetime);
+    Star& SetEvolutionProgress(double EvolutionProgress);
     Star& SetFeH(float FeH);
     Star& SetSurfaceH1(float SurfaceH1);
     Star& SetSurfaceZ(float SurfaceZ);
@@ -94,10 +94,7 @@ public:
     Star& SetCoreDensity(float CoreDensity);
     Star& SetStellarWindSpeed(float StellarWindSpeed);
     Star& SetStellarWindMassLossRate(float StellarWindMassLossRate);
-    Star& SetEvolutionProgress(float EvolutionProgress);
-    Star& SetLifetime(float Lifetime);
     Star& SetMinCoilMass(float MinCoilMass);
-    Star& SetNormal(const glm::vec2 Normal);
     Star& SetEvolutionPhase(Phase EvolutionPhase);
     Star& SetEvolutionEnding(Death EvolutionEnding);
     Star& SetStellarClass(const Modules::StellarClass& StellarClass);
@@ -107,23 +104,22 @@ public:
     // ------------------------------
     double GetMass() const;
     double GetLuminosity() const;
-    float  GetFeH() const;
-    float  GetSurfaceH1() const;
-    float  GetSurfaceZ() const;
-    float  GetSurfaceEnergeticNuclide() const;
-    float  GetSurfaceVolatiles() const;
-    float  GetTeff() const;
-    float  GetCoreTemp() const;
-    float  GetCoreDensity() const;
-    float  GetStellarWindSpeed() const;
-    float  GetStellarWindMassLossRate() const;
-    float  GetEvolutionProgress() const;
-    float  GetLifetime() const;
-    float  GetMinCoilMass() const;
-    const  glm::vec2& GetNormal() const;
-    Phase  GetEvolutionPhase() const;
-    Death  GetEvolutionEnding() const;
-    const  Modules::StellarClass& GetStellarClass() const;
+    double GetLifetime() const;
+    double GetEvolutionProgress() const;
+    float GetFeH() const;
+    float GetSurfaceH1() const;
+    float GetSurfaceZ() const;
+    float GetSurfaceEnergeticNuclide() const;
+    float GetSurfaceVolatiles() const;
+    float GetTeff() const;
+    float GetCoreTemp() const;
+    float GetCoreDensity() const;
+    float GetStellarWindSpeed() const;
+    float GetStellarWindMassLossRate() const;
+    float GetMinCoilMass() const;
+    Phase GetEvolutionPhase() const;
+    Death GetEvolutionEnding() const;
+    const Modules::StellarClass& GetStellarClass() const;
 
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_O;
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_B;

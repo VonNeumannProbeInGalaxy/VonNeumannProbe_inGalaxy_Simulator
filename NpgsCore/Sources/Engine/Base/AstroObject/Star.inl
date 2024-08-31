@@ -24,6 +24,16 @@ inline Star& Star::SetLuminosity(double Luminosity) {
     return *this;
 }
 
+inline Star& Star::SetLifetime(double Lifetime) {
+    _StarExtraProperties.Lifetime = Lifetime;
+    return *this;
+}
+
+inline Star& Star::SetEvolutionProgress(double EvolutionProgress) {
+    _StarExtraProperties.EvolutionProgress = EvolutionProgress;
+    return *this;
+}
+
 inline Star& Star::SetFeH(float FeH) {
     _StarExtraProperties.FeH = FeH;
     return *this;
@@ -74,23 +84,8 @@ inline Star& Star::SetStellarWindMassLossRate(float StellarWindMassLossRate) {
     return *this;
 }
 
-inline Star& Star::SetEvolutionProgress(float EvolutionProgress) {
-    _StarExtraProperties.EvolutionProgress = EvolutionProgress;
-    return *this;
-}
-
-inline Star& Star::SetLifetime(float Lifetime) {
-    _StarExtraProperties.Lifetime = Lifetime;
-    return *this;
-}
-
 inline Star& Star::SetMinCoilMass(float MinCoilMass) {
     _StarExtraProperties.MinCoilMass = MinCoilMass;
-    return *this;
-}
-
-inline Star& Star::SetNormal(const glm::vec2 Normal) {
-    _StarExtraProperties.Normal = Normal;
     return *this;
 }
 
@@ -115,6 +110,14 @@ inline double Star::GetMass() const {
 
 inline double Star::GetLuminosity() const {
     return _StarExtraProperties.Luminosity;
+}
+
+inline double Star::GetLifetime() const {
+    return _StarExtraProperties.Lifetime;
+}
+
+inline double Star::GetEvolutionProgress() const {
+    return _StarExtraProperties.EvolutionProgress;
 }
 
 inline float Star::GetFeH() const {
@@ -157,20 +160,8 @@ inline float Star::GetStellarWindMassLossRate() const {
     return _StarExtraProperties.StellarWindMassLossRate;
 }
 
-inline float Star::GetEvolutionProgress() const {
-    return _StarExtraProperties.EvolutionProgress;
-}
-
-inline float Star::GetLifetime() const {
-    return _StarExtraProperties.Lifetime;
-}
-
 inline float Star::GetMinCoilMass() const {
     return _StarExtraProperties.MinCoilMass;
-}
-
-inline const glm::vec2& Star::GetNormal() const {
-    return _StarExtraProperties.Normal;
 }
 
 inline Star::Phase Star::GetEvolutionPhase() const {

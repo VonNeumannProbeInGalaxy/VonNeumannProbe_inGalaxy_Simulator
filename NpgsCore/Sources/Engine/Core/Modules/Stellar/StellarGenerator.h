@@ -17,7 +17,6 @@ _MODULES_BEGIN
 
 class NPGS_API StellarGenerator {
 public:
-    using BaryCenter = AstroObject::CelestialBody::BaryCenter;
     using MistData   = Assets::Csv<double, 12>;
     using WdMistData = Assets::Csv<double, 5>;
     using HrDiagram  = Assets::Csv<double, 7>;
@@ -36,16 +35,14 @@ public:
     };
 
     struct BasicProperties {
-        BaryCenter StarSys;
-        double     Age;
-        double     FeH;
-        double     Mass;
+        float Age;
+        float FeH;
+        float Mass;
 
         GenOption Option;
 
         explicit operator AstroObject::Star() const {
             AstroObject::Star Star;
-            Star.SetParentBody(StarSys);
             Star.SetAge(Age);
             Star.SetFeH(FeH);
             Star.SetMass(Mass);
@@ -56,11 +53,11 @@ public:
 
 public:
     StellarGenerator() = default;
-    StellarGenerator(const std::seed_seq& SeedSeq, GenOption Option = GenOption::kNormal, double UniverseAge = 1.38e10,
-        double MassLowerLimit =  0.1,     double MassUpperLimit = 300.0,   GenDistribution MassDistribution = GenDistribution::kFromPdf,
-        double AgeLowerLimit  =  0.0,     double AgeUpperLimit  = 1.26e10, GenDistribution AgeDistribution  = GenDistribution::kFromPdf,
-        double FeHLowerLimit  = -4.0,     double FeHUpperLimit  = 0.5,     GenDistribution FeHDistribution  = GenDistribution::kFromPdf,
-        double CoilTempLimit  = 1514.114, double dEpdM = 2e6);
+    StellarGenerator(const std::seed_seq& SeedSeq, GenOption Option = GenOption::kNormal, float UniverseAge = 1.38e10f,
+        float MassLowerLimit =  0.1f,     float MassUpperLimit = 300.0f,   GenDistribution MassDistribution = GenDistribution::kFromPdf,
+        float AgeLowerLimit  =  0.0f,     float AgeUpperLimit  = 1.26e10f, GenDistribution AgeDistribution  = GenDistribution::kFromPdf,
+        float FeHLowerLimit  = -4.0f,     float FeHUpperLimit  = 0.5f,     GenDistribution FeHDistribution  = GenDistribution::kFromPdf,
+        float CoilTempLimit  = 1514.114f, float dEpdM          = 2e6f);
     ~StellarGenerator() = default;
 
 public:
@@ -73,12 +70,12 @@ private:
     static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
 
     void InitMistData();
-    double GenerateAge(double MaxPdf);
-    double GenerateMass(double MaxPdf, bool bIsBinary);
+    float GenerateAge(float MaxPdf);
+    float GenerateMass(float MaxPdf, bool bIsBinary);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassFactor);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
-    void CalcSpectralType(AstroObject::Star& StarData, double FeH);
+    void CalcSpectralType(AstroObject::Star& StarData, float FeH);
     StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star& StarData);
     void ProcessDeathStar(AstroObject::Star& DeathStar, double MergeStarProbability = 0.005);
     void GenerateMagnetic(AstroObject::Star& StarData);
@@ -107,21 +104,22 @@ public:
 
 private:
     std::mt19937 _RandomEngine;
-    UniformRealDistribution<double> _LogMassGenerator;
-    UniformRealDistribution<double> _AgeGenerator;
-    UniformRealDistribution<double> _CommonGenerator;
-    std::array<std::shared_ptr<Distribution<double>>, 4> _FeHGenerators;
-    std::array<std::shared_ptr<Distribution<double>>, 8> _MagneticGenerators;
+    UniformRealDistribution<float> _AgeGenerator;
+    UniformRealDistribution<float> _LogMassGenerator;
+    UniformRealDistribution<float> _CommonGenerator;
+    std::array<std::shared_ptr<Distribution<float>>, 4> _FeHGenerators;
+    std::array<std::shared_ptr<Distribution<float>>, 8> _MagneticGenerators;
+    std::array<std::shared_ptr<Distribution<float>>, 2> _SpinGenerators;
 
-    double _UniverseAge;
-    double _MassLowerLimit;
-    double _MassUpperLimit;
-    double _AgeLowerLimit;
-    double _AgeUpperLimit;
-    double _FeHLowerLimit;
-    double _FeHUpperLimit;
-    double _CoilTempLimit;
-    double _dEpdM;
+    float _UniverseAge;
+    float _AgeLowerLimit;
+    float _AgeUpperLimit;
+    float _FeHLowerLimit;
+    float _FeHUpperLimit;
+    float _MassLowerLimit;
+    float _MassUpperLimit;
+    float _CoilTempLimit;
+    float _dEpdM;
 
     GenDistribution _MassDistribution;
     GenDistribution _AgeDistribution;
@@ -131,10 +129,10 @@ private:
     static const std::vector<std::string> _kMistHeaders;
     static const std::vector<std::string> _kWdMistHeaders;
     static const std::vector<std::string> _kHrDiagramHeaders;
-    static bool                           _kbMistDataInitiated;
-    static std::unordered_map<std::string, std::vector<double>>                             _kMassFileCache;
-    static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>>  _kPhaseChangesCache;
-    static std::shared_mutex                                                                _kCacheMutex;
+    static std::unordered_map<std::string, std::vector<float>>                             _kMassFileCache;
+    static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>> _kPhaseChangesCache;
+    static std::shared_mutex                                                               _kCacheMutex;
+    static bool _kbMistDataInitiated;
 };
 
 _MODULES_END

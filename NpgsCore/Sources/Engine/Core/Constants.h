@@ -6,18 +6,18 @@ _NPGS_BEGIN
 
 // Calculation constants
 // ---------------------
-constexpr inline double kSolarRadius            = 6.957e8;
 constexpr inline double kSolarMass              = 1.9884e30;
 constexpr inline double kSolarLuminosity        = 3.828e26;
-constexpr inline double kSolarFeH               = 0.0;
-constexpr inline double kSolarTeff              = 5772;
-constexpr inline double kSolarCoreTemp          = 1.57e7;
-constexpr inline double kSolarAbsoluteMagnitude = 4.83;
+constexpr inline float  kSolarRadius            = 6.957e8f;
+constexpr inline float  kSolarFeH               = 0.0f;
+constexpr inline float  kSolarTeff              = 5772.0f;
+constexpr inline float  kSolarCoreTemp          = 1.57e7f;
+constexpr inline float  kSolarAbsoluteMagnitude = 4.83f;
 
 constexpr inline int    kSpeedOfLight           = 299792458;
-constexpr inline double kGravityConstant        = 6.67430e-11;
-constexpr inline double kPi                     = 3.1415926535897932;
-constexpr inline double kStefanBoltzmann        = 5.670374419e-8;
-constexpr inline int    kYearInSeconds          = 31556926;
+constexpr inline float  kGravityConstant        = 6.6743e-11f;
+constexpr inline float  kPi                     = 3.1415927f;
+constexpr inline float  kStefanBoltzmann        = 5.6703744e-8f;
+constexpr inline int    kYearInSeconds          = 31536000;
 
 _NPGS_END

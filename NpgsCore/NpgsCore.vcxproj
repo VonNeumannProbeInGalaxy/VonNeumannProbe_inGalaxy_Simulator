@@ -160,6 +160,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\Base\StellarSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Base\Octree.hpp" />
@@ -179,11 +180,13 @@
     <ClInclude Include="Sources\Engine\Core\ThreadPool.h" />
     <ClInclude Include="Sources\Npgs.h" />
     <ClInclude Include="Sources\stdafx.h" />
+    <ClInclude Include="Sources\Engine\Base\StellarSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\AstroObject\CelestialObject.inl" />
     <None Include="Sources\Engine\Base\AstroObject\Planet.inl" />
     <None Include="Sources\Engine\Base\AstroObject\Star.inl" />
+    <None Include="Sources\Engine\Base\StellarSystem.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
