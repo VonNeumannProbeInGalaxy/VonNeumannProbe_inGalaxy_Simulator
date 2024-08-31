@@ -1094,13 +1094,13 @@ void StellarGenerator::GenerateMagnetic(AstroObject::Star& StarData) {
             MagneticGenerator = _MagneticGenerators[5].get();
         }
 
-        MagneticField = std::pow(10.0, MagneticGenerator->Generate(_RandomEngine)) / 10000;
+        MagneticField = std::pow(10.0f, MagneticGenerator->Generate(_RandomEngine)) / 10000;
 
         break;
     }
     case StellarClass::StarType::kWhiteDwarf: {
         MagneticGenerator = _MagneticGenerators[6].get();
-        MagneticField     = std::pow(10.0, MagneticGenerator->Generate(_RandomEngine));
+        MagneticField     = std::pow(10.0f, MagneticGenerator->Generate(_RandomEngine));
         break;
     }
     case StellarClass::StarType::kNeutronStar: {
@@ -1135,9 +1135,9 @@ void StellarGenerator::GenerateSpin(AstroObject::Star& StarData) {
 
     switch (StarType) {
     case StellarClass::StarType::kNormalStar: {
-        float Base = 1.0f;
+        float Base = 2.0f;
         if (StarData.GetStellarClass().Data().SpecialMark & static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_p)) {
-            UniformRealDistribution<float> Dist(2.0f, 9.0f);
+            UniformRealDistribution<float> Dist(2.0f, 8.0f);
             Base = Dist.Generate(_RandomEngine);
         }
 
