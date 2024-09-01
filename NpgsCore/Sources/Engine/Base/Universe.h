@@ -8,7 +8,7 @@
 
 #include "Engine/Base/StellarSystem.h"
 #include "Engine/Base/Octree.hpp"
-#include "Engine/Core/Modules/Stellar/StellarGenerator.h"
+#include "Engine/Core/Modules/StellarGenerator.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/ThreadPool.h"
 #include "Engine/Core/Random.hpp"
@@ -20,9 +20,9 @@ public:
     Universe(unsigned Seed, std::size_t NumStars, std::size_t NumExtraGiants = 0, std::size_t NumExtraMassiveStars = 0, std::size_t NumExtraNeutronStars = 0, std::size_t NumExtraBlackHoles = 0, std::size_t NumExtraMergeStars = 0, float UniverseAge = 1.38e10f);
     ~Universe();
 
-    const std::vector<AstroObject::Star>& FillUniverse();
-    const void ReplaceStar(std::size_t DistanceRank, const AstroObject::Star& StarData);
-    const void CountStars() const;
+    void FillUniverse();
+    void ReplaceStar(std::size_t DistanceRank, const AstroObject::Star& StarData);
+    void CountStars() const;
 
 private:
     void GenerateSlots(float DistMin, std::size_t NumSamples, float Density);

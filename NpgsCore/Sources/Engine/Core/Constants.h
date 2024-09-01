@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
@@ -19,5 +20,6 @@ constexpr inline float  kGravityConstant        = 6.6743e-11f;
 constexpr inline float  kPi                     = 3.1415927f;
 constexpr inline float  kStefanBoltzmann        = 5.6703744e-8f;
 constexpr inline int    kYearInSeconds          = 31536000;
+constexpr inline std::uint64_t kAuInMeter       = 149597870700;
 
 _NPGS_END

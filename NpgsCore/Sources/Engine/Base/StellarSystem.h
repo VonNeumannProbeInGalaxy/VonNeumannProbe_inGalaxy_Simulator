@@ -30,8 +30,8 @@ public:
         float Eccentricity;             // 离心率
         float Inclination;              // 轨道倾角，单位度
         float LongitudeOfAscendingNode; // 升交点经度，单位度
-        float ArgumentOfPeriapsis;      // 近日点幅角，单位度
-        float MeanAnomaly;              // 平近点角，单位度
+        float ArgumentOfPeriapsis;      // 近心点幅角，单位度
+        float TrueAnomaly;              // 真近点角，单位度
     };
 
 public:

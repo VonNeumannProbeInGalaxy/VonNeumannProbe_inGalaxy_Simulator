@@ -30,10 +30,10 @@
     <ClCompile Include="Sources\Engine\Core\AssetLoader\AssetManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Modules\Stellar\StellarClass.cpp">
+    <ClCompile Include="Sources\Engine\Core\Modules\StellarClass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Modules\Stellar\StellarGenerator.cpp">
+    <ClCompile Include="Sources\Engine\Core\Modules\StellarGenerator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Core\Logger.cpp">
@@ -49,6 +49,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Base\StellarSystem.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\Core\Modules\OrbitalGenerator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,10 +74,10 @@
     <ClInclude Include="Sources\Engine\Core\AssetLoader\Csv.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarClass.h">
+    <ClInclude Include="Sources\Engine\Core\Modules\StellarClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarGenerator.h">
+    <ClInclude Include="Sources\Engine\Core\Modules\StellarGenerator.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\Assert.h">
@@ -105,6 +108,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Base\StellarSystem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\Modules\OrbitalGenerator.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

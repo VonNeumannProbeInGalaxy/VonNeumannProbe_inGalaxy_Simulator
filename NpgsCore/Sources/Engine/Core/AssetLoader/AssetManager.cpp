@@ -1,3 +1,5 @@
+#pragma warning(push)
+#pragma warning(disable : 4715)
 #include "AssetManager.h"
 
 _NPGS_BEGIN
@@ -33,3 +35,4 @@ std::unordered_map<std::string, std::shared_ptr<void>> AssetManager::_kAssets;
 
 _ASSETS_END
 _NPGS_END
+#pragma warning(pop)

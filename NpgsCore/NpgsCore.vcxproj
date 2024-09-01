@@ -146,14 +146,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\Engine\Core\Modules\OrbitalGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\Planet.cpp" />
     <ClCompile Include="Sources\Engine\Base\AstroObject\Star.cpp" />
     <ClCompile Include="Sources\Engine\Base\Universe.cpp" />
     <ClCompile Include="Sources\Engine\Core\AssetLoader\AssetManager.cpp" />
     <ClCompile Include="Sources\Engine\Core\Logger.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Modules\Stellar\StellarClass.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Modules\Stellar\StellarGenerator.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Modules\StellarClass.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Modules\StellarGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp" />
     <ClCompile Include="Sources\main.cpp" />
     <ClCompile Include="Sources\stdafx.cpp">
@@ -163,6 +164,7 @@
     <ClCompile Include="Sources\Engine\Base\StellarSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\Engine\Core\Modules\OrbitalGenerator.h" />
     <ClInclude Include="Sources\Engine\Base\Octree.hpp" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h" />
     <ClInclude Include="Sources\Engine\Base\AstroObject\Planet.h" />
@@ -174,8 +176,8 @@
     <ClInclude Include="Sources\Engine\Core\Base.h" />
     <ClInclude Include="Sources\Engine\Core\Constants.h" />
     <ClInclude Include="Sources\Engine\Core\Logger.h" />
-    <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarClass.h" />
-    <ClInclude Include="Sources\Engine\Core\Modules\Stellar\StellarGenerator.h" />
+    <ClInclude Include="Sources\Engine\Core\Modules\StellarClass.h" />
+    <ClInclude Include="Sources\Engine\Core\Modules\StellarGenerator.h" />
     <ClInclude Include="Sources\Engine\Core\Random.hpp" />
     <ClInclude Include="Sources\Engine\Core\ThreadPool.h" />
     <ClInclude Include="Sources\Npgs.h" />

@@ -33,7 +33,7 @@
 
 // Bit operator function
 // ---------------------
-#define Bit(x) (1 << x)
+#define Bit(x) (1ULL << x)
 
 // NpgsBind
 // ---------

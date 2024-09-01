@@ -89,7 +89,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     BasicProperties Properties{};
 
     if (_MassLowerLimit == 0.0f && _MassUpperLimit == 0.0f) {
-        Properties.Mass =  0.0f;
+        Properties.InitialMass = 0.0f;
     } else {
         switch (_MassDistribution) {
         case GenDistribution::kFromPdf: {
@@ -104,11 +104,11 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
                     MaxProbability = DefaultLogMassPdf(LogMassUpper, true);
                 }
             }
-            Properties.Mass = GenerateMass(MaxProbability, true);
+            Properties.InitialMass = GenerateMass(MaxProbability, true);
             break;
         }
         case GenDistribution::kUniform: {
-            Properties.Mass = _MassLowerLimit + _CommonGenerator.Generate(_RandomEngine) * (_MassUpperLimit - _MassLowerLimit);
+            Properties.InitialMass = _MassLowerLimit + _CommonGenerator.Generate(_RandomEngine) * (_MassUpperLimit - _MassLowerLimit);
             break;
         }
         default:
@@ -192,7 +192,7 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
         } catch (AstroObject::Star& DeathStar) {
             DeathStar.SetAge(Properties.Age);
             DeathStar.SetFeH(Properties.FeH);
-            DeathStar.SetMass(Properties.Mass);
+            DeathStar.SetInitialMass(Properties.InitialMass);
             ProcessDeathStar(DeathStar);
             if (DeathStar.GetEvolutionPhase() == AstroObject::Star::Phase::kNull) {
                 DeathStar = GenerateStar();
@@ -265,6 +265,7 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
 
     AstroObject::Star::Phase EvolutionPhase = static_cast<AstroObject::Star::Phase>(StarData[_kPhaseIndex]);
 
+    Star.SetInitialMass(Star.GetInitialMass() * static_cast<float>(kSolarMass));
     Star.SetAge(Age);
     Star.SetMass(MassSol * kSolarMass);
     Star.SetLifetime(Lifetime);
@@ -385,7 +386,7 @@ float StellarGenerator::GenerateMass(float MaxPdf, bool bIsBinary) {
 std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd) {
     float TargetAge  = Properties.Age;
     float TargetFeH  = Properties.FeH;
-    float TargetMass = Properties.Mass;
+    float TargetMass = Properties.InitialMass;
 
     std::string PrefixDir;
     std::string MassStr;
@@ -836,7 +837,7 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
 void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar, double MergeStarProbability) {
     float InputAge  = DeathStar.GetAge();
     float InputFeH  = DeathStar.GetFeH();
-    float InputMass = static_cast<float>(DeathStar.GetMass());
+    float InputMass = DeathStar.GetInitialMass();
 
     AstroObject::Star::Phase   EvolutionPhase{};
     AstroObject::Star::Death   EvolutionEnding{};

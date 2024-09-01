@@ -10,18 +10,19 @@
 #include <sstream>
 #include <string>
 #include <thread>
-#include <tuple>
-#include <type_traits>
-#include <unordered_map>
+#include <utility>
 
 #define ENABLE_LOGGER
-#define OUTPUT_DATA
-#include "Engine/Core/Modules/Stellar/StellarClass.h"
+// #define OUTPUT_DATA
+#include "Engine/Core/Modules/StellarClass.h"
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/Logger.h"
 #include "Engine/Core/Random.hpp"
 
 _NPGS_BEGIN
+
+static void FillStellarSystem(StellarSystem& System);
+static void GenerateOrbits(StellarSystem& System);
 
 Universe::Universe(unsigned Seed, std::size_t NumStars, std::size_t NumExtraGiants, std::size_t NumExtraMassiveStars, std::size_t NumExtraNeutronStars, std::size_t NumExtraBlackHoles, std::size_t NumExtraMergeStars, float UniverseAge) :
     _RandomEngine(Seed), _ThreadPool(ThreadPool::GetInstance()), _CommonGenerator(0.0f, 1.0f), _SeedGenerator(0.0f, static_cast<float>(std::numeric_limits<unsigned>::max())),
@@ -40,7 +41,7 @@ Universe::~Universe() {
     _ThreadPool->Destroy();
 }
 
-const std::vector<AstroObject::Star>& Universe::FillUniverse() {
+void Universe::FillUniverse() {
     int MaxThread = _ThreadPool->GetMaxThreadCount();
 
     NpgsCoreInfo("Initializating and generating basic properties...");
@@ -146,10 +147,13 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
         Future.wait();
     }
 
-    for (auto& Future : StarFutures) {
-        auto Star = Future.get();
-        _Stars.emplace_back(Star);
-    }
+    _Stars.reserve(StarFutures.size());
+    std::transform(std::make_move_iterator(StarFutures.begin()),
+                   std::make_move_iterator(StarFutures.end()),
+                   std::back_inserter(_Stars),
+                   [](std::future<AstroObject::Star>&& Future) -> AstroObject::Star {
+                       return Future.get();
+                   });
 
 #ifdef OUTPUT_DATA
     NpgsCoreInfo("Outputing data...");
@@ -200,7 +204,7 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
         }
     }
 
-    NpgsCoreInfo("Reset home star...");
+    NpgsCoreInfo("Reset home stellar system...");
     NodeType* HomeNode = _Octree->Find(glm::vec3(0.0f), [](const NodeType& Node) -> bool {
         if (Node.IsLeafNode()) {
             auto& Points = Node.GetPoints();
@@ -210,22 +214,21 @@ const std::vector<AstroObject::Star>& Universe::FillUniverse() {
         }
     });
 
-    auto* HomeStar = HomeNode->GetLink([](StellarSystem* System) -> bool {
+    auto* HomeSystem = HomeNode->GetLink([](StellarSystem* System) -> bool {
         return System->GetBaryPosition() == glm::vec3(0.0f);
     });
     HomeNode->RemoveStorage();
     HomeNode->AddPoint(glm::vec3(0.0f));
-    HomeStar->SetBaryNormal(glm::vec2(0.0f));
-
-    _StellarSystems;
+    HomeSystem->SetBaryNormal(glm::vec2(0.0f));
 
     NpgsCoreInfo("Star generation completed.");
-    _ThreadPool->Terminate();
 
-    return _Stars;
+    
+
+    _ThreadPool->Terminate();
 }
 
-const void Universe::ReplaceStar(std::size_t DistanceRank, const AstroObject::Star& StarData) {
+void Universe::ReplaceStar(std::size_t DistanceRank, const AstroObject::Star& StarData) {
     for (auto& System : _StellarSystems) {
         if (DistanceRank == System.GetBaryDistanceRank()) {
             auto& Star = System.StarData();
@@ -239,7 +242,7 @@ const void Universe::ReplaceStar(std::size_t DistanceRank, const AstroObject::St
     }
 }
 
-const void Universe::CountStars() const {
+void Universe::CountStars() const {
     constexpr int kTypeO = 0;
     constexpr int kTypeB = 1;
     constexpr int kTypeA = 2;
@@ -498,23 +501,24 @@ const void Universe::CountStars() const {
 
     auto FormatTitle = []() -> std::string {
         return std::format(
-            "{:>6} {:>8} {:>8} {:7} {:>5} {:>13} {:>7} {:>8} {:>8} {:>11} {:>8} {:>9} {:>5} {:>8} {:>8} {:>8} {:>15} {:>9} {:>8}",
-            "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "SurfZ", "SurfNuc", "SurfVol", "Magnetic", "Lifetime", "Spin");
+            "{:>6} {:>6} {:>8} {:>8} {:7} {:>5} {:>13} {:>7} {:>8} {:>8} {:>11} {:>8} {:>9} {:>5} {:>8} {:>8} {:>8} {:>15} {:>9} {:>8}",
+            "InMass", "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "SurfZ", "SurfNuc", "SurfVol", "Magnetic", "Lifetime", "Spin");
     };
 
     auto FormatInfo = [](const AstroObject::Star& Star) -> std::string {
-        return std::format("{:6.2f} {:8.2f} {:8.2E} {:7} {:5.2f} {:13.4f} {:7.2f} {:8.1f} {:8.2E} {:11.2E} {:8.2E} {:9} {:5} {:8.2E} {:8.2E} {:8.2E} {:15.5f} {:9.2E} {:8.2E}",
-            Star.GetMass() / Npgs::kSolarMass,
-            Star.GetRadius() / Npgs::kSolarRadius,
+        return std::format("{:6.2f} {:6.2f} {:8.2f} {:8.2E} {:7} {:5.2f} {:13.4f} {:7.2f} {:8.1f} {:8.2E} {:11.2E} {:8.2E} {:9} {:5} {:8.2E} {:8.2E} {:8.2E} {:15.5f} {:9.2E} {:8.2E}",
+            Star.GetInitialMass() / kSolarMass,
+            Star.GetMass() / kSolarMass,
+            Star.GetRadius() / kSolarRadius,
             Star.GetAge(),
             Star.GetStellarClass().ToString(),
             Star.GetFeH(),
-            Star.GetLuminosity() / Npgs::kSolarLuminosity,
-            Npgs::kSolarAbsoluteMagnitude - 2.5 * std::log10(Star.GetLuminosity() / Npgs::kSolarLuminosity),
+            Star.GetLuminosity() / kSolarLuminosity,
+            kSolarAbsoluteMagnitude - 2.5 * std::log10(Star.GetLuminosity() / kSolarLuminosity),
             Star.GetTeff(),
             Star.GetCoreTemp(),
             Star.GetCoreDensity(),
-            Star.GetStellarWindMassLossRate() * Npgs::kYearInSeconds / Npgs::kSolarMass,
+            Star.GetStellarWindMassLossRate() * kYearInSeconds / kSolarMass,
             static_cast<int>(std::round(Star.GetStellarWindSpeed())),
             static_cast<int>(Star.GetEvolutionPhase()),
             Star.GetSurfaceZ(),
@@ -729,5 +733,9 @@ void Universe::OctreeLinkToStars(std::vector<AstroObject::Star>& Stars, std::vec
         }
     });
 }
+
+void FillStellarSystem(StellarSystem& System) {}
+
+void GenerateOrbits(StellarSystem& System) {}
 
 _NPGS_END

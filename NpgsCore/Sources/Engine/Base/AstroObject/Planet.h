@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/multiprecision/cpp_int.hpp>
 #include "Engine/Base/AstroObject/CelestialObject.h"
 #include "Engine/Core/Base.h"
 
@@ -11,37 +12,29 @@ public:
     enum class PlanetType {
         kRocky,
         kTerra,
-        kIcePlant,
+        kIcePlanet,
         kChthonian,
         kOceanic,
-        kSubIcegiant,
+        kSubIceGiant,
         kIceGiant,
         kGasGiant,
-        kHotSubIcegiant,
+        kHotSubIceGiant,
         kHotIceGiant,
-        kHotJupiter
+        kHotGasGiant
     };
 
-    enum class MoonType {
-        kRocky,
-        kTerra,
-        kIceMoon
+    struct MassProperties {
+        boost::multiprecision::int128_t Z;
+        boost::multiprecision::int128_t Volatiles;
+        boost::multiprecision::int128_t EnergeticNuclide;
     };
 
     struct ExtendedProperties {
-        double Albedo;                // 反照率
-        double AverageDensity;        // 平均密度，单位 kg/m^3
-        double SurfaceGravity;        // 表面重力，单位 m/s^2
-        double GreenhouseFactor;      // 温室效应因子
-        double Hydrosphere;           // 水圈覆盖率
-        double IceCover;              // 冰覆盖率
-        double CloudCover;            // 云覆盖率
-        double AtmospherePressure;    // 大气压，单位 atm
-        double AtmosphereDensity;     // 大气密度，单位 kg/m^3
-        double AtmosphereComposition; // 大气成分
-        double TectonicActivity;      // 构造活动
-        double Volcanism;             // 火山活动
-        bool   bHasLife;
+        MassProperties OceanMass;
+        MassProperties AtmosphereMass;
+        MassProperties CoreMass;
+        boost::multiprecision::int128_t CrustMineralMass;
+        boost::multiprecision::int128_t RingsMass;
 
         PlanetType Type;
     };
@@ -57,38 +50,22 @@ public:
     // Setters
     // Setters for ExtendedProperties
     // ------------------------------
-    Planet& SetAbledo(double Albedo);
-    Planet& SetAverageDensity(double AverageDensity);
-    Planet& SetSurfaceGravity(double SurfaceGravity);
-    Planet& SetGreenhouseFactor(double GreenhouseFactor);
-    Planet& SetHydrosphere(double Hydrosphere);
-    Planet& SetIceCover(double IceCover);
-    Planet& SetCloudCover(double CloudCover);
-    Planet& SetAtmospherePressure(double AtmospherePressure);
-    Planet& SetAtmosphereDensity(double AtmosphereDensity);
-    Planet& SetAtmosphereComposition(double AtmosphereComposition);
-    Planet& SetTectonicActivity(double TectonicActivity);
-    Planet& SetVolcanism(double Volcanism);
-    Planet& SetLife(bool bHasLife);
-    Planet& SetType(PlanetType Type);
+    Planet& SetOceanMass(const MassProperties& OceanMass);
+    Planet& SetAtmosphereMass(const MassProperties& AtmosphereMass);
+    Planet& SetCoreMass(const MassProperties& CoreMass);
+    Planet& SetCrustMineralMass(const boost::multiprecision::int128_t& CrustMineralMass);
+    Planet& SetRingsMass(const boost::multiprecision::int128_t& RingsMass);
+    Planet& SetPlanetType(PlanetType Type);
 
     // Getters
     // Getters for ExtendedProperties
     // ------------------------------
-    double GetAbledo() const;
-    double GetAverageDensity() const;
-    double GetSurfaceGravity() const;
-    double GetGreenhouseFactor() const;
-    double GetHydrosphere() const;
-    double GetIceCover() const;
-    double GetCloudCover() const;
-    double GetAtmospherePressure() const;
-    double GetAtmosphereDensity() const;
-    double GetAtmosphereComposition() const;
-    double GetTectonicActivity() const;
-    double GetVolcanism() const;
-    bool   GetLife() const;
-    PlanetType GetType() const;
+    const MassProperties& GetOceanMass() const;
+    const MassProperties& GetAtmosphereMass() const;
+    const MassProperties& GetCoreMass() const;
+    const boost::multiprecision::int128_t& GetCrustMineralMass() const;
+    const boost::multiprecision::int128_t& GetRingsMass() const;
+    PlanetType GetPlanetType() const;
 
 private:
     ExtendedProperties _PlanetExtraProperties{};

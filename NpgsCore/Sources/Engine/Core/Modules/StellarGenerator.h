@@ -37,7 +37,7 @@ public:
     struct BasicProperties {
         float Age;
         float FeH;
-        float Mass;
+        float InitialMass;
 
         GenOption Option;
 
@@ -45,7 +45,7 @@ public:
             AstroObject::Star Star;
             Star.SetAge(Age);
             Star.SetFeH(FeH);
-            Star.SetMass(Mass);
+            Star.SetInitialMass(InitialMass);
 
             return Star;
         }

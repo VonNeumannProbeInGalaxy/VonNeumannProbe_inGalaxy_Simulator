@@ -8,8 +8,9 @@
 
 #include "Engine/Core/AssetLoader/AssetManager.h"
 
-#include "Engine/Core/Modules/Stellar/StellarClass.h"
-#include "Engine/Core/Modules/Stellar/StellarGenerator.h"
+#include "Engine/Core/Modules/PlanetGenerator.h"
+#include "Engine/Core/Modules/StellarClass.h"
+#include "Engine/Core/Modules/StellarGenerator.h"
 
 #include "Engine/Core/Assert.h"
 #include "Engine/Core/Base.h"

@@ -14,129 +14,57 @@ inline const Planet::ExtendedProperties& Planet::GetExtendedProperties() const {
     return _PlanetExtraProperties;
 }
 
-inline Planet& Planet::SetAbledo(double Albedo) {
-    _PlanetExtraProperties.Albedo = Albedo;
+inline Planet& Planet::SetOceanMass(const MassProperties& OceanMass) {
+    _PlanetExtraProperties.OceanMass = OceanMass;
     return *this;
 }
 
-inline Planet& Planet::SetAverageDensity(double AverageDensity) {
-    _PlanetExtraProperties.AverageDensity = AverageDensity;
+inline Planet& Planet::SetAtmosphereMass(const MassProperties& AtmosphereMass) {
+    _PlanetExtraProperties.AtmosphereMass = AtmosphereMass;
     return *this;
 }
 
-inline Planet& Planet::SetSurfaceGravity(double SurfaceGravity) {
-    _PlanetExtraProperties.SurfaceGravity = SurfaceGravity;
+inline Planet& Planet::SetCoreMass(const MassProperties& CoreMass) {
+    _PlanetExtraProperties.CoreMass = CoreMass;
     return *this;
 }
 
-inline Planet& Planet::SetGreenhouseFactor(double GreenhouseFactor) {
-    _PlanetExtraProperties.GreenhouseFactor = GreenhouseFactor;
+inline Planet& Planet::SetCrustMineralMass(const boost::multiprecision::int128_t& CrustMineralMass) {
+    _PlanetExtraProperties.CrustMineralMass = CrustMineralMass;
     return *this;
 }
 
-inline Planet& Planet::SetHydrosphere(double Hydrosphere) {
-    _PlanetExtraProperties.Hydrosphere = Hydrosphere;
+inline Planet& Planet::SetRingsMass(const boost::multiprecision::int128_t& RingsMass) {
+    _PlanetExtraProperties.RingsMass = RingsMass;
     return *this;
 }
 
-inline Planet& Planet::SetIceCover(double IceCover) {
-    _PlanetExtraProperties.IceCover = IceCover;
-    return *this;
-}
-
-inline Planet& Planet::SetCloudCover(double CloudCover) {
-    _PlanetExtraProperties.CloudCover = CloudCover;
-    return *this;
-}
-
-inline Planet& Planet::SetAtmospherePressure(double AtmospherePressure) {
-    _PlanetExtraProperties.AtmospherePressure = AtmospherePressure;
-    return *this;
-}
-
-inline Planet& Planet::SetAtmosphereDensity(double AtmosphereDensity) {
-    _PlanetExtraProperties.AtmosphereDensity = AtmosphereDensity;
-    return *this;
-}
-
-inline Planet& Planet::SetAtmosphereComposition(double AtmosphereComposition) {
-    _PlanetExtraProperties.AtmosphereComposition = AtmosphereComposition;
-    return *this;
-}
-
-inline Planet& Planet::SetTectonicActivity(double TectonicActivity) {
-    _PlanetExtraProperties.TectonicActivity = TectonicActivity;
-    return *this;
-}
-
-inline Planet& Planet::SetVolcanism(double Volcanism) {
-    _PlanetExtraProperties.Volcanism = Volcanism;
-    return *this;
-}
-
-inline Planet& Planet::SetLife(bool bHasLife) {
-    _PlanetExtraProperties.bHasLife = bHasLife;
-    return *this;
-}
-
-inline Planet& Planet::SetType(PlanetType Type) {
+inline Planet& Planet::SetPlanetType(PlanetType Type) {
     _PlanetExtraProperties.Type = Type;
     return *this;
 }
 
-inline double Planet::GetAbledo() const {
-    return _PlanetExtraProperties.Albedo;
+inline const Planet::MassProperties& Planet::GetOceanMass() const {
+    return _PlanetExtraProperties.OceanMass;
 }
 
-inline double Planet::GetAverageDensity() const {
-    return _PlanetExtraProperties.AverageDensity;
+inline const Planet::MassProperties& Planet::GetAtmosphereMass() const {
+    return _PlanetExtraProperties.AtmosphereMass;
 }
 
-inline double Planet::GetSurfaceGravity() const {
-    return _PlanetExtraProperties.SurfaceGravity;
+inline const Planet::MassProperties& Planet::GetCoreMass() const {
+    return _PlanetExtraProperties.CoreMass;
 }
 
-inline double Planet::GetGreenhouseFactor() const {
-    return _PlanetExtraProperties.GreenhouseFactor;
+inline const boost::multiprecision::int128_t& Planet::GetCrustMineralMass() const {
+    return _PlanetExtraProperties.CrustMineralMass;
 }
 
-inline double Planet::GetHydrosphere() const {
-    return _PlanetExtraProperties.Hydrosphere;
+inline const boost::multiprecision::int128_t& Planet::GetRingsMass() const {
+    return _PlanetExtraProperties.RingsMass;
 }
 
-inline double Planet::GetIceCover() const {
-    return _PlanetExtraProperties.IceCover;
-}
-
-inline double Planet::GetCloudCover() const {
-    return _PlanetExtraProperties.CloudCover;
-}
-
-inline double Planet::GetAtmospherePressure() const {
-    return _PlanetExtraProperties.AtmospherePressure;
-}
-
-inline double Planet::GetAtmosphereDensity() const {
-    return _PlanetExtraProperties.AtmosphereDensity;
-}
-
-inline double Planet::GetAtmosphereComposition() const {
-    return _PlanetExtraProperties.AtmosphereComposition;
-}
-
-inline double Planet::GetTectonicActivity() const {
-    return _PlanetExtraProperties.TectonicActivity;
-}
-
-inline double Planet::GetVolcanism() const {
-    return _PlanetExtraProperties.Volcanism;
-}
-
-inline bool Planet::GetLife() const {
-    return _PlanetExtraProperties.bHasLife;
-}
-
-inline Planet::PlanetType Planet::GetType() const {
+inline Planet::PlanetType Planet::GetPlanetType() const {
     return _PlanetExtraProperties.Type;
 }
 

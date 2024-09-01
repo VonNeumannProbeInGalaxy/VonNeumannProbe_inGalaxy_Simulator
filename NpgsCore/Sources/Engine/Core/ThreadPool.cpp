@@ -6,7 +6,7 @@
 _NPGS_BEGIN
 
 static int GetPhysicalCoreCount();
-static void SetThreadAffinity(std::thread& Thread, int CoreId);
+static void SetThreadAffinity(std::thread& Thread, std::size_t CoreId);
 
 ThreadPool* ThreadPool::GetInstance() {
     std::call_once(_kOnce, Init);
@@ -92,7 +92,7 @@ int GetPhysicalCoreCount() {
     return CoreCount;
 }
 
-void SetThreadAffinity(std::thread& Thread, int CoreId) {
+void SetThreadAffinity(std::thread& Thread, std::size_t CoreId) {
     HANDLE Handle = Thread.native_handle();
     DWORD_PTR Mask = static_cast<DWORD_PTR>(Bit(CoreId * 2));
     SetThreadAffinityMask(Handle, Mask);

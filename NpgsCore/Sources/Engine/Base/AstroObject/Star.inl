@@ -39,6 +39,11 @@ inline Star& Star::SetFeH(float FeH) {
     return *this;
 }
 
+inline Star& Star::SetInitialMass(float InitialMass) {
+    _StarExtraProperties.InitialMass = InitialMass;
+    return *this;
+}
+
 inline Star& Star::SetSurfaceH1(float SurfaceH1) {
     _StarExtraProperties.SurfaceH1 = SurfaceH1;
     return *this;
@@ -122,6 +127,10 @@ inline double Star::GetEvolutionProgress() const {
 
 inline float Star::GetFeH() const {
     return _StarExtraProperties.FeH;
+}
+
+inline float Star::GetInitialMass() const {
+    return _StarExtraProperties.InitialMass;
 }
 
 inline float Star::GetSurfaceH1() const {

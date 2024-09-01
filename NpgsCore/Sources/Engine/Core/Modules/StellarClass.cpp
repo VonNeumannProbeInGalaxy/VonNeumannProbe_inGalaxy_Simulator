@@ -128,9 +128,9 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
         case ParseState::kSubclass:
             if (std::isdigit(Char)) {
                 if (!bParsingAmStar) {
-                    Subclass = Char - '0';
+                    Subclass = static_cast<float>(Char - '0');
                 } else {
-                    AmSubclass = Char - '0';
+                    AmSubclass = static_cast<float>(Char - '0');
                 }
 
                 State = ParseState::kSubclassDecimal;

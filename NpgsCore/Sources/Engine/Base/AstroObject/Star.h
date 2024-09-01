@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "Engine/Base/AstroObject/CelestialObject.h"
-#include "Engine/Core/Modules/Stellar/StellarClass.h"
+#include "Engine/Core/Modules/StellarClass.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
@@ -54,6 +54,7 @@ public:
         double Lifetime;                // 寿命，单位 yr
         double EvolutionProgress;       // 演化进度
         float  FeH;                     // 金属丰度
+        float  InitialMass;             // 恒星诞生时的质量，单位 kg
         float  SurfaceH1;               // 表面氕质量分数
         float  SurfaceZ;                // 表面金属丰度
         float  SurfaceEnergeticNuclide; // 表面含能核素质量分数
@@ -85,6 +86,7 @@ public:
     Star& SetLifetime(double Lifetime);
     Star& SetEvolutionProgress(double EvolutionProgress);
     Star& SetFeH(float FeH);
+    Star& SetInitialMass(float InitialMass);
     Star& SetSurfaceH1(float SurfaceH1);
     Star& SetSurfaceZ(float SurfaceZ);
     Star& SetSurfaceEnergeticNuclide(float SurfaceEnergeticNuclide);
@@ -107,6 +109,7 @@ public:
     double GetLifetime() const;
     double GetEvolutionProgress() const;
     float GetFeH() const;
+    float GetInitialMass() const;
     float GetSurfaceH1() const;
     float GetSurfaceZ() const;
     float GetSurfaceEnergeticNuclide() const;
