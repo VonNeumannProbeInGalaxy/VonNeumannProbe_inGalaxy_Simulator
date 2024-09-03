@@ -4,7 +4,6 @@
 #include <tuple>
 #include <vector>
 
-#include "Engine/Base/AstroObject/Star.h"
 #include "Engine/Base/StellarSystem.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Logger.h"
@@ -13,7 +12,7 @@
 _NPGS_BEGIN
 _MODULES_BEGIN
 
-class OrbitalGenerator {
+class NPGS_API OrbitalGenerator {
 public:
     OrbitalGenerator() = default;
     OrbitalGenerator(const std::seed_seq& SeedSeq);
@@ -22,21 +21,20 @@ public:
 public:
     void GenerateOrbitals(StellarSystem& System);
 
-private:
-    void GeneratePlanetaryDisk(StellarSystem& System);
-    void GeneratePlanetaryCore(StellarSystem& System);
+public: // private:
+    void GeneratePlanets(StellarSystem& System);
+    void GenOrbitElements(StellarSystem::OrbitalElements& Orbit);
 
 private:
     struct PlanetaryDisk {
-        float InterRadius;
-        float OuterRadius;
-        float DiskMass;
-        float DustMass;
+        float InterRadiusAu;
+        float OuterRadiusAu;
+        float DiskMassSol;
+        float DustMassSol;
     };
 
     std::mt19937 _RandomEngine;
     UniformRealDistribution<float> _CommonGenerator;
-    PlanetaryDisk _PlanetaryDiskTempData;
 };
 
 _MODULES_END

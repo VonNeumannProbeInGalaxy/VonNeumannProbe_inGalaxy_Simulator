@@ -6,15 +6,17 @@
 #include <format>
 #include <future>
 #include <iomanip>
+#include <iterator>
 #include <limits>
 #include <sstream>
 #include <string>
 #include <thread>
-#include <utility>
 
 #define ENABLE_LOGGER
 // #define OUTPUT_DATA
+#include "Engine/Core/Modules/OrbitalGenerator.h"
 #include "Engine/Core/Modules/StellarClass.h"
+#include "Engine/Core/Modules/StellarGenerator.h"
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/Logger.h"
 #include "Engine/Core/Random.hpp"
@@ -222,8 +224,6 @@ void Universe::FillUniverse() {
     HomeSystem->SetBaryNormal(glm::vec2(0.0f));
 
     NpgsCoreInfo("Star generation completed.");
-
-    
 
     _ThreadPool->Terminate();
 }

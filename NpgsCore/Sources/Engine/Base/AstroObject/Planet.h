@@ -9,18 +9,21 @@ _ASTROOBJECT_BEGIN
 
 class NPGS_API Planet : public CelestialBody {
 public:
-    enum class PlanetType {
-        kRocky,
-        kTerra,
-        kIcePlanet,
-        kChthonian,
-        kOceanic,
-        kSubIceGiant,
-        kIceGiant,
-        kGasGiant,
-        kHotSubIceGiant,
-        kHotIceGiant,
-        kHotGasGiant
+    enum class PlanetType : int {
+        kRockyAsteroidCluster             = 0,
+        kRockyIceAsteroidCluster          = 1,
+        kArtificalOrbitalStructureCluster = 2,
+        kRocky                            = 3,
+        kTerra                            = 4,
+        kIcePlanet                        = 5,
+        kChthonian                        = 6,
+        kOceanic                          = 7,
+        kSubIceGiant                      = 8,
+        kIceGiant                         = 9,
+        kGasGiant                         = 10,
+        kHotSubIceGiant                   = 11,
+        kHotIceGiant                      = 12,
+        kHotGasGiant                      = 13
     };
 
     struct MassProperties {

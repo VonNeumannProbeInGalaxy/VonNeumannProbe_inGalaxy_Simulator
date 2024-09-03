@@ -8,7 +8,7 @@
 
 #include "Engine/Core/AssetLoader/AssetManager.h"
 
-#include "Engine/Core/Modules/PlanetGenerator.h"
+#include "Engine/Core/Modules/OrbitalGenerator.h"
 #include "Engine/Core/Modules/StellarClass.h"
 #include "Engine/Core/Modules/StellarGenerator.h"
 

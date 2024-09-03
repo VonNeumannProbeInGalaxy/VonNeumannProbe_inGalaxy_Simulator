@@ -48,4 +48,8 @@ inline std::vector<AstroObject::Planet>& StellarSystem::PlanetData() {
     return _Planets;
 }
 
+inline std::vector<std::pair<StellarSystem::OrbitalElements, AstroObject::CelestialBody*>>& StellarSystem::OrbitData() {
+    return _Orbits;
+}
+
 _NPGS_END

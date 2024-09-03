@@ -52,6 +52,7 @@ public:
 
     std::vector<AstroObject::Star>& StarData();
     std::vector<AstroObject::Planet>& PlanetData();
+    std::vector<std::pair<OrbitalElements, AstroObject::CelestialBody*>>& OrbitData();
 
 private:
     BaryCenter _SystemBary;

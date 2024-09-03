@@ -18,7 +18,17 @@ int main() {
     //Space.FillUniverse();
     //Space.CountStars();
 
-    std::cout << sizeof(AstroObject::Planet);
+    std::random_device rd;
+    unsigned seed = rd();
+    StellarGenerator sg({ seed });
+    StellarGenerator::BasicProperties b{ 1e9f, 0.5f, 0.3f };
+    auto s = sg.GenerateStar(b);
+
+    StellarSystem ss;
+    ss.StarData().emplace_back(s);
+
+    OrbitalGenerator og({ seed });
+    og.GeneratePlanets(ss);
 
     return 0;
 }

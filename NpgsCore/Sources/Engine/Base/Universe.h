@@ -8,7 +8,6 @@
 
 #include "Engine/Base/StellarSystem.h"
 #include "Engine/Base/Octree.hpp"
-#include "Engine/Core/Modules/StellarGenerator.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/ThreadPool.h"
 #include "Engine/Core/Random.hpp"
