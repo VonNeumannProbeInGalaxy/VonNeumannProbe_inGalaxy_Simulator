@@ -21,7 +21,7 @@ int main() {
     std::random_device rd;
     unsigned seed = rd();
     StellarGenerator sg({ seed });
-    StellarGenerator::BasicProperties b{ 1e9f, 0.5f, 0.3f };
+    StellarGenerator::BasicProperties b{ 1e9f, 0.0f, 1.0f };
     auto s = sg.GenerateStar(b);
 
     StellarSystem ss;
