@@ -10,20 +10,20 @@ _ASTROOBJECT_BEGIN
 class NPGS_API Planet : public CelestialBody {
 public:
     enum class PlanetType : int {
-        kRockyAsteroidCluster             = 0,
-        kRockyIceAsteroidCluster          = 1,
-        kArtificalOrbitalStructureCluster = 2,
-        kRocky                            = 3,
-        kTerra                            = 4,
-        kIcePlanet                        = 5,
-        kChthonian                        = 6,
-        kOceanic                          = 7,
-        kSubIceGiant                      = 8,
-        kIceGiant                         = 9,
-        kGasGiant                         = 10,
-        kHotSubIceGiant                   = 11,
-        kHotIceGiant                      = 12,
-        kHotGasGiant                      = 13
+        kRocky                            = 0,
+        kTerra                            = 1,
+        kIcePlanet                        = 2,
+        kChthonian                        = 3,
+        kOceanic                          = 4,
+        kSubIceGiant                      = 5,
+        kIceGiant                         = 6,
+        kGasGiant                         = 7,
+        kHotSubIceGiant                   = 8,
+        kHotIceGiant                      = 9,
+        kHotGasGiant                      = 10,
+        kRockyAsteroidCluster             = 11,
+        kRockyIceAsteroidCluster          = 12,
+        kArtificalOrbitalStructureCluster = 13
     };
 
     struct MassProperties {
@@ -38,6 +38,7 @@ public:
         MassProperties CoreMass;
         boost::multiprecision::int128_t CrustMineralMass;
         boost::multiprecision::int128_t RingsMass;
+        bool bIsMigrated;
 
         PlanetType Type;
     };
@@ -58,6 +59,7 @@ public:
     Planet& SetCoreMass(const MassProperties& CoreMass);
     Planet& SetCrustMineralMass(const boost::multiprecision::int128_t& CrustMineralMass);
     Planet& SetRingsMass(const boost::multiprecision::int128_t& RingsMass);
+    Planet& SetMigration(bool bIsMigrated);
     Planet& SetPlanetType(PlanetType Type);
 
     // Getters
@@ -68,6 +70,7 @@ public:
     const MassProperties& GetCoreMass() const;
     const boost::multiprecision::int128_t& GetCrustMineralMass() const;
     const boost::multiprecision::int128_t& GetRingsMass() const;
+    bool GetMigration() const;
     PlanetType GetPlanetType() const;
 
 private:

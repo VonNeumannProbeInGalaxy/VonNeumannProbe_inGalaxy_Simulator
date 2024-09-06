@@ -7,13 +7,16 @@ _NPGS_BEGIN
 
 // Calculation constants
 // ---------------------
-constexpr inline double kSolarMass              = 1.9884e30;
-constexpr inline double kSolarLuminosity        = 3.828e26;
+constexpr inline float  kSolarMass              = 1.9884e30f;
+constexpr inline float  kSolarLuminosity        = 3.828e26f;
 constexpr inline float  kSolarRadius            = 6.957e8f;
 constexpr inline float  kSolarFeH               = 0.0f;
 constexpr inline float  kSolarTeff              = 5772.0f;
 constexpr inline float  kSolarCoreTemp          = 1.57e7f;
 constexpr inline float  kSolarAbsoluteMagnitude = 4.83f;
+
+constexpr inline float  kJupiterMass            = 1.8982e27f;
+constexpr inline int    kJupiterRadius          = 69911000;
 
 constexpr inline float  kEarthMass              = 5.972168e24f;
 constexpr inline int    kEarthRadius            = 6371000;

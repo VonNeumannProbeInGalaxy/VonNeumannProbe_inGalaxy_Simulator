@@ -39,6 +39,11 @@ inline Planet& Planet::SetRingsMass(const boost::multiprecision::int128_t& Rings
     return *this;
 }
 
+inline Planet& Planet::SetMigration(bool bIsMigrated) {
+    _PlanetExtraProperties.bIsMigrated = bIsMigrated;
+    return *this;
+}
+
 inline Planet& Planet::SetPlanetType(PlanetType Type) {
     _PlanetExtraProperties.Type = Type;
     return *this;
@@ -62,6 +67,10 @@ inline const boost::multiprecision::int128_t& Planet::GetCrustMineralMass() cons
 
 inline const boost::multiprecision::int128_t& Planet::GetRingsMass() const {
     return _PlanetExtraProperties.RingsMass;
+}
+
+inline bool Planet::GetMigration() const {
+    return _PlanetExtraProperties.bIsMigrated;
 }
 
 inline Planet::PlanetType Planet::GetPlanetType() const {

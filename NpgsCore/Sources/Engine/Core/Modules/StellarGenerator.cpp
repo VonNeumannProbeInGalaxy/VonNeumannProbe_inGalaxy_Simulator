@@ -251,7 +251,7 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
     float  MassLossRate      = static_cast<float>(StarData[_kStarMdotIndex]);
 
     float LuminositySol  = std::pow(RadiusSol, 2.0f) * std::pow((Teff / kSolarTeff), 4.0f);
-    float EscapeVelocity = std::sqrt((2.0f * kGravityConstant * MassSol * static_cast<float>(kSolarMass)) / (RadiusSol * kSolarRadius));
+    float EscapeVelocity = std::sqrt((2.0f * kGravityConstant * MassSol * kSolarMass) / (RadiusSol * kSolarRadius));
 
     float LifeProgress     = static_cast<float>(Age / Lifetime);
     float WindSpeedFactor  = 3.0f - LifeProgress;
@@ -265,7 +265,7 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
 
     AstroObject::Star::Phase EvolutionPhase = static_cast<AstroObject::Star::Phase>(StarData[_kPhaseIndex]);
 
-    Star.SetInitialMass(Star.GetInitialMass() * static_cast<float>(kSolarMass));
+    Star.SetInitialMass(Star.GetInitialMass() * kSolarMass);
     Star.SetAge(Age);
     Star.SetMass(MassSol * kSolarMass);
     Star.SetLifetime(Lifetime);
@@ -280,7 +280,7 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
     Star.SetCoreTemp(CoreTemp);
     Star.SetCoreDensity(CoreDensity * 1000);
     Star.SetStellarWindSpeed(StellarWindSpeed);
-    Star.SetStellarWindMassLossRate(-(MassLossRate * static_cast<float>(kSolarMass) / kYearInSeconds));
+    Star.SetStellarWindMassLossRate(-(MassLossRate * kSolarMass / kYearInSeconds));
     Star.SetEvolutionProgress(EvolutionProgress);
     Star.SetEvolutionPhase(EvolutionPhase);
     Star.SetNormal(glm::vec2(Theta, Phi));
@@ -754,7 +754,7 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, float FeH) 
 }
 
 StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroObject::Star& StarData) {
-    float MassLossRateSolPerYear = StarData.GetStellarWindMassLossRate() * kYearInSeconds / static_cast<float>(kSolarMass);
+    float MassLossRateSolPerYear = StarData.GetStellarWindMassLossRate() * kYearInSeconds / kSolarMass;
     double MassSol = StarData.GetMass() / kSolarMass;
     StellarClass::LuminosityClass LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
 
@@ -1030,11 +1030,12 @@ void StellarGenerator::ProcessDeathStar(AstroObject::Star& DeathStar, double Mer
     float  CoreDensity       = std::pow(10.0f, LogCenterRho);
 
     float LuminositySol  = std::pow(RadiusSol, 2.0f) * std::pow((Teff / kSolarTeff), 4.0f);
-    float EscapeVelocity = std::sqrt((2.0f * kGravityConstant * MassSol * static_cast<float>(kSolarMass)) / (RadiusSol * kSolarRadius));
+    float EscapeVelocity = std::sqrt((2.0f * kGravityConstant * MassSol * kSolarMass) / (RadiusSol * kSolarRadius));
 
     float Theta = _CommonGenerator.Generate(_RandomEngine) * 2.0f * kPi;
     float Phi   = _CommonGenerator.Generate(_RandomEngine) * kPi;
-
+    
+    DeathStar.SetInitialMass(InputMass * kSolarMass);
     DeathStar.SetAge(Age);
     DeathStar.SetMass(MassSol * kSolarMass);
     DeathStar.SetLifetime(std::numeric_limits<double>::max());

@@ -52,13 +52,13 @@ public:
 
     std::vector<AstroObject::Star>& StarData();
     std::vector<AstroObject::Planet>& PlanetData();
-    std::vector<std::pair<OrbitalElements, AstroObject::CelestialBody*>>& OrbitData();
+    std::vector<std::pair<OrbitalElements, std::vector<AstroObject::CelestialBody*>>>& OrbitData();
 
 private:
     BaryCenter _SystemBary;
     std::vector<AstroObject::Star>   _Stars;
     std::vector<AstroObject::Planet> _Planets;
-    std::vector<std::pair<OrbitalElements, AstroObject::CelestialBody*>> _Orbits;
+    std::vector<std::pair<OrbitalElements, std::vector<AstroObject::CelestialBody*>>> _Orbits;
 };
 
 _NPGS_END
