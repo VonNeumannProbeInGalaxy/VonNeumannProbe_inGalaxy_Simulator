@@ -48,7 +48,7 @@ inline std::vector<AstroObject::Planet>& StellarSystem::PlanetData() {
     return _Planets;
 }
 
-inline std::vector<std::pair<StellarSystem::OrbitalElements, std::vector<AstroObject::CelestialBody*>>>& StellarSystem::OrbitData() {
+inline std::vector<std::pair<StellarSystem::OrbitalElements, std::vector<AstroObject::AstroObject*>>>& StellarSystem::OrbitData() {
     return _Orbits;
 }
 

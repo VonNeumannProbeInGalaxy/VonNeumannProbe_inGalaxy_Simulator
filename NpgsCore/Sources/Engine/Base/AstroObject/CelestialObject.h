@@ -8,7 +8,13 @@
 _NPGS_BEGIN
 _ASTROOBJECT_BEGIN
 
-class NPGS_API CelestialBody {
+class NPGS_API AstroObject {
+public:
+    AstroObject() = default;
+    virtual ~AstroObject() = default;
+};
+
+class NPGS_API CelestialBody : public AstroObject {
 public:
     struct BasicProperties {
         glm::vec2 Normal;     // 法向量，球坐标表示，(theta, phi)
@@ -26,7 +32,7 @@ public:
 public:
     CelestialBody() = default;
     CelestialBody(const BasicProperties& Properties);
-    ~CelestialBody() = default;
+    virtual ~CelestialBody() = default;
 
     CelestialBody& SetBasicProperties(const BasicProperties& Properties);
     const BasicProperties& GetBasicProperties() const;

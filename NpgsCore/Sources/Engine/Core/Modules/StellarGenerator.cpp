@@ -54,7 +54,7 @@ static void ExpandMistData(std::vector<double>& StarData, double TargetMass);
 StellarGenerator::StellarGenerator(const std::seed_seq& SeedSeq, GenOption Option, float UniverseAge, float MassLowerLimit, float MassUpperLimit, GenDistribution MassDistribution, float AgeLowerLimit, float AgeUpperLimit, GenDistribution AgeDistribution, float FeHLowerLimit, float FeHUpperLimit, GenDistribution FeHDistribution, float CoilTempLimit, float dEpdM) :
     _RandomEngine(SeedSeq), _Option(Option), _UniverseAge(UniverseAge),
     _AgeGenerator(AgeLowerLimit, AgeUpperLimit),
-    _LogMassGenerator(std::log10(MassLowerLimit), std::log10(MassUpperLimit)),
+    _LogMassGenerator(Option == StellarGenerator::GenOption::kMergeStar ? (0.0f, 1.0f) : std::log10(MassLowerLimit), std::log10(MassUpperLimit)),
     _CommonGenerator(0.0f, 1.0f),
     _FeHGenerators({
         std::make_shared<LogNormalDistribution<float>>(-0.3f, 0.5f),
@@ -88,6 +88,7 @@ StellarGenerator::StellarGenerator(const std::seed_seq& SeedSeq, GenOption Optio
 StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     BasicProperties Properties{};
 
+    // 生成 3 个基本参数
     if (_MassLowerLimit == 0.0f && _MassUpperLimit == 0.0f) {
         Properties.InitialMass = 0.0f;
     } else {
@@ -97,7 +98,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
             float MaxProbability = 0.086f;
             float LogMassLower = std::log10(_MassLowerLimit);
             float LogMassUpper = std::log10(_MassUpperLimit);
-            if (!(LogMassLower < 0.22f && LogMassUpper > 0.22f)) {
+            if (!(LogMassLower < 0.22f && LogMassUpper > 0.22f)) { //  调整最大值，防止接受率过低
                 if (LogMassLower > 0.22f) {
                     MaxProbability = DefaultLogMassPdf(LogMassLower, true);
                 } else if (LogMassUpper < 0.22f) {
@@ -149,9 +150,10 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     float FeHLowerLimit = _FeHLowerLimit;
     float FeHUpperLimit = _FeHUpperLimit;
 
+    // 不同的年龄使用不同的分布
     if (Properties.Age > _UniverseAge - 1.38e10f + 8e9f) {
         FeHGenerator = _FeHGenerators[0].get();
-        FeHLowerLimit = -_FeHUpperLimit;
+        FeHLowerLimit = -_FeHUpperLimit; // 对数分布，但是是反的
         FeHUpperLimit = -_FeHLowerLimit;
     } else if (Properties.Age > _UniverseAge - 1.38e10f + 6e9f) {
         FeHGenerator = _FeHGenerators[1].get();
@@ -167,7 +169,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
     } while (FeH > FeHUpperLimit || FeH < FeHLowerLimit);
 
     if (Properties.Age > _UniverseAge - 1.38e10 + 8e9) {
-        FeH *= -1.0f;
+        FeH *= -1.0f; // 把对数分布反过来
     }
 
     Properties.FeH    = FeH;
@@ -204,18 +206,18 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
         break;
     }
     case GenOption::kGiant: {
-        Properties.Age = -1.0;
+        Properties.Age = -1.0f; // 使用 -1.0，在计算年龄的时候根据寿命赋值一个濒死年龄
         try {
             StarData = GetActuallyMistData(Properties, false, true);
         } catch (AstroObject::Star&) {
-            return GenerateStar();
+            return GenerateStar(); // 生成的东西超过了寿命，递归再生成一个新的
         }
 
         break;
     }
     case GenOption::kDeathStar: {
         ProcessDeathStar(Star);
-        if (Star.GetEvolutionPhase() == AstroObject::Star::Phase::kNull) {
+        if (Star.GetEvolutionPhase() == AstroObject::Star::Phase::kNull) { // 炸没了，再生成个新的
             Star = GenerateStar();
         }
 
@@ -289,15 +291,15 @@ AstroObject::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
     GenerateMagnetic(Star);
     GenerateSpin(Star);
 
-    double Mass          = Star.GetMass();
-    double Luminosity    = Star.GetLuminosity();
-    float  Radius        = Star.GetRadius();
-    float  MagneticField = Star.GetMagneticField();
+    float Mass          = static_cast<float>(Star.GetMass());
+    float Luminosity    = static_cast<float>(Star.GetLuminosity());
+    float Radius        = Star.GetRadius();
+    float MagneticField = Star.GetMagneticField();
 
-    float MinCoilMass = static_cast<float>(std::max(
-        (6.6156e14)  * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 1.5) * std::pow(_CoilTempLimit, -6.0f) * std::pow(_dEpdM, -1.0f),
-        (2.34865e29) * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 2.0) * std::pow(_CoilTempLimit, -8.0f) * std::pow(Mass,   -1.0)
-    ));
+    float MinCoilMass = std::max(
+        6.6156e14f  * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 1.5f) * std::pow(_CoilTempLimit, -6.0f) * std::pow(_dEpdM, -1.0f),
+        2.34865e29f * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 2.0f) * std::pow(_CoilTempLimit, -8.0f) * std::pow(Mass,   -1.0f)
+    );
 
     Star.SetMinCoilMass(MinCoilMass);
 
@@ -483,7 +485,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             auto LowerPhaseChanges = FindPhaseChanges(LowerData);
             auto UpperPhaseChanges = FindPhaseChanges(UpperData);
 
-            while (TargetAge == -1.0) {
+            while (TargetAge == -1.0) { // 年龄为 -1.0 代表要生成濒死恒星
                 double LowerLifetime = LowerPhaseChanges.back()[_kStarAgeIndex];
                 double UpperLifetime = UpperPhaseChanges.back()[_kStarAgeIndex];
                 double Lifetime = LowerLifetime + (UpperLifetime - LowerLifetime) * MassFactor;
@@ -597,7 +599,7 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, float FeH) 
 
         if (Phase != AstroObject::Star::Phase::kWolfRayet) {
             if (Phase == AstroObject::Star::Phase::kMainSequence) {
-                if (SurfaceH1 < 0.5f) {
+                if (SurfaceH1 < 0.5f) { // 如果表面氢质量分数低于 0.5 并且还是主序星阶段，转为 WR 星
                     EvolutionPhase = AstroObject::Star::Phase::kWolfRayet;
                     CalcSpectralSubclass(EvolutionPhase, SurfaceH1);
                     return;
@@ -613,12 +615,12 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, float FeH) 
                 }
             }
         } else {
-            if (Teff >= 200000) {
+            if (Teff >= 200000) { // 温度超过 20 万 K，直接赋值为 WO2
                 SpectralType.HSpectralClass = StellarClass::SpectralClass::kSpectral_WO;
                 SpectralType.Subclass = 2.0f;
                 return;
             } else {
-                if (SurfaceH1 >= 0.2f) {
+                if (SurfaceH1 >= 0.2f) { // 根据表面氢质量分数来判断处于的 WR 阶段
                     SpectralSubclassMap = AstroObject::Star::_kSpectralSubclassMap_WNxh;
                     SpectralClass = 13;
                     SpectralType.SpecialMark = static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h);
@@ -667,7 +669,7 @@ void StellarGenerator::CalcSpectralType(AstroObject::Star& StarData, float FeH) 
     if (EvolutionPhase != AstroObject::Star::Phase::kWolfRayet) {
         switch (StarType) {
         case StellarClass::StarType::kNormalStar: {
-            if (Teff < 54000) {
+            if (Teff < 54000) { // 高于 O0 上限，转到通过表面氢质量分数判断阶段
                 CalcSpectralSubclass(EvolutionPhase, SurfaceH1);
 
                 if (EvolutionPhase != AstroObject::Star::Phase::kWolfRayet) {
@@ -759,15 +761,15 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
     StellarClass::LuminosityClass LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
 
     double LuminositySol = StarData.GetLuminosity() / kSolarLuminosity;
-    if (LuminositySol > 650000) {
+    if (LuminositySol > 650000) { // 光度高于 650000 Lsun
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_0;
     }
 
-    if (MassLossRateSolPerYear > 1e-4f && MassSol >= 15) {
+    if (MassLossRateSolPerYear > 1e-4f && MassSol >= 15) { // 表面物质流失率大于 1e-4 Msun/yr 并且质量大于等于 15 Msun
         LuminosityClass = StellarClass::LuminosityClass::kLuminosity_IaPlus;
     }
 
-    if (LuminosityClass != StellarClass::LuminosityClass::kLuminosity_Unknown) {
+    if (LuminosityClass != StellarClass::LuminosityClass::kLuminosity_Unknown) { // 如果判断为特超巨星，直接返回
         return LuminosityClass;
     }
 
@@ -781,7 +783,7 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const AstroO
         BvColorIndex = 0.344f * std::pow(std::log10(Teff), 2.0f) - 3.402f * std::log10(Teff) + 8.037f;
     }
 
-    if (BvColorIndex < -0.3f || BvColorIndex > 1.9727273f) {
+    if (BvColorIndex < -0.3f || BvColorIndex > 1.9727273f) { // 超过 HR 表的范围，使用光度判断
         if (LuminositySol > 100000) {
             return StellarClass::LuminosityClass::kLuminosity_Ia;
         } else if (LuminositySol > 50000) {
@@ -1081,7 +1083,7 @@ void StellarGenerator::GenerateMagnetic(AstroObject::Star& StarData) {
             if (EvolutionPhase == AstroObject::Star::Phase::kMainSequence &&
                (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_A ||
                 SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
-                BernoulliDistribution ProbabilityGenerator(0.15);
+                BernoulliDistribution ProbabilityGenerator(0.15); //  p 星的概率
                 if (ProbabilityGenerator.Generate(_RandomEngine)) {
                     MagneticGenerator = _MagneticGenerators[3].get();
                     SpectralType.SpecialMark |= static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_p);
@@ -1166,7 +1168,7 @@ void StellarGenerator::GenerateSpin(AstroObject::Star& StarData) {
         Spin = (StarAge * 3 * 1e-9f) + 1e-3f;
         break;
     }
-    case StellarClass::StarType::kBlackHole: {
+    case StellarClass::StarType::kBlackHole: { // 此处表示无量纲自旋参数，而非自转时间
         SpinGenerator = _SpinGenerators[1].get();
         Spin = SpinGenerator->Generate(_RandomEngine);
         break;
@@ -1329,7 +1331,9 @@ std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std
         );
 
         if (LowerTimePoint == UpperTimePoint) {
-            --LowerTimePoint;
+            if (LowerTimePoint != PhaseChanges.begin()) {
+                --LowerTimePoint;
+            }
         }
 
         if (UpperTimePoint == PhaseChanges.end()) {

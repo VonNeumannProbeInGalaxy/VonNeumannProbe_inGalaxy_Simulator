@@ -15,7 +15,7 @@ _MODULES_BEGIN
 class NPGS_API OrbitalGenerator {
 public:
     OrbitalGenerator() = default;
-    OrbitalGenerator(const std::seed_seq& SeedSeq);
+    OrbitalGenerator(const std::seed_seq& SeedSeq, float AsteroidUpperLimit = 1e21f, float LifeProbatility = 0.0114514f);
     ~OrbitalGenerator() = default;
 
 public:
@@ -33,6 +33,8 @@ private:
         float DustMassSol;
     };
 
+    float _AsteroidUpperLimit;
+    float _LifeProbatility;
     std::mt19937 _RandomEngine;
     UniformRealDistribution<float> _CommonGenerator;
 };

@@ -20,10 +20,10 @@ int main() {
     //Space.CountStars();
 
     std::random_device rd;
-    unsigned seed = 3473319233;//2325366524//396747571;//2643113656;//1388840952;//1179680896;// 1039595763;// 874872082;
+    unsigned seed = 147895346;//153597433;//2652587822;//2325366524//396747571;//2643113656;//1388840952;//1179680896;// 1039595763;// 874872082;
     std::println("Seed: {}", seed);
-    StellarGenerator sg({ seed });
-    StellarGenerator::BasicProperties b{ 2e10, 0.0f, 1.0f };
+    StellarGenerator sg({ seed }, Modules::StellarGenerator::GenOption::kNormal);
+    StellarGenerator::BasicProperties b{ 4.6e9f, 0.0f, 1.0f };
     auto s = sg.GenerateStar(b);
 
     StellarSystem ss;
