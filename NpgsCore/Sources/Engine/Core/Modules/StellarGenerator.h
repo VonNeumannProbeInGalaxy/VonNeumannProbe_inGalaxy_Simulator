@@ -39,7 +39,7 @@ public:
         float FeH;
         float InitialMass;
 
-        GenOption Option;
+        GenOption Option; // 用于保存生成选项，类的生成选项仅影响该属性。生成的恒星完整信息也将根据该属性决定。该选项用于防止多线程生成恒星时属性和生成器胡乱匹配
 
         explicit operator AstroObject::Star() const {
             AstroObject::Star Star;

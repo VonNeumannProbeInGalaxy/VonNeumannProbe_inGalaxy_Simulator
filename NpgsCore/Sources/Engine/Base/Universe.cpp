@@ -47,7 +47,7 @@ void Universe::FillUniverse() {
     int MaxThread = _ThreadPool->GetMaxThreadCount();
 
     NpgsCoreInfo("Initializating and generating basic properties...");
-    std::vector<std::future<Modules::StellarGenerator::BasicProperties>> Futures;
+    // std::vector<std::future<Modules::StellarGenerator::BasicProperties>> Futures;
     std::vector<Modules::StellarGenerator> Generators;
     std::vector<Modules::StellarGenerator::BasicProperties> BasicProperties;
 
@@ -128,9 +128,9 @@ void Universe::FillUniverse() {
     // CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 8.0f, 300.0f);
     GenerateBasicProperties(NumCommonStars);
 
-    for (auto& Future : Futures) {
-        Future.wait();
-    }
+    // for (auto& Future : Futures) {
+    //     Future.wait();
+    // }
 
     NpgsCoreInfo("Basic properties generation completed.");
     NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);

@@ -51,7 +51,8 @@ static void ExpandMistData(std::vector<double>& StarData, double TargetMass);
 
 // StellarGenerator implementations
 // --------------------------------
-StellarGenerator::StellarGenerator(const std::seed_seq& SeedSeq, GenOption Option, float UniverseAge, float MassLowerLimit, float MassUpperLimit, GenDistribution MassDistribution, float AgeLowerLimit, float AgeUpperLimit, GenDistribution AgeDistribution, float FeHLowerLimit, float FeHUpperLimit, GenDistribution FeHDistribution, float CoilTempLimit, float dEpdM) :
+StellarGenerator::StellarGenerator(const std::seed_seq& SeedSeq, GenOption Option, float UniverseAge, float MassLowerLimit, float MassUpperLimit, GenDistribution MassDistribution, float AgeLowerLimit, float AgeUpperLimit, GenDistribution AgeDistribution, float FeHLowerLimit, float FeHUpperLimit, GenDistribution FeHDistribution, float CoilTempLimit, float dEpdM)
+    :
     _RandomEngine(SeedSeq), _Option(Option), _UniverseAge(UniverseAge),
     _AgeGenerator(AgeLowerLimit, AgeUpperLimit),
     _LogMassGenerator(Option == StellarGenerator::GenOption::kMergeStar ? (0.0f, 1.0f) : std::log10(MassLowerLimit), std::log10(MassUpperLimit)),

@@ -26,6 +26,17 @@ public:
         kArtificalOrbitalStructureCluster = 13
     };
 
+    enum class LifePhase : int {
+        kNull                             = 0,
+        kLuca                             = 1,
+        kGreatOxygenationEvent            = 2,
+        kMultiCellularLife                = 3,
+        kCenoziocEra                      = 4,
+        kSatTeeTouy                       = 5,
+        kSatTeeTouyButAsi                 = 6,
+        kNewCivilization                  = 7,
+    };
+
     struct ComplexMass {
         boost::multiprecision::int128_t Z;
         boost::multiprecision::int128_t Volatiles;
@@ -38,9 +49,11 @@ public:
         ComplexMass OceanMass;
         boost::multiprecision::int128_t CrustMineralMass;
         boost::multiprecision::int128_t RingsMass;
+        float CivilizationLevel;
         bool bIsMigrated;
 
         PlanetType Type;
+        LifePhase  Phase;
     };
 
 public:
@@ -61,8 +74,10 @@ public:
     Planet& SetCrustMineralMass(const boost::multiprecision::int128_t& CrustMineralMass);
     Planet& SetRingsMass(float RingsMass);
     Planet& SetRingsMass(const boost::multiprecision::int128_t& RingsMass);
+    Planet& SetCivilizationLevel(float CivilizationLevel);
     Planet& SetMigration(bool bIsMigrated);
     Planet& SetPlanetType(PlanetType Type);
+    Planet& SetLifePhase(LifePhase Phase);
 
     // Setters
     // Setters for every mass property
@@ -93,10 +108,25 @@ public:
     const ComplexMass& GetCoreMass() const;
     const ComplexMass& GetOceanMass() const;
     const float GetMass() const;
+    float GetCrustMineralMassFloat() const;
     const boost::multiprecision::int128_t& GetCrustMineralMass() const;
+    float GetRingsMassFloat() const;
     const boost::multiprecision::int128_t& GetRingsMass() const;
+    float GetCivilizationLevel() const;
     bool GetMigration() const;
     PlanetType GetPlanetType() const;
+    LifePhase GetLifePhase() const;
+
+public:
+    static const float _kNull;
+    static const float _kCarbonBasedUniversalIntelligence;
+    static const float _kUrgesellschaft;
+    static const float _kPrevIndustrielle;
+    static const float _kSteamAge;
+    static const float _kElectricAge;
+    static const float _kAtomicAge;
+    static const float _kDigitalAge;
+    static const float _kPrevAsiAge;
 
 private:
     ExtendedProperties _PlanetExtraProperties{};

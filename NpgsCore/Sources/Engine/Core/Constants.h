@@ -32,5 +32,6 @@ constexpr inline float  kPi                     = 3.1415927f;
 constexpr inline float  kStefanBoltzmann        = 5.6703744e-8f;
 constexpr inline int    kYearInSeconds          = 31536000;
 constexpr inline std::uint64_t kAuToMeter       = 149597870700;
+constexpr inline int    kPascalToAtm            = 101325;
 
 _NPGS_END

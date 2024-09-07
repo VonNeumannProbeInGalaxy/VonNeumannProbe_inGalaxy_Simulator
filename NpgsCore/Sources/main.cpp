@@ -20,7 +20,7 @@ int main() {
     //Space.CountStars();
 
     std::random_device rd;
-    unsigned seed = 147895346;//153597433;//2652587822;//2325366524//396747571;//2643113656;//1388840952;//1179680896;// 1039595763;// 874872082;
+    unsigned seed = rd();//147895346;//153597433;//2652587822;//2325366524//396747571;//2643113656;//1388840952;//1179680896;// 1039595763;// 874872082;
     std::println("Seed: {}", seed);
     StellarGenerator sg({ seed }, Modules::StellarGenerator::GenOption::kNormal);
     StellarGenerator::BasicProperties b{ 4.6e9f, 0.0f, 1.0f };
@@ -29,7 +29,7 @@ int main() {
     StellarSystem ss;
     ss.StarData().emplace_back(s);
 
-    OrbitalGenerator og({ seed });
+    OrbitalGenerator og({ seed }, 1e21f, 1.0f);
     try {
         og.GeneratePlanets(ss);;
     } catch (std::exception& e) {
