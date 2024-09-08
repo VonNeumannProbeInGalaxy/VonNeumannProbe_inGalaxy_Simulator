@@ -146,10 +146,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\NpgsObject.cpp" />
     <ClCompile Include="Sources\Engine\Core\Modules\OrbitalGenerator.cpp" />
-    <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.cpp" />
-    <ClCompile Include="Sources\Engine\Base\AstroObject\Planet.cpp" />
-    <ClCompile Include="Sources\Engine\Base\AstroObject\Star.cpp" />
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.cpp" />
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Planet.cpp" />
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Star.cpp" />
     <ClCompile Include="Sources\Engine\Base\Universe.cpp" />
     <ClCompile Include="Sources\Engine\Core\AssetLoader\AssetManager.cpp" />
     <ClCompile Include="Sources\Engine\Core\Logger.cpp" />
@@ -164,11 +165,12 @@
     <ClCompile Include="Sources\Engine\Base\StellarSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\Engine\Base\NpgsObject\NpgsObject.h" />
     <ClInclude Include="Sources\Engine\Core\Modules\OrbitalGenerator.h" />
     <ClInclude Include="Sources\Engine\Base\Octree.hpp" />
-    <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h" />
-    <ClInclude Include="Sources\Engine\Base\AstroObject\Planet.h" />
-    <ClInclude Include="Sources\Engine\Base\AstroObject\Star.h" />
+    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.h" />
+    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Planet.h" />
+    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Star.h" />
     <ClInclude Include="Sources\Engine\Base\Universe.h" />
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
     <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h" />
@@ -185,9 +187,9 @@
     <ClInclude Include="Sources\Engine\Base\StellarSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Sources\Engine\Base\AstroObject\CelestialObject.inl" />
-    <None Include="Sources\Engine\Base\AstroObject\Planet.inl" />
-    <None Include="Sources\Engine\Base\AstroObject\Star.inl" />
+    <None Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.inl" />
+    <None Include="Sources\Engine\Base\NpgsObject\Astro\Planet.inl" />
+    <None Include="Sources\Engine\Base\NpgsObject\Astro\Star.inl" />
     <None Include="Sources\Engine\Base\StellarSystem.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,7 +1,7 @@
 #include "Star.h"
 
 _NPGS_BEGIN
-_ASTROOBJECT_BEGIN
+_ASTRO_BEGIN
 
 Star::Star(const CelestialBody::BasicProperties& StarBasicProperties, const ExtendedProperties& StarExtraProperties)
     : CelestialBody(StarBasicProperties), _StarExtraProperties(StarExtraProperties)
@@ -63,5 +63,5 @@ const std::unordered_map<float, float> Star::_kFeHSurfaceH1Map{
     {  0.5f, 0.63846f }
 };
 
-_ASTROOBJECT_END
+_ASTRO_END
 _NPGS_END

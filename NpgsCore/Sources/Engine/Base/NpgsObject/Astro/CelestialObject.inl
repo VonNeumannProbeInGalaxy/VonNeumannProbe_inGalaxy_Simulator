@@ -3,7 +3,7 @@
 #include "CelestialObject.h"
 
 _NPGS_BEGIN
-_ASTROOBJECT_BEGIN
+_ASTRO_BEGIN
 
 inline CelestialBody& CelestialBody::SetBasicProperties(const BasicProperties& Properties) {
     _Properties = Properties;
@@ -86,5 +86,5 @@ inline float CelestialBody::GetMagneticField() const {
     return _Properties.MagneticField;
 }
 
-_ASTROOBJECT_END
+_ASTRO_END
 _NPGS_END

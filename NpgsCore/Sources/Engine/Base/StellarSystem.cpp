@@ -2,7 +2,7 @@
 
 _NPGS_BEGIN
 
-StellarSystem::StellarSystem(const BaryCenter& SystemBary, const std::vector<AstroObject::Star>& Stars, const std::vector<AstroObject::Planet>& Planets)
+StellarSystem::StellarSystem(const BaryCenter& SystemBary, const std::vector<Astro::Star>& Stars, const std::vector<Astro::Planet>& Planets)
     : _SystemBary(SystemBary), _Stars(Stars), _Planets(Planets)
 {}
 

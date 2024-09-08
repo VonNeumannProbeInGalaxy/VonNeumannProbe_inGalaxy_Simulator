@@ -30,11 +30,17 @@ int main() {
     ss.StarData().emplace_back(s);
 
     OrbitalGenerator og({ seed }, 1e21f, 1.0f);
-    try {
-        og.GeneratePlanets(ss);;
-    } catch (std::exception& e) {
-        NpgsCoreError(e.what());
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i != 20000; ++i) {
+        try {
+            og.GeneratePlanets(ss);;
+        } catch (std::exception& e) {
+            NpgsCoreError(e.what());
+        }
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    std::println("Elapsed time: {}s", elapsed.count());
 
     return 0;
 }

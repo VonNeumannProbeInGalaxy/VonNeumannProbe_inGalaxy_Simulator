@@ -3,7 +3,7 @@
 #include "Star.h"
 
 _NPGS_BEGIN
-_ASTROOBJECT_BEGIN
+_ASTRO_BEGIN
 
 inline Star& Star::SetExtendedProperties(const ExtendedProperties& StarExtraProperties) {
     _StarExtraProperties = StarExtraProperties;
@@ -185,5 +185,5 @@ inline const Modules::StellarClass& Star::GetStellarClass() const {
     return _StarExtraProperties.StellarClass;
 }
 
-_ASTROOBJECT_END
+_ASTRO_END
 _NPGS_END

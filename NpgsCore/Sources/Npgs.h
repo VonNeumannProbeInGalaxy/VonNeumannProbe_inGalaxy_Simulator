@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Engine/Base/AstroObject/CelestialObject.h"
-#include "Engine/Base/AstroObject/Planet.h"
-#include "Engine/Base/AstroObject/Star.h"
+#include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
+#include "Engine/Base/NpgsObject/Astro/Planet.h"
+#include "Engine/Base/NpgsObject/Astro/Star.h"
 #include "Engine/Base/Octree.hpp"
 #include "Engine/Base/Universe.h"
 

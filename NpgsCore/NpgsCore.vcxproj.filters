@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\Engine\Base\AstroObject\CelestialObject.cpp">
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Base\AstroObject\Planet.cpp">
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Planet.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Base\AstroObject\Star.cpp">
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Star.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Base\Universe.cpp">
@@ -54,15 +54,18 @@
     <ClCompile Include="Sources\Engine\Core\Modules\OrbitalGenerator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\NpgsObject.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Engine\Base\AstroObject\CelestialObject.h">
+    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Base\AstroObject\Planet.h">
+    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Planet.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Base\AstroObject\Star.h">
+    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Star.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Base\Universe.h">
@@ -113,15 +116,18 @@
     <ClInclude Include="Sources\Engine\Core\Modules\OrbitalGenerator.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Engine\Base\NpgsObject\NpgsObject.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Sources\Engine\Base\AstroObject\CelestialObject.inl">
+    <None Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.inl">
       <Filter>头文件</Filter>
     </None>
-    <None Include="Sources\Engine\Base\AstroObject\Planet.inl">
+    <None Include="Sources\Engine\Base\NpgsObject\Astro\Planet.inl">
       <Filter>头文件</Filter>
     </None>
-    <None Include="Sources\Engine\Base\AstroObject\Star.inl">
+    <None Include="Sources\Engine\Base\NpgsObject\Astro\Star.inl">
       <Filter>头文件</Filter>
     </None>
     <None Include="Sources\Engine\Base\StellarSystem.inl">

@@ -1,10 +1,14 @@
 #pragma once
 
 #include "Planet.h"
-#include <string>
 
 _NPGS_BEGIN
-_ASTROOBJECT_BEGIN
+_ASTRO_BEGIN
+
+template <typename Ty>
+inline static Ty ConvertTo(const auto& BoostMultiPrecision) {
+    return BoostMultiPrecision.convert_to<Ty>();
+}
 
 inline Planet& Planet::SetExtendedProperties(const ExtendedProperties& PlanetExtraProperties) {
     _PlanetExtraProperties = PlanetExtraProperties;
@@ -159,28 +163,124 @@ inline Planet& Planet::SetOceanMassEnergeticNuclide(const boost::multiprecision:
     return *this;
 }
 
-inline const Planet::ComplexMass& Planet::GetAtmosphereMass() const {
+inline float Planet::GetAtmosphereMassFloat() const {
+    return ConvertTo<float>(GetAtmosphereMass());
+}
+
+inline const Planet::ComplexMass& Planet::GetAtmosphereMassStruct() const {
     return _PlanetExtraProperties.AtmosphereMass;
 }
 
-inline const Planet::ComplexMass& Planet::GetCoreMass() const {
+inline const boost::multiprecision::int128_t Planet::GetAtmosphereMass() const {
+    return GetAtmosphereMassZ() + GetAtmosphereMassVolatiles() + GetAtmosphereMassEnergeticNuclide();
+}
+
+inline float Planet::GetAtmosphereMassZFloat() const {
+    return ConvertTo<float>(GetAtmosphereMassZ());
+}
+
+inline const boost::multiprecision::int128_t& Planet::GetAtmosphereMassZ() const {
+    return _PlanetExtraProperties.AtmosphereMass.Z;
+}
+
+inline float Planet::GetAtmosphereMassVolatilesFloat() const {
+    return ConvertTo<float>(GetAtmosphereMassVolatiles());
+}
+
+inline const boost::multiprecision::int128_t& Planet::GetAtmosphereMassVolatiles() const {
+    return _PlanetExtraProperties.AtmosphereMass.Volatiles;
+}
+
+inline float Planet::GetAtmosphereMassEnergeticNuclideFloat() const {
+    return ConvertTo<float>(GetAtmosphereMassEnergeticNuclide());
+}
+
+inline const boost::multiprecision::int128_t& Planet::GetAtmosphereMassEnergeticNuclide() const {
+    return _PlanetExtraProperties.AtmosphereMass.EnergeticNuclide;
+}
+
+inline float Planet::GetCoreMassFloat() const {
+    return ConvertTo<float>(GetCoreMass());
+}
+
+inline const Planet::ComplexMass& Planet::GetCoreMassStruct() const {
     return _PlanetExtraProperties.CoreMass;
 }
 
-inline const Planet::ComplexMass& Planet::GetOceanMass() const {
+inline const boost::multiprecision::int128_t Planet::GetCoreMass() const {
+    return GetCoreMassZ() + GetCoreMassVolatiles() + GetCoreMassEnergeticNuclide();
+}
+
+inline float Planet::GetCoreMassZFloat() const {
+    return ConvertTo<float>(GetCoreMassZ());
+}
+
+inline const boost::multiprecision::int128_t& Planet::GetCoreMassZ() const {
+    return _PlanetExtraProperties.CoreMass.Z;
+}
+
+inline float Planet::GetCoreMassVolatilesFloat() const {
+    return ConvertTo<float>(GetCoreMassVolatiles());
+}
+
+inline const boost::multiprecision::int128_t& Planet::GetCoreMassVolatiles() const {
+    return _PlanetExtraProperties.CoreMass.Volatiles;
+}
+
+inline float Planet::GetCoreMassEnergeticNuclideFloat() const {
+    return ConvertTo<float>(GetCoreMassEnergeticNuclide());
+}
+
+inline const boost::multiprecision::int128_t& Planet::GetCoreMassEnergeticNuclide() const {
+    return _PlanetExtraProperties.CoreMass.EnergeticNuclide;
+}
+
+inline float Planet::GetOceanMassFloat() const {
+    return ConvertTo<float>(GetOceanMass());
+}
+
+inline const Planet::ComplexMass& Planet::GetOceanMassStruct() const {
     return _PlanetExtraProperties.OceanMass;
 }
 
-inline const float Planet::GetMass() const {
-    float AtmosphereMass = std::stof((GetAtmosphereMass().EnergeticNuclide + GetAtmosphereMass().Volatiles + GetAtmosphereMass().Z).str());
-    float OceanMass      = std::stof((GetOceanMass().EnergeticNuclide + GetOceanMass().Volatiles + GetOceanMass().Z).str());
-    float CoreMass       = std::stof((GetCoreMass().EnergeticNuclide + GetCoreMass().Volatiles + GetCoreMass().Z).str());
+inline const boost::multiprecision::int128_t Planet::GetOceanMass() const {
+    return GetOceanMassZ() + GetOceanMassVolatiles() + GetOceanMassEnergeticNuclide();
+}
 
-    return AtmosphereMass + OceanMass + CoreMass;
+inline float Planet::GetOceanMassZFloat() const {
+    return ConvertTo<float>(GetOceanMassZ());
+}
+
+inline const boost::multiprecision::int128_t& Planet::GetOceanMassZ() const {
+    return _PlanetExtraProperties.OceanMass.Z;
+}
+
+inline float Planet::GetOceanMassVolatilesFloat() const {
+    return ConvertTo<float>(GetOceanMassVolatiles());
+}
+
+inline const boost::multiprecision::int128_t& Planet::GetOceanMassVolatiles() const {
+    return _PlanetExtraProperties.OceanMass.Volatiles;
+}
+
+inline float Planet::GetOceanMassEnergeticNuclideFloat() const {
+    return ConvertTo<float>(GetOceanMassEnergeticNuclide());
+}
+
+inline const boost::multiprecision::int128_t& Planet::GetOceanMassEnergeticNuclide() const {
+    return _PlanetExtraProperties.OceanMass.EnergeticNuclide;
+}
+
+inline float Planet::GetMassFloat() const {
+    return ConvertTo<float>(GetMass());
+}
+
+inline const boost::multiprecision::int128_t Planet::GetMass() const {
+    return GetAtmosphereMass() + GetOceanMass() + GetCoreMass();
 }
 
 inline float Planet::GetCrustMineralMassFloat() const {
-    return std::stof(_PlanetExtraProperties.CrustMineralMass.str());
+    return ConvertTo<float>(GetCrustMineralMass());
 }
 
 inline const boost::multiprecision::int128_t& Planet::GetCrustMineralMass() const {
@@ -188,7 +288,7 @@ inline const boost::multiprecision::int128_t& Planet::GetCrustMineralMass() cons
 }
 
 inline float Planet::GetRingsMassFloat() const {
-    return std::stof(_PlanetExtraProperties.RingsMass.str());
+    return ConvertTo<float>(GetRingsMass());
 }
 
 inline const boost::multiprecision::int128_t& Planet::GetRingsMass() const {
@@ -211,5 +311,5 @@ inline Planet::LifePhase Planet::GetLifePhase() const {
     return _PlanetExtraProperties.Phase;
 }
 
-_ASTROOBJECT_END
+_ASTRO_END
 _NPGS_END

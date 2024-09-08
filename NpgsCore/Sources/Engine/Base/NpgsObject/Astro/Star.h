@@ -6,12 +6,12 @@
 #include <utility>
 #include <vector>
 
-#include "Engine/Base/AstroObject/CelestialObject.h"
+#include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
 #include "Engine/Core/Modules/StellarClass.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
-_ASTROOBJECT_BEGIN
+_ASTRO_BEGIN
 
 class NPGS_API Star : public CelestialBody {
 public:
@@ -147,7 +147,7 @@ private:
     ExtendedProperties _StarExtraProperties{};
 };
 
-_ASTROOBJECT_END
+_ASTRO_END
 _NPGS_END
 
 #include "Star.inl"

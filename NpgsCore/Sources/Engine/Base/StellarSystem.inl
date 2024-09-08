@@ -40,15 +40,15 @@ inline const std::string& StellarSystem::GetBaryName() const {
     return _SystemBary.Name;
 }
 
-inline std::vector<AstroObject::Star>& StellarSystem::StarData() {
+inline std::vector<Astro::Star>& StellarSystem::StarData() {
     return _Stars;
 }
 
-inline std::vector<AstroObject::Planet>& StellarSystem::PlanetData() {
+inline std::vector<Astro::Planet>& StellarSystem::PlanetData() {
     return _Planets;
 }
 
-inline std::vector<std::pair<StellarSystem::OrbitalElements, std::vector<AstroObject::AstroObject*>>>& StellarSystem::OrbitData() {
+inline std::vector<StellarSystem::OrbitalElements>& StellarSystem::OrbitData() {
     return _Orbits;
 }
 

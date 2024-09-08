@@ -3,12 +3,13 @@
 #include <string>
 #include <glm/glm.hpp>
 
+#include "Engine/Base/NpgsObject/NpgsObject.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
-_ASTROOBJECT_BEGIN
+_ASTRO_BEGIN
 
-class NPGS_API AstroObject {
+class NPGS_API AstroObject : public NpgsObject {
 public:
     AstroObject() = default;
     virtual ~AstroObject() = default;
@@ -65,7 +66,7 @@ private:
     BasicProperties _Properties{};
 };
 
-_ASTROOBJECT_END
+_ASTRO_END
 _NPGS_END
 
 #include "CelestialObject.inl"

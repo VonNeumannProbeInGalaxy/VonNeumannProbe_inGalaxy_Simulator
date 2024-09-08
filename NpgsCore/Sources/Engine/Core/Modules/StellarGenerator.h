@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include "Engine/Base/AstroObject/Star.h"
+#include "Engine/Base/NpgsObject/Astro/Star.h"
 #include "Engine/Core/AssetLoader/AssetManager.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Random.hpp"
@@ -41,8 +41,8 @@ public:
 
         GenOption Option; // 用于保存生成选项，类的生成选项仅影响该属性。生成的恒星完整信息也将根据该属性决定。该选项用于防止多线程生成恒星时属性和生成器胡乱匹配
 
-        explicit operator AstroObject::Star() const {
-            AstroObject::Star Star;
+        explicit operator Astro::Star() const {
+            Astro::Star Star;
             Star.SetAge(Age);
             Star.SetFeH(FeH);
             Star.SetInitialMass(InitialMass);
@@ -62,8 +62,8 @@ public:
 
 public:
     BasicProperties GenBasicProperties();
-    AstroObject::Star GenerateStar();
-    AstroObject::Star GenerateStar(BasicProperties& Properties);
+    Astro::Star GenerateStar();
+    Astro::Star GenerateStar(BasicProperties& Properties);
 
 private:
     template <typename CsvType>
@@ -75,11 +75,11 @@ private:
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassFactor);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
-    void CalcSpectralType(AstroObject::Star& StarData, float FeH);
-    StellarClass::LuminosityClass CalcLuminosityClass(const AstroObject::Star& StarData);
-    void ProcessDeathStar(AstroObject::Star& DeathStar, double MergeStarProbability = 0.005);
-    void GenerateMagnetic(AstroObject::Star& StarData);
-    void GenerateSpin(AstroObject::Star& StarData);
+    void CalcSpectralType(Astro::Star& StarData, float FeH);
+    StellarClass::LuminosityClass CalcLuminosityClass(const Astro::Star& StarData);
+    void ProcessDeathStar(Astro::Star& DeathStar, double MergeStarProbability = 0.005);
+    void GenerateMagnetic(Astro::Star& StarData);
+    void GenerateSpin(Astro::Star& StarData);
 
 public:
     static const int _kStarAgeIndex;

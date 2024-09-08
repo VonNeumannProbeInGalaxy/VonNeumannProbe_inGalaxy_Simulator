@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <iterator>
 #include <limits>
+#include <print>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -135,9 +136,9 @@ void Universe::FillUniverse() {
     NpgsCoreInfo("Basic properties generation completed.");
     NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
 
-    std::vector<std::future<Npgs::AstroObject::Star>> StarFutures;
+    std::vector<std::future<Npgs::Astro::Star>> StarFutures;
     for (std::size_t i = 0; i != _NumStars; ++i) {
-        StarFutures.emplace_back(_ThreadPool->Commit([&, i]() -> Npgs::AstroObject::Star {
+        StarFutures.emplace_back(_ThreadPool->Commit([&, i]() -> Npgs::Astro::Star {
             std::size_t ThreadId = i % Generators.size();
             auto& Properties = BasicProperties[i]; 
             // auto Properties = Futures[i].get();
@@ -150,12 +151,14 @@ void Universe::FillUniverse() {
     }
 
     _Stars.reserve(StarFutures.size());
-    std::transform(std::make_move_iterator(StarFutures.begin()),
-                   std::make_move_iterator(StarFutures.end()),
-                   std::back_inserter(_Stars),
-                   [](std::future<AstroObject::Star>&& Future) -> AstroObject::Star {
-                       return Future.get();
-                   });
+    std::transform(
+        std::make_move_iterator(StarFutures.begin()),
+        std::make_move_iterator(StarFutures.end()),
+        std::back_inserter(_Stars),
+        [](std::future<Astro::Star>&& Future) -> Astro::Star {
+            return Future.get();
+        }
+    );
 
 #ifdef OUTPUT_DATA
     NpgsCoreInfo("Outputing data...");
@@ -195,7 +198,7 @@ void Universe::FillUniverse() {
 
         auto& Stars = System.StarData();
         if (Stars.size() != 1) {
-            std::sort(Stars.begin(), Stars.end(), [](const AstroObject::Star& Star1, const AstroObject::Star& Star2) -> bool {
+            std::sort(Stars.begin(), Stars.end(), [](const Astro::Star& Star1, const Astro::Star& Star2) -> bool {
                 return Star1.GetMass() > Star2.GetMass();
             });
 
@@ -228,7 +231,7 @@ void Universe::FillUniverse() {
     _ThreadPool->Terminate();
 }
 
-void Universe::ReplaceStar(std::size_t DistanceRank, const AstroObject::Star& StarData) {
+void Universe::ReplaceStar(std::size_t DistanceRank, const Astro::Star& StarData) {
     for (auto& System : _StellarSystems) {
         if (DistanceRank == System.GetBaryDistanceRank()) {
             auto& Star = System.StarData();
@@ -265,27 +268,27 @@ void Universe::CountStars() const {
 
     struct MostLuminous {
         double LuminositySol{};
-        AstroObject::Star Star;
+        Astro::Star Star;
     };
 
     struct MostMassive {
         double MassSol{};
-        AstroObject::Star Star;
+        Astro::Star Star;
     };
 
     struct Largest {
         float RadiusSol{};
-        AstroObject::Star Star;
+        Astro::Star Star;
     };
 
     struct Hottest {
         float Teff{};
-        AstroObject::Star Star;
+        Astro::Star Star;
     };
 
     struct Oldest {
         float Age{};
-        AstroObject::Star Star;
+        Astro::Star Star;
     };
 
     auto CountClass = [](const Modules::StellarClass::SpectralType& SpectralType, std::array<std::size_t, 7>& Type) {
@@ -314,7 +317,7 @@ void Universe::CountStars() const {
         }
     };
 
-    auto CountMostLuminous = [](const AstroObject::Star& Star, MostLuminous& MostLuminousStar) {
+    auto CountMostLuminous = [](const Astro::Star& Star, MostLuminous& MostLuminousStar) {
         double LuminositySol = 0.0;
         LuminositySol = Star.GetLuminosity() / kSolarLuminosity;
         if (MostLuminousStar.LuminositySol < LuminositySol) {
@@ -323,7 +326,7 @@ void Universe::CountStars() const {
         }
     };
 
-    auto CountMostMassive = [](const AstroObject::Star& Star, MostMassive& MostMassiveStar) {
+    auto CountMostMassive = [](const Astro::Star& Star, MostMassive& MostMassiveStar) {
         double MassSol = 0.0;
         MassSol = Star.GetMass() / kSolarMass;
         if (MostMassiveStar.MassSol < MassSol) {
@@ -332,7 +335,7 @@ void Universe::CountStars() const {
         }
     };
 
-    auto CountLargest = [](const AstroObject::Star& Star, Largest& LargestStar) {
+    auto CountLargest = [](const Astro::Star& Star, Largest& LargestStar) {
         float RadiusSol = 0.0f;
         RadiusSol = Star.GetRadius() / kSolarRadius;
         if (LargestStar.RadiusSol < RadiusSol) {
@@ -341,7 +344,7 @@ void Universe::CountStars() const {
         }
     };
 
-    auto CountHottest = [](const AstroObject::Star& Star, Hottest& HottestStar) {
+    auto CountHottest = [](const Astro::Star& Star, Hottest& HottestStar) {
         float Teff = 0.0f;
         Teff = Star.GetTeff();
         if (HottestStar.Teff < Teff) {
@@ -350,7 +353,7 @@ void Universe::CountStars() const {
         }
     };
 
-    auto CountOldest = [](const AstroObject::Star& Star, Oldest& OldestStar) {
+    auto CountOldest = [](const Astro::Star& Star, Oldest& OldestStar) {
         float Age = 0.0f;
         Age = Star.GetAge();
         if (OldestStar.Age < Age) {
@@ -505,7 +508,7 @@ void Universe::CountStars() const {
             "InMass", "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "SurfZ", "SurfNuc", "SurfVol", "Magnetic", "Lifetime", "Spin");
     };
 
-    auto FormatInfo = [](const AstroObject::Star& Star) -> std::string {
+    auto FormatInfo = [](const Astro::Star& Star) -> std::string {
         return std::format("{:6.2f} {:6.2f} {:8.2f} {:8.2E} {:7} {:5.2f} {:13.4f} {:7.2f} {:8.1f} {:8.2E} {:11.2E} {:8.2E} {:9} {:5} {:8.2E} {:8.2E} {:8.2E} {:15.5f} {:9.2E} {:8.2E}",
             Star.GetInitialMass() / kSolarMass,
             Star.GetMass() / kSolarMass,
@@ -718,7 +721,7 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
     Node->AddPoint(glm::vec3(0.0f));
 }
 
-void Universe::OctreeLinkToStars(std::vector<AstroObject::Star>& Stars, std::vector<glm::vec3>& Slots) {
+void Universe::OctreeLinkToStars(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots) {
     std::size_t Index = 0;
     _Octree->Traverse([&](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {

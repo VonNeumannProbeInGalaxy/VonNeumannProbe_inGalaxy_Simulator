@@ -20,19 +20,19 @@ public:
     ~Universe();
 
     void FillUniverse();
-    void ReplaceStar(std::size_t DistanceRank, const AstroObject::Star& StarData);
+    void ReplaceStar(std::size_t DistanceRank, const Astro::Star& StarData);
     void CountStars() const;
 
 private:
     void GenerateSlots(float DistMin, std::size_t NumSamples, float Density);
-    void OctreeLinkToStars(std::vector<AstroObject::Star>& Stars, std::vector<glm::vec3>& Slots);
+    void OctreeLinkToStars(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots);
 
 private:
     using NodeType = Octree<StellarSystem>::NodeType;
 
     std::mt19937                               _RandomEngine;
     std::unique_ptr<Octree<StellarSystem>>     _Octree;
-    std::vector<AstroObject::Star>             _Stars;
+    std::vector<Astro::Star>             _Stars;
     std::vector<StellarSystem>                 _StellarSystems;
     ThreadPool*                                _ThreadPool;
     UniformRealDistribution<float>             _CommonGenerator;

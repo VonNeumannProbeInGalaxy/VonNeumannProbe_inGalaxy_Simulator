@@ -1,7 +1,7 @@
 #include "Planet.h"
 
 _NPGS_BEGIN
-_ASTROOBJECT_BEGIN
+_ASTRO_BEGIN
 
 Planet::Planet(const CelestialBody::BasicProperties& PlanetBasicProperties, const ExtendedProperties& PlanetExtraProperties)
     : CelestialBody(PlanetBasicProperties), _PlanetExtraProperties(PlanetExtraProperties)
@@ -17,5 +17,5 @@ const float Planet::_kAtomicAge                        = 6.0f;
 const float Planet::_kDigitalAge                       = 7.0f;
 const float Planet::_kPrevAsiAge                       = 8.0f;
 
-_ASTROOBJECT_END
+_ASTRO_END
 _NPGS_END

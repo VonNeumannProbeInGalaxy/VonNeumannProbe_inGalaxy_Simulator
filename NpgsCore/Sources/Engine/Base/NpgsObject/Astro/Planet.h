@@ -1,11 +1,11 @@
 #pragma once
 
 #include <boost/multiprecision/cpp_int.hpp>
-#include "Engine/Base/AstroObject/CelestialObject.h"
+#include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
-_ASTROOBJECT_BEGIN
+_ASTRO_BEGIN
 
 class NPGS_API Planet : public CelestialBody {
 public:
@@ -104,10 +104,35 @@ public:
     // Getters
     // Getters for ExtendedProperties
     // ------------------------------
-    const ComplexMass& GetAtmosphereMass() const;
-    const ComplexMass& GetCoreMass() const;
-    const ComplexMass& GetOceanMass() const;
-    const float GetMass() const;
+    float GetAtmosphereMassFloat() const;
+    const ComplexMass& GetAtmosphereMassStruct() const;
+    const boost::multiprecision::int128_t GetAtmosphereMass() const;
+    float GetAtmosphereMassZFloat() const;
+    const boost::multiprecision::int128_t& GetAtmosphereMassZ() const;
+    float GetAtmosphereMassVolatilesFloat() const;
+    const boost::multiprecision::int128_t& GetAtmosphereMassVolatiles() const;
+    float GetAtmosphereMassEnergeticNuclideFloat() const;
+    const boost::multiprecision::int128_t& GetAtmosphereMassEnergeticNuclide() const;
+    float GetCoreMassFloat() const;
+    const ComplexMass& GetCoreMassStruct() const;
+    const boost::multiprecision::int128_t GetCoreMass() const;
+    float GetCoreMassZFloat() const;
+    const boost::multiprecision::int128_t& GetCoreMassZ() const;
+    float GetCoreMassVolatilesFloat() const;
+    const boost::multiprecision::int128_t& GetCoreMassVolatiles() const;
+    float GetCoreMassEnergeticNuclideFloat() const;
+    const boost::multiprecision::int128_t& GetCoreMassEnergeticNuclide() const;
+    float GetOceanMassFloat() const;
+    const ComplexMass& GetOceanMassStruct() const;
+    const boost::multiprecision::int128_t GetOceanMass() const;
+    float GetOceanMassZFloat() const;
+    const boost::multiprecision::int128_t& GetOceanMassZ() const;
+    float GetOceanMassVolatilesFloat() const;
+    const boost::multiprecision::int128_t& GetOceanMassVolatiles() const;
+    float GetOceanMassEnergeticNuclideFloat() const;
+    const boost::multiprecision::int128_t& GetOceanMassEnergeticNuclide() const;
+    float GetMassFloat() const;
+    const boost::multiprecision::int128_t GetMass() const;
     float GetCrustMineralMassFloat() const;
     const boost::multiprecision::int128_t& GetCrustMineralMass() const;
     float GetRingsMassFloat() const;
@@ -132,7 +157,7 @@ private:
     ExtendedProperties _PlanetExtraProperties{};
 };
 
-_ASTROOBJECT_END
+_ASTRO_END
 _NPGS_END
 
 #include "Planet.inl"
