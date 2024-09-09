@@ -57,6 +57,15 @@
     <ClCompile Include="Sources\Engine\Base\NpgsObject\NpgsObject.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\Core\Modules\CivilizationGenerator.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Civilization.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\Core\Utilities\Utilities.inl">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.h">
@@ -119,6 +128,15 @@
     <ClInclude Include="Sources\Engine\Base\NpgsObject\NpgsObject.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\Modules\CivilizationGenerator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\Base\NpgsObject\Civilization.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\Utilities\Utilities.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.inl">
@@ -131,6 +149,9 @@
       <Filter>头文件</Filter>
     </None>
     <None Include="Sources\Engine\Base\StellarSystem.inl">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Sources\Engine\Base\NpgsObject\Civilization.inl">
       <Filter>头文件</Filter>
     </None>
   </ItemGroup>

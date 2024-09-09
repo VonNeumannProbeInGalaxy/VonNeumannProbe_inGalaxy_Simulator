@@ -146,6 +146,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Civilization.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Modules\CivilizationGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Base\NpgsObject\NpgsObject.cpp" />
     <ClCompile Include="Sources\Engine\Core\Modules\OrbitalGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.cpp" />
@@ -163,8 +165,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Base\StellarSystem.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Utilities\Utilities.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\Engine\Base\NpgsObject\Civilization.h" />
+    <ClInclude Include="Sources\Engine\Core\Modules\CivilizationGenerator.h" />
     <ClInclude Include="Sources\Engine\Base\NpgsObject\NpgsObject.h" />
     <ClInclude Include="Sources\Engine\Core\Modules\OrbitalGenerator.h" />
     <ClInclude Include="Sources\Engine\Base\Octree.hpp" />
@@ -185,8 +190,10 @@
     <ClInclude Include="Sources\Npgs.h" />
     <ClInclude Include="Sources\stdafx.h" />
     <ClInclude Include="Sources\Engine\Base\StellarSystem.h" />
+    <ClInclude Include="Sources\Engine\Core\Utilities\Utilities.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Sources\Engine\Base\NpgsObject\Civilization.inl" />
     <None Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.inl" />
     <None Include="Sources\Engine\Base\NpgsObject\Astro\Planet.inl" />
     <None Include="Sources\Engine\Base\NpgsObject\Astro\Star.inl" />

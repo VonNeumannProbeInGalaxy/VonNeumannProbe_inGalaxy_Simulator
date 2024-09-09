@@ -38,17 +38,17 @@ public:
     };
 
     struct ComplexMass {
-        boost::multiprecision::int128_t Z;
-        boost::multiprecision::int128_t Volatiles;
-        boost::multiprecision::int128_t EnergeticNuclide;
+        boost::multiprecision::uint128_t Z;
+        boost::multiprecision::uint128_t Volatiles;
+        boost::multiprecision::uint128_t EnergeticNuclide;
     };
 
     struct ExtendedProperties {
         ComplexMass AtmosphereMass;
         ComplexMass CoreMass;
         ComplexMass OceanMass;
-        boost::multiprecision::int128_t CrustMineralMass;
-        boost::multiprecision::int128_t RingsMass;
+        boost::multiprecision::uint128_t CrustMineralMass;
+        boost::multiprecision::uint128_t RingsMass;
         float CivilizationLevel;
         bool bIsMigrated;
 
@@ -71,72 +71,71 @@ public:
     Planet& SetCoreMass(const ComplexMass& CoreMass);
     Planet& SetOceanMass(const ComplexMass& OceanMass);
     Planet& SetCrustMineralMass(float CrustMineralMass);
-    Planet& SetCrustMineralMass(const boost::multiprecision::int128_t& CrustMineralMass);
+    Planet& SetCrustMineralMass(const boost::multiprecision::uint128_t& CrustMineralMass);
     Planet& SetRingsMass(float RingsMass);
-    Planet& SetRingsMass(const boost::multiprecision::int128_t& RingsMass);
+    Planet& SetRingsMass(const boost::multiprecision::uint128_t& RingsMass);
     Planet& SetCivilizationLevel(float CivilizationLevel);
     Planet& SetMigration(bool bIsMigrated);
     Planet& SetPlanetType(PlanetType Type);
     Planet& SetLifePhase(LifePhase Phase);
 
-    // Setters
     // Setters for every mass property
     // -------------------------------
     Planet& SetAtmosphereMassZ(float AtmosphereMassZ);
-    Planet& SetAtmosphereMassZ(const boost::multiprecision::int128_t& AtmosphereMassZ);
+    Planet& SetAtmosphereMassZ(const boost::multiprecision::uint128_t& AtmosphereMassZ);
     Planet& SetAtmosphereMassVolatiles(float AtmosphereMassVolatiles);
-    Planet& SetAtmosphereMassVolatiles(const boost::multiprecision::int128_t& AtmosphereMassVolatiles);
+    Planet& SetAtmosphereMassVolatiles(const boost::multiprecision::uint128_t& AtmosphereMassVolatiles);
     Planet& SetAtmosphereMassEnergeticNuclide(float AtmosphereMassEnergeticNuclide);
-    Planet& SetAtmosphereMassEnergeticNuclide(const boost::multiprecision::int128_t& AtmosphereMassEnergeticNuclide);
+    Planet& SetAtmosphereMassEnergeticNuclide(const boost::multiprecision::uint128_t& AtmosphereMassEnergeticNuclide);
     Planet& SetCoreMassZ(float CoreMassZ);
-    Planet& SetCoreMassZ(const boost::multiprecision::int128_t& CoreMassZ);
+    Planet& SetCoreMassZ(const boost::multiprecision::uint128_t& CoreMassZ);
     Planet& SetCoreMassVolatiles(float CoreMassVolatiles);
-    Planet& SetCoreMassVolatiles(const boost::multiprecision::int128_t& CoreMassVolatiles);
+    Planet& SetCoreMassVolatiles(const boost::multiprecision::uint128_t& CoreMassVolatiles);
     Planet& SetCoreMassEnergeticNuclide(float CoreMassEnergeticNuclide);
-    Planet& SetCoreMassEnergeticNuclide(const boost::multiprecision::int128_t& CoreMassEnergeticNuclide);
+    Planet& SetCoreMassEnergeticNuclide(const boost::multiprecision::uint128_t& CoreMassEnergeticNuclide);
     Planet& SetOceanMassZ(float OceanMassZ);
-    Planet& SetOceanMassZ(const boost::multiprecision::int128_t& OceanMassZ);
+    Planet& SetOceanMassZ(const boost::multiprecision::uint128_t& OceanMassZ);
     Planet& SetOceanMassVolatiles(float OceanMassVolatiles);
-    Planet& SetOceanMassVolatiles(const boost::multiprecision::int128_t& OceanMassVolatiles);
+    Planet& SetOceanMassVolatiles(const boost::multiprecision::uint128_t& OceanMassVolatiles);
     Planet& SetOceanMassEnergeticNuclide(float OceanMassEnergeticNuclide);
-    Planet& SetOceanMassEnergeticNuclide(const boost::multiprecision::int128_t& OceanMassEnergeticNuclide);
+    Planet& SetOceanMassEnergeticNuclide(const boost::multiprecision::uint128_t& OceanMassEnergeticNuclide);
 
     // Getters
     // Getters for ExtendedProperties
     // ------------------------------
     float GetAtmosphereMassFloat() const;
     const ComplexMass& GetAtmosphereMassStruct() const;
-    const boost::multiprecision::int128_t GetAtmosphereMass() const;
+    const boost::multiprecision::uint128_t GetAtmosphereMass() const;
     float GetAtmosphereMassZFloat() const;
-    const boost::multiprecision::int128_t& GetAtmosphereMassZ() const;
+    const boost::multiprecision::uint128_t& GetAtmosphereMassZ() const;
     float GetAtmosphereMassVolatilesFloat() const;
-    const boost::multiprecision::int128_t& GetAtmosphereMassVolatiles() const;
+    const boost::multiprecision::uint128_t& GetAtmosphereMassVolatiles() const;
     float GetAtmosphereMassEnergeticNuclideFloat() const;
-    const boost::multiprecision::int128_t& GetAtmosphereMassEnergeticNuclide() const;
+    const boost::multiprecision::uint128_t& GetAtmosphereMassEnergeticNuclide() const;
     float GetCoreMassFloat() const;
     const ComplexMass& GetCoreMassStruct() const;
-    const boost::multiprecision::int128_t GetCoreMass() const;
+    const boost::multiprecision::uint128_t GetCoreMass() const;
     float GetCoreMassZFloat() const;
-    const boost::multiprecision::int128_t& GetCoreMassZ() const;
+    const boost::multiprecision::uint128_t& GetCoreMassZ() const;
     float GetCoreMassVolatilesFloat() const;
-    const boost::multiprecision::int128_t& GetCoreMassVolatiles() const;
+    const boost::multiprecision::uint128_t& GetCoreMassVolatiles() const;
     float GetCoreMassEnergeticNuclideFloat() const;
-    const boost::multiprecision::int128_t& GetCoreMassEnergeticNuclide() const;
+    const boost::multiprecision::uint128_t& GetCoreMassEnergeticNuclide() const;
     float GetOceanMassFloat() const;
     const ComplexMass& GetOceanMassStruct() const;
-    const boost::multiprecision::int128_t GetOceanMass() const;
+    const boost::multiprecision::uint128_t GetOceanMass() const;
     float GetOceanMassZFloat() const;
-    const boost::multiprecision::int128_t& GetOceanMassZ() const;
+    const boost::multiprecision::uint128_t& GetOceanMassZ() const;
     float GetOceanMassVolatilesFloat() const;
-    const boost::multiprecision::int128_t& GetOceanMassVolatiles() const;
+    const boost::multiprecision::uint128_t& GetOceanMassVolatiles() const;
     float GetOceanMassEnergeticNuclideFloat() const;
-    const boost::multiprecision::int128_t& GetOceanMassEnergeticNuclide() const;
+    const boost::multiprecision::uint128_t& GetOceanMassEnergeticNuclide() const;
     float GetMassFloat() const;
-    const boost::multiprecision::int128_t GetMass() const;
+    const boost::multiprecision::uint128_t GetMass() const;
     float GetCrustMineralMassFloat() const;
-    const boost::multiprecision::int128_t& GetCrustMineralMass() const;
+    const boost::multiprecision::uint128_t& GetCrustMineralMass() const;
     float GetRingsMassFloat() const;
-    const boost::multiprecision::int128_t& GetRingsMass() const;
+    const boost::multiprecision::uint128_t& GetRingsMass() const;
     float GetCivilizationLevel() const;
     bool GetMigration() const;
     PlanetType GetPlanetType() const;

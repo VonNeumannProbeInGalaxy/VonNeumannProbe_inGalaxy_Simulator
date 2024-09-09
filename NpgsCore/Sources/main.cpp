@@ -31,7 +31,7 @@ int main() {
 
     OrbitalGenerator og({ seed }, 1e21f, 1.0f);
     auto start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i != 20000; ++i) {
+    for (int i = 0; i != 200000; ++i) {
         try {
             og.GeneratePlanets(ss);;
         } catch (std::exception& e) {
