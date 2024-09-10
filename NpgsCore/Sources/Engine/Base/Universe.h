@@ -32,8 +32,8 @@ private:
 
     std::mt19937                           _RandomEngine;
     std::unique_ptr<Octree<StellarSystem>> _Octree;
-    std::vector<Astro::Star>               _Stars;
     std::vector<StellarSystem>             _StellarSystems;
+    std::vector<Astro::Star*>              _StarPtrs;
     ThreadPool*                            _ThreadPool;
     UniformRealDistribution<float>         _CommonGenerator;
     UniformRealDistribution<float>         _SeedGenerator;

@@ -26,9 +26,12 @@ _NPGS_BEGIN
 
 static void FillStellarSystem(StellarSystem& System);
 
-Universe::Universe(unsigned Seed, std::size_t NumStars, std::size_t NumExtraGiants, std::size_t NumExtraMassiveStars, std::size_t NumExtraNeutronStars, std::size_t NumExtraBlackHoles, std::size_t NumExtraMergeStars, float UniverseAge) :
-    _RandomEngine(Seed), _ThreadPool(ThreadPool::GetInstance()), _CommonGenerator(0.0f, 1.0f), _SeedGenerator(0.0f, static_cast<float>(std::numeric_limits<unsigned>::max())),
-    _NumStars(NumStars), _NumExtraGiants(NumExtraGiants), _NumExtraMassiveStars(NumExtraMassiveStars), _NumExtraNeutronStars(NumExtraNeutronStars), _NumExtraBlackHoles(NumExtraBlackHoles), _NumExtraMergeStars(NumExtraMergeStars), _UniverseAge(UniverseAge)
+Universe::Universe(unsigned Seed, std::size_t NumStars, std::size_t NumExtraGiants, std::size_t NumExtraMassiveStars, std::size_t NumExtraNeutronStars, std::size_t NumExtraBlackHoles, std::size_t NumExtraMergeStars, float UniverseAge)
+    :
+    _RandomEngine(Seed), _ThreadPool(ThreadPool::GetInstance()),
+    _CommonGenerator(0.0f, 1.0f), _SeedGenerator(0.0f, static_cast<float>(std::numeric_limits<unsigned>::max())),
+    _NumStars(NumStars), _NumExtraGiants(NumExtraGiants), _NumExtraMassiveStars(NumExtraMassiveStars),
+    _NumExtraNeutronStars(NumExtraNeutronStars), _NumExtraBlackHoles(NumExtraBlackHoles), _NumExtraMergeStars(NumExtraMergeStars), _UniverseAge(UniverseAge)
 {
     std::seed_seq SeedSeq{
         static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
@@ -149,11 +152,13 @@ void Universe::FillUniverse() {
         Future.wait();
     }
 
-    _Stars.reserve(StarFutures.size());
+    std::vector<Astro::Star> Stars;
+
+    Stars.reserve(StarFutures.size());
     std::transform(
         std::make_move_iterator(StarFutures.begin()),
         std::make_move_iterator(StarFutures.end()),
-        std::back_inserter(_Stars),
+        std::back_inserter(Stars),
         [](std::future<Astro::Star>&& Future) -> Astro::Star {
             return Future.get();
         }
@@ -161,7 +166,7 @@ void Universe::FillUniverse() {
 
 #ifdef OUTPUT_DATA
     NpgsCoreInfo("Outputing data...");
-    return _Stars;
+    return Stars;
 #endif // OUTPUT_DATA
 
     NpgsCoreInfo("Star detail interpolation completed.");
@@ -171,9 +176,9 @@ void Universe::FillUniverse() {
 
     NpgsCoreInfo("Linking positions in octree to stars...");
     _StellarSystems.reserve(_NumStars);
-    std::shuffle(_Stars.begin(), _Stars.end(), _RandomEngine);
+    std::shuffle(Stars.begin(), Stars.end(), _RandomEngine);
     std::vector<glm::vec3> Slots;
-    OctreeLinkToStars(_Stars, Slots);
+    OctreeLinkToStars(Stars, Slots);
 
     NpgsCoreInfo("Sorting...");
     std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
@@ -227,6 +232,12 @@ void Universe::FillUniverse() {
 
     NpgsCoreInfo("Star generation completed.");
 
+    for (auto& System : _StellarSystems) {
+        for (auto& Star : System.StarData()) {
+            _StarPtrs.emplace_back(&Star);
+        }
+    }
+
     _ThreadPool->Terminate();
 }
 
@@ -267,27 +278,27 @@ void Universe::CountStars() const {
 
     struct MostLuminous {
         double LuminositySol{};
-        Astro::Star Star;
+        const Astro::Star* Star = nullptr;
     };
 
     struct MostMassive {
         double MassSol{};
-        Astro::Star Star;
+        const Astro::Star* Star = nullptr;
     };
 
     struct Largest {
         float RadiusSol{};
-        Astro::Star Star;
+        const Astro::Star* Star = nullptr;
     };
 
     struct Hottest {
         float Teff{};
-        Astro::Star Star;
+        const Astro::Star* Star = nullptr;
     };
 
     struct Oldest {
         float Age{};
-        Astro::Star Star;
+        const Astro::Star* Star = nullptr;
     };
 
     auto CountClass = [](const Modules::StellarClass::SpectralType& SpectralType, std::array<std::size_t, 7>& Type) {
@@ -316,45 +327,45 @@ void Universe::CountStars() const {
         }
     };
 
-    auto CountMostLuminous = [](const Astro::Star& Star, MostLuminous& MostLuminousStar) {
+    auto CountMostLuminous = [](const Astro::Star* Star, MostLuminous& MostLuminousStar) {
         double LuminositySol = 0.0;
-        LuminositySol = Star.GetLuminosity() / kSolarLuminosity;
+        LuminositySol = Star->GetLuminosity() / kSolarLuminosity;
         if (MostLuminousStar.LuminositySol < LuminositySol) {
             MostLuminousStar.LuminositySol = LuminositySol;
             MostLuminousStar.Star = Star;
         }
     };
 
-    auto CountMostMassive = [](const Astro::Star& Star, MostMassive& MostMassiveStar) {
+    auto CountMostMassive = [](const Astro::Star* Star, MostMassive& MostMassiveStar) {
         double MassSol = 0.0;
-        MassSol = Star.GetMass() / kSolarMass;
+        MassSol = Star->GetMass() / kSolarMass;
         if (MostMassiveStar.MassSol < MassSol) {
             MostMassiveStar.MassSol = MassSol;
             MostMassiveStar.Star = Star;
         }
     };
 
-    auto CountLargest = [](const Astro::Star& Star, Largest& LargestStar) {
+    auto CountLargest = [](const Astro::Star* Star, Largest& LargestStar) {
         float RadiusSol = 0.0f;
-        RadiusSol = Star.GetRadius() / kSolarRadius;
+        RadiusSol = Star->GetRadius() / kSolarRadius;
         if (LargestStar.RadiusSol < RadiusSol) {
             LargestStar.RadiusSol = RadiusSol;
             LargestStar.Star = Star;
         }
     };
 
-    auto CountHottest = [](const Astro::Star& Star, Hottest& HottestStar) {
+    auto CountHottest = [](const Astro::Star* Star, Hottest& HottestStar) {
         float Teff = 0.0f;
-        Teff = Star.GetTeff();
+        Teff = Star->GetTeff();
         if (HottestStar.Teff < Teff) {
             HottestStar.Teff = Teff;
             HottestStar.Star = Star;
         }
     };
 
-    auto CountOldest = [](const Astro::Star& Star, Oldest& OldestStar) {
+    auto CountOldest = [](const Astro::Star* Star, Oldest& OldestStar) {
         float Age = 0.0f;
-        Age = Star.GetAge();
+        Age = Star->GetAge();
         if (OldestStar.Age < Age) {
             OldestStar.Age = Age;
             OldestStar.Star = Star;
@@ -401,8 +412,8 @@ void Universe::CountStars() const {
     Oldest OldestHypergiant;
     Oldest OldestWolfRayet;
 
-    for (auto& Star : _Stars) {
-        const Modules::StellarClass& Class = Star.GetStellarClass();
+    for (const auto* Star : _StarPtrs) {
+        const Modules::StellarClass& Class = Star->GetStellarClass();
         Modules::StellarClass::StarType StarType = Class.GetStarType();
         if (StarType != Modules::StellarClass::StarType::kNormalStar) {
             switch (StarType) {
@@ -507,28 +518,32 @@ void Universe::CountStars() const {
             "InMass", "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "SurfZ", "SurfNuc", "SurfVol", "Magnetic", "Lifetime", "Spin");
     };
 
-    auto FormatInfo = [](const Astro::Star& Star) -> std::string {
+    auto FormatInfo = [](const Astro::Star* Star) -> std::string {
+        if (Star == nullptr) {
+            return "No star generated.";
+        }
+
         return std::format("{:6.2f} {:6.2f} {:8.2f} {:8.2E} {:7} {:5.2f} {:13.4f} {:7.2f} {:8.1f} {:8.2E} {:11.2E} {:8.2E} {:9} {:5} {:8.2E} {:8.2E} {:8.2E} {:15.5f} {:9.2E} {:8.2E}",
-            Star.GetInitialMass() / kSolarMass,
-            Star.GetMass() / kSolarMass,
-            Star.GetRadius() / kSolarRadius,
-            Star.GetAge(),
-            Star.GetStellarClass().ToString(),
-            Star.GetFeH(),
-            Star.GetLuminosity() / kSolarLuminosity,
-            kSolarAbsoluteMagnitude - 2.5 * std::log10(Star.GetLuminosity() / kSolarLuminosity),
-            Star.GetTeff(),
-            Star.GetCoreTemp(),
-            Star.GetCoreDensity(),
-            Star.GetStellarWindMassLossRate() * kYearInSeconds / kSolarMass,
-            static_cast<int>(std::round(Star.GetStellarWindSpeed())),
-            static_cast<int>(Star.GetEvolutionPhase()),
-            Star.GetSurfaceZ(),
-            Star.GetSurfaceEnergeticNuclide(),
-            Star.GetSurfaceVolatiles(),
-            Star.GetMagneticField(),
-            Star.GetLifetime(),
-            Star.GetSpin()
+            Star->GetInitialMass() / kSolarMass,
+            Star->GetMass() / kSolarMass,
+            Star->GetRadius() / kSolarRadius,
+            Star->GetAge(),
+            Star->GetStellarClass().ToString(),
+            Star->GetFeH(),
+            Star->GetLuminosity() / kSolarLuminosity,
+            kSolarAbsoluteMagnitude - 2.5 * std::log10(Star->GetLuminosity() / kSolarLuminosity),
+            Star->GetTeff(),
+            Star->GetCoreTemp(),
+            Star->GetCoreDensity(),
+            Star->GetStellarWindMassLossRate() * kYearInSeconds / kSolarMass,
+            static_cast<int>(std::round(Star->GetStellarWindSpeed())),
+            static_cast<int>(Star->GetEvolutionPhase()),
+            Star->GetSurfaceZ(),
+            Star->GetSurfaceEnergeticNuclide(),
+            Star->GetSurfaceVolatiles(),
+            Star->GetMagneticField(),
+            Star->GetLifetime(),
+            Star->GetSpin()
         );
     };
 
@@ -632,7 +647,7 @@ void Universe::CountStars() const {
 
     std::println("");
     std::println("Total main sequence: {}", TotalMainSequence);
-    std::println("Total main sequence rate: {}", TotalMainSequence / static_cast<double>(_Stars.size()));
+    std::println("Total main sequence rate: {}", TotalMainSequence / static_cast<double>(_StarPtrs.size()));
     std::println("Total O type star rate: {}", static_cast<double>(MainSequence[kTypeO]) / static_cast<double>(TotalMainSequence));
     std::println("Total B type star rate: {}", static_cast<double>(MainSequence[kTypeB]) / static_cast<double>(TotalMainSequence));
     std::println("Total A type star rate: {}", static_cast<double>(MainSequence[kTypeA]) / static_cast<double>(TotalMainSequence));
@@ -732,7 +747,7 @@ void Universe::OctreeLinkToStars(std::vector<Astro::Star>& Stars, std::vector<gl
                 NewSystem.SetBaryNormal(glm::vec2(Theta, Phi));
                 NewSystem.SetBaryDistanceRank(0);
                 NewSystem.SetBaryName("");
-                NewSystem.StarData().emplace_back(Stars[Index]);
+                NewSystem.StarData().emplace_back(std::move(Stars[Index]));
                 _StellarSystems.emplace_back(std::move(NewSystem));
                 Node.AddLink(&_StellarSystems[Index]);
                 Slots.emplace_back(Point);
