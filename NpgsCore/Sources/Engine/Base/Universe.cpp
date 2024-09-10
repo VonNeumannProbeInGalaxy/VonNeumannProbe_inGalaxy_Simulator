@@ -25,7 +25,6 @@
 _NPGS_BEGIN
 
 static void FillStellarSystem(StellarSystem& System);
-static void GenerateOrbits(StellarSystem& System);
 
 Universe::Universe(unsigned Seed, std::size_t NumStars, std::size_t NumExtraGiants, std::size_t NumExtraMassiveStars, std::size_t NumExtraNeutronStars, std::size_t NumExtraBlackHoles, std::size_t NumExtraMergeStars, float UniverseAge) :
     _RandomEngine(Seed), _ThreadPool(ThreadPool::GetInstance()), _CommonGenerator(0.0f, 1.0f), _SeedGenerator(0.0f, static_cast<float>(std::numeric_limits<unsigned>::max())),
@@ -192,7 +191,7 @@ void Universe::FillUniverse() {
         std::ptrdiff_t Offset = it - Slots.begin();
         Stream << "S-" << std::setfill('0') << std::setw(8) << std::to_string(Offset);
         Name = Stream.str();
-        System.SetBaryName(Name).SetBaryDistanceRank(Offset).SetBaryPosition(Position);
+        System.SetBaryName(Name).SetBaryDistanceRank(Offset);
         Stream.str("");
         Stream.clear();
 
@@ -728,7 +727,13 @@ void Universe::OctreeLinkToStars(std::vector<Astro::Star>& Stars, std::vector<gl
             for (const auto& Point : Node.GetPoints()) {
                 float Theta = _CommonGenerator.Generate(_RandomEngine) * 2.0f * kPi;
                 float Phi   = _CommonGenerator.Generate(_RandomEngine) * kPi;
-                _StellarSystems.emplace_back(StellarSystem({ Point, { Theta, Phi }, 0, "" }, { Stars[Index] }));
+                StellarSystem NewSystem;
+                NewSystem.SetBaryPosition(Point);
+                NewSystem.SetBaryNormal(glm::vec2(Theta, Phi));
+                NewSystem.SetBaryDistanceRank(0);
+                NewSystem.SetBaryName("");
+                NewSystem.StarData().emplace_back(Stars[Index]);
+                _StellarSystems.emplace_back(std::move(NewSystem));
                 Node.AddLink(&_StellarSystems[Index]);
                 Slots.emplace_back(Point);
                 ++Index;
@@ -738,7 +743,5 @@ void Universe::OctreeLinkToStars(std::vector<Astro::Star>& Stars, std::vector<gl
 }
 
 void FillStellarSystem(StellarSystem& System) {}
-
-void GenerateOrbits(StellarSystem& System) {}
 
 _NPGS_END

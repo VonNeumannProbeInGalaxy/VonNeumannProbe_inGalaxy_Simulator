@@ -6,8 +6,8 @@
 
 #include <glm/glm.hpp>
 
-#include "Engine/Base/StellarSystem.h"
 #include "Engine/Base/Octree.hpp"
+#include "Engine/Base/StellarSystem.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/ThreadPool.h"
 #include "Engine/Core/Random.hpp"
@@ -30,13 +30,13 @@ private:
 private:
     using NodeType = Octree<StellarSystem>::NodeType;
 
-    std::mt19937                               _RandomEngine;
-    std::unique_ptr<Octree<StellarSystem>>     _Octree;
-    std::vector<Astro::Star>             _Stars;
-    std::vector<StellarSystem>                 _StellarSystems;
-    ThreadPool*                                _ThreadPool;
-    UniformRealDistribution<float>             _CommonGenerator;
-    UniformRealDistribution<float>             _SeedGenerator;
+    std::mt19937                           _RandomEngine;
+    std::unique_ptr<Octree<StellarSystem>> _Octree;
+    std::vector<Astro::Star>               _Stars;
+    std::vector<StellarSystem>             _StellarSystems;
+    ThreadPool*                            _ThreadPool;
+    UniformRealDistribution<float>         _CommonGenerator;
+    UniformRealDistribution<float>         _SeedGenerator;
 
     std::size_t _NumStars;
     std::size_t _NumExtraGiants;

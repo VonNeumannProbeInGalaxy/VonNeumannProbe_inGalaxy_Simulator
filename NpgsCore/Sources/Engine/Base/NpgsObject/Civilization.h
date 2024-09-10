@@ -16,7 +16,7 @@ public:
         kMultiCellularLife     = 3,
         kCenoziocEra           = 4,
         kSatTeeTouy            = 5, // 被土著去城市化了
-        kSatTeeTouyByAsi       = 6, // 土著被 ASI 图图了
+        kSatTeeTouyButByAsi    = 6, // 土著被 ASI 图图了
         kNewCivilization       = 7,
     };
 
@@ -52,7 +52,7 @@ public:
     Civilization& SetTotalOrganismBiomass(float TotalOrganismBiomass);
     Civilization& SetTotalOrganismBiomass(const boost::multiprecision::uint128_t& TotalOrganismBiomass);
     Civilization& SetTotalOrganismUsedPower(float TotalOrganismUsedPower);
-    Civilization& SetPhase(LifePhase Phase);
+    Civilization& SetLifePhase(LifePhase Phase);
 
     // Setters for CivilizationProperties
     // ----------------------------------

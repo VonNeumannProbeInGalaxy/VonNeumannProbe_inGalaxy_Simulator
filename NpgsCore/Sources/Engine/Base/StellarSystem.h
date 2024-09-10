@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -35,7 +36,7 @@ public:
         float ArgumentOfPeriapsis;      // 近心点幅角，单位度
         float TrueAnomaly;              // 真近点角，单位度
 
-        std::vector<NpgsObject*> Objects;
+        std::vector<std::shared_ptr<NpgsObject>> Objects;
     };
 
 public:
@@ -60,9 +61,9 @@ public:
 
 private:
     BaryCenter _SystemBary;
-    std::vector<Astro::Star>   _Stars;
-    std::vector<Astro::Planet> _Planets;
-    std::vector<OrbitalElements>     _Orbits;
+    std::vector<Astro::Star>     _Stars;
+    std::vector<Astro::Planet>   _Planets;
+    std::vector<OrbitalElements> _Orbits;
 };
 
 _NPGS_END

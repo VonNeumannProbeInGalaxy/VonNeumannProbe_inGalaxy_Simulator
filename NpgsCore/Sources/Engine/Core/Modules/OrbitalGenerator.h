@@ -15,7 +15,7 @@ _MODULES_BEGIN
 class NPGS_API OrbitalGenerator {
 public:
     OrbitalGenerator() = default;
-    OrbitalGenerator(const std::seed_seq& SeedSeq, float AsteroidUpperLimit = 1e21f, float LifeProbatility = 0.0114514f, bool bContainUltravioletChz = false, bool bEnableAsiFilter = true);
+    OrbitalGenerator(const std::seed_seq& SeedSeq, float AsteroidUpperLimit = 1e21f, float LifeOccurrenceProbatility = 0.0114514f, bool bContainUltravioletChz = false, bool bEnableAsiFilter = true);
     ~OrbitalGenerator() = default;
 
 public:
@@ -41,11 +41,6 @@ private:
     BernoulliDistribution _WalkInProbability;
     BernoulliDistribution _ScatteringProbability;
     BernoulliDistribution _AsteroidBeltProbability;
-    BernoulliDistribution _LifeOccurrenceProbability;
-    BernoulliDistribution _AsiFiltedProbability;
-
-    static const std::array<float, 7> _kProbabilityListForCenoziocEra;
-    static const std::array<float, 7> _kProbabilityListForSatTeeTouyButAsi;
 };
 
 _MODULES_END

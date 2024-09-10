@@ -1,10 +1,13 @@
 #pragma once
 
 #include "Planet.h"
-#include "Engine/Core/Utilities/Utilities.h"
 
 _NPGS_BEGIN
 _ASTRO_BEGIN
+
+inline static float ConvertToFloat(const boost::multiprecision::uint128_t& MultiPrecision) {
+    return MultiPrecision.convert_to<float>();
+}
 
 inline Planet& Planet::SetExtendedProperties(const ExtendedProperties& PlanetExtraProperties) {
     _PlanetExtraProperties = PlanetExtraProperties;
@@ -50,11 +53,6 @@ inline Planet& Planet::SetRingsMass(const boost::multiprecision::uint128_t& Ring
     return *this;
 }
 
-inline Planet& Planet::SetCivilizationLevel(float CivilizationLevel) {
-    _PlanetExtraProperties.CivilizationLevel = CivilizationLevel;
-    return *this;
-}
-
 inline Planet& Planet::SetMigration(bool bIsMigrated) {
     _PlanetExtraProperties.bIsMigrated = bIsMigrated;
     return *this;
@@ -62,11 +60,6 @@ inline Planet& Planet::SetMigration(bool bIsMigrated) {
 
 inline Planet& Planet::SetPlanetType(PlanetType Type) {
     _PlanetExtraProperties.Type = Type;
-    return *this;
-}
-
-inline Planet& Planet::SetLifePhase(LifePhase Phase) {
-    _PlanetExtraProperties.Phase = Phase;
     return *this;
 }
 
@@ -291,10 +284,6 @@ inline const boost::multiprecision::uint128_t& Planet::GetRingsMass() const {
     return _PlanetExtraProperties.RingsMass;
 }
 
-inline float Planet::GetCivilizationLevel() const {
-    return _PlanetExtraProperties.CivilizationLevel;
-}
-
 inline bool Planet::GetMigration() const {
     return _PlanetExtraProperties.bIsMigrated;
 }
@@ -303,8 +292,8 @@ inline Planet::PlanetType Planet::GetPlanetType() const {
     return _PlanetExtraProperties.Type;
 }
 
-inline Planet::LifePhase Planet::GetLifePhase() const {
-    return _PlanetExtraProperties.Phase;
+inline std::shared_ptr<Civilization>& Planet::CivilizationData() {
+    return _PlanetExtraProperties.CivilizationData;
 }
 
 _ASTRO_END

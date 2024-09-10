@@ -1,7 +1,10 @@
 #pragma once
 
+#include <memory>
 #include <boost/multiprecision/cpp_int.hpp>
+
 #include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
+#include "Engine/Base/NpgsObject/Civilization.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
@@ -26,17 +29,6 @@ public:
         kArtificalOrbitalStructureCluster = 13
     };
 
-    enum class LifePhase : int {
-        kNull                             = 0,
-        kLuca                             = 1,
-        kGreatOxygenationEvent            = 2,
-        kMultiCellularLife                = 3,
-        kCenoziocEra                      = 4,
-        kSatTeeTouy                       = 5,
-        kSatTeeTouyButAsi                 = 6,
-        kNewCivilization                  = 7,
-    };
-
     struct ComplexMass {
         boost::multiprecision::uint128_t Z;
         boost::multiprecision::uint128_t Volatiles;
@@ -49,11 +41,10 @@ public:
         ComplexMass OceanMass;
         boost::multiprecision::uint128_t CrustMineralMass;
         boost::multiprecision::uint128_t RingsMass;
-        float CivilizationLevel;
         bool bIsMigrated;
 
         PlanetType Type;
-        LifePhase  Phase;
+        std::shared_ptr<Civilization> CivilizationData;
     };
 
 public:
@@ -74,10 +65,8 @@ public:
     Planet& SetCrustMineralMass(const boost::multiprecision::uint128_t& CrustMineralMass);
     Planet& SetRingsMass(float RingsMass);
     Planet& SetRingsMass(const boost::multiprecision::uint128_t& RingsMass);
-    Planet& SetCivilizationLevel(float CivilizationLevel);
     Planet& SetMigration(bool bIsMigrated);
     Planet& SetPlanetType(PlanetType Type);
-    Planet& SetLifePhase(LifePhase Phase);
 
     // Setters for every mass property
     // -------------------------------
@@ -136,21 +125,10 @@ public:
     const boost::multiprecision::uint128_t& GetCrustMineralMass() const;
     float GetRingsMassFloat() const;
     const boost::multiprecision::uint128_t& GetRingsMass() const;
-    float GetCivilizationLevel() const;
-    bool GetMigration() const;
+    bool  GetMigration() const;
     PlanetType GetPlanetType() const;
-    LifePhase GetLifePhase() const;
 
-public:
-    static const float _kNull;
-    static const float _kCarbonBasedUniversalIntelligence;
-    static const float _kUrgesellschaft;
-    static const float _kPrevIndustrielle;
-    static const float _kSteamAge;
-    static const float _kElectricAge;
-    static const float _kAtomicAge;
-    static const float _kDigitalAge;
-    static const float _kPrevAsiAge;
+    std::shared_ptr<Civilization>& CivilizationData();
 
 private:
     ExtendedProperties _PlanetExtraProperties{};

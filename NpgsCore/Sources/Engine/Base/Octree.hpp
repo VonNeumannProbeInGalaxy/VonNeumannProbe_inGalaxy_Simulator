@@ -124,12 +124,13 @@ public:
     }
 
 private:
-    bool      _bIsValid;
     glm::vec3 _Center;
-    float     _Radius;
     OctreeNode* _Prev;
+    float     _Radius;
+    bool    _bIsValid;
+
     std::array<std::unique_ptr<OctreeNode>, 8> _Next;
-    std::vector<glm::vec3> _Points;
+    std::vector<glm::vec3>   _Points;
     std::vector<LinkTarget*> _DataLink;
 };
 

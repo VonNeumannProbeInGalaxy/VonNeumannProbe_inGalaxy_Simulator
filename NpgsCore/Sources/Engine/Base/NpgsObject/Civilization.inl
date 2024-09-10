@@ -1,158 +1,180 @@
 #include "Civilization.h"
-#include "Engine/Core/Utilities/Utilities.h"
 
 _NPGS_BEGIN
 
+inline static float ConvertToFloat(const boost::multiprecision::uint128_t& MultiPrecision) {
+    return MultiPrecision.convert_to<float>();
+}
+
 inline Civilization& Civilization::SetTotalOrganismBiomass(float TotalOrganismBiomass) {
-    // TODO: 在此处插入 return 语句
+    _LifeProperties.TotalOrganismBiomass = boost::multiprecision::uint128_t(TotalOrganismBiomass);
+    return *this;
 }
 
 inline Civilization& Civilization::SetTotalOrganismBiomass(const boost::multiprecision::uint128_t& TotalOrganismBiomass) {
-    // TODO: 在此处插入 return 语句
+    _LifeProperties.TotalOrganismBiomass = TotalOrganismBiomass;
+    return *this;
 }
 
 inline Civilization& Civilization::SetTotalOrganismUsedPower(float TotalOrganismUsedPower) {
-    // TODO: 在此处插入 return 语句
+    _LifeProperties.TotalOrganismUsedPower = TotalOrganismUsedPower;
+    return *this;
 }
 
-inline Civilization& Civilization::SetPhase(LifePhase Phase) {
-    // TODO: 在此处插入 return 语句
+inline Civilization& Civilization::SetLifePhase(LifePhase Phase) {
+    _LifeProperties.Phase = Phase;
+    return *this;
 }
 
 inline Civilization& Civilization::SetTotalAtrificalStructureMass(float TotalAtrificalStructureMass) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.TotalAtrificalStructureMass = boost::multiprecision::uint128_t(TotalAtrificalStructureMass);
+    return *this;
 }
 
 inline Civilization& Civilization::SetTotalAtrificalStructureMass(const boost::multiprecision::uint128_t& TotalAtrificalStructureMass) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.TotalAtrificalStructureMass = TotalAtrificalStructureMass;
+    return *this;
 }
 
 inline Civilization& Civilization::SetTotalCitizenBiomass(float TotalCitizenBiomass) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.TotalAtrificalStructureMass = boost::multiprecision::uint128_t(TotalCitizenBiomass);
+    return *this;
 }
 
 inline Civilization& Civilization::SetTotalCitizenBiomass(const boost::multiprecision::uint128_t& TotalCitizenBiomass) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.TotalAtrificalStructureMass = TotalCitizenBiomass;
+    return *this;
 }
 
 inline Civilization& Civilization::SetTotalUseableEnergeticNuclide(float TotalUseableEnergeticNuclide) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.TotalAtrificalStructureMass = boost::multiprecision::uint128_t(TotalUseableEnergeticNuclide);
+    return *this;
 }
 
 inline Civilization& Civilization::SetTotalUseableEnergeticNuclide(const boost::multiprecision::uint128_t& TotalUseableEnergeticNuclide) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.TotalAtrificalStructureMass = TotalUseableEnergeticNuclide;
+    return *this;
 }
 
 inline Civilization& Civilization::SetTotalCitizenUsedPower(float TotalCitizenUsedPower) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.TotalCitizenUsedPower = TotalCitizenUsedPower;
+    return *this;
 }
 
 inline Civilization& Civilization::SetCivilizationProgress(float CivilizationProgress) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.CivilizationProgress = CivilizationProgress;
+    return *this;
 }
 
 inline Civilization& Civilization::SetGeneralIntelligenceAverageSynapseActivationCount(float GeneralIntelligenceAverageSynapseActivationCount) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.GeneralIntelligenceAverageSynapseActivationCount = GeneralIntelligenceAverageSynapseActivationCount;
+    return *this;
 }
 
 inline Civilization& Civilization::SetGeneralIntelligenceSynapseCount(float GeneralIntelligenceSynapseCount) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.GeneralIntelligenceSynapseCount = GeneralIntelligenceSynapseCount;
+    return *this;
 }
 
 inline Civilization& Civilization::SetGeneralIntelligenceAverageLifetime(float GeneralIntelligenceAverageLifetime) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.GeneralIntelligenceAverageLifetime = GeneralIntelligenceAverageLifetime;
+    return *this;
 }
 
 inline Civilization& Civilization::SetGeneralintelligenceCount(float GeneralintelligenceCount) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.GeneralIntelligenceSynapseCount = GeneralintelligenceCount;
+    return *this;
 }
 
 inline Civilization& Civilization::SetTotalStoragedHistoryDataSize(float TotalStoragedHistoryDataSize) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.TotalStoragedHistoryDataSize = TotalStoragedHistoryDataSize;
+    return *this;
 }
 
 inline Civilization& Civilization::SetTeamworkFactor(float TeamworkFactor) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.TeamworkFactor = TeamworkFactor;
+    return *this;
 }
 
 inline Civilization& Civilization::SetIsIndependentIndividual(bool bIsIndependentIndividual) {
-    // TODO: 在此处插入 return 语句
+    _CivilizationProperties.bIsIndependentIndividual = bIsIndependentIndividual;
+    return *this;
 }
 
 inline float Civilization::GetTotalOrganismBiomassFloat() const {
-    return 0.0f;
+    return ConvertToFloat(GetTotalOrganismBiomass());
 }
 
 inline const boost::multiprecision::uint128_t& Civilization::GetTotalOrganismBiomass() const {
-    // TODO: 在此处插入 return 语句
+    return _LifeProperties.TotalOrganismBiomass;
 }
 
 inline float Civilization::GetTotalOrganismUsedPower() const {
-    return 0.0f;
+    return _LifeProperties.TotalOrganismUsedPower;
 }
 
 inline Civilization::LifePhase Civilization::GetPhase() const {
-    return LifePhase();
+    return _LifeProperties.Phase;
 }
 
 inline float Civilization::GetTotalAtrificalStructureMassFloat() const {
-    return 0.0f;
+    return ConvertToFloat(GetTotalAtrificalStructureMass());
 }
 
 inline const boost::multiprecision::uint128_t& Civilization::GetTotalAtrificalStructureMass() const {
-    // TODO: 在此处插入 return 语句
+    return _CivilizationProperties.TotalAtrificalStructureMass;
 }
 
 inline float Civilization::GetTotalCitizenBiomassFloat() const {
-    return 0.0f;
+    return ConvertToFloat(GetTotalCitizenBiomass());
 }
 
 inline const boost::multiprecision::uint128_t& Civilization::GetTotalCitizenBiomass() const {
-    // TODO: 在此处插入 return 语句
+    return _CivilizationProperties.TotalCitizenBiomass;
 }
 
 inline float Civilization::GetTotalUseableEnergeticNuclideFloat() const {
-    return 0.0f;
+    return ConvertToFloat(GetTotalUseableEnergeticNuclide());
 }
 
 inline const boost::multiprecision::uint128_t& Civilization::GetTotalUseableEnergeticNuclide() const {
-    // TODO: 在此处插入 return 语句
+    return _CivilizationProperties.TotalUseableEnergeticNuclide;
 }
 
 inline float Civilization::GetTotalCitizenUsedPower() const {
-    return 0.0f;
+    return _CivilizationProperties.TotalCitizenUsedPower;
 }
 
 inline float Civilization::GetCivilizationProgress() const {
-    return 0.0f;
+    return _CivilizationProperties.CivilizationProgress;
 }
 
 inline float Civilization::GetGeneralIntelligenceAverageSynapseActivationCount() const {
-    return 0.0f;
+    return _CivilizationProperties.GeneralIntelligenceAverageSynapseActivationCount;
 }
 
 inline float Civilization::GetGeneralIntelligenceSynapseCount() const {
-    return 0.0f;
+    return _CivilizationProperties.GeneralIntelligenceSynapseCount;
 }
 
 inline float Civilization::GetGeneralIntelligenceAverageLifetime() const {
-    return 0.0f;
+    return _CivilizationProperties.GeneralIntelligenceAverageLifetime;
 }
 
 inline float Civilization::GetGeneralintelligenceCount() const {
-    return 0.0f;
+    return _CivilizationProperties.GeneralintelligenceCount;
 }
 
 inline float Civilization::GetTotalStoragedHistoryDataSize() const {
-    return 0.0f;
+    return _CivilizationProperties.TotalStoragedHistoryDataSize;
 }
 
 inline float Civilization::GetTeamworkFactor() const {
-    return 0.0f;
+    return _CivilizationProperties.TeamworkFactor;
 }
 
 inline bool Civilization::IsIndependentIndividual() const {
-    return false;
+    return _CivilizationProperties.bIsIndependentIndividual;
 }
 
 _NPGS_END

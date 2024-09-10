@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <iterator>
+#include <memory>
 #include <print>
 #include <utility>
 #include <vector>
@@ -17,12 +18,11 @@ _MODULES_BEGIN
 
 static void TransformData(StellarSystem& System, std::vector<Astro::Planet>& Planets, std::vector<StellarSystem::OrbitalElements>& Orbits);
 
-OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSeq, float AsteroidUpperLimit, float LifeProbability, bool bContainUltravioletChz, bool bEnableAsiFilter)
+OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSeq, float AsteroidUpperLimit, float LifeOccurrenceProbability, bool bContainUltravioletChz, bool bEnableAsiFilter)
     :
     _RandomEngine(SeedSeq), _CommonGenerator(0.0f, 1.0f),
     _MigrationProbability(0.1), _WalkInProbability(0.8), _ScatteringProbability(0.15),
-    _AsteroidBeltProbability(0.4), _LifeOccurrenceProbability(LifeProbability),
-    _AsiFiltedProbability(static_cast<double>(bEnableAsiFilter) * 0.2),
+    _AsteroidBeltProbability(0.4),
     _AsteroidUpperLimit(AsteroidUpperLimit), _bContainUltravioletChz(bContainUltravioletChz)
 {}
 
@@ -686,74 +686,6 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                         Planets[i].SetCoreMassEnergeticNuclide(CoreMassEnergeticNuclide);
                     }
                 }
-
-                PlanetType = Planets[i].GetPlanetType();
-                // 计算生命和文明
-                if (PlanetType == Astro::Planet::PlanetType::kTerra) {
-                    bool bCanHasLife = false;
-                    if (Star.GetAge() > 5e8) {
-                        if (_bContainUltravioletChz) {
-                            if (Star.GetMass() / kSolarMass > 0.75f && Star.GetMass() / kSolarMass < 1.5f) {
-                                bCanHasLife = true;
-                            }
-                        } else {
-                            bCanHasLife = true;
-                        }
-                    }
-
-                    if (bCanHasLife && _LifeOccurrenceProbability.Generate(_RandomEngine)) {
-                        float Random1 = 0.5f + _CommonGenerator.Generate(_RandomEngine) + 1.5f;
-                        auto LifePhase = static_cast<Astro::Planet::LifePhase>(std::min(4, std::max(1, static_cast<int>(Random1 * Star.GetAge() / (5 * std::pow(10, 8))))));
-
-                        if (LifePhase == Astro::Planet::LifePhase::kCenoziocEra) {
-                            float Random2 = 1.0f + _CommonGenerator.Generate(_RandomEngine) * 999.0f;
-                            if (_AsiFiltedProbability.Generate(_RandomEngine)) {
-                                LifePhase = Astro::Planet::LifePhase::kSatTeeTouyButAsi; // 被 ASI 去城市化了
-                                Planets[i].SetCrustMineralMass(Random2 * 1e16f + Planets[i].GetCrustMineralMassFloat());
-                            } else {
-                                Planets[i].SetCrustMineralMass(Random2 * 1e15f + Planets[i].GetCrustMineralMassFloat());
-                            }
-                        }
-
-                        const std::array<float, 7>* ProbabilityListPtr = nullptr;
-                        int IntegerPart = 0;
-                        if (LifePhase != Astro::Planet::LifePhase::kCenoziocEra &&
-                            LifePhase != Astro::Planet::LifePhase::kSatTeeTouy  &&
-                            LifePhase != Astro::Planet::LifePhase::kSatTeeTouyButAsi) {
-                            Planets[i].SetCivilizationLevel(0.0f);
-                        } else if (LifePhase == Astro::Planet::LifePhase::kCenoziocEra) {
-                            ProbabilityListPtr = &_kProbabilityListForCenoziocEra;
-                        } else if (LifePhase == Astro::Planet::LifePhase::kSatTeeTouyButAsi) {
-                            ProbabilityListPtr = &_kProbabilityListForSatTeeTouyButAsi;
-                        }
-
-                        if (ProbabilityListPtr != nullptr) {
-                            float Random = _CommonGenerator.Generate(_RandomEngine);
-                            float CumulativeProbability = 0.0f;
-
-                            for (int i = 0; i < 7; ++i) {
-                                CumulativeProbability += (*ProbabilityListPtr)[i];
-                                if (Random < CumulativeProbability) {
-                                    IntegerPart = i + 1;
-                                    break;
-                                }
-                            }
-
-                            if (IntegerPart >= 7) {
-                                if (LifePhase == Astro::Planet::LifePhase::kCenoziocEra) {
-                                    LifePhase = Astro::Planet::LifePhase::kSatTeeTouy;
-                                } else if (LifePhase == Astro::Planet::LifePhase::kSatTeeTouyButAsi) {
-                                    LifePhase = Astro::Planet::LifePhase::kNewCivilization;
-                                }
-                            }
-
-                            float FractionalPart = _CommonGenerator.Generate(_RandomEngine);
-                            Planets[i].SetCivilizationLevel(static_cast<float>(IntegerPart) + FractionalPart);
-                        }
-
-                        Planets[i].SetLifePhase(LifePhase);
-                    }
-                }
 #ifdef DEBUG_OUTPUT
                 auto& Planet                         = Planets[i];
                 PlanetType                           = Planet.GetPlanetType();
@@ -771,9 +703,6 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                 float AtmospherePressure             = (kGravityConstant * PlanetMass * (AtmosphereMassZ + AtmosphereMassVolatiles + AtmosphereMassEnergeticNuclide)) / (4.0f * kPi * std::pow(Planets[i].GetRadius(), 4.0f));
                 std::println("Planet detail:\natmo mass z: {:.2E} kg, atmo mass vol: {:.2E} kg, atmo mass nuc: {:.2E} kg\ncore mass z: {:.2E} kg, core mass vol: {:.2E} kg, core mass nuc: {:.2E} kg\nocean mass z: {:.2E} kg, ocean mass vol: {:.2E} kg, ocean mass nuc: {:.2E} kg\ncrust mineral mass: {:.2E} kg, atmo pressure: {:.2f} atm", AtmosphereMassZ, AtmosphereMassVolatiles, AtmosphereMassEnergeticNuclide, CoreMassZ, CoreMassVolatiles, CoreMassEnergeticNuclide, OceanMassZ, OceanMassVolatiles, OceanMassEnergeticNuclide, CrustMineralMass, AtmospherePressure / kPascalToAtm);
                 std::println("semi-major axis: {} AU, mass: {} earth, radius: {} earth, type: {}", Orbits[i].SemiMajorAxis / kAuToMeter, PlanetMassEarth, Planets[i].GetRadius() / kEarthRadius, static_cast<int>(Planets[i].GetPlanetType()));
-                if (PlanetType == Astro::Planet::PlanetType::kTerra) {
-                    std::println("life: {}, civilization level: {:.2f}", static_cast<int>(Planets[i].GetLifePhase()), Planets[i].GetCivilizationLevel());
-                }
                 std::println("");
 #endif // DEBUG_OUTPUT
             }
@@ -798,7 +727,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
     for (std::size_t i = 0; i < PlanetCount; ++i) {
         Planets[i].SetAge(Star.GetAge() - 1e6f);
-        Orbits[i].Objects.emplace_back(&Planets[i]);
+        Orbits[i].Objects.emplace_back(std::make_unique<Astro::Planet>(Planets[i]));
     }
 
     TransformData(System, Planets, Orbits);
@@ -811,9 +740,6 @@ void OrbitalGenerator::GenOrbitElements(StellarSystem::OrbitalElements& Orbit) {
     Orbit.ArgumentOfPeriapsis      = _CommonGenerator.Generate(_RandomEngine) * 360.0f;
     Orbit.TrueAnomaly              = _CommonGenerator.Generate(_RandomEngine) * 360.0f;
 }
-
-const std::array<float, 7> OrbitalGenerator::_kProbabilityListForCenoziocEra{ 0.02f, 0.005f, 1e-4f, 1e-6f, 5e-7f, 4e-7f, 1e-6f };
-const std::array<float, 7> OrbitalGenerator::_kProbabilityListForSatTeeTouyButAsi{ 0.2f, 0.05f, 0.001f, 1e-5f, 1e-4f, 1e-4f, 1e-4f };
 
 void TransformData(StellarSystem& System, std::vector<Astro::Planet>& Planets, std::vector<StellarSystem::OrbitalElements>& Orbits) {
     std::transform(
