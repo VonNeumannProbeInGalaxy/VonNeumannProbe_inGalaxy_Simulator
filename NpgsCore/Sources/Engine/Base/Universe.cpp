@@ -43,7 +43,7 @@ Universe::Universe(unsigned Seed, std::size_t NumStars, std::size_t NumExtraGian
 {
     std::vector<std::uint32_t> Seeds(32);
     for (int i = 0; i != 32; ++i) {
-        Seeds.emplace_back(_SeedGenerator.Generate(_RandomEngine));
+        Seeds.emplace_back(_SeedGenerator(_RandomEngine));
     }
 
     std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
@@ -73,7 +73,7 @@ void Universe::FillUniverse() {
         for (int i = 0; i != MaxThread; ++i) {
             std::vector<std::uint32_t> Seeds(32);
             for (int i = 0; i != 32; ++i) {
-                Seeds.emplace_back(_SeedGenerator.Generate(_RandomEngine));
+                Seeds.emplace_back(_SeedGenerator(_RandomEngine));
             }
 
             std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
@@ -723,9 +723,9 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
         if (Node.IsLeafNode() && Node.GetValidation()) {
             glm::vec3 Center(Node.GetCenter());
             glm::vec3 StellarSlot(
-                Center.x + Dist.Generate(_RandomEngine),
-                Center.y + Dist.Generate(_RandomEngine),
-                Center.z + Dist.Generate(_RandomEngine)
+                Center.x + Dist(_RandomEngine),
+                Center.y + Dist(_RandomEngine),
+                Center.z + Dist(_RandomEngine)
             );
             Node.AddPoint(StellarSlot);
         }
@@ -744,8 +744,8 @@ void Universe::OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::
     _Octree->Traverse([&](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
             for (const auto& Point : Node.GetPoints()) {
-                float Theta = _CommonGenerator.Generate(_RandomEngine) * 2.0f * kPi;
-                float Phi   = _CommonGenerator.Generate(_RandomEngine) * kPi;
+                float Theta = _CommonGenerator(_RandomEngine) * 2.0f * kPi;
+                float Phi   = _CommonGenerator(_RandomEngine) * kPi;
                 StellarSystem NewSystem;
                 NewSystem.SetBaryPosition(Point);
                 NewSystem.SetBaryNormal(glm::vec2(Theta, Phi));

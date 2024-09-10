@@ -116,7 +116,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
             break;
         }
         case GenDistribution::kUniform: {
-            Properties.InitialMass = _MassLowerLimit + _CommonGenerator.Generate(_RandomEngine) * (_MassUpperLimit - _MassLowerLimit);
+            Properties.InitialMass = _MassLowerLimit + _CommonGenerator(_RandomEngine) * (_MassUpperLimit - _MassLowerLimit);
             break;
         }
         default:
@@ -138,11 +138,11 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
         break;
     }
     case GenDistribution::kUniform: {
-        Properties.Age = _AgeLowerLimit + _CommonGenerator.Generate(_RandomEngine) * (_AgeUpperLimit - _AgeLowerLimit);
+        Properties.Age = _AgeLowerLimit + _CommonGenerator(_RandomEngine) * (_AgeUpperLimit - _AgeLowerLimit);
         break;
     }
     case GenDistribution::kUniformByExponent: {
-        float Random = _CommonGenerator.Generate(_RandomEngine);
+        float Random = _CommonGenerator(_RandomEngine);
         float LogAgeLower = std::log10(_AgeLowerLimit);
         float LogAgeUpper = std::log10(_AgeUpperLimit);
         Properties.Age = std::pow(10.0f, LogAgeLower + Random * (LogAgeUpper - LogAgeLower));
@@ -269,8 +269,8 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
     float SurfaceEnergeticNuclide = (SurfaceH1 * 0.00002f + SurfaceHe3);
     float SurfaceVolatiles        = 1.0f - SurfaceZ - SurfaceEnergeticNuclide;
 
-    float Theta = _CommonGenerator.Generate(_RandomEngine) * 2.0f * kPi;
-    float Phi   = _CommonGenerator.Generate(_RandomEngine) * kPi;
+    float Theta = _CommonGenerator(_RandomEngine) * 2.0f * kPi;
+    float Phi   = _CommonGenerator(_RandomEngine) * kPi;
 
     Astro::Star::Phase EvolutionPhase = static_cast<Astro::Star::Phase>(StarData[_kPhaseIndex]);
 
@@ -374,9 +374,9 @@ float StellarGenerator::GenerateAge(float MaxPdf) {
     float Age         = 0.0f;
     float Probability = 0.0f;
     do {
-        Age = _AgeGenerator.Generate(_RandomEngine);
+        Age = _AgeGenerator(_RandomEngine);
         Probability = DefaultAgePdf(Age / 1e9f, _UniverseAge / 1e9f);
-    } while (_CommonGenerator.Generate(_RandomEngine) * MaxPdf > Probability);
+    } while (_CommonGenerator(_RandomEngine) * MaxPdf > Probability);
 
     return Age;
 }
@@ -385,9 +385,9 @@ float StellarGenerator::GenerateMass(float MaxPdf, bool bIsBinary) {
     float LogMass     = 0.0f;
     float Probability = 0.0f;
     do {
-        LogMass = _LogMassGenerator.Generate(_RandomEngine);
+        LogMass = _LogMassGenerator(_RandomEngine);
         Probability = DefaultLogMassPdf(LogMass, bIsBinary);
-    } while (_CommonGenerator.Generate(_RandomEngine) * MaxPdf > Probability);
+    } while (_CommonGenerator(_RandomEngine) * MaxPdf > Probability);
 
     return std::pow(10.0f, LogMass);
 }
@@ -931,19 +931,19 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
 
     if (DeathStarType == StellarClass::StarType::kNeutronStar || MergeStarProbability == 1.0) {
         BernoulliDistribution MergeProbability(MergeStarProbability);
-        if (MergeProbability.Generate(_RandomEngine)) {
+        if (MergeProbability(_RandomEngine)) {
             EvolutionEnding = Astro::Star::Death::kWhiteDwarfMerge;
             BernoulliDistribution BlackHoleProbability(0.114514);
             float MassSol = 0.0f;
-            if (BlackHoleProbability.Generate(_RandomEngine)) {
+            if (BlackHoleProbability(_RandomEngine)) {
                 UniformRealDistribution<float> MassDist(2.6f, 2.76f);
-                MassSol        = MassDist.Generate(_RandomEngine);
+                MassSol        = MassDist(_RandomEngine);
                 EvolutionPhase = Astro::Star::Phase::kStellarBlackHole;
                 DeathStarType  = StellarClass::StarType::kBlackHole;
                 DeathStarClass = { StellarClass::SpectralClass::kSpectral_X, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
             } else {
                 UniformRealDistribution<float> MassDist(1.38f, 2.18072f);
-                MassSol        = MassDist.Generate(_RandomEngine);
+                MassSol        = MassDist(_RandomEngine);
                 EvolutionPhase = Astro::Star::Phase::kNeutronStar;
                 DeathStarType  = StellarClass::StarType::kNeutronStar;
                 DeathStarClass = { StellarClass::SpectralClass::kSpectral_Q, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
@@ -1041,8 +1041,8 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
     float LuminositySol  = std::pow(RadiusSol, 2.0f) * std::pow((Teff / kSolarTeff), 4.0f);
     float EscapeVelocity = std::sqrt((2.0f * kGravityConstant * MassSol * kSolarMass) / (RadiusSol * kSolarRadius));
 
-    float Theta = _CommonGenerator.Generate(_RandomEngine) * 2.0f * kPi;
-    float Phi   = _CommonGenerator.Generate(_RandomEngine) * kPi;
+    float Theta = _CommonGenerator(_RandomEngine) * 2.0f * kPi;
+    float Phi   = _CommonGenerator(_RandomEngine) * kPi;
     
     DeathStar.SetInitialMass(InputMass * kSolarMass);
     DeathStar.SetAge(Age);
@@ -1091,7 +1091,7 @@ void StellarGenerator::GenerateMagnetic(Astro::Star& StarData) {
                (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_A ||
                 SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
                 BernoulliDistribution ProbabilityGenerator(0.15); //  p 星的概率
-                if (ProbabilityGenerator.Generate(_RandomEngine)) {
+                if (ProbabilityGenerator(_RandomEngine)) {
                     MagneticGenerator = _MagneticGenerators[3].get();
                     SpectralType.SpecialMark |= std::to_underlying(StellarClass::SpecialPeculiarities::kCode_p);
                     StarData.SetStellarClass(StellarClass(StellarClass::StarType::kNormalStar, SpectralType));
@@ -1149,7 +1149,7 @@ void StellarGenerator::GenerateSpin(Astro::Star& StarData) {
         float Base = 2.0f;
         if (StarData.GetStellarClass().Data().SpecialMark & std::to_underlying(StellarClass::SpecialPeculiarities::kCode_p)) {
             UniformRealDistribution<float> Dist(2.0f, 8.0f);
-            Base = Dist.Generate(_RandomEngine);
+            Base = Dist(_RandomEngine);
         }
 
         float LgMass = std::log10(MassSol);
