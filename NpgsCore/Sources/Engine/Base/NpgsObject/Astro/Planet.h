@@ -40,7 +40,6 @@ public:
         ComplexMass CoreMass;
         ComplexMass OceanMass;
         boost::multiprecision::uint128_t CrustMineralMass;
-        boost::multiprecision::uint128_t RingsMass;
         bool bIsMigrated;
 
         PlanetType Type;
@@ -63,8 +62,6 @@ public:
     Planet& SetOceanMass(const ComplexMass& OceanMass);
     Planet& SetCrustMineralMass(float CrustMineralMass);
     Planet& SetCrustMineralMass(const boost::multiprecision::uint128_t& CrustMineralMass);
-    Planet& SetRingsMass(float RingsMass);
-    Planet& SetRingsMass(const boost::multiprecision::uint128_t& RingsMass);
     Planet& SetMigration(bool bIsMigrated);
     Planet& SetPlanetType(PlanetType Type);
 
@@ -123,8 +120,6 @@ public:
     const boost::multiprecision::uint128_t GetMass() const;
     float GetCrustMineralMassFloat() const;
     const boost::multiprecision::uint128_t& GetCrustMineralMass() const;
-    float GetRingsMassFloat() const;
-    const boost::multiprecision::uint128_t& GetRingsMass() const;
     bool  GetMigration() const;
     PlanetType GetPlanetType() const;
 

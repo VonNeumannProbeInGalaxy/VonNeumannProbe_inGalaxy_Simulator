@@ -624,7 +624,7 @@ void StellarGenerator::CalcSpectralType(Astro::Star& StarData, float FeH) {
                 if (SurfaceH1 >= 0.2f) { // 根据表面氢质量分数来判断处于的 WR 阶段
                     SpectralSubclassMap = Astro::Star::_kSpectralSubclassMap_WNxh;
                     SpectralClass = 13;
-                    SpectralType.SpecialMark = static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h);
+                    SpectralType.SpecialMark = std::to_underlying(StellarClass::SpecialPeculiarities::kCode_h);
                 } else if (SurfaceH1 >= 0.1f) {
                     SpectralSubclassMap = Astro::Star::_kSpectralSubclassMap_WN;
                     SpectralClass = 13;
@@ -652,7 +652,7 @@ void StellarGenerator::CalcSpectralType(Astro::Star& StarData, float FeH) {
         }
 
         if (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_WN &&
-            SpectralType.SpecialMark & static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_h)) {
+            SpectralType.SpecialMark & std::to_underlying(StellarClass::SpecialPeculiarities::kCode_h)) {
             if (Subclass < 5) {
                 Subclass = 5.0f;
             }
@@ -1087,7 +1087,7 @@ void StellarGenerator::GenerateMagnetic(Astro::Star& StarData) {
                 BernoulliDistribution ProbabilityGenerator(0.15); //  p 星的概率
                 if (ProbabilityGenerator.Generate(_RandomEngine)) {
                     MagneticGenerator = _MagneticGenerators[3].get();
-                    SpectralType.SpecialMark |= static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_p);
+                    SpectralType.SpecialMark |= std::to_underlying(StellarClass::SpecialPeculiarities::kCode_p);
                     StarData.SetStellarClass(StellarClass(StellarClass::StarType::kNormalStar, SpectralType));
                 } else {
                     MagneticGenerator = _MagneticGenerators[4].get();
@@ -1141,7 +1141,7 @@ void StellarGenerator::GenerateSpin(Astro::Star& StarData) {
     switch (StarType) {
     case StellarClass::StarType::kNormalStar: {
         float Base = 2.0f;
-        if (StarData.GetStellarClass().Data().SpecialMark & static_cast<std::uint32_t>(StellarClass::SpecialPeculiarities::kCode_p)) {
+        if (StarData.GetStellarClass().Data().SpecialMark & std::to_underlying(StellarClass::SpecialPeculiarities::kCode_p)) {
             UniformRealDistribution<float> Dist(2.0f, 8.0f);
             Base = Dist.Generate(_RandomEngine);
         }
