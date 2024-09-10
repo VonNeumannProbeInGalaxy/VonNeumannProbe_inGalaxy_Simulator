@@ -11,19 +11,23 @@
 
 #include "Engine/Core/Constants.h"
 
-// #define DEBUG_OUTPUT
+#define DEBUG_OUTPUT
 
 _NPGS_BEGIN
 _MODULES_BEGIN
 
 static void TransformData(StellarSystem& System, std::vector<Astro::Planet>& Planets, std::vector<StellarSystem::OrbitalElements>& Orbits);
 
-OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSeq, float AsteroidUpperLimit, float LifeOccurrenceProbability, bool bContainUltravioletChz, bool bEnableAsiFilter)
+OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float AsteroidUpperLimit, float LifeOccurrenceProbability, bool bContainUltravioletChz, bool bEnableAsiFilter)
     :
-    _RandomEngine(SeedSeq), _CommonGenerator(0.0f, 1.0f),
-    _MigrationProbability(0.1), _WalkInProbability(0.8), _ScatteringProbability(0.15),
+    _RandomEngine(SeedSequence),
     _AsteroidBeltProbability(0.4),
-    _AsteroidUpperLimit(AsteroidUpperLimit), _bContainUltravioletChz(bContainUltravioletChz)
+    _MigrationProbability(0.1),
+    _ScatteringProbability(0.15),
+    _WalkInProbability(0.8),
+    _CommonGenerator(0.0f, 1.0f),
+    _AsteroidUpperLimit(AsteroidUpperLimit),
+    _bContainUltravioletChz(bContainUltravioletChz)
 {}
 
 void OrbitalGenerator::GenerateOrbitals(StellarSystem& System) {}
@@ -684,6 +688,29 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                         CoreMassEnergeticNuclide += 3.31e-4f * std::pow(Planets[i].GetRadius(), 2.0f);
                         Planets[i].SetCoreMassVolatiles(CoreMassVolatiles);
                         Planets[i].SetCoreMassEnergeticNuclide(CoreMassEnergeticNuclide);
+                    }
+                }
+
+                // 生成声明和文明
+                PlanetType = Planets[i].GetPlanetType();
+
+                if (PlanetType == Astro::Planet::PlanetType::kTerra) {
+                    bool bCanHasLife = false;
+                    if (Star.GetAge() > 5e8) {
+                        if (Orbits[i].SemiMajorAxis / kAuToMeter > InterChzRadiusAu && Orbits[i].SemiMajorAxis / kAuToMeter < OuterChzRadiusAu) {
+                            if (_bContainUltravioletChz) {
+                                double StarMassSol = Star.GetMass() / kSolarMass;
+                                if (StarMassSol > 0.75 && StarMassSol < 1.5) {
+                                    bCanHasLife = true;
+                                }
+                            } else {
+                                bCanHasLife = true;
+                            }
+                        }
+                    }
+
+                    if (bCanHasLife) {
+
                     }
                 }
 #ifdef DEBUG_OUTPUT

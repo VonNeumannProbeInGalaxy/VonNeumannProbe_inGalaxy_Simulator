@@ -53,7 +53,7 @@ public:
 
 public:
     StellarGenerator() = default;
-    StellarGenerator(const std::seed_seq& SeedSeq, GenOption Option = GenOption::kNormal, float UniverseAge = 1.38e10f,
+    StellarGenerator(const std::seed_seq& SeedSequence, GenOption Option = GenOption::kNormal, float UniverseAge = 1.38e10f,
         float MassLowerLimit =  0.1f,     float MassUpperLimit = 300.0f,   GenDistribution MassDistribution = GenDistribution::kFromPdf,
         float AgeLowerLimit  =  0.0f,     float AgeUpperLimit  = 1.26e10f, GenDistribution AgeDistribution  = GenDistribution::kFromPdf,
         float FeHLowerLimit  = -4.0f,     float FeHUpperLimit  = 0.5f,     GenDistribution FeHDistribution  = GenDistribution::kFromPdf,
@@ -104,12 +104,12 @@ public:
 
 private:
     std::mt19937 _RandomEngine;
-    UniformRealDistribution<float> _AgeGenerator;
-    UniformRealDistribution<float> _LogMassGenerator;
-    UniformRealDistribution<float> _CommonGenerator;
-    std::array<std::shared_ptr<Distribution<float>>, 4> _FeHGenerators;
-    std::array<std::shared_ptr<Distribution<float>>, 8> _MagneticGenerators;
-    std::array<std::shared_ptr<Distribution<float>>, 2> _SpinGenerators;
+    std::array<std::shared_ptr<Distribution<>>, 8> _MagneticGenerators;
+    std::array<std::shared_ptr<Distribution<>>, 4> _FeHGenerators;
+    std::array<std::shared_ptr<Distribution<>>, 2> _SpinGenerators;
+    UniformRealDistribution<> _AgeGenerator;
+    UniformRealDistribution<> _CommonGenerator;
+    UniformRealDistribution<> _LogMassGenerator;
 
     float _UniverseAge;
     float _AgeLowerLimit;
@@ -121,9 +121,9 @@ private:
     float _CoilTempLimit;
     float _dEpdM;
 
-    GenDistribution _MassDistribution;
     GenDistribution _AgeDistribution;
     GenDistribution _FeHDistribution;
+    GenDistribution _MassDistribution;
     GenOption       _Option;
 
     static const std::vector<std::string> _kMistHeaders;

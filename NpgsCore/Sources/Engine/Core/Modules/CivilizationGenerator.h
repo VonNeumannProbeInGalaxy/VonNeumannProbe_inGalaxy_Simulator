@@ -13,16 +13,16 @@ _MODULES_BEGIN
 class CivilizationGenerator {
 public:
     CivilizationGenerator() = default;
-    CivilizationGenerator(const std::seed_seq& SeedSeq, double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass, float LifeOccurrenceProbability, bool bEnableAsiFilter = false);
+    CivilizationGenerator(const std::seed_seq& SeedSequence, double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass, float LifeOccurrenceProbability, bool bEnableAsiFilter = false);
     ~CivilizationGenerator() = default;
 
     void GenerateCivilization(Astro::Planet& Planet);
 
 private:
     std::mt19937 _RandomEngine;
-    UniformRealDistribution<float> _CommonGenerator;
-    BernoulliDistribution _LifeOccurrenceProbability;
-    BernoulliDistribution _AsiFiltedProbability;
+    BernoulliDistribution<> _AsiFiltedProbability;
+    BernoulliDistribution<> _LifeOccurrenceProbability;
+    UniformRealDistribution<> _CommonGenerator;
 
     double _StarAge;
 

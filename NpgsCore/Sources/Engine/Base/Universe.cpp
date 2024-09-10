@@ -28,18 +28,27 @@ static void FillStellarSystem(StellarSystem& System);
 
 Universe::Universe(unsigned Seed, std::size_t NumStars, std::size_t NumExtraGiants, std::size_t NumExtraMassiveStars, std::size_t NumExtraNeutronStars, std::size_t NumExtraBlackHoles, std::size_t NumExtraMergeStars, float UniverseAge)
     :
-    _RandomEngine(Seed), _ThreadPool(ThreadPool::GetInstance()),
-    _CommonGenerator(0.0f, 1.0f), _SeedGenerator(0.0f, static_cast<float>(std::numeric_limits<unsigned>::max())),
-    _NumStars(NumStars), _NumExtraGiants(NumExtraGiants), _NumExtraMassiveStars(NumExtraMassiveStars),
-    _NumExtraNeutronStars(NumExtraNeutronStars), _NumExtraBlackHoles(NumExtraBlackHoles), _NumExtraMergeStars(NumExtraMergeStars), _UniverseAge(UniverseAge)
+    _RandomEngine(Seed),
+    _SeedGenerator(0ull, std::numeric_limits<std::uint32_t>::max()),
+    _CommonGenerator(0.0f, 1.0f),
+    _ThreadPool(ThreadPool::GetInstance()),
+
+    _NumStars(NumStars),
+    _NumExtraGiants(NumExtraGiants),
+    _NumExtraMassiveStars(NumExtraMassiveStars),
+    _NumExtraNeutronStars(NumExtraNeutronStars),
+    _NumExtraBlackHoles(NumExtraBlackHoles),
+    _NumExtraMergeStars(NumExtraMergeStars),
+    _UniverseAge(UniverseAge)
 {
-    std::seed_seq SeedSeq{
-        static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-        static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-        static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-        static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine))
-    };
-    _RandomEngine.seed(SeedSeq);
+    std::vector<std::uint32_t> Seeds(32);
+    for (int i = 0; i != 32; ++i) {
+        Seeds.emplace_back(_SeedGenerator.Generate(_RandomEngine));
+    }
+
+    std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
+    std::seed_seq SeedSequence(Seeds.begin(), Seeds.end());
+    _RandomEngine.seed(SeedSequence);
 }
 
 Universe::~Universe() {
@@ -54,27 +63,22 @@ void Universe::FillUniverse() {
     std::vector<Modules::StellarGenerator> Generators;
     std::vector<Modules::StellarGenerator::BasicProperties> BasicProperties;
 
+    using enum Modules::StellarGenerator::GenDistribution;
+    using enum Modules::StellarGenerator::GenOption;
     auto CreateGenerators =
-        [&, this](Modules::StellarGenerator::GenOption Option = Modules::StellarGenerator::GenOption::kNormal,
-            float MassLowerLimit =  0.1f, float MassUpperLimit = 300.0f,   Modules::StellarGenerator::GenDistribution MassDistribution = Modules::StellarGenerator::GenDistribution::kFromPdf,
-            float AgeLowerLimit  =  0.0f, float AgeUpperLimit  = 1.26e10f, Modules::StellarGenerator::GenDistribution AgeDistribution  = Modules::StellarGenerator::GenDistribution::kFromPdf,
-            float FeHLowerLimit  = -4.0f, float FeHUpperLimit  = 0.5f,     Modules::StellarGenerator::GenDistribution FeHDistribution  = Modules::StellarGenerator::GenDistribution::kFromPdf) -> void {
+        [&, this](Modules::StellarGenerator::GenOption Option  = kNormal,
+            float MassLowerLimit =  0.1f, float MassUpperLimit = 300.0f,   Modules::StellarGenerator::GenDistribution MassDistribution = kFromPdf,
+            float AgeLowerLimit  =  0.0f, float AgeUpperLimit  = 1.26e10f, Modules::StellarGenerator::GenDistribution AgeDistribution  = kFromPdf,
+            float FeHLowerLimit  = -4.0f, float FeHUpperLimit  = 0.5f,     Modules::StellarGenerator::GenDistribution FeHDistribution  = kFromPdf) -> void {
         for (int i = 0; i != MaxThread; ++i) {
-            std::seed_seq SeedSeq{
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine)),
-                static_cast<unsigned>(_SeedGenerator.Generate(_RandomEngine))
-            };
-            Generators.emplace_back(SeedSeq, Option, _UniverseAge, MassLowerLimit, MassUpperLimit, MassDistribution, AgeLowerLimit, AgeUpperLimit, AgeDistribution, FeHLowerLimit, FeHUpperLimit, FeHDistribution);
+            std::vector<std::uint32_t> Seeds(32);
+            for (int i = 0; i != 32; ++i) {
+                Seeds.emplace_back(_SeedGenerator.Generate(_RandomEngine));
+            }
+
+            std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
+            std::seed_seq SeedSequence(Seeds.begin(), Seeds.end());
+            Generators.emplace_back(SeedSequence, Option, _UniverseAge, MassLowerLimit, MassUpperLimit, MassDistribution, AgeLowerLimit, AgeUpperLimit, AgeDistribution, FeHLowerLimit, FeHUpperLimit, FeHDistribution);
         }
     };
 
@@ -96,7 +100,7 @@ void Universe::FillUniverse() {
 
     if (_NumExtraGiants != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenOption::kGiant, 1.0, 30.0);
+        CreateGenerators(kGiant, 1.0, 30.0);
         GenerateBasicProperties(_NumExtraGiants);
     }
 
@@ -178,7 +182,7 @@ void Universe::FillUniverse() {
     _StellarSystems.reserve(_NumStars);
     std::shuffle(Stars.begin(), Stars.end(), _RandomEngine);
     std::vector<glm::vec3> Slots;
-    OctreeLinkToStars(Stars, Slots);
+    OctreeLinkToStellarSystems(Stars, Slots);
 
     NpgsCoreInfo("Sorting...");
     std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
@@ -735,7 +739,7 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
     Node->AddPoint(glm::vec3(0.0f));
 }
 
-void Universe::OctreeLinkToStars(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots) {
+void Universe::OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots) {
     std::size_t Index = 0;
     _Octree->Traverse([&](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {

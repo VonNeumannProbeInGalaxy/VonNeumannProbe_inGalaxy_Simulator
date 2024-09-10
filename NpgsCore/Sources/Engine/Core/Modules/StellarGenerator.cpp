@@ -51,18 +51,9 @@ static void ExpandMistData(std::vector<double>& StarData, double TargetMass);
 
 // StellarGenerator implementations
 // --------------------------------
-StellarGenerator::StellarGenerator(const std::seed_seq& SeedSeq, GenOption Option, float UniverseAge, float MassLowerLimit, float MassUpperLimit, GenDistribution MassDistribution, float AgeLowerLimit, float AgeUpperLimit, GenDistribution AgeDistribution, float FeHLowerLimit, float FeHUpperLimit, GenDistribution FeHDistribution, float CoilTempLimit, float dEpdM)
+StellarGenerator::StellarGenerator(const std::seed_seq& SeedSequence, GenOption Option, float UniverseAge, float MassLowerLimit, float MassUpperLimit, GenDistribution MassDistribution, float AgeLowerLimit, float AgeUpperLimit, GenDistribution AgeDistribution, float FeHLowerLimit, float FeHUpperLimit, GenDistribution FeHDistribution, float CoilTempLimit, float dEpdM)
     :
-    _RandomEngine(SeedSeq), _Option(Option), _UniverseAge(UniverseAge),
-    _AgeGenerator(AgeLowerLimit, AgeUpperLimit),
-    _LogMassGenerator(Option == StellarGenerator::GenOption::kMergeStar ? (0.0f, 1.0f) : std::log10(MassLowerLimit), std::log10(MassUpperLimit)),
-    _CommonGenerator(0.0f, 1.0f),
-    _FeHGenerators({
-        std::make_shared<LogNormalDistribution<float>>(-0.3f, 0.5f),
-        std::make_shared<NormalDistribution<float>>(-0.3f, 0.15f),
-        std::make_shared<NormalDistribution<float>>(-0.08f, 0.12f),
-        std::make_shared<NormalDistribution<float>>(0.05f, 0.16f)
-    }),
+    _RandomEngine(SeedSequence),
     _MagneticGenerators({
         std::make_shared<UniformRealDistribution<float>>(std::log10(500.0f), std::log10(3000.0f)),
         std::make_shared<UniformRealDistribution<float>>(1.0f, 3.0f),
@@ -73,15 +64,30 @@ StellarGenerator::StellarGenerator(const std::seed_seq& SeedSeq, GenOption Optio
         std::make_shared<UniformRealDistribution<float>>(0.5f, 4.5f),
         std::make_shared<UniformRealDistribution<float>>(1e9f, 1e11f)
     }),
+
+    _FeHGenerators({
+        std::make_shared<LogNormalDistribution<float>>(-0.3f, 0.5f),
+        std::make_shared<NormalDistribution<float>>(-0.3f, 0.15f),
+        std::make_shared<NormalDistribution<float>>(-0.08f, 0.12f),
+        std::make_shared<NormalDistribution<float>>(0.05f, 0.16f)
+    }),
+
     _SpinGenerators({
         std::make_shared<UniformRealDistribution<float>>(3.0f, 5.0f),
         std::make_shared<UniformRealDistribution<float>>(0.001f, 0.998f)
     }),
-    _AgeLowerLimit(AgeLowerLimit), _AgeUpperLimit(AgeUpperLimit),
-    _FeHLowerLimit(FeHLowerLimit), _FeHUpperLimit(FeHUpperLimit),
+
+    _AgeGenerator(AgeLowerLimit, AgeUpperLimit),
+    _CommonGenerator(0.0f, 1.0f),
+    _LogMassGenerator(Option == StellarGenerator::GenOption::kMergeStar ? (0.0f, 1.0f) : std::log10(MassLowerLimit), std::log10(MassUpperLimit)),
+    
+    _UniverseAge(UniverseAge),
+    _AgeLowerLimit(AgeLowerLimit),   _AgeUpperLimit(AgeUpperLimit),
+    _FeHLowerLimit(FeHLowerLimit),   _FeHUpperLimit(FeHUpperLimit),
     _MassLowerLimit(MassLowerLimit), _MassUpperLimit(MassUpperLimit),
-    _CoilTempLimit(CoilTempLimit), _dEpdM(dEpdM),
-    _MassDistribution(MassDistribution), _AgeDistribution(AgeDistribution), _FeHDistribution(FeHDistribution)
+    _CoilTempLimit(CoilTempLimit),   _dEpdM(dEpdM),
+    
+    _AgeDistribution(AgeDistribution), _FeHDistribution(FeHDistribution), _MassDistribution(MassDistribution), _Option(Option)
 {
     InitMistData();
 }

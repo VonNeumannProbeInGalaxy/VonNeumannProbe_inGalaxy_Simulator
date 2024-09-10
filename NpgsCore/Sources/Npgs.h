@@ -3,11 +3,13 @@
 #include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
 #include "Engine/Base/NpgsObject/Astro/Planet.h"
 #include "Engine/Base/NpgsObject/Astro/Star.h"
+#include "Engine/Base/NpgsObject/Civilization.h"
 #include "Engine/Base/Octree.hpp"
 #include "Engine/Base/Universe.h"
 
 #include "Engine/Core/AssetLoader/AssetManager.h"
 
+#include "Engine/Core/Modules/CivilizationGenerator.h"
 #include "Engine/Core/Modules/OrbitalGenerator.h"
 #include "Engine/Core/Modules/StellarClass.h"
 #include "Engine/Core/Modules/StellarGenerator.h"

@@ -25,18 +25,16 @@ public:
 
 private:
     void GenerateSlots(float DistMin, std::size_t NumSamples, float Density);
-    void OctreeLinkToStars(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots);
+    void OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots);
 
 private:
     using NodeType = Octree<StellarSystem>::NodeType;
 
     std::mt19937                           _RandomEngine;
+    UniformIntDistribution<>               _SeedGenerator;
+    UniformRealDistribution<>              _CommonGenerator;
     std::unique_ptr<Octree<StellarSystem>> _Octree;
-    std::vector<StellarSystem>             _StellarSystems;
-    std::vector<Astro::Star*>              _StarPtrs;
     ThreadPool*                            _ThreadPool;
-    UniformRealDistribution<float>         _CommonGenerator;
-    UniformRealDistribution<float>         _SeedGenerator;
 
     std::size_t _NumStars;
     std::size_t _NumExtraGiants;
@@ -45,6 +43,9 @@ private:
     std::size_t _NumExtraBlackHoles;
     std::size_t _NumExtraMergeStars;
     float       _UniverseAge;
+
+    std::vector<StellarSystem> _StellarSystems;
+    std::vector<Astro::Star*>  _StarPtrs;
 };
 
 _NPGS_END

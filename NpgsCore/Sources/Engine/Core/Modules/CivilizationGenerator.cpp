@@ -6,12 +6,12 @@
 _NPGS_BEGIN
 _MODULES_BEGIN
 
-CivilizationGenerator::CivilizationGenerator(const std::seed_seq& SeedSeq, double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass, float LifeOccurrenceProbability, bool bEnableAsiFilter)
+CivilizationGenerator::CivilizationGenerator(const std::seed_seq& SeedSequence, double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass, float LifeOccurrenceProbability, bool bEnableAsiFilter)
     :
-    _RandomEngine(SeedSeq),
-    _CommonGenerator(0.0f, 1.0f),
-    _LifeOccurrenceProbability(LifeOccurrenceProbability),
+    _RandomEngine(SeedSequence),
     _AsiFiltedProbability(static_cast<double>(bEnableAsiFilter) * 0.2),
+    _LifeOccurrenceProbability(LifeOccurrenceProbability),
+    _CommonGenerator(0.0f, 1.0f),
     _StarAge(StarAge)
 {}
 
