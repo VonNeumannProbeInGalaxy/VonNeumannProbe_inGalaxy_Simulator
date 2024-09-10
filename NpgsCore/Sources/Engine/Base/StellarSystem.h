@@ -41,7 +41,7 @@ public:
 
 public:
     StellarSystem() = default;
-    StellarSystem(const BaryCenter& SystemBary, const std::vector<Astro::Star>& Stars, const std::vector<Astro::Planet>& Planets = {});
+    StellarSystem(const BaryCenter& SystemBary, const std::vector<Astro::Star>& Stars = {}, const std::vector<Astro::Planet>& Planets = {});
     ~StellarSystem() = default;
 
 public:

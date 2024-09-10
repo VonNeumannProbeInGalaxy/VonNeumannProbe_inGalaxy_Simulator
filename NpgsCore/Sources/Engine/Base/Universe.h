@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <random>
 #include <vector>
@@ -25,13 +26,13 @@ public:
 
 private:
     void GenerateSlots(float DistMin, std::size_t NumSamples, float Density);
-    void OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots);
+    void OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>& StarFutures, std::vector<glm::vec3>& Slots);
 
 private:
     using NodeType = Octree<StellarSystem>::NodeType;
 
     std::mt19937                           _RandomEngine;
-    UniformIntDistribution<>               _SeedGenerator;
+    UniformIntDistribution<std::uint32_t>  _SeedGenerator;
     UniformRealDistribution<>              _CommonGenerator;
     std::unique_ptr<Octree<StellarSystem>> _Octree;
     ThreadPool*                            _ThreadPool;

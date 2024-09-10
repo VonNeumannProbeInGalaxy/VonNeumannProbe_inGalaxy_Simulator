@@ -1,10 +1,12 @@
 #pragma once
 
+#include <memory>
 #include <random>
 #include <tuple>
 #include <vector>
 
 #include "Engine/Base/StellarSystem.h"
+#include "Engine/Core/Modules/CivilizationGenerator.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Logger.h"
 #include "Engine/Core/Random.hpp"
@@ -14,7 +16,7 @@ _MODULES_BEGIN
 
 class NPGS_API OrbitalGenerator {
 public:
-    OrbitalGenerator() = default;
+    OrbitalGenerator() = delete;
     OrbitalGenerator(const std::seed_seq& SeedSequence, float AsteroidUpperLimit = 1e21f, float LifeOccurrenceProbatility = 0.0114514f, bool bContainUltravioletChz = false, bool bEnableAsiFilter = true);
     ~OrbitalGenerator() = default;
 
@@ -39,6 +41,8 @@ private:
     BernoulliDistribution<> _ScatteringProbability;
     BernoulliDistribution<> _WalkInProbability;
     UniformRealDistribution<> _CommonGenerator;
+
+    std::unique_ptr<CivilizationGenerator> _CivilizationGenerator;
 
     float _AsteroidUpperLimit;
     bool  _bContainUltravioletChz;

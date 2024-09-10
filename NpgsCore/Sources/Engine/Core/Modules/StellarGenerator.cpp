@@ -298,15 +298,15 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
     GenerateMagnetic(Star);
     GenerateSpin(Star);
 
-    float Mass          = static_cast<float>(Star.GetMass());
-    float Luminosity    = static_cast<float>(Star.GetLuminosity());
+    double Mass         = Star.GetMass();
+    double Luminosity   = Star.GetLuminosity();
     float Radius        = Star.GetRadius();
     float MagneticField = Star.GetMagneticField();
 
-    float MinCoilMass = std::max(
-        6.6156e14f  * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 1.5f) * std::pow(_CoilTempLimit, -6.0f) * std::pow(_dEpdM, -1.0f),
-        2.34865e29f * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 2.0f) * std::pow(_CoilTempLimit, -8.0f) * std::pow(Mass,   -1.0f)
-    );
+    float MinCoilMass = static_cast<float>(std::max(
+        6.6156e14  * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 1.5) * std::pow(_CoilTempLimit, -6.0f) * std::pow(_dEpdM, -1.0f),
+        2.34865e29 * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 2.0) * std::pow(_CoilTempLimit, -8.0f) * std::pow(Mass,   -1.0)
+    ));
 
     Star.SetMinCoilMass(MinCoilMass);
 

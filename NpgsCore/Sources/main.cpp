@@ -7,17 +7,17 @@ int main() {
 
     Logger::Init();
 
-    //std::println("Enter the star count:");
-    //std::size_t StarCount = 0;
-    //std::cin >> StarCount;
+    std::println("Enter the star count:");
+    std::size_t StarCount = 0;
+    std::cin >> StarCount;
 
-    //std::println("Enter the seed:");
-    //unsigned Seed = 0;
-    //std::cin >> Seed;
+    std::println("Enter the seed:");
+    unsigned Seed = 0;
+    std::cin >> Seed;
 
-    //Universe Space(Seed, StarCount);
-    //Space.FillUniverse();
-    //Space.CountStars();
+    Universe Space(Seed, StarCount);
+    Space.FillUniverse();
+    Space.CountStars();
 
     //std::random_device rd;
     //unsigned seed = rd();//147895346;//153597433;//2652587822;//2325366524//396747571;//2643113656;//1388840952;//1179680896;// 1039595763;// 874872082;
@@ -41,9 +41,6 @@ int main() {
     //auto end = std::chrono::high_resolution_clock::now();
     //std::chrono::duration<double> elapsed = end - start;
     //std::println("Elapsed time: {}s", elapsed.count());
-
-    std::cout << sizeof(UniformIntDistribution<>) << std::endl;
-    std::cout << sizeof(std::mt19937_64) << std::endl;
 
     return 0;
 }

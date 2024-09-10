@@ -1,6 +1,7 @@
 #include "OrbitalGenerator.h"
 
 #include <cmath>
+#include <cstdint>
 #include <algorithm>
 #include <array>
 #include <iterator>
@@ -26,9 +27,18 @@ OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float Aste
     _ScatteringProbability(0.15),
     _WalkInProbability(0.8),
     _CommonGenerator(0.0f, 1.0f),
+
+    _CivilizationGenerator(nullptr),
+
     _AsteroidUpperLimit(AsteroidUpperLimit),
     _bContainUltravioletChz(bContainUltravioletChz)
-{}
+{
+    std::vector<std::uint32_t> Seeds;
+    SeedSequence.param(Seeds.begin());
+    std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
+    std::seed_seq ShuffledSeeds(Seeds.begin(), Seeds.end());
+    _CivilizationGenerator = std::make_unique<CivilizationGenerator>(ShuffledSeeds, LifeOccurrenceProbability, bEnableAsiFilter);
+}
 
 void OrbitalGenerator::GenerateOrbitals(StellarSystem& System) {}
 
@@ -769,6 +779,7 @@ void OrbitalGenerator::GenOrbitElements(StellarSystem::OrbitalElements& Orbit) {
 }
 
 void TransformData(StellarSystem& System, std::vector<Astro::Planet>& Planets, std::vector<StellarSystem::OrbitalElements>& Orbits) {
+    System.PlanetData().reserve(Planets.size());
     std::transform(
         std::make_move_iterator(Planets.begin()),
         std::make_move_iterator(Planets.end()),
@@ -778,6 +789,7 @@ void TransformData(StellarSystem& System, std::vector<Astro::Planet>& Planets, s
         }
     );
 
+    System.OrbitData().reserve(Orbits.size());
     std::transform(
         std::make_move_iterator(Orbits.begin()),
         std::make_move_iterator(Orbits.end()),

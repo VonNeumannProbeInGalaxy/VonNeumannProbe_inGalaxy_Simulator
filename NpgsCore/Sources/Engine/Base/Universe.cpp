@@ -1,6 +1,5 @@
 #include "Universe.h"
 
-#include <cstdint>
 #include <algorithm>
 #include <array>
 #include <format>
@@ -91,6 +90,7 @@ void Universe::FillUniverse() {
     //     }
     // };
 
+    // 生成基础属性
     auto GenerateBasicProperties = [&, this](std::size_t NumStars) -> void {
         for (std::size_t i = 0; i != NumStars; ++i) {
             std::size_t ThreadId = i % Generators.size();
@@ -98,6 +98,7 @@ void Universe::FillUniverse() {
         }
     };
 
+    // 特殊星基础参数设置
     if (_NumExtraGiants != 0) {
         Generators.clear();
         CreateGenerators(kGiant, 1.0, 30.0);
@@ -142,9 +143,9 @@ void Universe::FillUniverse() {
     NpgsCoreInfo("Basic properties generation completed.");
     NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
 
-    std::vector<std::future<Npgs::Astro::Star>> StarFutures;
+    std::vector<std::future<Astro::Star>> StarFutures;
     for (std::size_t i = 0; i != _NumStars; ++i) {
-        StarFutures.emplace_back(_ThreadPool->Commit([&, i]() -> Npgs::Astro::Star {
+        StarFutures.emplace_back(_ThreadPool->Commit([&, i]() -> Astro::Star {
             std::size_t ThreadId = i % Generators.size();
             auto& Properties = BasicProperties[i]; 
             // auto Properties = Futures[i].get();
@@ -155,18 +156,6 @@ void Universe::FillUniverse() {
     for (auto& Future : StarFutures) {
         Future.wait();
     }
-
-    std::vector<Astro::Star> Stars;
-
-    Stars.reserve(StarFutures.size());
-    std::transform(
-        std::make_move_iterator(StarFutures.begin()),
-        std::make_move_iterator(StarFutures.end()),
-        std::back_inserter(Stars),
-        [](std::future<Astro::Star>&& Future) -> Astro::Star {
-            return Future.get();
-        }
-    );
 
 #ifdef OUTPUT_DATA
     NpgsCoreInfo("Outputing data...");
@@ -180,9 +169,9 @@ void Universe::FillUniverse() {
 
     NpgsCoreInfo("Linking positions in octree to stars...");
     _StellarSystems.reserve(_NumStars);
-    std::shuffle(Stars.begin(), Stars.end(), _RandomEngine);
+    std::shuffle(StarFutures.begin(), StarFutures.end(), _RandomEngine);
     std::vector<glm::vec3> Slots;
-    OctreeLinkToStellarSystems(Stars, Slots);
+    OctreeLinkToStellarSystems(StarFutures, Slots);
 
     NpgsCoreInfo("Sorting...");
     std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
@@ -670,8 +659,9 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
     float RootRadius = LeafSize * static_cast<float>(std::pow(2, Exponent));
 
     _Octree = std::make_unique<Octree<StellarSystem>>(glm::vec3(0.0), RootRadius);
-    _Octree->BuildEmptyTree(LeafRadius);
+    _Octree->BuildEmptyTree(LeafRadius); // 快速构建一个空树，每个叶子节点作为一个格子，用于生成恒星
 
+    // 遍历八叉树，将距离原点大于半径的叶子节点标记为无效，保证恒星只会在范围内生成
     _Octree->Traverse([Radius](NodeType& Node) -> void {
         if (Node.IsLeafNode() && glm::length(Node.GetCenter()) > Radius) {
             Node.SetValidation(false);
@@ -687,11 +677,13 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
         }
     };
 
+    // 使用栅格采样，八叉树的每个叶子节点作为一个格子，在这个格子中生成一个恒星
     while (ValidLeafCount != NumSamples) {
         LeafNodes.clear();
         _Octree->Traverse(CollectLeafNodes);
-        std::shuffle(LeafNodes.begin(), LeafNodes.end(), _RandomEngine);
+        std::shuffle(LeafNodes.begin(), LeafNodes.end(), _RandomEngine); // 打乱叶子节点，保证随机性
 
+        // 删除或收回叶子节点，直到格子数量等于目标数量
         if (ValidLeafCount < NumSamples) {
             for (auto* Node : LeafNodes) {
                 glm::vec3 Center = Node->GetCenter();
@@ -717,41 +709,44 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
         }
     }
 
-    UniformRealDistribution<float> Dist(-LeafRadius, LeafRadius - DistMin);
-
-    _Octree->Traverse([&Dist, LeafRadius, DistMin, this](NodeType& Node) -> void {
+    UniformRealDistribution<> Offset(-LeafRadius, LeafRadius - DistMin); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
+    // 遍历八叉树，为每个有效的叶子节点生成一个恒星
+    _Octree->Traverse([&Offset, LeafRadius, DistMin, this](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
             glm::vec3 Center(Node.GetCenter());
             glm::vec3 StellarSlot(
-                Center.x + Dist(_RandomEngine),
-                Center.y + Dist(_RandomEngine),
-                Center.z + Dist(_RandomEngine)
+                Center.x + Offset(_RandomEngine),
+                Center.y + Offset(_RandomEngine),
+                Center.z + Offset(_RandomEngine)
             );
             Node.AddPoint(StellarSlot);
         }
     });
 
-    NodeType* Node = _Octree->Find(glm::vec3(LeafRadius), [](const NodeType& Node) -> bool {
+    // 为了保证恒星系统的唯一性，将原点附近所在的叶子节点作为存储家园恒星系统的结点
+    // 寻找包含了 (LeafRadius, LeafRadius, LeafRadius) 的叶子节点，将这个格子存储的位置修改为原点
+    NodeType* HomeNode = _Octree->Find(glm::vec3(LeafRadius), [](const NodeType& Node) -> bool {
         return (Node.IsLeafNode());
     });
 
-    Node->RemoveStorage();
-    Node->AddPoint(glm::vec3(0.0f));
+    // 把最靠近原点的格子存储旧的位置点删除，加入家园恒星系统
+    HomeNode->RemoveStorage();
+    HomeNode->AddPoint(glm::vec3(0.0f));
 }
 
-void Universe::OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots) {
+void Universe::OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>& StarFutures, std::vector<glm::vec3>& Slots) {
     std::size_t Index = 0;
+
     _Octree->Traverse([&](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
             for (const auto& Point : Node.GetPoints()) {
+                // 为每个格子里的行星系统生成黄道面法向量
                 float Theta = _CommonGenerator(_RandomEngine) * 2.0f * kPi;
                 float Phi   = _CommonGenerator(_RandomEngine) * kPi;
-                StellarSystem NewSystem;
-                NewSystem.SetBaryPosition(Point);
-                NewSystem.SetBaryNormal(glm::vec2(Theta, Phi));
-                NewSystem.SetBaryDistanceRank(0);
-                NewSystem.SetBaryName("");
-                NewSystem.StarData().emplace_back(std::move(Stars[Index]));
+                StellarSystem::BaryCenter BaryCenter{ Point, {Theta, Phi}, 0, "" };
+                StellarSystem NewSystem(BaryCenter);
+                NewSystem.StarData().emplace_back(StarFutures.front().get());
+                StarFutures.erase(StarFutures.begin());
                 _StellarSystems.emplace_back(std::move(NewSystem));
                 Node.AddLink(&_StellarSystems[Index]);
                 Slots.emplace_back(Point);
