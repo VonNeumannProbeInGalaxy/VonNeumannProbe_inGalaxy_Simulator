@@ -55,26 +55,26 @@ StellarGenerator::StellarGenerator(const std::seed_seq& SeedSequence, GenOption 
     :
     _RandomEngine(SeedSequence),
     _MagneticGenerators({
-        std::make_shared<UniformRealDistribution<float>>(std::log10(500.0f), std::log10(3000.0f)),
-        std::make_shared<UniformRealDistribution<float>>(1.0f, 3.0f),
-        std::make_shared<UniformRealDistribution<float>>(0.0f, 1.0f),
-        std::make_shared<UniformRealDistribution<float>>(3.0f, 4.0f),
-        std::make_shared<UniformRealDistribution<float>>(-1.0f, 0.0f),
-        std::make_shared<UniformRealDistribution<float>>(2.0f, 3.0f),
-        std::make_shared<UniformRealDistribution<float>>(0.5f, 4.5f),
-        std::make_shared<UniformRealDistribution<float>>(1e9f, 1e11f)
+        UniformRealDistribution<>(std::log10(500.0f), std::log10(3000.0f)),
+        UniformRealDistribution<>(1.0f, 3.0f),
+        UniformRealDistribution<>(0.0f, 1.0f),
+        UniformRealDistribution<>(3.0f, 4.0f),
+        UniformRealDistribution<>(-1.0f, 0.0f),
+        UniformRealDistribution<>(2.0f, 3.0f),
+        UniformRealDistribution<>(0.5f, 4.5f),
+        UniformRealDistribution<>(1e9f, 1e11f)
     }),
 
     _FeHGenerators({
-        std::make_shared<LogNormalDistribution<float>>(-0.3f, 0.5f),
-        std::make_shared<NormalDistribution<float>>(-0.3f, 0.15f),
-        std::make_shared<NormalDistribution<float>>(-0.08f, 0.12f),
-        std::make_shared<NormalDistribution<float>>(0.05f, 0.16f)
+        std::make_shared<LogNormalDistribution<>>(-0.3f, 0.5f),
+        std::make_shared<NormalDistribution<>>(-0.3f, 0.15f),
+        std::make_shared<NormalDistribution<>>(-0.08f, 0.12f),
+        std::make_shared<NormalDistribution<>>(0.05f, 0.16f)
     }),
 
     _SpinGenerators({
-        std::make_shared<UniformRealDistribution<float>>(3.0f, 5.0f),
-        std::make_shared<UniformRealDistribution<float>>(0.001f, 0.998f)
+        UniformRealDistribution<>(3.0f, 5.0f),
+        UniformRealDistribution<>(0.001f, 0.998f)
     }),
 
     _AgeGenerator(AgeLowerLimit, AgeUpperLimit),
@@ -152,7 +152,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
         break;
     }
 
-    Distribution<float>* FeHGenerator = nullptr;
+    Distribution<>* FeHGenerator = nullptr;
 
     float FeHLowerLimit = _FeHLowerLimit;
     float FeHUpperLimit = _FeHUpperLimit;
@@ -1073,7 +1073,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
 }
 
 void StellarGenerator::GenerateMagnetic(Astro::Star& StarData) {
-    Distribution<float>* MagneticGenerator = nullptr;
+    Distribution<>* MagneticGenerator = nullptr;
 
     StellarClass::StarType StarType = StarData.GetStellarClass().GetStarType();
     float MassSol = static_cast<float>(StarData.GetMass() / kSolarMass);
@@ -1084,11 +1084,11 @@ void StellarGenerator::GenerateMagnetic(Astro::Star& StarData) {
     switch (StarType) {
     case StellarClass::StarType::kNormalStar: {
         if (MassSol >= 0.075f && MassSol < 0.33f) {
-            MagneticGenerator = _MagneticGenerators[0].get();
+            MagneticGenerator = &_MagneticGenerators[0];
         } else if (MassSol >= 0.33f && MassSol < 0.6f) {
-            MagneticGenerator = _MagneticGenerators[1].get();
+            MagneticGenerator = &_MagneticGenerators[1];
         } else if (MassSol >= 0.6f && MassSol < 1.5f) {
-            MagneticGenerator = _MagneticGenerators[2].get();
+            MagneticGenerator = &_MagneticGenerators[2];
         } else if (MassSol >= 1.5f && MassSol < 20.0f) {
             auto SpectralType = StarData.GetStellarClass().Data();
             if (EvolutionPhase == Astro::Star::Phase::kMainSequence &&
@@ -1096,17 +1096,17 @@ void StellarGenerator::GenerateMagnetic(Astro::Star& StarData) {
                 SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_B)) {
                 BernoulliDistribution ProbabilityGenerator(0.15); //  p 星的概率
                 if (ProbabilityGenerator(_RandomEngine)) {
-                    MagneticGenerator = _MagneticGenerators[3].get();
+                    MagneticGenerator = &_MagneticGenerators[3];
                     SpectralType.SpecialMark |= std::to_underlying(StellarClass::SpecialPeculiarities::kCode_p);
                     StarData.SetStellarClass(StellarClass(StellarClass::StarType::kNormalStar, SpectralType));
                 } else {
-                    MagneticGenerator = _MagneticGenerators[4].get();
+                    MagneticGenerator = &_MagneticGenerators[4];
                 }
             } else {
-                MagneticGenerator = _MagneticGenerators[4].get();
+                MagneticGenerator = &_MagneticGenerators[4];
             }
         } else {
-            MagneticGenerator = _MagneticGenerators[5].get();
+            MagneticGenerator = &_MagneticGenerators[5];
         }
 
         MagneticField = std::pow(10.0f, MagneticGenerator->Generate(_RandomEngine)) / 10000;
@@ -1114,12 +1114,12 @@ void StellarGenerator::GenerateMagnetic(Astro::Star& StarData) {
         break;
     }
     case StellarClass::StarType::kWhiteDwarf: {
-        MagneticGenerator = _MagneticGenerators[6].get();
+        MagneticGenerator = &_MagneticGenerators[6];
         MagneticField     = std::pow(10.0f, MagneticGenerator->Generate(_RandomEngine));
         break;
     }
     case StellarClass::StarType::kNeutronStar: {
-        MagneticGenerator = _MagneticGenerators[7].get();
+        MagneticGenerator = &_MagneticGenerators[7];
         float B0          = MagneticGenerator->Generate(_RandomEngine);
         MagneticField     = B0 / (std::pow((0.034f * StarData.GetAge() / 1e4f), 1.17f) + 0.84f);
         break;
@@ -1171,7 +1171,7 @@ void StellarGenerator::GenerateSpin(Astro::Star& StarData) {
         break;
     }
     case StellarClass::StarType::kWhiteDwarf: {
-        SpinGenerator = _SpinGenerators[0].get();
+        SpinGenerator = &_SpinGenerators[0];
         Spin = std::pow(10.0f, SpinGenerator->Generate(_RandomEngine));
         break;
     }
@@ -1180,7 +1180,7 @@ void StellarGenerator::GenerateSpin(Astro::Star& StarData) {
         break;
     }
     case StellarClass::StarType::kBlackHole: { // 此处表示无量纲自旋参数，而非自转时间
-        SpinGenerator = _SpinGenerators[1].get();
+        SpinGenerator = &_SpinGenerators[1];
         Spin = SpinGenerator->Generate(_RandomEngine);
         break;
     }

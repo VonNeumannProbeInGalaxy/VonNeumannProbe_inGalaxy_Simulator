@@ -10,6 +10,12 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
+struct ComplexMass {
+    boost::multiprecision::uint128_t Z;
+    boost::multiprecision::uint128_t Volatiles;
+    boost::multiprecision::uint128_t EnergeticNuclide;
+};
+
 class NPGS_API Planet : public CelestialBody {
 public:
     enum class PlanetType : int {
@@ -29,18 +35,13 @@ public:
         kArtificalOrbitalStructureCluster = 13
     };
 
-    struct ComplexMass {
-        boost::multiprecision::uint128_t Z;
-        boost::multiprecision::uint128_t Volatiles;
-        boost::multiprecision::uint128_t EnergeticNuclide;
-    };
-
     struct ExtendedProperties {
-        ComplexMass AtmosphereMass;
-        ComplexMass CoreMass;
-        ComplexMass OceanMass;
-        boost::multiprecision::uint128_t CrustMineralMass;
-        bool bIsMigrated;
+        ComplexMass AtmosphereMass;                        // 大气层质量，单位 kg
+        ComplexMass CoreMass;                              // 核心质量，单位 kg
+        ComplexMass OceanMass;                             // 海洋质量，单位 kg
+        boost::multiprecision::uint128_t CrustMineralMass; // 地壳矿脉质量，单位 kg
+        float BalanceTemperature;                          // 平衡温度，单位 K
+        bool  bIsMigrated;                                 // 是否为迁移行星
 
         PlanetType Type;
         std::shared_ptr<Civilization> CivilizationData;
@@ -62,6 +63,7 @@ public:
     Planet& SetOceanMass(const ComplexMass& OceanMass);
     Planet& SetCrustMineralMass(float CrustMineralMass);
     Planet& SetCrustMineralMass(const boost::multiprecision::uint128_t& CrustMineralMass);
+    Planet& SetBalanceTemperature(float BalanceTemperature);
     Planet& SetMigration(bool bIsMigrated);
     Planet& SetPlanetType(PlanetType Type);
 
@@ -120,6 +122,7 @@ public:
     const boost::multiprecision::uint128_t GetMass() const;
     float GetCrustMineralMassFloat() const;
     const boost::multiprecision::uint128_t& GetCrustMineralMass() const;
+    float GetBalanceTemperature() const;
     bool  GetMigration() const;
     PlanetType GetPlanetType() const;
 
@@ -127,6 +130,52 @@ public:
 
 private:
     ExtendedProperties _PlanetExtraProperties{};
+};
+
+class NPGS_API AsteroidCluster : public AstroObject {
+public:
+    enum class AsteroidType {
+        kRocky,
+        kIce
+    };
+
+    struct BasicProperties {
+        ComplexMass Mass;
+    };
+
+public:
+    AsteroidCluster() = default;
+    AsteroidCluster(const BasicProperties& Properties);
+    ~AsteroidCluster() = default;
+
+    // Setters
+    // Setters for BasicProperties
+    // ---------------------------
+    AsteroidCluster& SetMass(const ComplexMass& Mass);
+
+    // Setters for every mass property
+    // -------------------------------
+    AsteroidCluster& SetMassZ(float MassZ);
+    AsteroidCluster& SetMassZ(const boost::multiprecision::uint128_t& MassZ);
+    AsteroidCluster& SetMassVolatiles(float MassVolatiles);
+    AsteroidCluster& SetMassVolatiles(const boost::multiprecision::uint128_t& MassVolatiles);
+    AsteroidCluster& SetMassEnergeticNuclide(float MassEnergeticNuclide);
+    AsteroidCluster& SetMassEnergeticNuclide(const boost::multiprecision::uint128_t& MassEnergeticNuclide);
+
+    // Getters
+    // Getters for BasicProperties
+    // ---------------------------
+    float GetMassFloat() const;
+    const boost::multiprecision::uint128_t GetMass() const;
+    float GetMassZFloat() const;
+    const boost::multiprecision::uint128_t& GetMassZ() const;
+    float GetMassVolatilesFloat() const;
+    const boost::multiprecision::uint128_t& GetMassVolatiles() const;
+    float GetMassEnergeticNuclideFloat() const;
+    const boost::multiprecision::uint128_t& GetMassEnergeticNuclide() const;
+
+private:
+    BasicProperties _Properties{};
 };
 
 _ASTRO_END

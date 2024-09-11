@@ -3,7 +3,6 @@
 #include <cmath>
 #include <cstdint>
 #include <algorithm>
-#include <array>
 #include <iterator>
 #include <memory>
 #include <print>
@@ -22,6 +21,7 @@ static void TransformData(StellarSystem& System, std::vector<Astro::Planet>& Pla
 OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float AsteroidUpperLimit, float LifeOccurrenceProbability, bool bContainUltravioletChz, bool bEnableAsiFilter)
     :
     _RandomEngine(SeedSequence),
+    _RingsProbabilities({ BernoulliDistribution<>(0.5), BernoulliDistribution<>(0.2) }),
     _AsteroidBeltProbability(0.4),
     _MigrationProbability(0.1),
     _ScatteringProbability(0.15),
@@ -124,7 +124,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
         return Sum + std::pow(10.0f, Num);
     });
 
-    Astro::Planet::ComplexMass CoreMass;
+    Astro::ComplexMass CoreMass;
     boost::multiprecision::uint128_t InitialCoreMassSol;
     std::vector<float> CoreMassesSol(PlanetCount); // 初始核心质量，单位太阳
     for (std::size_t i = 0; i < PlanetCount; ++i) {
@@ -409,8 +409,9 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
             PrevMainSequenceBalanceTemp = std::pow(PrevMainSequenceBalanceTemp, 0.25f);
             CommonFactor = PrevMainSequenceBalanceTemp * 4.638759e16f;
+            Planets[i].SetBalanceTemperature(PrevMainSequenceBalanceTemp);
 
-            // 开除大籍
+            // 开除大行星
             if (NewCoreMassesSol[i] * kSolarMass < _AsteroidUpperLimit || Planets[i].GetPlanetType() == Astro::Planet::PlanetType::kRockyAsteroidCluster) {
                 if (NewCoreMassesSol[i] * kSolarMass < 1e19f) {
                     Orbits.erase(Orbits.begin() + i);
@@ -720,9 +721,34 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                     }
 
                     if (bCanHasLife) {
-
+                        _CivilizationGenerator->GenerateCivilization(Planets[i], Star.GetAge(), PoyntingVector, Planets[i].GetRadius(), Planets[i].GetMassFloat());
                     }
                 }
+
+                // 计算行星环
+                PlanetMass      = Planets[i].GetMassFloat();
+                PlanetMassEarth = PlanetMass / kEarthMass;
+                float LiquidRocheRadius = 2.02373e7f * std::pow(PlanetMassEarth, 1.0f / 3.0f);
+                float HillSphereRadius  = Orbits[i].SemiMajorAxis * std::pow(3.0f * PlanetMass / static_cast<float>(Star.GetMass()), 1.0f / 3.0f);
+
+                Distribution<double>* RingsProbability = nullptr;
+                if (LiquidRocheRadius < HillSphereRadius / 3.0f && LiquidRocheRadius > Planets[i].GetRadius()) {
+                    if (PlanetType == Astro::Planet::PlanetType::kGasGiant ||
+                        PlanetType == Astro::Planet::PlanetType::kIceGiant) {
+                        RingsProbability = &_RingsProbabilities[0];
+                    } else {
+                        RingsProbability = &_RingsProbabilities[1];
+                    }
+                }
+
+                if (RingsProbability != nullptr) {
+                    if (RingsProbability->Generate(_RandomEngine)) {
+                        float Exponent  = -4.0f + _CommonGenerator(_RandomEngine) * 4.0f;
+                        float Random    = std::pow(10.0f, Exponent);
+                        float RingsMass = Random * 1e20f * std::pow(LiquidRocheRadius / 1e8f, 2.0f);
+                    }
+                }
+
 #ifdef DEBUG_OUTPUT
                 auto& Planet                         = Planets[i];
                 PlanetType                           = Planet.GetPlanetType();
@@ -764,7 +790,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
     for (std::size_t i = 0; i < PlanetCount; ++i) {
         Planets[i].SetAge(Star.GetAge() - 1e6f);
-        Orbits[i].Objects.emplace_back(std::make_unique<Astro::Planet>(Planets[i]));
+        Orbits[i].Objects.emplace_back(std::make_shared<Astro::Planet>(Planets[i]));
     }
 
     TransformData(System, Planets, Orbits);

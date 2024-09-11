@@ -43,6 +43,11 @@ inline Planet& Planet::SetCrustMineralMass(const boost::multiprecision::uint128_
     return *this;
 }
 
+inline Planet& Planet::SetBalanceTemperature(float BalanceTemperature) {
+    _PlanetExtraProperties.BalanceTemperature = BalanceTemperature;
+    return *this;
+}
+
 inline Planet& Planet::SetMigration(bool bIsMigrated) {
     _PlanetExtraProperties.bIsMigrated = bIsMigrated;
     return *this;
@@ -146,7 +151,7 @@ inline float Planet::GetAtmosphereMassFloat() const {
     return ConvertToFloat(GetAtmosphereMass());
 }
 
-inline const Planet::ComplexMass& Planet::GetAtmosphereMassStruct() const {
+inline const ComplexMass& Planet::GetAtmosphereMassStruct() const {
     return _PlanetExtraProperties.AtmosphereMass;
 }
 
@@ -182,7 +187,7 @@ inline float Planet::GetCoreMassFloat() const {
     return ConvertToFloat(GetCoreMass());
 }
 
-inline const Planet::ComplexMass& Planet::GetCoreMassStruct() const {
+inline const ComplexMass& Planet::GetCoreMassStruct() const {
     return _PlanetExtraProperties.CoreMass;
 }
 
@@ -218,7 +223,7 @@ inline float Planet::GetOceanMassFloat() const {
     return ConvertToFloat(GetOceanMass());
 }
 
-inline const Planet::ComplexMass& Planet::GetOceanMassStruct() const {
+inline const ComplexMass& Planet::GetOceanMassStruct() const {
     return _PlanetExtraProperties.OceanMass;
 }
 
@@ -266,6 +271,10 @@ inline const boost::multiprecision::uint128_t& Planet::GetCrustMineralMass() con
     return _PlanetExtraProperties.CrustMineralMass;
 }
 
+inline float Planet::GetBalanceTemperature() const {
+    return _PlanetExtraProperties.BalanceTemperature;
+}
+
 inline bool Planet::GetMigration() const {
     return _PlanetExtraProperties.bIsMigrated;
 }
@@ -276,6 +285,73 @@ inline Planet::PlanetType Planet::GetPlanetType() const {
 
 inline std::shared_ptr<Civilization>& Planet::CivilizationData() {
     return _PlanetExtraProperties.CivilizationData;
+}
+
+inline AsteroidCluster& AsteroidCluster::SetMass(const ComplexMass& Mass) {
+    _Properties.Mass = Mass;
+    return *this;
+}
+
+inline AsteroidCluster& AsteroidCluster::SetMassZ(float MassZ) {
+    _Properties.Mass.Z = boost::multiprecision::uint128_t(MassZ);
+    return *this;
+}
+
+inline AsteroidCluster& AsteroidCluster::SetMassZ(const boost::multiprecision::uint128_t& MassZ) {
+    _Properties.Mass.Z = MassZ;
+    return *this;
+}
+
+inline AsteroidCluster& AsteroidCluster::SetMassVolatiles(float MassVolatiles) {
+    _Properties.Mass.Volatiles = boost::multiprecision::uint128_t(MassVolatiles);
+    return *this;
+}
+
+inline AsteroidCluster& AsteroidCluster::SetMassVolatiles(const boost::multiprecision::uint128_t& MassVolatiles) {
+    _Properties.Mass.Volatiles = MassVolatiles;
+    return *this;
+}
+
+inline AsteroidCluster& AsteroidCluster::SetMassEnergeticNuclide(float MassEnergeticNuclide) {
+    _Properties.Mass.EnergeticNuclide = boost::multiprecision::uint128_t(MassEnergeticNuclide);
+    return *this;
+}
+
+inline AsteroidCluster& AsteroidCluster::SetMassEnergeticNuclide(const boost::multiprecision::uint128_t& MassEnergeticNuclide) {
+    _Properties.Mass.EnergeticNuclide = MassEnergeticNuclide;
+    return *this;
+}
+
+inline float AsteroidCluster::GetMassFloat() const {
+    return ConvertToFloat(GetMass());
+}
+
+inline const boost::multiprecision::uint128_t AsteroidCluster::GetMass() const {
+    return GetMassZ() + GetMassVolatiles() + GetMassEnergeticNuclide();
+}
+
+inline float AsteroidCluster::GetMassZFloat() const {
+    return ConvertToFloat(GetMassZ());
+}
+
+inline const boost::multiprecision::uint128_t& AsteroidCluster::GetMassZ() const {
+    return _Properties.Mass.Z;
+}
+
+inline float AsteroidCluster::GetMassVolatilesFloat() const {
+    return ConvertToFloat(GetMassVolatiles());
+}
+
+inline const boost::multiprecision::uint128_t& AsteroidCluster::GetMassVolatiles() const {
+    return _Properties.Mass.Volatiles;
+}
+
+inline float AsteroidCluster::GetMassEnergeticNuclideFloat() const {
+    return ConvertToFloat(GetMassEnergeticNuclide());
+}
+
+inline const boost::multiprecision::uint128_t& AsteroidCluster::GetMassEnergeticNuclide() const {
+    return _Properties.Mass.EnergeticNuclide;
 }
 
 _ASTRO_END

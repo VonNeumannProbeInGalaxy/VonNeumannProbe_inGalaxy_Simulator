@@ -105,9 +105,9 @@ public:
 
 private:
     std::mt19937 _RandomEngine;
-    std::array<std::shared_ptr<Distribution<>>, 8> _MagneticGenerators;
+    std::array<UniformRealDistribution<>,       8> _MagneticGenerators;
     std::array<std::shared_ptr<Distribution<>>, 4> _FeHGenerators;
-    std::array<std::shared_ptr<Distribution<>>, 2> _SpinGenerators;
+    std::array<UniformRealDistribution<>,       2> _SpinGenerators;
     UniformRealDistribution<> _AgeGenerator;
     UniformRealDistribution<> _CommonGenerator;
     UniformRealDistribution<> _LogMassGenerator;

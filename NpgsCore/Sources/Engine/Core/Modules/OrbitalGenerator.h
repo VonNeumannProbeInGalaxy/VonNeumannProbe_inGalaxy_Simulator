@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <random>
 #include <tuple>
@@ -36,11 +37,12 @@ private:
     };
 
     std::mt19937 _RandomEngine;
-    BernoulliDistribution<> _AsteroidBeltProbability;
-    BernoulliDistribution<> _MigrationProbability;
-    BernoulliDistribution<> _ScatteringProbability;
-    BernoulliDistribution<> _WalkInProbability;
-    UniformRealDistribution<> _CommonGenerator;
+    std::array<BernoulliDistribution<>, 2> _RingsProbabilities;
+    BernoulliDistribution<>                _AsteroidBeltProbability;
+    BernoulliDistribution<>                _MigrationProbability;
+    BernoulliDistribution<>                _ScatteringProbability;
+    BernoulliDistribution<>                _WalkInProbability;
+    UniformRealDistribution<>              _CommonGenerator;
 
     std::unique_ptr<CivilizationGenerator> _CivilizationGenerator;
 

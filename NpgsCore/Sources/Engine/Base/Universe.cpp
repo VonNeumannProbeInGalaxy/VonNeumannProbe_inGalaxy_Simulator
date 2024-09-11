@@ -727,11 +727,9 @@ void Universe::OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>&
     _Octree->Traverse([&](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
             for (const auto& Point : Node.GetPoints()) {
-                // 为每个格子里的行星系统生成黄道面法向量
-                float Theta = _CommonGenerator(_RandomEngine) * 2.0f * kPi;
-                float Phi   = _CommonGenerator(_RandomEngine) * kPi;
-                StellarSystem NewSystem({ Point, { Theta, Phi }, 0, "" });
+                StellarSystem NewSystem({ Point, {}, 0, "" });
                 NewSystem.StarData().emplace_back(StarFutures.back().get());
+                NewSystem.SetBaryNormal(NewSystem.StarData().front().GetNormal());
                 StarFutures.pop_back();
                 _StellarSystems.emplace_back(std::move(NewSystem));
                 Node.AddLink(&_StellarSystems[Index]);

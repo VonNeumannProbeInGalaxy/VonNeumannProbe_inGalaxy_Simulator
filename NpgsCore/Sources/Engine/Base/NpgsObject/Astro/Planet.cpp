@@ -7,5 +7,9 @@ Planet::Planet(const CelestialBody::BasicProperties& PlanetBasicProperties, cons
     : CelestialBody(PlanetBasicProperties), _PlanetExtraProperties(PlanetExtraProperties)
 {}
 
+AsteroidCluster::AsteroidCluster(const BasicProperties& Properties)
+    : _Properties(Properties)
+{}
+
 _ASTRO_END
 _NPGS_END
