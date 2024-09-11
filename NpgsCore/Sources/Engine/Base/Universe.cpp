@@ -147,7 +147,7 @@ void Universe::FillUniverse() {
     for (std::size_t i = 0; i != _NumStars; ++i) {
         StarFutures.emplace_back(_ThreadPool->Commit([&, i]() -> Astro::Star {
             std::size_t ThreadId = i % Generators.size();
-            auto& Properties = BasicProperties[i]; 
+            auto& Properties = BasicProperties[i];
             // auto Properties = Futures[i].get();
             return Generators[ThreadId].GenerateStar(Properties);
         }));
@@ -159,7 +159,7 @@ void Universe::FillUniverse() {
 
 #ifdef OUTPUT_DATA
     NpgsCoreInfo("Outputing data...");
-    return Stars;
+    return;
 #endif // OUTPUT_DATA
 
     NpgsCoreInfo("Star detail interpolation completed.");
@@ -726,7 +726,7 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
     // 为了保证恒星系统的唯一性，将原点附近所在的叶子节点作为存储家园恒星系统的结点
     // 寻找包含了 (LeafRadius, LeafRadius, LeafRadius) 的叶子节点，将这个格子存储的位置修改为原点
     NodeType* HomeNode = _Octree->Find(glm::vec3(LeafRadius), [](const NodeType& Node) -> bool {
-        return (Node.IsLeafNode());
+        return Node.IsLeafNode();
     });
 
     // 把最靠近原点的格子存储旧的位置点删除，加入家园恒星系统
@@ -743,10 +743,9 @@ void Universe::OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>&
                 // 为每个格子里的行星系统生成黄道面法向量
                 float Theta = _CommonGenerator(_RandomEngine) * 2.0f * kPi;
                 float Phi   = _CommonGenerator(_RandomEngine) * kPi;
-                StellarSystem::BaryCenter BaryCenter{ Point, {Theta, Phi}, 0, "" };
-                StellarSystem NewSystem(BaryCenter);
-                NewSystem.StarData().emplace_back(StarFutures.front().get());
-                StarFutures.erase(StarFutures.begin());
+                StellarSystem NewSystem({ Point, { Theta, Phi }, 0, "" });
+                NewSystem.StarData().emplace_back(StarFutures.back().get());
+                StarFutures.erase(std::prev(StarFutures.end(), 1));
                 _StellarSystems.emplace_back(std::move(NewSystem));
                 Node.AddLink(&_StellarSystems[Index]);
                 Slots.emplace_back(Point);
