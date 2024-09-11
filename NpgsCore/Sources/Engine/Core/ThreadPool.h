@@ -18,7 +18,8 @@ public:
     template <typename Func, typename... Args>
     auto Commit(Func&& Pred, Args&&... Params) {
         using ReturnType = std::invoke_result_t<Func, Args...>;
-        auto Task = std::make_shared<std::packaged_task<ReturnType()>>(std::bind(std::forward<Func>(Pred), std::forward<Args>(Params)...));
+        auto Task = std::make_shared<std::packaged_task<ReturnType()>>(
+            std::bind(std::forward<Func>(Pred), std::forward<Args>(Params)...));
         std::future<ReturnType> Future = Task->get_future();
         {
             std::unique_lock<std::mutex> Mutex(_Mutex);
