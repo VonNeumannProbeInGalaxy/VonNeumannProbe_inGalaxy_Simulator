@@ -6,6 +6,7 @@ int main() {
     using namespace Npgs::Modules;
 
     Logger::Init();
+    ThreadPool::Init();
 
     std::println("Enter the star count:");
     std::size_t StarCount = 0;
@@ -41,6 +42,8 @@ int main() {
     //auto end = std::chrono::high_resolution_clock::now();
     //std::chrono::duration<double> elapsed = end - start;
     //std::println("Elapsed time: {}s", elapsed.count());
+
+    std::system("pause");
 
     return 0;
 }

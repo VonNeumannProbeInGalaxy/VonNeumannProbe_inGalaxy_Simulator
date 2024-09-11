@@ -1,36 +1,12 @@
 #include "ThreadPool.h"
 
+#include <cstdint>
 #define NOMINMAX
 #include <Windows.h>
 
 _NPGS_BEGIN
 
-static int GetPhysicalCoreCount();
-static void SetThreadAffinity(std::thread& Thread, std::size_t CoreId);
-
-ThreadPool* ThreadPool::GetInstance() {
-    std::call_once(_kOnce, Init);
-    return _kInstance;
-}
-
-void ThreadPool::Init() {
-    if (_kInstance == nullptr) {
-        _kPhysicalCoreCount = GetPhysicalCoreCount();
-        _kInstance = new ThreadPool();
-    }
-}
-
-void ThreadPool::Destroy() {
-    if (_kInstance != nullptr) {
-        _kInstance->Terminate();
-        delete _kInstance;
-        _kInstance = nullptr;
-    }
-}
-
-int ThreadPool::GetMaxThreadCount() {
-    return _kPhysicalCoreCount;
-}
+static int CountPhysicalCore();
 
 void ThreadPool::Terminate() {
     {
@@ -43,6 +19,40 @@ void ThreadPool::Terminate() {
             Thread.join();
         }
     }
+}
+
+ThreadPool* ThreadPool::GetInstance() {
+    std::call_once(_kOnce, Init);
+    return _kInstance;
+}
+
+void ThreadPool::Init() {
+    if (_kInstance == nullptr) {
+        _kMaxThreadCount    = std::thread::hardware_concurrency();
+        _kPhysicalCoreCount = CountPhysicalCore();
+        _kInstance          = new ThreadPool();
+        std::atexit(Destroy);
+    }
+}
+
+void ThreadPool::Destroy() {
+    if (_kInstance != nullptr) {
+        _kInstance->Terminate();
+        delete _kInstance;
+        _kInstance = nullptr;
+    }
+}
+
+void ThreadPool::ChangeHyperThread() {
+    _kHyperThreadIndex == 0 ? _kHyperThreadIndex = 1 : _kHyperThreadIndex = 0;
+}
+
+int ThreadPool::GetMaxThreadCount() {
+    return _kMaxThreadCount;
+}
+
+int ThreadPool::GetPhysicalCoreCount() {
+    return _kPhysicalCoreCount;
 }
 
 ThreadPool::ThreadPool() : _Terminate(false) {
@@ -68,11 +78,24 @@ ThreadPool::ThreadPool() : _Terminate(false) {
     }
 }
 
+void ThreadPool::SetThreadAffinity(std::thread& Thread, std::size_t CoreId) {
+    HANDLE Handle = Thread.native_handle();
+    DWORD_PTR Mask = 0;
+    if (_kHyperThreadIndex == 0) {
+        Mask = static_cast<DWORD_PTR>(Bit(CoreId * 2));
+    } else {
+        Mask = static_cast<DWORD_PTR>(Bit(CoreId * 2) + 1);
+    }
+    SetThreadAffinityMask(Handle, Mask);
+}
+
 ThreadPool* ThreadPool::_kInstance = nullptr;
 std::once_flag ThreadPool::_kOnce;
+int ThreadPool::_kMaxThreadCount    = 0;
 int ThreadPool::_kPhysicalCoreCount = 0;
+int ThreadPool::_kHyperThreadIndex  = 0;
 
-int GetPhysicalCoreCount() {
+int CountPhysicalCore() {
     DWORD Length = 0;
     GetLogicalProcessorInformationEx(RelationProcessorCore, nullptr, &Length);
     std::vector<std::uint8_t> Buffer(Length);
@@ -90,12 +113,6 @@ int GetPhysicalCoreCount() {
     }
 
     return CoreCount;
-}
-
-void SetThreadAffinity(std::thread& Thread, std::size_t CoreId) {
-    HANDLE Handle = Thread.native_handle();
-    DWORD_PTR Mask = static_cast<DWORD_PTR>(Bit(CoreId * 2));
-    SetThreadAffinityMask(Handle, Mask);
 }
 
 _NPGS_END

@@ -1,5 +1,6 @@
 #include "Universe.h"
 
+#include <cstdlib>
 #include <algorithm>
 #include <array>
 #include <format>
@@ -10,7 +11,7 @@
 #include <print>
 #include <sstream>
 #include <string>
-#include <thread>
+#include <utility>
 
 #define ENABLE_LOGGER
 // #define OUTPUT_DATA
@@ -55,10 +56,9 @@ Universe::~Universe() {
 }
 
 void Universe::FillUniverse() {
-    int MaxThread = _ThreadPool->GetMaxThreadCount();
+    int MaxThread = _ThreadPool->GetPhysicalCoreCount();
 
     NpgsCoreInfo("Initializating and generating basic properties...");
-    // std::vector<std::future<Modules::StellarGenerator::BasicProperties>> Futures;
     std::vector<Modules::StellarGenerator> Generators;
     std::vector<Modules::StellarGenerator::BasicProperties> BasicProperties;
 
@@ -80,15 +80,6 @@ void Universe::FillUniverse() {
             Generators.emplace_back(SeedSequence, Option, _UniverseAge, MassLowerLimit, MassUpperLimit, MassDistribution, AgeLowerLimit, AgeUpperLimit, AgeDistribution, FeHLowerLimit, FeHUpperLimit, FeHDistribution);
         }
     };
-
-    // auto GenerateBasicProperties = [&, this](std::size_t NumStars) -> void {
-    //     for (std::size_t i = 0; i != NumStars; ++i) {
-    //         Futures.emplace_back(_ThreadPool->Commit([&, i]() -> Npgs::Modules::StellarGenerator::BasicProperties {
-    //             std::size_t ThreadId = i % Generators.size();
-    //             return Generators[ThreadId].GenBasicProperties();
-    //         }));
-    //     }
-    // };
 
     // 生成基础属性
     auto GenerateBasicProperties = [&, this](std::size_t NumStars) -> void {
@@ -133,23 +124,16 @@ void Universe::FillUniverse() {
 
     Generators.clear();
     CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 0.075f);
-    // CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 8.0f, 300.0f);
     GenerateBasicProperties(NumCommonStars);
-
-    // for (auto& Future : Futures) {
-    //     Future.wait();
-    // }
 
     NpgsCoreInfo("Basic properties generation completed.");
     NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
 
-    std::vector<std::future<Astro::Star>> StarFutures;
+    std::vector<std::future<Astro::Star>> StarFutures(_NumStars);
     for (std::size_t i = 0; i != _NumStars; ++i) {
-        StarFutures.emplace_back(_ThreadPool->Commit([&, i]() -> Astro::Star {
+        StarFutures[i] = std::move(_ThreadPool->Commit([&, i]() -> Astro::Star {
             std::size_t ThreadId = i % Generators.size();
-            auto& Properties = BasicProperties[i];
-            // auto Properties = Futures[i].get();
-            return Generators[ThreadId].GenerateStar(Properties);
+            return Generators[ThreadId].GenerateStar(std::move(BasicProperties[i]));
         }));
     }
 
@@ -157,13 +141,16 @@ void Universe::FillUniverse() {
         Future.wait();
     }
 
+    BasicProperties.clear();
+
 #ifdef OUTPUT_DATA
     NpgsCoreInfo("Outputing data...");
+    std::system("pause");
     return;
 #endif // OUTPUT_DATA
 
     NpgsCoreInfo("Star detail interpolation completed.");
-    NpgsCoreInfo("Building stellar octree...");
+    NpgsCoreInfo("Building stellar octree in 8 threads...");
     GenerateSlots(0.1f, _NumStars, 0.004f);
     NpgsCoreInfo("Stellar octree has been built.");
 
@@ -745,7 +732,7 @@ void Universe::OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>&
                 float Phi   = _CommonGenerator(_RandomEngine) * kPi;
                 StellarSystem NewSystem({ Point, { Theta, Phi }, 0, "" });
                 NewSystem.StarData().emplace_back(StarFutures.back().get());
-                StarFutures.erase(std::prev(StarFutures.end(), 1));
+                StarFutures.pop_back();
                 _StellarSystems.emplace_back(std::move(NewSystem));
                 Node.AddLink(&_StellarSystems[Index]);
                 Slots.emplace_back(Point);

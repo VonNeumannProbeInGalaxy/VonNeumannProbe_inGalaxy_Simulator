@@ -15,12 +15,6 @@ _NPGS_BEGIN
 
 class NPGS_API ThreadPool {
 public:
-    static ThreadPool* GetInstance();
-    static void Init();
-    static void Destroy();
-    static int GetMaxThreadCount();
-
-public:
     template <typename Func, typename... Args>
     auto Commit(Func&& Pred, Args&&... Params) {
         using ReturnType = std::invoke_result_t<Func, Args...>;
@@ -36,9 +30,18 @@ public:
 
     void Terminate();
 
+    static ThreadPool* GetInstance();
+    static void Init();
+    static void Destroy();
+    static void ChangeHyperThread();
+    static int  GetMaxThreadCount();
+    static int  GetPhysicalCoreCount();
+
 private:
     ThreadPool();
     ~ThreadPool() {}
+
+    static void SetThreadAffinity(std::thread& Thread, std::size_t CoreId);
 
 private:
     std::vector<std::thread>          _Threads;
@@ -49,7 +52,9 @@ private:
 
     static ThreadPool*                _kInstance;
     static std::once_flag             _kOnce;
+    static int                        _kMaxThreadCount;
     static int                        _kPhysicalCoreCount;
+    static int                        _kHyperThreadIndex;
 };
 
 _NPGS_END

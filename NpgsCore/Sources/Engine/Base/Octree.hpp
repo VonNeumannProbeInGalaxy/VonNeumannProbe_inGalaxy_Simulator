@@ -11,6 +11,7 @@
 #include <glm/glm.hpp>
 
 #include "Engine/Core/Base.h"
+#include "Engine/Core/ThreadPool.h"
 
 _NPGS_BEGIN
 
@@ -141,7 +142,9 @@ public:
 
 public:
     Octree(const glm::vec3& Center, float Radius, int MaxDepth = 8)
-        : _Root(std::make_unique<NodeType>(Center, Radius, nullptr)), _MaxDepth(MaxDepth)
+        :
+        _Root(std::make_unique<NodeType>(Center, Radius, nullptr)),
+        _ThreadPool(ThreadPool::GetInstance()), _MaxDepth(MaxDepth)
     {}
 
     void BuildEmptyTree(float LeafRadius) {
@@ -189,6 +192,7 @@ private:
             return;
         }
 
+        std::vector<std::future<void>> Futures;
         float NextRadius = Node->GetRadius() * 0.5f;
         for (int i = 0; i != 8; ++i) {
             glm::vec3 Offset(
@@ -197,7 +201,15 @@ private:
                 (i & 4 ? 1 : -1) * NextRadius
             );
             Node->GetNextMutable(i) = std::make_unique<NodeType>(Node->GetCenter() + Offset, NextRadius, Node);
-            BuildEmptyTreeImpl(Node->GetNextMutable(i).get(), LeafRadius, Depth - 1);
+            if (Depth == static_cast<int>(std::ceil(std::log2(_Root->GetRadius() / LeafRadius)))) {
+                Futures.emplace_back(_ThreadPool->Commit(&Octree::BuildEmptyTreeImpl, this, Node->GetNextMutable(i).get(), LeafRadius, Depth - 1));
+            } else {
+                BuildEmptyTreeImpl(Node->GetNextMutable(i).get(), LeafRadius, Depth - 1);
+            }
+        }
+
+        for (auto& Future : Futures) {
+            Future.get();
         }
     }
 
@@ -337,6 +349,7 @@ private:
 
 private:
     std::unique_ptr<NodeType> _Root;
+    ThreadPool* _ThreadPool;
     int  _MaxDepth;
 };
 

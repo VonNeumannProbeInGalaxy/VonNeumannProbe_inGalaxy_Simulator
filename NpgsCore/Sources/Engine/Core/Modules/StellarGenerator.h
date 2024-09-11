@@ -63,7 +63,8 @@ public:
 public:
     BasicProperties GenBasicProperties();
     Astro::Star GenerateStar();
-    Astro::Star GenerateStar(BasicProperties& Properties);
+    Astro::Star GenerateStar(BasicProperties&  Properties);
+    Astro::Star GenerateStar(BasicProperties&& Properties);
 
 private:
     template <typename CsvType>

@@ -187,10 +187,14 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
 
 Astro::Star StellarGenerator::GenerateStar() {
     BasicProperties BasicData = GenBasicProperties();
-    return GenerateStar(BasicData);
+    return GenerateStar(std::move(BasicData));
 }
 
 Astro::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
+    return GenerateStar(std::move(Properties));
+}
+
+Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
     Astro::Star Star(Properties);
     std::vector<double> StarData;
 
