@@ -126,7 +126,6 @@ void Universe::FillUniverse() {
     CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 0.075f);
     GenerateBasicProperties(NumCommonStars);
 
-    NpgsCoreInfo("Basic properties generation completed.");
     NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
 
     std::vector<std::future<Astro::Star>> StarFutures(_NumStars);
@@ -152,9 +151,8 @@ void Universe::FillUniverse() {
     NpgsCoreInfo("Star detail interpolation completed.");
     NpgsCoreInfo("Building stellar octree in 8 threads...");
     GenerateSlots(0.1f, _NumStars, 0.004f);
-    NpgsCoreInfo("Stellar octree has been built.");
 
-    NpgsCoreInfo("Linking positions in octree to stars...");
+    NpgsCoreInfo("Linking positions in octree to stellar systems...");
     _StellarSystems.reserve(_NumStars);
     std::shuffle(StarFutures.begin(), StarFutures.end(), _RandomEngine);
     std::vector<glm::vec3> Slots;
@@ -174,23 +172,26 @@ void Universe::FillUniverse() {
             return glm::length(Point1) < glm::length(Point2);
         });
         std::ptrdiff_t Offset = it - Slots.begin();
-        Stream << "S-" << std::setfill('0') << std::setw(8) << std::to_string(Offset);
-        Name = Stream.str();
+        Stream << std::setfill('0') << std::setw(8) << std::to_string(Offset);
+        Name = "SYSTEM-" + Stream.str();
         System.SetBaryName(Name).SetBaryDistanceRank(Offset);
-        Stream.str("");
-        Stream.clear();
 
         auto& Stars = System.StarData();
-        if (Stars.size() != 1) {
-            std::sort(Stars.begin(), Stars.end(), [](const Astro::Star& Star1, const Astro::Star& Star2) -> bool {
-                return Star1.GetMass() > Star2.GetMass();
+        if (Stars.size() > 1) {
+            std::sort(Stars.begin(), Stars.end(), [](const std::unique_ptr<Astro::Star>& Star1, std::unique_ptr<Astro::Star>& Star2) -> bool {
+                return Star1->GetMass() > Star2->GetMass();
             });
 
             char Rank = 'A';
             for (auto& Star : Stars) {
-                Star.SetName(Star.GetName() + " " + Rank);
+                Star->SetName("STAR-" + Stream.str() + " " + Rank);
             }
+        } else {
+            Stars.front()->SetName("STAR-" + Stream.str());
         }
+
+        Stream.str("");
+        Stream.clear();
     }
 
     NpgsCoreInfo("Reset home stellar system...");
@@ -210,11 +211,15 @@ void Universe::FillUniverse() {
     HomeNode->AddPoint(glm::vec3(0.0f));
     HomeSystem->SetBaryNormal(glm::vec2(0.0f));
 
+    for (auto& Star : HomeSystem->StarData()) {
+        Star->SetNormal(glm::vec3(0.0f));
+    }
+
     NpgsCoreInfo("Star generation completed.");
 
     for (auto& System : _StellarSystems) {
         for (auto& Star : System.StarData()) {
-            _StarPtrs.emplace_back(&Star);
+            _StarPtrs.emplace_back(Star.get());
         }
     }
 
@@ -224,13 +229,13 @@ void Universe::FillUniverse() {
 void Universe::ReplaceStar(std::size_t DistanceRank, const Astro::Star& StarData) {
     for (auto& System : _StellarSystems) {
         if (DistanceRank == System.GetBaryDistanceRank()) {
-            auto& Star = System.StarData();
-            if (Star.size() != 1) {
-                return;
+            auto& Stars = System.StarData();
+            if (Stars.size() > 1) {
+                return; // TODO: 处理双星
             }
 
-            Star.clear();
-            Star.emplace_back(StarData);
+            Stars.clear();
+            Stars.emplace_back(std::make_unique<Astro::Star>(StarData));
         }
     }
 }
@@ -727,11 +732,14 @@ void Universe::OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>&
     _Octree->Traverse([&](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
             for (const auto& Point : Node.GetPoints()) {
-                StellarSystem NewSystem({ Point, {}, 0, "" });
-                NewSystem.StarData().emplace_back(StarFutures.back().get());
-                NewSystem.SetBaryNormal(NewSystem.StarData().front().GetNormal());
+                StellarSystem::BaryCenter NewBary(Point, glm::vec2(0.0f), 0, "");
+                StellarSystem NewSystem(NewBary);
+                NewSystem.StarData().emplace_back(std::make_unique<Astro::Star>(StarFutures.back().get()));
+                NewSystem.SetBaryNormal(NewSystem.StarData().front()->GetNormal());
                 StarFutures.pop_back();
+
                 _StellarSystems.emplace_back(std::move(NewSystem));
+
                 Node.AddLink(&_StellarSystems[Index]);
                 Slots.emplace_back(Point);
                 ++Index;

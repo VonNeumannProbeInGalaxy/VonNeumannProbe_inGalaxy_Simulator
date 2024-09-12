@@ -14,7 +14,7 @@ CivilizationGenerator::CivilizationGenerator(const std::seed_seq& SeedSequence, 
     _CommonGenerator(0.0f, 1.0f)
 {}
 
-void CivilizationGenerator::GenerateCivilization(Astro::Planet& Planet, double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass) {
+void CivilizationGenerator::GenerateCivilization(Astro::Planet* Planet, double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass) {
     if (_LifeOccurrenceProbability(_RandomEngine)) {
         float Random1 = 0.5f + _CommonGenerator(_RandomEngine) + 1.5f;
         auto LifePhase = static_cast<Civilization::LifePhase>(std::min(4, std::max(1, static_cast<int>(Random1 * StarAge / (5 * std::pow(10, 8))))));
@@ -23,14 +23,14 @@ void CivilizationGenerator::GenerateCivilization(Astro::Planet& Planet, double S
             float Random2 = 1.0f + _CommonGenerator(_RandomEngine) * 999.0f;
             if (_AsiFiltedProbability(_RandomEngine)) {
                 LifePhase = Civilization::LifePhase::kSatTeeTouyButByAsi; // 被 ASI 去城市化了
-                Planet.SetCrustMineralMass(Random2 * 1e16f + Planet.GetCrustMineralMassFloat());
+                Planet->SetCrustMineralMass(Random2 * 1e16f + Planet->GetCrustMineralMassFloat());
             } else {
-                Planet.SetCrustMineralMass(Random2 * 1e15f + Planet.GetCrustMineralMassFloat());
+                Planet->SetCrustMineralMass(Random2 * 1e15f + Planet->GetCrustMineralMassFloat());
             }
         }
 
         const std::array<float, 7>* ProbabilityListPtr = nullptr;
-        auto& CivilizationData = Planet.CivilizationData();
+        auto& CivilizationData = Planet->CivilizationData();
         CivilizationData = std::make_shared<Civilization>();
 
         int IntegerPart = 0;
