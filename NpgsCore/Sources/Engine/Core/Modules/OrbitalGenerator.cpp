@@ -9,7 +9,7 @@
 
 #include "Engine/Core/Constants.h"
 
-//#define DEBUG_OUTPUT
+#define DEBUG_OUTPUT
 
 _NPGS_BEGIN
 _MODULES_BEGIN
@@ -641,11 +641,69 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                 Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kIcePlanet);
             }
 
+            // 计算行星环
+            PlanetType = Planets[i]->GetPlanetType();
+            float PlanetMass = Planets[i]->GetMassFloat();
+            PlanetMassEarth = PlanetMass / kEarthMass;
+            float LiquidRocheRadius = 2.02373e7f * std::pow(PlanetMassEarth, 1.0f / 3.0f);
+            float HillSphereRadius = Orbits[i].SemiMajorAxis * std::pow(3.0f * PlanetMass / static_cast<float>(Star->GetMass()), 1.0f / 3.0f);
+
+            Distribution<double>* RingsProbability = nullptr;
+            if (LiquidRocheRadius < HillSphereRadius / 3.0f && LiquidRocheRadius > Planets[i]->GetRadius()) {
+                if (PlanetType == Astro::Planet::PlanetType::kGasGiant ||
+                    PlanetType == Astro::Planet::PlanetType::kIceGiant) {
+                    RingsProbability = &_RingsProbabilities[0];
+                } else {
+                    RingsProbability = &_RingsProbabilities[1];
+                }
+            }
+
+            if (RingsProbability != nullptr) {
+                if (RingsProbability->Generate(_RandomEngine)) {
+                    Astro::AsteroidCluster::AsteroidType AsteroidType{};
+                    float Exponent = -4.0f + _CommonGenerator(_RandomEngine) * 4.0f;
+                    float Random = std::pow(10.0f, Exponent);
+                    float RingsMass = Random * 1e20f * std::pow(LiquidRocheRadius / 1e8f, 2.0f);
+                    float RingsMassVolatiles = 0.0f;
+                    float RingsMassEnergeticNuclide = 0.0f;
+                    float RingsMassZ = 0.0f;
+                    if (Orbits[i].SemiMajorAxis / kAuToMeter >= FrostLineAu && std::to_underlying(Star->GetEvolutionPhase()) < 1) {
+                        RingsMassEnergeticNuclide = RingsMass * 5e-6f * 0.064f;
+                        RingsMassVolatiles = RingsMass * 0.064f;
+                        RingsMassZ = RingsMass - RingsMassVolatiles - RingsMassEnergeticNuclide;
+                        AsteroidType = Astro::AsteroidCluster::AsteroidType::kIce;
+                    } else {
+                        RingsMassEnergeticNuclide = RingsMass * 5e-6f;
+                        RingsMassZ = RingsMass - RingsMassEnergeticNuclide;
+                        AsteroidType = Astro::AsteroidCluster::AsteroidType::kRocky;
+                    }
+
+                    StellarSystem::OrbitalElements RingsOrbit;
+                    float Inaccuracy = -0.1f + _CommonGenerator(_RandomEngine) * 0.2f;
+                    RingsOrbit.SemiMajorAxis = 0.6f * LiquidRocheRadius * (1.0f + Inaccuracy);
+                    GenOrbitElements(RingsOrbit);
+
+                    auto& RingsPtr = AsteroidClusters.emplace_back(std::make_unique<Astro::AsteroidCluster>());
+                    RingsPtr->SetMassEnergeticNuclide(RingsMassEnergeticNuclide);
+                    RingsPtr->SetMassVolatiles(RingsMassVolatiles);
+                    RingsPtr->SetMassZ(RingsMassZ);
+
+                    RingsOrbit.ParentBody = Planets[i].get();
+                    RingsOrbit.AsteroidClusers.emplace_back(RingsPtr.get());
+                    Orbits.emplace_back(RingsOrbit);
+                }
+            }
+
+            // 计算自转周期、扁率和平衡温度
+            PlanetType = Planets[i]->GetPlanetType();
+
+            float TimeToTidalLock = 0.0f;
+
             // 计算类地行星、大气层和生命
             if (Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kNormalStar) {
                 PlanetType = Planets[i]->GetPlanetType();
+                PlanetMass = Planets[i]->GetMassFloat();
                 PlanetMassEarth = Planets[i]->GetMassFloat() / kEarthMass;
-                float PlanetMass = PlanetMassEarth * kEarthMass;
                 float CoreMass = Planets[i]->GetCoreMassFloat();
                 float Term1 = 1.6567e15f * static_cast<float>(std::pow(Star->GetLuminosity() / (4.0 * kPi * kStefanBoltzmann * std::pow(Orbits[i].SemiMajorAxis, 2.0f)), 0.25));
                 float Term2 = PlanetMass / Planets[i]->GetRadius();
@@ -716,9 +774,8 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                     }
                 }
 
-                // 生成声明和文明
+                // 生成生命和文明
                 PlanetType = Planets[i]->GetPlanetType();
-
                 if (PlanetType == Astro::Planet::PlanetType::kTerra) {
                     bool bCanHasLife = false;
                     if (Star->GetAge() > 5e8) {
@@ -736,59 +793,6 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
                     if (bCanHasLife) {
                         _CivilizationGenerator->GenerateCivilization(Planets[i].get(), Star->GetAge(), PoyntingVector, Planets[i]->GetRadius(), Planets[i]->GetMassFloat());
-                    }
-                }
-
-                // 计算行星环
-                PlanetMass      = Planets[i]->GetMassFloat();
-                PlanetMassEarth = PlanetMass / kEarthMass;
-                float LiquidRocheRadius = 2.02373e7f * std::pow(PlanetMassEarth, 1.0f / 3.0f);
-                float HillSphereRadius  = Orbits[i].SemiMajorAxis * std::pow(3.0f * PlanetMass / static_cast<float>(Star->GetMass()), 1.0f / 3.0f);
-
-                Distribution<double>* RingsProbability = nullptr;
-                if (LiquidRocheRadius < HillSphereRadius / 3.0f && LiquidRocheRadius > Planets[i]->GetRadius()) {
-                    if (PlanetType == Astro::Planet::PlanetType::kGasGiant ||
-                        PlanetType == Astro::Planet::PlanetType::kIceGiant) {
-                        RingsProbability = &_RingsProbabilities[0];
-                    } else {
-                        RingsProbability = &_RingsProbabilities[1];
-                    }
-                }
-
-                if (RingsProbability != nullptr) {
-                    if (RingsProbability->Generate(_RandomEngine)) {
-                        Astro::AsteroidCluster::AsteroidType AsteroidType{};
-                        float Exponent                  = -4.0f + _CommonGenerator(_RandomEngine) * 4.0f;
-                        float Random                    = std::pow(10.0f, Exponent);
-                        float RingsMass                 = Random * 1e20f * std::pow(LiquidRocheRadius / 1e8f, 2.0f);
-                        float RingsMassVolatiles        = 0.0f;
-                        float RingsMassEnergeticNuclide = 0.0f;
-                        float RingsMassZ                = 0.0f;
-                        if (Orbits[i].SemiMajorAxis / kAuToMeter >= FrostLineAu && EvolutionPhase < 1) {
-                            RingsMassEnergeticNuclide = RingsMass * 5e-6f * 0.064f;
-                            RingsMassVolatiles = RingsMass * 0.064f;
-                            RingsMassZ = RingsMass - RingsMassVolatiles - RingsMassEnergeticNuclide;
-                            AsteroidType = Astro::AsteroidCluster::AsteroidType::kIce;
-                        } else {
-                            RingsMassEnergeticNuclide = RingsMass * 5e-6f;
-                            RingsMassZ = RingsMass - RingsMassEnergeticNuclide;
-                            AsteroidType = Astro::AsteroidCluster::AsteroidType::kRocky;
-                        }
-
-                        StellarSystem::OrbitalElements RingsOrbit;
-                        float Inaccuracy = -0.1f + _CommonGenerator(_RandomEngine) * 0.2f;
-                        RingsOrbit.SemiMajorAxis = 0.6f * LiquidRocheRadius * (1.0f + Inaccuracy);
-                        GenOrbitElements(RingsOrbit);
-
-                        Astro::AsteroidCluster Rings;
-                        Rings.SetMassEnergeticNuclide(RingsMassEnergeticNuclide);
-                        Rings.SetMassVolatiles(RingsMassVolatiles);
-                        Rings.SetMassZ(RingsMassZ);
-
-                        RingsOrbit.ParentBody = Planets[i].get();
-                        RingsOrbit.AsteroidClusers.emplace_back(&Rings);
-                        //AsteroidClusters.emplace_back(Rings);
-                        //Orbits.emplace_back(RingsOrbit);
                     }
                 }
 

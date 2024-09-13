@@ -13,8 +13,8 @@
 #include <string>
 #include <utility>
 
+#define OUTPUT_DATA
 #define ENABLE_LOGGER
-// #define OUTPUT_DATA
 #include "Engine/Core/Modules/OrbitalGenerator.h"
 #include "Engine/Core/Modules/StellarClass.h"
 #include "Engine/Core/Modules/StellarGenerator.h"
@@ -144,11 +144,20 @@ void Universe::FillUniverse() {
 
 #ifdef OUTPUT_DATA
     NpgsCoreInfo("Outputing data...");
-    std::system("pause");
+    std::vector<Astro::Star>* Stars = new std::vector<Astro::Star>;
+    std::transform(StarFutures.begin(), StarFutures.end(), std::back_inserter(*Stars),
+        [](std::future<Astro::Star>& Future) -> Astro::Star {
+            return Future.get();
+        }
+    );
+
+    for (auto& Star : *Stars) {
+        _StarPtrs.emplace_back(&Star);
+    }
+
     return;
 #endif // OUTPUT_DATA
 
-    NpgsCoreInfo("Star detail interpolation completed.");
     NpgsCoreInfo("Building stellar octree in 8 threads...");
     GenerateSlots(0.1f, _NumStars, 0.004f);
 
@@ -286,6 +295,11 @@ void Universe::CountStars() const {
         const Astro::Star* Star = nullptr;
     };
 
+    struct MostOblateness {
+        float Oblateness{};
+        const Astro::Star* Star = nullptr;
+    };
+
     auto CountClass = [](const Modules::StellarClass::SpectralType& SpectralType, std::array<std::size_t, 7>& Type) {
         switch (SpectralType.HSpectralClass) {
         case Modules::StellarClass::SpectralClass::kSpectral_O:
@@ -357,6 +371,15 @@ void Universe::CountStars() const {
         }
     };
 
+    auto CountMostOblateness = [](const Astro::Star* Star, MostOblateness& MostOblatenessStar) {
+        float Oblateness = 0.0f;
+        Oblateness = Star->GetOblateness();
+        if (MostOblatenessStar.Oblateness < Oblateness) {
+            MostOblatenessStar.Oblateness = Oblateness;
+            MostOblatenessStar.Star = Star;
+        }
+    };
+
     MostLuminous MostLuminousMainSequence;
     MostLuminous MostLuminousSubgiant;
     MostLuminous MostLuminousGiant;
@@ -397,6 +420,14 @@ void Universe::CountStars() const {
     Oldest OldestHypergiant;
     Oldest OldestWolfRayet;
 
+    MostOblateness MostOblatenessMainSequence;
+    MostOblateness MostOblatenessSubgiant;
+    MostOblateness MostOblatenessGiant;
+    MostOblateness MostOblatenessBrightGiant;
+    MostOblateness MostOblatenessSupergiant;
+    MostOblateness MostOblatenessHypergiant;
+    MostOblateness MostOblatenessWolfRayet;
+
     for (const auto* Star : _StarPtrs) {
         const Modules::StellarClass& Class = Star->GetStellarClass();
         Modules::StellarClass::StarType StarType = Class.GetStarType();
@@ -429,6 +460,7 @@ void Universe::CountStars() const {
                 CountLargest(Star, LargestWolfRayet);
                 CountHottest(Star, HottestWolfRayet);
                 CountOldest(Star, OldestWolfRayet);
+                CountMostOblateness(Star, MostOblatenessWolfRayet);
                 continue;
             }
         }
@@ -441,6 +473,7 @@ void Universe::CountStars() const {
             CountLargest(Star, LargestHypergiant);
             CountHottest(Star, HottestHypergiant);
             CountOldest(Star, OldestHypergiant);
+            CountMostOblateness(Star, MostOblatenessHypergiant);
             continue;
         }
 
@@ -453,6 +486,7 @@ void Universe::CountStars() const {
             CountLargest(Star, LargestSupergiant);
             CountHottest(Star, HottestSupergiant);
             CountOldest(Star, OldestSupergiant);
+            CountMostOblateness(Star, MostOblatenessSupergiant);
             continue;
         }
 
@@ -463,6 +497,7 @@ void Universe::CountStars() const {
             CountLargest(Star, LargestBrightGiant);
             CountHottest(Star, HottestBrightGiant);
             CountOldest(Star, OldestBrightGiant);
+            CountMostOblateness(Star, MostOblatenessBrightGiant);
             continue;
         }
 
@@ -473,6 +508,7 @@ void Universe::CountStars() const {
             CountLargest(Star, LargestGiant);
             CountHottest(Star, HottestGiant);
             CountOldest(Star, OldestGiant);
+            CountMostOblateness(Star, MostOblatenessGiant);
             continue;
         }
 
@@ -483,6 +519,7 @@ void Universe::CountStars() const {
             CountLargest(Star, LargestSubgiant);
             CountHottest(Star, HottestSubgiant);
             CountOldest(Star, OldestSubgiant);
+            CountMostOblateness(Star, MostOblatenessSubgiant);
             continue;
         }
 
@@ -493,6 +530,7 @@ void Universe::CountStars() const {
             CountLargest(Star, LargestMainSequence);
             CountHottest(Star, HottestMainSequence);
             CountOldest(Star, OldestMainSequence);
+            CountMostOblateness(Star, MostOblatenessMainSequence);
             continue;
         }
     }
@@ -500,7 +538,7 @@ void Universe::CountStars() const {
     auto FormatTitle = []() -> std::string {
         return std::format(
             "{:>6} {:>6} {:>8} {:>8} {:7} {:>5} {:>13} {:>7} {:>8} {:>8} {:>11} {:>8} {:>9} {:>5} {:>8} {:>8} {:>8} {:>15} {:>9} {:>8}",
-            "InMass", "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "SurfZ", "SurfNuc", "SurfVol", "Magnetic", "Lifetime", "Spin");
+            "InMass", "Mass", "Radius", "Age", "Class", "FeH", "Lum", "AbsMagn", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "SurfZ", "SurfNuc", "SurfVol", "Magnetic", "Lifetime", "Oblateness");
     };
 
     auto FormatInfo = [](const Astro::Star* Star) -> std::string {
@@ -508,7 +546,7 @@ void Universe::CountStars() const {
             return "No star generated.";
         }
 
-        return std::format("{:6.2f} {:6.2f} {:8.2f} {:8.2E} {:7} {:5.2f} {:13.4f} {:7.2f} {:8.1f} {:8.2E} {:11.2E} {:8.2E} {:9} {:5} {:8.2E} {:8.2E} {:8.2E} {:15.5f} {:9.2E} {:8.2E}",
+        return std::format("{:6.2f} {:6.2f} {:8.2f} {:8.2E} {:7} {:5.2f} {:13.4f} {:7.2f} {:8.1f} {:8.2E} {:11.2E} {:8.2E} {:9} {:5} {:8.2E} {:8.2E} {:8.2E} {:15.5f} {:9.2E} {:8.2f}",
             Star->GetInitialMass() / kSolarMass,
             Star->GetMass() / kSolarMass,
             Star->GetRadius() / kSolarRadius,
@@ -528,7 +566,7 @@ void Universe::CountStars() const {
             Star->GetSurfaceVolatiles(),
             Star->GetMagneticField(),
             Star->GetLifetime(),
-            Star->GetSpin()
+            Star->GetOblateness()
         );
     };
 
@@ -624,6 +662,21 @@ void Universe::CountStars() const {
     std::println("{}", FormatInfo(OldestSupergiant.Star));
     std::println("Oldest hypergiant star: Age: {}", OldestHypergiant.Age);
     std::println("{}", FormatInfo(OldestHypergiant.Star));
+    std::println("");
+    std::println("Most oblateness main sequence star: Oblateness: {}", MostOblatenessMainSequence.Oblateness);
+    std::println("{}", FormatInfo(MostOblatenessMainSequence.Star));
+    std::println("Most oblateness Wolf-Rayet star: Oblateness: {}", MostOblatenessWolfRayet.Oblateness);
+    std::println("{}", FormatInfo(MostOblatenessWolfRayet.Star));
+    std::println("Most oblateness subgiant star: Oblateness: {}", MostOblatenessSubgiant.Oblateness);
+    std::println("{}", FormatInfo(MostOblatenessSubgiant.Star));
+    std::println("Most oblateness giant star: Oblateness: {}", MostOblatenessGiant.Oblateness);
+    std::println("{}", FormatInfo(MostOblatenessGiant.Star));
+    std::println("Most oblateness bright giant star: Oblateness: {}", MostOblatenessBrightGiant.Oblateness);
+    std::println("{}", FormatInfo(MostOblatenessBrightGiant.Star));
+    std::println("Most oblateness supergiant star: Oblateness: {}", MostOblatenessSupergiant.Oblateness);
+    std::println("{}", FormatInfo(MostOblatenessSupergiant.Star));
+    std::println("Most oblateness hypergiant star: Oblateness: {}", MostOblatenessHypergiant.Oblateness);
+    std::println("{}", FormatInfo(MostOblatenessHypergiant.Star));
 
     std::size_t TotalMainSequence = 0;
     for (std::size_t Count : MainSequence) {

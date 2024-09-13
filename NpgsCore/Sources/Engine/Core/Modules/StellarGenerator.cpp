@@ -1150,20 +1150,22 @@ void StellarGenerator::GenerateSpin(Astro::Star& StarData) {
 
     switch (StarType) {
     case StellarClass::StarType::kNormalStar: {
-        float Base = 2.0f;
+        float Base = 1.0f + _CommonGenerator(_RandomEngine);
         if (StarData.GetStellarClass().Data().SpecialMark & std::to_underlying(StellarClass::SpecialPeculiarities::kCode_p)) {
-            UniformRealDistribution<float> Dist(2.0f, 8.0f);
-            Base = Dist(_RandomEngine);
+            Base *= 10;
         }
 
         float LgMass = std::log10(MassSol);
-        float Term1  = std::pow(10.0f, 4.81438f + 0.27978f * std::exp(LgMass) - 1.21782f * LgMass + 0.21678f * std::pow(LgMass, 2.0f));
+        float Term1  = 0.0f;
         float Term2  = 0.0f;
-        float Term3  = std::pow(2.0f, std::sqrt(Base * StarAge * 1e-9f));
+        float Term3  = std::pow(2.0f, std::sqrt(Base * (StarAge + 1e6f) * 1e-9f));
+
         if (MassSol <= 1.4f) {
-            Term2 = std::pow(RadiusSol / std::pow(MassSol, 0.9f), 1.5f);
+            Term1 = std::pow(10.0f, 30.893f - 25.34303f * std::exp(LgMass) + 21.7577f * LgMass + 7.34205f * std::pow(LgMass, 2.0f) + 0.12951f * std::pow(LgMass, 3.0f));
+            Term2 = std::pow(RadiusSol / std::pow(MassSol, 0.9f), 2.5f);
         } else {
-            Term2 = std::pow(RadiusSol / (1.1062f * std::pow(MassSol, 0.6f)), 1.5f);
+            Term1 = std::pow(10.0f, 28.0784f - 22.15753f * std::exp(LgMass) + 12.55134f * LgMass + 30.9045f * std::pow(LgMass, 2.0f) - 10.1479f * std::pow(LgMass, 3.0f) + 4.6894f * std::pow(LgMass, 4.0f));
+            Term2 = std::pow(RadiusSol / (1.1062f * std::pow(MassSol, 0.6f)), 2.5f);
         }
 
         Spin = Term1 * Term2 * Term3;
@@ -1187,6 +1189,12 @@ void StellarGenerator::GenerateSpin(Astro::Star& StarData) {
     default: {
         break;
     }
+    }
+
+    if (StarType != StellarClass::StarType::kBlackHole) {
+        float Oblateness = 4.0f * std::pow(kPi, 2.0f) * std::pow(StarData.GetRadius(), 3.0f);
+        Oblateness /= (std::pow(Spin, 2.0f) * kGravityConstant * static_cast<float>(StarData.GetMass()));
+        StarData.SetOblateness(Oblateness);
     }
 
     StarData.SetSpin(Spin);
