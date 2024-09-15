@@ -21,13 +21,13 @@ int main() {
     //Space.CountStars();
 
     std::random_device rd;
-    unsigned seed = rd();
+    unsigned seed = 2442947453;
     std::println("Seed: {}", seed);
     StellarGenerator sg({ seed }, Modules::StellarGenerator::GenOption::kNormal);
-    StellarGenerator::BasicProperties b{ 1.14624115e10f, 0.0f, 1.0f };
+    StellarGenerator::BasicProperties b{ 1.1463927e+38f, 0.0f, 1.0f };
     auto s = sg.GenerateStar(b);
 
-    OrbitalGenerator og({ seed }, 1e21f, 0.0f);
+    OrbitalGenerator og({ seed });
     StellarSystem ss;
     ss.StarData().push_back(std::make_unique<Astro::Star>(s));
     og.GeneratePlanets(ss);

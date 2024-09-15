@@ -15,7 +15,7 @@
 _NPGS_BEGIN
 _MODULES_BEGIN
 
-OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float AsteroidUpperLimit, float LifeOccurrenceProbability, bool bContainUltravioletChz, bool bEnableAsiFilter)
+OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float UniverseAge, float AsteroidUpperLimit, float LifeOccurrenceProbability, bool bContainUltravioletChz, bool bEnableAsiFilter)
     :
     _RandomEngine(SeedSequence),
     _RingsProbabilities({ BernoulliDistribution<>(0.5), BernoulliDistribution<>(0.2) }),
@@ -28,6 +28,7 @@ OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float Aste
     _CivilizationGenerator(nullptr),
 
     _AsteroidUpperLimit(AsteroidUpperLimit),
+    _UniverseAge(UniverseAge),
     _bContainUltravioletChz(bContainUltravioletChz)
 {
     std::vector<std::uint32_t> Seeds(SeedSequence.size());
@@ -201,7 +202,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
     // 计算原行星盘年龄
     float DiskAge = 8.15e6f + 8.3e5f * StarInitialMassSol - 33854 * std::pow(StarInitialMassSol, 2.0f) - 5.031e6f * std::log(StarInitialMassSol);
-    if (DiskAge >= Star->GetAge()) {
+    if (std::to_underlying(Star->GetEvolutionPhase()) <= 9 && DiskAge >= Star->GetAge()) {
         for (auto& Planet : Planets) {
             Planet->SetPlanetType(Astro::Planet::PlanetType::kRockyAsteroidCluster);
         }
@@ -542,6 +543,16 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
             ErasePlanets(StarRadiusMaxSol * kSolarRadius);
         }
 
+        // 判断冥府行星
+        for (std::size_t i = 0; i != PlanetCount; ++i) {
+            if ((Planets[i]->GetPlanetType() == Astro::Planet::PlanetType::kGasGiant || Planets[i]->GetPlanetType() == Astro::Planet::PlanetType::kIceGiant) &&
+                Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kWhiteDwarf && Orbits[i].SemiMajorAxis < 2.0f * StarRadiusMaxSol * kSolarRadius) {
+                Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kChthonian);
+                NewCoreMassesSol[i] = CoreMassesSol[i];
+                Planets[i]->SetRadius(kEarthRadius * 1.007f * std::pow(CoreMassesSol[i] * kSolarMassToEarth, 1.0f / 3.7f));
+            }
+        }
+
 #ifdef DEBUG_OUTPUT
         for (std::size_t i = 0; i < PlanetCount; ++i) {
             std::println("After migration: planet {} semi-major axis: {} AU, initial core mass: {} earth, new core mass: {} earth, core radius: {} earth, type: {}", i + 1, Orbits[i].SemiMajorAxis / kAuToMeter, CoreMassesSol[i] * kSolarMassToEarth, NewCoreMassesSol[i] * kSolarMassToEarth, Planets[i]->GetRadius() / kEarthRadius, std::to_underlying(Planets[i]->GetPlanetType()));
@@ -555,6 +566,20 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
         std::println("");
 #endif // DEBUG_OUTPUT
+
+        // 处理白矮星引力散射
+        for (std::size_t i = 0; i != PlanetCount; ++i) {
+            if (Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kWhiteDwarf && Star->GetAge() > 1e6) {
+                if (Planets[i]->GetPlanetType() == Astro::Planet::PlanetType::kRocky) {
+                    if (_ScatteringProbability(_RandomEngine)) {
+                        float Random = 4.0f + _CommonGenerator(_RandomEngine) * 16.0f; // 4.0 Rsun 高于洛希极限
+                        Orbits[i].SemiMajorAxis = Random * kSolarRadius;
+                        break;
+                    }
+                }
+            }
+        }
+
         // 计算最终质量
         for (std::size_t i = 0; i < PlanetCount; ++i) {
             float PlanetMassEarth = 0.0f;
@@ -567,14 +592,6 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                 Planets[i]->SetRadius(kEarthRadius * 1.3f * std::pow(CalcOceanicMass(i), 1.0f / 3.905f));
                 break;
             case Astro::Planet::PlanetType::kIceGiant:
-                if (Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kWhiteDwarf && Orbits[i].SemiMajorAxis < 2.0f * StarRadiusMaxSol * kSolarRadius) {
-                    Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kChthonian);
-                    NewCoreMassesSol[i] = CoreMassesSol[i];
-                    Planets[i]->SetRadius(kEarthRadius * 1.007f * std::pow(CoreMassesSol[i] * kSolarMassToEarth, 1.0f / 3.7f));
-                    PlanetMassEarth = CoreMassesSol[i] * kSolarMassToEarth;
-                    break;
-                }
-
                 if ((PlanetMassEarth = CalcIceGiantMass(i)) < 10.0f) {
                     Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kSubIceGiant);
                 }
@@ -585,14 +602,6 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                 }
                 break;
             case Astro::Planet::PlanetType::kGasGiant:
-                if (Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kWhiteDwarf && Orbits[i].SemiMajorAxis < 2.0f * StarRadiusMaxSol * kSolarRadius) {
-                    Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kChthonian);
-                    NewCoreMassesSol[i] = CoreMassesSol[i];
-                    Planets[i]->SetRadius(kEarthRadius * 1.007f * std::pow(CoreMassesSol[i] * kSolarMassToEarth, 1.0f / 3.7f));
-                    PlanetMassEarth = CoreMassesSol[i] * kSolarMassToEarth;
-                    break;
-                }
-
                 PlanetMassEarth = CalcGasGiantMass(i);
                 break;
             case Astro::Planet::PlanetType::kRockyAsteroidCluster:
@@ -606,16 +615,6 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
             }
 
             PlanetType = Planets[i]->GetPlanetType();
-
-            if (Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kWhiteDwarf && Star->GetAge() > 1e6) {
-                // 处理白矮星引力散射
-                if (Planets[i]->GetPlanetType() == Astro::Planet::PlanetType::kRocky) {
-                    if (_ScatteringProbability(_RandomEngine)) {
-                        float Random = 4.0f + _CommonGenerator(_RandomEngine) * 16.0f; // 4.0 Rsun 高于洛希极限
-                        Orbits[i].SemiMajorAxis = Random * kSolarRadius;
-                    }
-                }
-            }
 
             // 计算最终半径
             if (PlanetType == Astro::Planet::PlanetType::kIceGiant ||
@@ -883,9 +882,19 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
             }
 
             // 计算平衡温度
+            PlanetType = Planets[i]->GetPlanetType();
             float BalanceTemperature = std::pow((PoyntingVector * (1.0f - Albedo)) / (4.0f * kStefanBoltzmann * Emissivity), 0.25f);
-            if (BalanceTemperature >= 2700) { // 烧似了
+            float CosmosMicrowaveBackground = (3.76119e10f) / _UniverseAge;
+            if (BalanceTemperature < CosmosMicrowaveBackground) {
+                BalanceTemperature = CosmosMicrowaveBackground;
+            }
+
+            if (PlanetType != Astro::Planet::PlanetType::kRockyAsteroidCluster &&
+                PlanetType != Astro::Planet::PlanetType::kRockyIceAsteroidCluster &&
+                BalanceTemperature >= 2700) { // 烧似了
                 Planets.erase(Planets.begin() + i);
+                CoreMassesSol.erase(CoreMassesSol.begin() + i);
+                NewCoreMassesSol.erase(NewCoreMassesSol.begin() + i);
                 Orbits.erase(Orbits.begin() + i);
                 --PlanetCount;
                 --i;

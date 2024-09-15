@@ -18,7 +18,7 @@ _MODULES_BEGIN
 class NPGS_API OrbitalGenerator {
 public:
     OrbitalGenerator() = delete;
-    OrbitalGenerator(const std::seed_seq& SeedSequence, float AsteroidUpperLimit = 1e21f, float LifeOccurrenceProbatility = 0.0114514f, bool bContainUltravioletChz = false, bool bEnableAsiFilter = true);
+    OrbitalGenerator(const std::seed_seq& SeedSequence, float UniverseAge = 1.38e10f, float AsteroidUpperLimit = 1e21f, float LifeOccurrenceProbatility = 0.0114514f, bool bContainUltravioletChz = false, bool bEnableAsiFilter = true);
     ~OrbitalGenerator() = default;
 
 public:
@@ -47,6 +47,7 @@ private:
     std::unique_ptr<CivilizationGenerator> _CivilizationGenerator;
 
     float _AsteroidUpperLimit;
+    float _UniverseAge;
     bool  _bContainUltravioletChz;
 };
 
