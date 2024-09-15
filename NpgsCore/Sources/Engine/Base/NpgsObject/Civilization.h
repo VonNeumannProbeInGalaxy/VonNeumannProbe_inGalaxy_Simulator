@@ -37,7 +37,7 @@ public:
         float GeneralIntelligenceAverageLifetime;                      // 通用智能个体的平均寿命，单位 s
         float GeneralintelligenceCount;                                // 通用智能个体的数量
         float TotalStoragedHistoryDataSize;                            // 存储的历史数据总大小，单位 bit
-        float TeamworkFactor;                                          // 合作系数
+        float TeamworkCoefficient;                                     // 合作系数
         bool  bIsIndependentIndividual;                                // 是否为独立个体
     };
 
@@ -69,7 +69,7 @@ public:
     Civilization& SetGeneralIntelligenceAverageLifetime(float GeneralIntelligenceAverageLifetime);
     Civilization& SetGeneralintelligenceCount(float GeneralintelligenceCount);
     Civilization& SetTotalStoragedHistoryDataSize(float TotalStoragedHistoryDataSize);
-    Civilization& SetTeamworkFactor(float TeamworkFactor);
+    Civilization& SetTeamworkCoefficient(float TeamworkCoefficient);
     Civilization& SetIsIndependentIndividual(bool bIsIndependentIndividual);
 
     // Getters
@@ -95,7 +95,7 @@ public:
     float GetGeneralIntelligenceAverageLifetime() const;
     float GetGeneralintelligenceCount() const;
     float GetTotalStoragedHistoryDataSize() const;
-    float GetTeamworkFactor() const;
+    float GetTeamworkCoefficient() const;
     bool  IsIndependentIndividual() const;
 
 public:

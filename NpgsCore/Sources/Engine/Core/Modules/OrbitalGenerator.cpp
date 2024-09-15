@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+#include "Engine/Core/Assert.h"
 #include "Engine/Core/Constants.h"
 
 #define DEBUG_OUTPUT
@@ -57,8 +58,15 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
         float DustMassSol = DiskMassSol * 0.0142f * 0.4f * std::pow(10.0f, Star->GetFeH());
         float OuterRadiusAu = StarInitialMassSol >= 1.0f ? 45.0f * StarInitialMassSol : 45.0f * std::pow(StarInitialMassSol, 2.0f);
         float InterRadiusAu = 0.0f;
-        float Factor = StarInitialMassSol < 0.6f && StarInitialMassSol > 1.5f ? 1700.0f : 1400.0f;
-        float CommonFactor = (std::pow(10.0f, 2.0f - StarInitialMassSol) + 1.0f) * (static_cast<float>(kSolarLuminosity) / (4.0f * kPi * kStefanBoltzmann * std::pow(Factor, 4.0f)));
+        float Coefficient = 0.0f;
+        if (StarInitialMassSol < 0.6f) {
+            Coefficient = 2100;
+        } else if (StarInitialMassSol < 1.5f) {
+            Coefficient = 1400;
+        } else {
+            Coefficient = 1700;
+        }
+        float CommonFactor = (std::pow(10.0f, 2.0f - StarInitialMassSol) + 1.0f) * (static_cast<float>(kSolarLuminosity) / (4.0f * kPi * kStefanBoltzmann * std::pow(Coefficient, 4.0f)));
         if (StarInitialMassSol >= 0.075f && StarInitialMassSol < 0.43f) {
             InterRadiusAu = CommonFactor * (0.23f * std::pow(StarInitialMassSol, 2.3f));
         } else if (StarInitialMassSol >= 0.43f && StarInitialMassSol < 2.0f) {
@@ -192,8 +200,8 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 #endif // DEBUG_OUTPUT
 
     // 计算原行星盘年龄
-    float DiskAge = 8.15e6f + 830000 * StarInitialMassSol - 33584 * std::pow(StarInitialMassSol, 2.0f) - 5.301e6f * std::log(StarInitialMassSol);
-    if (std::to_underlying(Star->GetEvolutionPhase()) < 1 && DiskAge >= Star->GetAge()) {
+    float DiskAge = 8.15e6f + 8.3e5f * StarInitialMassSol - 33854 * std::pow(StarInitialMassSol, 2.0f) - 5.031e6f * std::log(StarInitialMassSol);
+    if (DiskAge >= Star->GetAge()) {
         for (auto& Planet : Planets) {
             Planet->SetPlanetType(Astro::Planet::PlanetType::kRockyAsteroidCluster);
         }
@@ -360,25 +368,6 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
     StarType = Star->GetStellarClass().GetStarType();
     if (StarType != Modules::StellarClass::StarType::kNeutronStar && StarType != Modules::StellarClass::StarType::kBlackHole) {
-        // 抹掉坠入原恒星或恒星膨胀过程中吞掉的行星
-        float StarRadiusMaxSol = 0.0f; // 恒星膨胀过程中达到的最大半径
-        if (std::to_underlying(Star->GetEvolutionPhase()) <= 1) {
-            ErasePlanets(Star->GetRadius());
-        } else {
-            if (StarInitialMassSol < 0.75f) {
-                StarRadiusMaxSol = 104 * std::pow(2.0f * StarInitialMassSol, 3.0f) + 0.1f;
-            } else {
-                StarRadiusMaxSol = 400 * std::pow(StarInitialMassSol - 0.75f, 1.0f / 3.0f);
-            }
-
-#ifdef DEBUG_OUTPUT
-            std::println("Max star radius: {} solar", StarRadiusMaxSol);
-            std::println("");
-#endif // DEBUG_OUTPUT
-
-            ErasePlanets(StarRadiusMaxSol * kSolarRadius);
-        }
-
         // 宜居带半径，单位 AU
         float InterChzRadiusAu = 0.0f;
         float OuterChzRadiusAu = 0.0f;
@@ -454,8 +443,8 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                     }
 
                     float Exponent = -3.0f + _CommonGenerator(_RandomEngine) * 3.0f;
-                    float Factor = std::pow(10.0f, Exponent);
-                    CoreMassesSol[i] *= Factor; // 对核心质量打个折扣
+                    float Coefficient = std::pow(10.0f, Exponent);
+                    CoreMassesSol[i] *= Coefficient; // 对核心质量打个折扣
                 } else {
                     if (Orbits[i].SemiMajorAxis / kAuToMeter < FrostLineAu) {
                         Planets[i]->SetRadius(kEarthRadius * 1.007f * std::pow(NewCoreMassesSol[i] * kSolarMassToEarth, 1.0f / 3.7f));
@@ -499,7 +488,16 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                     if (_WalkInProbability(_RandomEngine)) { // 夺舍，随机生成在该行星之前的位置
                         MigrationIndex = static_cast<int>(_CommonGenerator(_RandomEngine) * (i - 1));
                     } else { // 不夺舍，直接迁移到最近轨道
-                        float Lower = std::log10(PlanetaryDiskTempData.InterRadiusAu / 3.0f);
+                        float Coefficient = 0.0f;
+                        float StarMassSol = static_cast<float>(Star->GetMass() / kSolarMass);
+                        if (StarMassSol < 0.6) {
+                            Coefficient = 2.0f;
+                        } else if (StarMassSol < 1.2) {
+                            Coefficient = 10.0f;
+                        } else {
+                            Coefficient = 7.0f;
+                        }
+                        float Lower = std::log10(PlanetaryDiskTempData.InterRadiusAu / Coefficient);
                         float Upper = std::log10(PlanetaryDiskTempData.InterRadiusAu * 0.67f);
                         float Exponent = Lower + _CommonGenerator(_RandomEngine) * (Upper - Lower);
                         Orbits[0].SemiMajorAxis = std::pow(10.0f, Exponent) * kAuToMeter;
@@ -523,6 +521,25 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                     break; // 给你机会你不中用
                 }
             }
+        }
+
+        // 抹掉内迁坠入恒星或恒星膨胀过程中吞掉的行星
+        float StarRadiusMaxSol = 0.0f; // 恒星膨胀过程中达到的最大半径
+        if (std::to_underlying(Star->GetEvolutionPhase()) <= 1) {
+            ErasePlanets(Star->GetRadius());
+        } else {
+            if (StarInitialMassSol < 0.75f) {
+                StarRadiusMaxSol = 104 * std::pow(2.0f * StarInitialMassSol, 3.0f) + 0.1f;
+            } else {
+                StarRadiusMaxSol = 400 * std::pow(StarInitialMassSol - 0.75f, 1.0f / 3.0f);
+            }
+
+#ifdef DEBUG_OUTPUT
+            std::println("Max star radius: {} solar", StarRadiusMaxSol);
+            std::println("");
+#endif // DEBUG_OUTPUT
+
+            ErasePlanets(StarRadiusMaxSol * kSolarRadius);
         }
 
 #ifdef DEBUG_OUTPUT
@@ -694,12 +711,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                 }
             }
 
-            // 计算自转周期、扁率和平衡温度
-            PlanetType = Planets[i]->GetPlanetType();
-
-            float TimeToTidalLock = 0.0f;
-
-            // 计算类地行星、大气层和生命
+            // 计算类地行星和次生大气层
             if (Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kNormalStar) {
                 PlanetType = Planets[i]->GetPlanetType();
                 PlanetMass = Planets[i]->GetMassFloat();
@@ -708,114 +720,229 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                 float Term1 = 1.6567e15f * static_cast<float>(std::pow(Star->GetLuminosity() / (4.0 * kPi * kStefanBoltzmann * std::pow(Orbits[i].SemiMajorAxis, 2.0f)), 0.25));
                 float Term2 = PlanetMass / Planets[i]->GetRadius();
                 float MaxTerm = std::max(1.0f, Term1 / Term2);
-                float EscapeFactor = std::pow(10.0f, 1.0f - MaxTerm);
-                int   EvolutionPhase = std::to_underlying(Star->GetEvolutionPhase());
+                float EscapeCoefficient = std::pow(10.0f, 1.0f - MaxTerm);
                 if (PlanetType == Astro::Planet::PlanetType::kRocky &&
                     Orbits[i].SemiMajorAxis / kAuToMeter > InterChzRadiusAu &&
                     Orbits[i].SemiMajorAxis / kAuToMeter < OuterChzRadiusAu &&
-                    EscapeFactor > 0.1f && EvolutionPhase < 1) { // 判断类地行星
+                    EscapeCoefficient > 0.1f && std::to_underlying(Star->GetEvolutionPhase()) < 1) { // 判断类地行星
                     Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kTerra);
                     // 计算新的海洋质量
                     float Exponent = -0.5f + _CommonGenerator(_RandomEngine) * 1.5f;
-                    float Random1 = std::pow(10.0f, Exponent);
-                    float NewOceanMass = CoreMass * Random1 * 1e-4f;
+                    float Random = std::pow(10.0f, Exponent);
+                    float NewOceanMass = CoreMass * Random * 1e-4f;
                     float NewOceanMassVolatiles = NewOceanMass / 9.0f;
                     float NewOceanMassEnergeticNuclide = NewOceanMass * 5e-5f / 9.0f;
                     float NewOceanMassZ = NewOceanMass - NewOceanMassVolatiles - NewOceanMassEnergeticNuclide;
                     Planets[i]->SetOceanMass({ boost::multiprecision::uint128_t(NewOceanMassZ), boost::multiprecision::uint128_t(NewOceanMassVolatiles), boost::multiprecision::uint128_t(NewOceanMassEnergeticNuclide) });
-                    // 计算地壳矿脉
-                    float Random2 = 0.0f;
-                    if (PlanetType == Astro::Planet::PlanetType::kRocky) {
-                        Random2 = 1.0f + _CommonGenerator(_RandomEngine) * 9.0f;
-                    } else if (PlanetType == Astro::Planet::PlanetType::kTerra) {
-                        Random2 = 0.1f + _CommonGenerator(_RandomEngine) * 0.9f;
-                    }
-                    float CrustMineralMass = Random2 * 1e-9f * std::pow(PlanetMass / kEarthMass, 2.0f) * kEarthMass;
-                    Planets[i]->SetCrustMineralMass(CrustMineralMass);
                 }
 
                 PlanetType = Planets[i]->GetPlanetType();
+
+                // 计算地壳矿脉
+                float Random = 0.0f;
+                if (PlanetType == Astro::Planet::PlanetType::kRocky) {
+                    Random = 0.1f + _CommonGenerator(_RandomEngine) * 0.9f;
+                } else if (PlanetType == Astro::Planet::PlanetType::kTerra) {
+                    Random = 1.0f + _CommonGenerator(_RandomEngine) * 9.0f;
+                }
+                float CrustMineralMass = Random * 1e-9f * std::pow(PlanetMass / kEarthMass, 2.0f) * kEarthMass;
+                Planets[i]->SetCrustMineralMass(CrustMineralMass);
 
                 // 计算次生大气
-                if (PlanetType == Astro::Planet::PlanetType::kRocky ||
-                    PlanetType == Astro::Planet::PlanetType::kTerra ||
-                    PlanetType == Astro::Planet::PlanetType::kOceanic ||
-                    PlanetType == Astro::Planet::PlanetType::kIcePlanet) {
-                    float Exponent = _CommonGenerator(_RandomEngine);
-                    float Random1 = std::pow(10.0f, Exponent);
-                    float NewAtmosphereMass = EscapeFactor * PlanetMass * Random1 * 1e-5f;
-                    if (PlanetType == Astro::Planet::PlanetType::kTerra) {
-                        NewAtmosphereMass *= 0.035f;
-                    } else if (PlanetType == Astro::Planet::PlanetType::kIcePlanet) {
-                        if (PoyntingVector > 2) { // 保证氮气不会液化
-                            NewAtmosphereMass = std::pow(EscapeFactor, 2.0f) * PlanetMass * Random1 * 1e-5f;
-                        } else {
-                            NewAtmosphereMass = 0.0f;
-                        }
-                    }
-
-                    float NewAtmosphereMassVolatiles = 0.0f;
-                    float NewAtmosphereMassEnergeticNuclide = 0.0f;
-                    float NewAtmosphereMassZ = 0.0f;
-                    if (NewAtmosphereMass > 1e16f) {
-                        NewAtmosphereMassVolatiles = NewAtmosphereMass * 1e-2f;
-                        NewAtmosphereMassEnergeticNuclide = 0.0f;
-                        NewAtmosphereMassZ = NewAtmosphereMass - NewAtmosphereMassVolatiles - NewAtmosphereMassEnergeticNuclide;
-                        Planets[i]->SetAtmosphereMassZ(NewAtmosphereMassZ);
-                        Planets[i]->SetAtmosphereMassVolatiles(NewAtmosphereMassVolatiles);
-                        Planets[i]->SetAtmosphereMassEnergeticNuclide(NewAtmosphereMassEnergeticNuclide);
-                    } else { // 只调整核心质量（核心就是整个星球）
-                        float CoreMassVolatiles = Planets[i]->GetCoreMassVolatilesFloat();
-                        float CoreMassEnergeticNuclide = Planets[i]->GetCoreMassEnergeticNuclideFloat();
-                        CoreMassVolatiles += 33.1f * std::pow(Planets[i]->GetRadius(), 2.0f);
-                        CoreMassEnergeticNuclide += 3.31e-4f * std::pow(Planets[i]->GetRadius(), 2.0f);
-                        Planets[i]->SetCoreMassVolatiles(CoreMassVolatiles);
-                        Planets[i]->SetCoreMassEnergeticNuclide(CoreMassEnergeticNuclide);
-                    }
-                }
-
-                // 生成生命和文明
-                PlanetType = Planets[i]->GetPlanetType();
-                if (PlanetType == Astro::Planet::PlanetType::kTerra) {
-                    bool bCanHasLife = false;
-                    if (Star->GetAge() > 5e8) {
-                        if (Orbits[i].SemiMajorAxis / kAuToMeter > InterChzRadiusAu && Orbits[i].SemiMajorAxis / kAuToMeter < OuterChzRadiusAu) {
-                            if (_bContainUltravioletChz) {
-                                double StarMassSol = Star->GetMass() / kSolarMass;
-                                if (StarMassSol > 0.75 && StarMassSol < 1.5) {
-                                    bCanHasLife = true;
-                                }
+                if (std::to_underlying(Star->GetEvolutionPhase()) < 1) {
+                    if (PlanetType == Astro::Planet::PlanetType::kRocky ||
+                        PlanetType == Astro::Planet::PlanetType::kTerra ||
+                        PlanetType == Astro::Planet::PlanetType::kOceanic ||
+                        PlanetType == Astro::Planet::PlanetType::kIcePlanet) {
+                        float Exponent = _CommonGenerator(_RandomEngine);
+                        Random = std::pow(10.0f, Exponent);
+                        float NewAtmosphereMass = EscapeCoefficient * PlanetMass * Random * 1e-5f;
+                        if (PlanetType == Astro::Planet::PlanetType::kTerra) {
+                            NewAtmosphereMass *= 0.035f;
+                        } else if (PlanetType == Astro::Planet::PlanetType::kIcePlanet) {
+                            if (PoyntingVector > 8) { // 保证氮气不会液化
+                                NewAtmosphereMass = std::pow(EscapeCoefficient, 2.0f) * PlanetMass * Random * 1e-5f;
                             } else {
-                                bCanHasLife = true;
+                                NewAtmosphereMass = 0.0f;
                             }
                         }
-                    }
 
-                    if (bCanHasLife) {
-                        _CivilizationGenerator->GenerateCivilization(Planets[i].get(), Star->GetAge(), PoyntingVector, Planets[i]->GetRadius(), Planets[i]->GetMassFloat());
+                        float NewAtmosphereMassVolatiles = 0.0f;
+                        float NewAtmosphereMassEnergeticNuclide = 0.0f;
+                        float NewAtmosphereMassZ = 0.0f;
+                        if (NewAtmosphereMass > 1e16f) {
+                            NewAtmosphereMassVolatiles = NewAtmosphereMass * 1e-2f;
+                            NewAtmosphereMassEnergeticNuclide = 0.0f;
+                            NewAtmosphereMassZ = NewAtmosphereMass - NewAtmosphereMassVolatiles - NewAtmosphereMassEnergeticNuclide;
+                            Planets[i]->SetAtmosphereMassZ(NewAtmosphereMassZ);
+                            Planets[i]->SetAtmosphereMassVolatiles(NewAtmosphereMassVolatiles);
+                            Planets[i]->SetAtmosphereMassEnergeticNuclide(NewAtmosphereMassEnergeticNuclide);
+                        } else { // 只调整核心质量（核心就是整个星球）
+                            float CoreMassVolatiles = Planets[i]->GetCoreMassVolatilesFloat();
+                            float CoreMassEnergeticNuclide = Planets[i]->GetCoreMassEnergeticNuclideFloat();
+                            CoreMassVolatiles += 33.1f * std::pow(Planets[i]->GetRadius(), 2.0f);
+                            CoreMassEnergeticNuclide += 3.31e-4f * std::pow(Planets[i]->GetRadius(), 2.0f);
+                            Planets[i]->SetCoreMassVolatiles(CoreMassVolatiles);
+                            Planets[i]->SetCoreMassEnergeticNuclide(CoreMassEnergeticNuclide);
+                        }
+                    }
+                }
+            }
+
+            // 计算自转周期、扁率和平衡温度
+            PlanetType = Planets[i]->GetPlanetType();
+            PlanetMass = Planets[i]->GetMassFloat();
+
+            double TimeToTidalLock = 0.0f;
+            float ViscosityCoefficient = 1e11f;
+            if (PlanetType == Astro::Planet::PlanetType::kIcePlanet || PlanetType == Astro::Planet::PlanetType::kOceanic) {
+                ViscosityCoefficient = 4e9f;
+            } else if (PlanetType == Astro::Planet::PlanetType::kRocky || PlanetType == Astro::Planet::PlanetType::kTerra || PlanetType == Astro::Planet::PlanetType::kChthonian) {
+                ViscosityCoefficient = 3e10f;
+            }
+            double StarMass = Star->GetMass();
+            float PlanetRadius = Planets[i]->GetRadius();
+            float SemiMajorAxis = Orbits[i].SemiMajorAxis;
+
+            // 计算潮汐锁定时标
+            double Term1 = 0.61435 * PlanetMass * std::pow(SemiMajorAxis, 6);
+            double Term2 = 1 + (5.963361e11 * ViscosityCoefficient * std::pow(PlanetRadius, 4)) / std::pow(PlanetMass, 2);
+            double Term3 = std::pow(StarMass, 2) * std::pow(PlanetRadius, 3);
+            TimeToTidalLock = (Term1 * Term2) / Term3;
+            float Spin = 0.0f;
+
+            if (TimeToTidalLock < Star->GetAge()) {
+                Spin = -1.0f; // 使用 -1.0 来标记潮汐锁定
+            }
+
+            // 计算自转
+            if (Spin != -1.0f) {
+                float OrbitalPeriod = static_cast<float>(2.0f * kPi * std::sqrt(std::pow(SemiMajorAxis, 3.0f) / (kGravityConstant * StarMass)));
+                float InitialSpin = 28800.0f + _CommonGenerator(_RandomEngine) * (86400.0f - 28800.0f);
+                Spin = InitialSpin + (OrbitalPeriod - InitialSpin) * std::pow(Star->GetAge() / static_cast<float>(TimeToTidalLock), 2.35f);
+            
+                float Oblateness = 4.0f * std::pow(kPi, 2.0f) * std::pow(PlanetRadius, 3.0f);
+                Oblateness /= (std::pow(Spin, 2.0f) * kGravityConstant * PlanetMass);
+                Planets[i]->SetOblateness(Oblateness);
+            }
+
+            Planets[i]->SetSpin(Spin);
+
+            // 计算反照率和发射率
+            float Albedo = 0.0f;
+            float Emissivity = 0.0f;
+            if (PlanetType == Astro::Planet::PlanetType::kSubIceGiant    ||
+                PlanetType == Astro::Planet::PlanetType::kIceGiant       ||
+                PlanetType == Astro::Planet::PlanetType::kGasGiant       ||
+                PlanetType == Astro::Planet::PlanetType::kHotSubIceGiant ||
+                PlanetType == Astro::Planet::PlanetType::kHotIceGiant    ||
+                PlanetType == Astro::Planet::PlanetType::kHotGasGiant) {
+                if (PoyntingVector <= 170) {
+                    Albedo = 0.34f;
+                } else if (PoyntingVector <= 200) {
+                    Albedo = 0.0156667f * PoyntingVector - 2.32333f;
+                } else if (PoyntingVector <= 3470) {
+                    Albedo = 0.75f;
+                } else if (PoyntingVector <= 3790) {
+                    Albedo = 7.58156f - 0.00196875f * PoyntingVector;
+                } else if (PoyntingVector <= 103500) {
+                    Albedo = 0.12f;
+                } else if (PoyntingVector <= 150000) {
+                    Albedo = 0.320323f - 1.93548e-6f * PoyntingVector;
+                } else if (PoyntingVector <= 654000) {
+                    Albedo = 0.03f;
+                } else if (PoyntingVector <= 1897000) {
+                    Albedo = 4.18343e-7f * PoyntingVector - 0.243596f;
+                } else {
+                    Albedo = 0.55f;
+                }
+
+                Emissivity = 0.98f;
+            } else if (Planets[i]->GetAtmosphereMassFloat() != 0.0f) {
+                float AtmospherePressureAtm = (kGravityConstant * PlanetMass * Planets[i]->GetAtmosphereMassFloat()) / (4.0f * kPi * std::pow(Planets[i]->GetRadius(), 4.0f)) / kPascalToAtm;
+                float Random = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+                float TidalLockCoefficient = Spin == -1.0f ? 2.0f : 1.0f;
+                if (PlanetType == Astro::Planet::PlanetType::kRocky || PlanetType == Astro::Planet::PlanetType::kChthonian) {
+                    Albedo = Random * std::min(0.7f, 0.12f + 0.2f * std::sqrt(TidalLockCoefficient * AtmospherePressureAtm));
+                    Emissivity = std::max(0.012f, 0.95f - 0.35f * std::pow(AtmospherePressureAtm, 0.25f));
+                } else if (PlanetType == Astro::Planet::PlanetType::kOceanic || PlanetType == Astro::Planet::PlanetType::kTerra) {
+                    Albedo = Random * std::min(0.7f, 0.07f + 0.2f * std::sqrt(TidalLockCoefficient * AtmospherePressureAtm));
+                    Emissivity = std::max(0.1f, 0.98f - 0.35f * std::pow(AtmospherePressureAtm, 0.25f));
+                } else if (PlanetType == Astro::Planet::PlanetType::kIcePlanet) {
+                    Albedo = Random * std::max(0.2f, 0.4f - 0.1f * std::sqrt(AtmospherePressureAtm));
+                    Emissivity = std::max(0.1f, 0.98f - 0.35f * std::pow(AtmospherePressureAtm, 0.25f));
+                }
+            } else if (Planets[i]->GetAtmosphereMassFloat() == 0.0f) {
+                if (PlanetType == Astro::Planet::PlanetType::kRocky || PlanetType == Astro::Planet::PlanetType::kChthonian) {
+                    Albedo = 0.12f * (0.9f + _CommonGenerator(_RandomEngine) * 0.2f);
+                    Emissivity = 0.95f;
+                } else if (PlanetType == Astro::Planet::PlanetType::kIcePlanet) {
+                    Albedo = 0.4f + _CommonGenerator(_RandomEngine) * (0.98f - 0.4f);
+                    Emissivity = 0.98f;
+                }
+            }
+
+            // 计算平衡温度
+            float BalanceTemperature = std::pow((PoyntingVector * (1.0f - Albedo)) / (4.0f * kStefanBoltzmann * Emissivity), 0.25f);
+            if (BalanceTemperature >= 2700) { // 烧似了
+                Planets.erase(Planets.begin() + i);
+                Orbits.erase(Orbits.begin() + i);
+                --PlanetCount;
+                --i;
+                continue;
+            }
+
+            Planets[i]->SetBalanceTemperature(BalanceTemperature);
+
+            // 生成生命和文明
+            PlanetType = Planets[i]->GetPlanetType();
+            if (PlanetType == Astro::Planet::PlanetType::kTerra) {
+                bool bCanHasLife = false;
+                if (Star->GetAge() > 5e8) {
+                    if (Orbits[i].SemiMajorAxis / kAuToMeter > InterChzRadiusAu && Orbits[i].SemiMajorAxis / kAuToMeter < OuterChzRadiusAu) {
+                        if (_bContainUltravioletChz) {
+                            double StarMassSol = Star->GetMass() / kSolarMass;
+                            if (StarMassSol > 0.75 && StarMassSol < 1.5) {
+                                bCanHasLife = true;
+                            }
+                        } else {
+                            bCanHasLife = true;
+                        }
                     }
                 }
 
-#ifdef DEBUG_OUTPUT
-                auto& Planet                         = Planets[i];
-                PlanetType                           = Planet->GetPlanetType();
-                PlanetMassEarth                      = Planet->GetMassFloat() / kEarthMass;
-                float AtmosphereMassZ                = Planet->GetAtmosphereMassZFloat();
-                float AtmosphereMassVolatiles        = Planet->GetAtmosphereMassVolatilesFloat();
-                float AtmosphereMassEnergeticNuclide = Planet->GetAtmosphereMassEnergeticNuclideFloat();
-                float CoreMassZ                      = Planet->GetCoreMassZFloat();
-                float CoreMassVolatiles              = Planet->GetCoreMassVolatilesFloat();
-                float CoreMassEnergeticNuclide       = Planet->GetCoreMassEnergeticNuclideFloat();
-                float OceanMassZ                     = Planet->GetOceanMassZFloat();;
-                float OceanMassVolatiles             = Planet->GetOceanMassVolatilesFloat();
-                float OceanMassEnergeticNuclide      = Planet->GetOceanMassEnergeticNuclideFloat();
-                float CrustMineralMass               = Planet->GetCrustMineralMassFloat();
-                float AtmospherePressure             = (kGravityConstant * PlanetMass * (AtmosphereMassZ + AtmosphereMassVolatiles + AtmosphereMassEnergeticNuclide)) / (4.0f * kPi * std::pow(Planets[i]->GetRadius(), 4.0f));
-                std::println("Planet detail:\natmo mass z: {:.2E} kg, atmo mass vol: {:.2E} kg, atmo mass nuc: {:.2E} kg\ncore mass z: {:.2E} kg, core mass vol: {:.2E} kg, core mass nuc: {:.2E} kg\nocean mass z: {:.2E} kg, ocean mass vol: {:.2E} kg, ocean mass nuc: {:.2E} kg\ncrust mineral mass: {:.2E} kg, atmo pressure: {:.2f} atm", AtmosphereMassZ, AtmosphereMassVolatiles, AtmosphereMassEnergeticNuclide, CoreMassZ, CoreMassVolatiles, CoreMassEnergeticNuclide, OceanMassZ, OceanMassVolatiles, OceanMassEnergeticNuclide, CrustMineralMass, AtmospherePressure / kPascalToAtm);
-                std::println("semi-major axis: {} AU, mass: {} earth, radius: {} earth, type: {}", Orbits[i].SemiMajorAxis / kAuToMeter, PlanetMassEarth, Planets[i]->GetRadius() / kEarthRadius, std::to_underlying(Planets[i]->GetPlanetType()));
-                std::println("");
-#endif // DEBUG_OUTPUT
+                if (bCanHasLife) {
+                    _CivilizationGenerator->GenerateCivilization(Planets[i].get(), Star->GetAge(), PoyntingVector, Planets[i]->GetRadius(), Planets[i]->GetMassFloat());
+                }
             }
+
+#ifdef DEBUG_OUTPUT
+            auto& Planet = Planets[i];
+            PlanetType = Planet->GetPlanetType();
+            PlanetMassEarth = Planet->GetMassFloat() / kEarthMass;
+            float AtmosphereMassZ = Planet->GetAtmosphereMassZFloat();
+            float AtmosphereMassVolatiles = Planet->GetAtmosphereMassVolatilesFloat();
+            float AtmosphereMassEnergeticNuclide = Planet->GetAtmosphereMassEnergeticNuclideFloat();
+            float CoreMassZ = Planet->GetCoreMassZFloat();
+            float CoreMassVolatiles = Planet->GetCoreMassVolatilesFloat();
+            float CoreMassEnergeticNuclide = Planet->GetCoreMassEnergeticNuclideFloat();
+            float OceanMassZ = Planet->GetOceanMassZFloat();;
+            float OceanMassVolatiles = Planet->GetOceanMassVolatilesFloat();
+            float OceanMassEnergeticNuclide = Planet->GetOceanMassEnergeticNuclideFloat();
+            float CrustMineralMass = Planet->GetCrustMineralMassFloat();
+            float AtmospherePressure = (kGravityConstant * PlanetMass * (AtmosphereMassZ + AtmosphereMassVolatiles + AtmosphereMassEnergeticNuclide)) / (4.0f * kPi * std::pow(Planets[i]->GetRadius(), 4.0f));
+            float Oblateness = Planet->GetOblateness();
+            Spin = Planet->GetSpin();
+            BalanceTemperature = Planet->GetBalanceTemperature();
+            std::println("Planet details:");
+            std::println("semi-major axis: {} AU, mass: {} earth, radius: {} earth, type: {}", Orbits[i].SemiMajorAxis / kAuToMeter, PlanetMassEarth, Planets[i]->GetRadius() / kEarthRadius, std::to_underlying(Planets[i]->GetPlanetType()));
+            std::println("rotation period: {} h, oblateness: {}, balance temperature: {} K", Spin / 3600, Oblateness, BalanceTemperature);
+            std::println("atmo  mass z: {:.2E} kg, atmo  mass vol: {:.2E} kg, atmo  mass nuc: {:.2E} kg", AtmosphereMassZ, AtmosphereMassVolatiles, AtmosphereMassEnergeticNuclide);
+            std::println("core  mass z: {:.2E} kg, core  mass vol: {:.2E} kg, core  mass nuc: {:.2E} kg", CoreMassZ, CoreMassVolatiles, CoreMassEnergeticNuclide);
+            std::println("ocean mass z: {:.2E} kg, ocean mass vol: {:.2E} kg, ocean mass nuc: {:.2E} kg", OceanMassZ, OceanMassVolatiles, OceanMassEnergeticNuclide);
+            std::println("crust mineral mass : {:.2E} kg, atmo pressure : {:.2f} atm", CrustMineralMass, AtmospherePressure / kPascalToAtm);
+            std::println("");
+#endif // DEBUG_OUTPUT
         }
     } else {
         for (std::size_t i = 0; i < PlanetCount; ++i) {

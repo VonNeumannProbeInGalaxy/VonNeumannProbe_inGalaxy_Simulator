@@ -91,8 +91,8 @@ inline Civilization& Civilization::SetTotalStoragedHistoryDataSize(float TotalSt
     return *this;
 }
 
-inline Civilization& Civilization::SetTeamworkFactor(float TeamworkFactor) {
-    _CivilizationProperties.TeamworkFactor = TeamworkFactor;
+inline Civilization& Civilization::SetTeamworkCoefficient(float TeamworkCoefficient) {
+    _CivilizationProperties.TeamworkCoefficient = TeamworkCoefficient;
     return *this;
 }
 
@@ -169,8 +169,8 @@ inline float Civilization::GetTotalStoragedHistoryDataSize() const {
     return _CivilizationProperties.TotalStoragedHistoryDataSize;
 }
 
-inline float Civilization::GetTeamworkFactor() const {
-    return _CivilizationProperties.TeamworkFactor;
+inline float Civilization::GetTeamworkCoefficient() const {
+    return _CivilizationProperties.TeamworkCoefficient;
 }
 
 inline bool Civilization::IsIndependentIndividual() const {
