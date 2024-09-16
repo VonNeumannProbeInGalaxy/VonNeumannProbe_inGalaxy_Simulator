@@ -15,6 +15,8 @@
 _NPGS_BEGIN
 _MODULES_BEGIN
 
+static float CalcPlanetRadius(Astro::Planet::PlanetType Type, float Mass);
+
 OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float UniverseAge, float AsteroidUpperLimit, float LifeOccurrenceProbability, bool bContainUltravioletChz, bool bEnableAsiFilter)
     :
     _RandomEngine(SeedSequence),
@@ -889,9 +891,8 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                 BalanceTemperature = CosmosMicrowaveBackground;
             }
 
-            if (PlanetType != Astro::Planet::PlanetType::kRockyAsteroidCluster &&
-                PlanetType != Astro::Planet::PlanetType::kRockyIceAsteroidCluster &&
-                BalanceTemperature >= 2700) { // 烧似了
+            if ((PlanetType != Astro::Planet::PlanetType::kRockyAsteroidCluster && PlanetType != Astro::Planet::PlanetType::kRockyIceAsteroidCluster && BalanceTemperature >= 2700) ||
+               ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) { // 烧似了
                 Planets.erase(Planets.begin() + i);
                 CoreMassesSol.erase(CoreMassesSol.begin() + i);
                 NewCoreMassesSol.erase(NewCoreMassesSol.begin() + i);
@@ -982,6 +983,51 @@ void OrbitalGenerator::GenOrbitElements(StellarSystem::OrbitalElements& Orbit) {
     Orbit.LongitudeOfAscendingNode = _CommonGenerator(_RandomEngine) * 360.0f;
     Orbit.ArgumentOfPeriapsis      = _CommonGenerator(_RandomEngine) * 360.0f;
     Orbit.TrueAnomaly              = _CommonGenerator(_RandomEngine) * 360.0f;
+}
+
+// Tool functions implementations
+// ------------------------------
+float CalcPlanetRadius(Astro::Planet::PlanetType Type, float Mass) {
+    float RadiusEarth = 0.0f;
+    float MassEarth = Mass / kEarthMass;
+
+    switch (Type) {
+    case Astro::Planet::PlanetType::kRocky:
+        if (MassEarth < 1.0f) {
+            RadiusEarth = 1.94935f * std::pow(10.0f, (std::log10(MassEarth) / 3 - 0.0804f * std::pow(MassEarth, 0.394f) - 0.20949f));
+        } else {
+            RadiusEarth = std::pow(MassEarth, 1.0f / 3.7f);
+        }
+        break;
+    case Astro::Planet::PlanetType::kOceanic:
+    case Astro::Planet::PlanetType::kIcePlanet:
+        if (MassEarth < 1.0f) {
+            RadiusEarth = 2.53536f * std::pow(10.0f, (std::log10(MassEarth) / 3 - 0.0807f * std::pow(MassEarth, 0.375f) - 0.209396f));
+        } else {
+            RadiusEarth = 1.3f * std::pow(MassEarth, 1.0f / 3.905f);
+        }
+        break;
+    case Astro::Planet::PlanetType::kGasGiant:
+        if (Mass < 6.2f) {
+            RadiusEarth = kEarthRadius * 1.41f * std::pow(Mass, 1.0f / 3.905f);
+        } else if (Mass < 15.0f) {
+            RadiusEarth = kEarthRadius * 0.6f * std::pow(Mass, 0.72f);
+        } else {
+            float CommonFactor = Mass / (kJupiterMass / kEarthMass);
+            RadiusEarth = kEarthRadius * 11.0f * (0.96f + 0.21f * std::log10(CommonFactor) - 0.2f * std::pow(std::log10(CommonFactor), 2.0f) + 0.1f * std::pow(CommonFactor, 0.215f));
+        }
+        break;
+    case Astro::Planet::PlanetType::kSubIceGiant:
+        RadiusEarth = kEarthRadius * 1.3f * std::pow(Mass, 1.0f / 3.905f);
+        break;
+    case Astro::Planet::PlanetType::kHotSubIceGiant:
+        RadiusEarth = kEarthRadius * 1.3f * std::pow(Mass, 1.0f / 3.905f);
+        break;
+    default:
+        break;
+    }
+
+    return RadiusEarth * kEarthRadius;
 }
 
 _MODULES_END
