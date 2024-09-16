@@ -1018,8 +1018,6 @@ float CalcPlanetRadius(Astro::Planet::PlanetType Type, float Mass) {
         }
         break;
     case Astro::Planet::PlanetType::kSubIceGiant:
-        RadiusEarth = kEarthRadius * 1.3f * std::pow(Mass, 1.0f / 3.905f);
-        break;
     case Astro::Planet::PlanetType::kHotSubIceGiant:
         RadiusEarth = kEarthRadius * 1.3f * std::pow(Mass, 1.0f / 3.905f);
         break;
