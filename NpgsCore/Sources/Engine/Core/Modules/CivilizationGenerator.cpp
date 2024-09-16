@@ -14,7 +14,7 @@ CivilizationGenerator::CivilizationGenerator(const std::seed_seq& SeedSequence, 
     _CommonGenerator(0.0f, 1.0f)
 {}
 
-void CivilizationGenerator::GenerateCivilization(Astro::Planet* Planet, double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass) {
+void CivilizationGenerator::GenerateCivilization(double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass, Astro::Planet* Planet) {
     if (_LifeOccurrenceProbability(_RandomEngine)) {
         float Random1 = 0.5f + _CommonGenerator(_RandomEngine) + 1.5f;
         auto LifePhase = static_cast<Civilization::LifePhase>(std::min(4, std::max(1, static_cast<int>(Random1 * StarAge / (5 * std::pow(10, 8))))));
