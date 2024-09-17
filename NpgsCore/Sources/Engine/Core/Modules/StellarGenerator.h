@@ -67,31 +67,23 @@ public:
     Astro::Star GenerateStar(BasicProperties&& Properties);
 
 private:
-    template <typename CsvType>
-    static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
-
     void InitMistData();
+
+    // Processor functions, as member functions to access class members
+    // -----------------------------------------------------------------
     float GenerateAge(float MaxPdf);
     float GenerateMass(float MaxPdf, bool bIsBinary);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassCoefficient);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
-    double CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
-    std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
-    std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
-    void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays);
-    std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::HrDiagram>& Data, double BvColorIndex);
-    std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::MistData>& Data, double EvolutionProgress);
-    std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::WdMistData>& Data, double TargetAge);
-    std::vector<double> InterpolateRows(const auto& Data, double Target, const std::string& Header, int Index, bool bIsWhiteDwarf);
-    std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient);
-    std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient, bool bIsWhiteDwarf);
-    void ExpandMistData(std::vector<double>& StarData, double TargetMass);
     void CalcSpectralType(Astro::Star& StarData, float FeH);
     StellarClass::LuminosityClass CalcLuminosityClass(const Astro::Star& StarData);
     void ProcessDeathStar(Astro::Star& DeathStar, double MergeStarProbability = 0.005);
     void GenerateMagnetic(Astro::Star& StarData);
     void GenerateSpin(Astro::Star& StarData);
+
+    template <typename CsvType>
+    static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
 
 public:
     static const int _kStarAgeIndex;
@@ -141,9 +133,9 @@ private:
     static const std::vector<std::string> _kMistHeaders;
     static const std::vector<std::string> _kWdMistHeaders;
     static const std::vector<std::string> _kHrDiagramHeaders;
-    static std::unordered_map<std::string, std::vector<float>>                             _kMassFileCache;
+    static std::unordered_map<std::string, std::vector<float>> _kMassFileCache;
     static std::unordered_map<std::shared_ptr<MistData>, std::vector<std::vector<double>>> _kPhaseChangesCache;
-    static std::shared_mutex                                                               _kCacheMutex;
+    static std::shared_mutex _kCacheMutex;
     static bool _kbMistDataInitiated;
 };
 
