@@ -1248,15 +1248,14 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
         }
     }
 
-    float StarAge = 0.0f;
-    float LogR = 0.0f;
-    float LogTeff = 0.0f;
-    float LogCenterT = 0.0f;
-    float LogCenterRho = 0.0f;
-
-    float SurfaceZ = 0.0f;
+    float StarAge                 = 0.0f;
+    float LogR                    = 0.0f;
+    float LogTeff                 = 0.0f;
+    float LogCenterT              = 0.0f;
+    float LogCenterRho            = 0.0f;
+    float SurfaceZ                = 0.0f;
     float SurfaceEnergeticNuclide = 0.0f;
-    float SurfaceVolatiles = 0.0f;
+    float SurfaceVolatiles        = 0.0f;
 
     switch (DeathStarType) {
     case StellarClass::StarType::kWhiteDwarf: {

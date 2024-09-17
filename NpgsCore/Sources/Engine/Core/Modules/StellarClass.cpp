@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iomanip>
 #include <sstream>
+#include <utility>
 
 #include "Engine/Core/Assert.h"
 
@@ -70,7 +71,7 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
     SpectralClass MSpectralClass = SpectralClass::kSpectral_Unknown;
     float AmSubclass = 0.0f;
     LuminosityClass LuminosityClass = LuminosityClass::kLuminosity_Unknown;
-    SpecialPeculiarity SpecialMark = static_cast<std::uint32_t>(SpecialPeculiarities::kCode_Null);
+    SpecialPeculiarity SpecialMark = std::to_underlying(SpecialPeculiarities::kCode_Null);
 
     ParseState State = ParseState::kBegin;
     std::size_t Index = 0;
@@ -198,10 +199,8 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
 }
 
 StellarClass::SpectralType StellarClass::Data() const {
-    StarType Type{};
     SpectralType StructSpectralType{};
 
-    Type                               = static_cast<StarType>(_SpectralType >> 62 & 0x3);
     StructSpectralType.HSpectralClass  = static_cast<SpectralClass>(_SpectralType >> 57 & 0x1F);
     StructSpectralType.Subclass        = (_SpectralType >> 53 & 0xF) + (_SpectralType >> 49 & 0xF) / 10.0f;
     StructSpectralType.bIsAmStar       = _SpectralType >> 48 & 0x1;
@@ -211,14 +210,19 @@ StellarClass::SpectralType StellarClass::Data() const {
     StructSpectralType.SpecialMark     = static_cast<SpecialPeculiarity>(_SpectralType & 0x1FFFFFFFF);
 
     if (StructSpectralType.HSpectralClass == SpectralClass::kSpectral_Unknown) {
-        StructSpectralType = { SpectralClass::kSpectral_Unknown, SpectralClass::kSpectral_Unknown, LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
+        StructSpectralType = {
+            SpectralClass::kSpectral_Unknown,
+            SpectralClass::kSpectral_Unknown,
+            LuminosityClass::kLuminosity_Unknown,
+            0, 0.0f, 0.0f, false
+        };
     }
 
     return StructSpectralType;
 }
 
 bool StellarClass::Load(const SpectralType& SpectralType) {
-    // 光谱型位结构
+    // 结构
     // --------------------------------------------------------------------------------------------------
     // std::uint64_t
     // |----|-------|------|------|---|------|------|------|------|-------------------------------------|
@@ -227,23 +231,23 @@ bool StellarClass::Load(const SpectralType& SpectralType) {
     // 恒星类型 光谱  亚型高位 亚型低位 Am m 光谱 m 亚型高位 m 亚型低位 光度级 特殊标识
 
     std::uint64_t Data         = 0;
-    std::uint32_t SubclassHigh = static_cast<std::uint32_t>(SpectralType.Subclass);
+    std::uint64_t SubclassHigh = static_cast<std::uint64_t>(SpectralType.Subclass);
     float         Intermediate = std::round((SpectralType.Subclass - SubclassHigh) * 1000.0f) / 1000.0f;
-    std::uint32_t SubclassLow  = static_cast<std::uint32_t>(Intermediate * 10.0f);
+    std::uint64_t SubclassLow  = static_cast<std::uint64_t>(Intermediate * 10.0f);
 
     Data |= static_cast<std::uint64_t>(_StarType)                    << 62;
     Data |= static_cast<std::uint64_t>(SpectralType.HSpectralClass)  << 57;
-    Data |= static_cast<std::uint64_t>(SubclassHigh)                 << 53;
-    Data |= static_cast<std::uint64_t>(SubclassLow)                  << 49;
+    Data |= SubclassHigh                                             << 53;
+    Data |= SubclassLow                                              << 49;
     Data |= static_cast<std::uint64_t>(SpectralType.bIsAmStar)       << 48;
     Data |= static_cast<std::uint64_t>(SpectralType.MSpectralClass)  << 44;
 
-    SubclassHigh = static_cast<std::uint32_t>(SpectralType.AmSubclass);
+    SubclassHigh = static_cast<std::uint64_t>(SpectralType.AmSubclass);
     Intermediate = std::round((SpectralType.AmSubclass - SubclassHigh) * 1000.0f) / 1000.0f;
-    SubclassLow  = static_cast<std::uint32_t>(Intermediate * 10.0f);
+    SubclassLow  = static_cast<std::uint64_t>(Intermediate * 10.0f);
 
-    Data |= static_cast<std::uint64_t>(SubclassHigh)                 << 40;
-    Data |= static_cast<std::uint64_t>(SubclassLow)                  << 36;
+    Data |= SubclassHigh                                             << 40;
+    Data |= SubclassLow                                              << 36;
     Data |= static_cast<std::uint64_t>(SpectralType.LuminosityClass) << 32;
     Data |= static_cast<std::uint64_t>(SpectralType.SpecialMark)     << 0;
 
