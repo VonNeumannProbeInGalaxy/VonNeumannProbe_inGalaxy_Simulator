@@ -53,11 +53,14 @@ public:
 
 public:
     StellarGenerator() = delete;
-    StellarGenerator(const std::seed_seq& SeedSequence, GenOption Option = GenOption::kNormal, float UniverseAge = 1.38e10f,
-        float MassLowerLimit =  0.1f,     float MassUpperLimit = 300.0f,   GenDistribution MassDistribution = GenDistribution::kFromPdf,
-        float AgeLowerLimit  =  0.0f,     float AgeUpperLimit  = 1.26e10f, GenDistribution AgeDistribution  = GenDistribution::kFromPdf,
-        float FeHLowerLimit  = -4.0f,     float FeHUpperLimit  = 0.5f,     GenDistribution FeHDistribution  = GenDistribution::kFromPdf,
-        float CoilTempLimit  = 1514.114f, float dEpdM          = 2e6f);
+    StellarGenerator(
+        const std::seed_seq& SeedSequence, GenOption Option = GenOption::kNormal, float UniverseAge = 1.38e10f,
+        float MassLowerLimit =  0.1f,      float MassUpperLimit = 300.0f,   GenDistribution MassDistribution = GenDistribution::kFromPdf,
+        float AgeLowerLimit  =  0.0f,      float AgeUpperLimit  = 1.26e10f, GenDistribution AgeDistribution  = GenDistribution::kFromPdf,
+        float FeHLowerLimit  = -4.0f,      float FeHUpperLimit  = 0.5f,     GenDistribution FeHDistribution  = GenDistribution::kFromPdf,
+        float CoilTempLimit  =  1514.114f, float dEpdM          = 2e6f
+    );
+
     ~StellarGenerator() = default;
 
 public:

@@ -25,12 +25,18 @@ _MODULES_BEGIN
 
 // Tool macros
 // -----------
-#define GenerateDeathStarPlaceholder(Lifetime) {                                                                                                                                                                           \
-    StellarClass::SpectralType DeathStarClass{ StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false }; \
-    Astro::Star DeathStar;                                                                                                                                                                                                 \
-    DeathStar.SetStellarClass(StellarClass(StellarClass::StarType::kDeathStarPlaceholder, DeathStarClass));                                                                                                                \
-    DeathStar.SetLifetime(Lifetime);                                                                                                                                                                                       \
-    throw DeathStar;                                                                                                                                                                                                       \
+#define GenerateDeathStarPlaceholder(Lifetime) {                                                            \
+    StellarClass::SpectralType DeathStarClass{                                                              \
+        StellarClass::SpectralClass::kSpectral_Unknown,                                                     \
+        StellarClass::SpectralClass::kSpectral_Unknown,                                                     \
+        StellarClass::LuminosityClass::kLuminosity_Unknown,                                                 \
+        0, 0.0f, 0.0f, false                                                                                \
+    };                                                                                                      \
+                                                                                                            \
+    Astro::Star DeathStar;                                                                                  \
+    DeathStar.SetStellarClass(StellarClass(StellarClass::StarType::kDeathStarPlaceholder, DeathStarClass)); \
+    DeathStar.SetLifetime(Lifetime);                                                                        \
+    throw DeathStar;                                                                                        \
 }
 
 // Processor functions
@@ -1033,7 +1039,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
     DeathStar.SetInitialMass(InputMass * kSolarMass);
     DeathStar.SetAge(Age);
     DeathStar.SetMass(MassSol * kSolarMass);
-    DeathStar.SetLifetime(std::numeric_limits<double>::max());
+    DeathStar.SetLifetime(-DeathStar.GetLifetime());
     DeathStar.SetEvolutionProgress(EvolutionProgress);
     DeathStar.SetRadius(RadiusSol * kSolarRadius);
     DeathStar.SetEscapeVelocity(EscapeVelocity);
@@ -1338,14 +1344,14 @@ std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std
     if (PhaseChanges.size() != 2 || PhaseChanges.front()[StellarGenerator::_kPhaseIndex] != PhaseChanges.back()[StellarGenerator::_kPhaseIndex]) {
         LowerTimePoint = std::lower_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](const std::vector<double>& Lhs, double Rhs) -> bool {
-                return Lhs[0] < Rhs;
-            }
+            return Lhs[0] < Rhs;
+        }
         );
 
         UpperTimePoint = std::upper_bound(PhaseChanges.begin(), PhaseChanges.end(), TargetAge,
             [](double Lhs, const std::vector<double>& Rhs) -> bool {
-                return Lhs < Rhs[0];
-            }
+            return Lhs < Rhs[0];
+        }
         );
 
         if (LowerTimePoint == UpperTimePoint) {

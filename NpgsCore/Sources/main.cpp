@@ -8,29 +8,29 @@ int main() {
     Logger::Init();
     ThreadPool::Init();
 
-    std::println("Enter the star count:");
-    std::size_t StarCount = 0;
-    std::cin >> StarCount;
+    //std::println("Enter the star count:");
+    //std::size_t StarCount = 0;
+    //std::cin >> StarCount;
 
-    std::println("Enter the seed:");
-    unsigned Seed = 0;
-    std::cin >> Seed;
+    //std::println("Enter the seed:");
+    //unsigned Seed = 0;
+    //std::cin >> Seed;
 
-    Universe Space(Seed, StarCount);
-    Space.FillUniverse();
-    Space.CountStars();
+    //Universe Space(Seed, StarCount);
+    //Space.FillUniverse();
+    //Space.CountStars();
 
-    //std::random_device rd;
-    //unsigned seed = 472035744;//2442947453;
-    //std::println("Seed: {}", seed);
-    //StellarGenerator sg({ 42 }, Modules::StellarGenerator::GenOption::kNormal);
-    //StellarGenerator::BasicProperties b{ 4262355456.0000000, 0.0f, 53.748958587646484 };
-    //auto s = sg.GenerateStar(b);
+    std::random_device rd;
+    unsigned seed = rd();//800323521;//472035744;//2442947453;
+    std::println("Seed: {}", seed);
+    StellarGenerator sg({ seed }, Modules::StellarGenerator::GenOption::kNormal);
+    StellarGenerator::BasicProperties b{ 4.6e9f, 0.0f, 1.0f };
+    auto s = sg.GenerateStar(b);
 
-    //OrbitalGenerator og({ seed });
-    //StellarSystem ss;
-    //ss.StarData().push_back(std::make_unique<Astro::Star>(s));
-    //og.GeneratePlanets(ss);
+    OrbitalGenerator og({ seed });
+    StellarSystem ss;
+    ss.StarData().push_back(std::make_unique<Astro::Star>(s));
+    og.GeneratePlanets(ss);
     //std::vector<StellarSystem> sss(200000);
 
     //auto start = std::chrono::high_resolution_clock::now();
