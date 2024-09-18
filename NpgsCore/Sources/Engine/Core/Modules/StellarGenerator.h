@@ -70,13 +70,13 @@ private:
     void InitMistData();
 
     // Processor functions, as member functions to access class members
-    // -----------------------------------------------------------------
+    // ----------------------------------------------------------------
     float GenerateAge(float MaxPdf);
     float GenerateMass(float MaxPdf, bool bIsBinary);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassCoefficient);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
-    void CalcSpectralType(Astro::Star& StarData, float FeH);
+    void CalcSpectralType(float FeH, Astro::Star& StarData);
     StellarClass::LuminosityClass CalcLuminosityClass(const Astro::Star& StarData);
     void ProcessDeathStar(Astro::Star& DeathStar, double MergeStarProbability = 0.005);
     void GenerateMagnetic(Astro::Star& StarData);
@@ -108,9 +108,9 @@ public:
 
 private:
     std::mt19937 _RandomEngine;
-    std::array<UniformRealDistribution<>,       8> _MagneticGenerators;
+    std::array<UniformRealDistribution<>, 8>       _MagneticGenerators;
     std::array<std::shared_ptr<Distribution<>>, 4> _FeHGenerators;
-    std::array<UniformRealDistribution<>,       2> _SpinGenerators;
+    std::array<UniformRealDistribution<>, 2>       _SpinGenerators;
     UniformRealDistribution<> _AgeGenerator;
     UniformRealDistribution<> _CommonGenerator;
     UniformRealDistribution<> _LogMassGenerator;

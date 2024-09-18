@@ -27,7 +27,7 @@ _MODULES_BEGIN
 // -----------
 #define GenerateDeathStarPlaceholder(Lifetime) {                                                                                                                                                                           \
     StellarClass::SpectralType DeathStarClass{ StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false }; \
-    Astro::Star DeathStar;                                                                                                                                                                                           \
+    Astro::Star DeathStar;                                                                                                                                                                                                 \
     DeathStar.SetStellarClass(StellarClass(StellarClass::StarType::kDeathStarPlaceholder, DeathStarClass));                                                                                                                \
     DeathStar.SetLifetime(Lifetime);                                                                                                                                                                                       \
     throw DeathStar;                                                                                                                                                                                                       \
@@ -47,7 +47,7 @@ std::vector<double> InterpolateRows(const std::shared_ptr<StellarGenerator::WdMi
 std::vector<double> InterpolateRows(const auto& Data, double Target, const std::string& Header, int Index, bool bIsWhiteDwarf);
 std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient);
 std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient, bool bIsWhiteDwarf);
-void ExpandMistData(std::vector<double>& StarData, double TargetMass);
+void ExpandMistData(double TargetMass, std::vector<double>& StarData);
 
 // StellarGenerator implementations
 // --------------------------------
@@ -56,26 +56,26 @@ StellarGenerator::StellarGenerator(const std::seed_seq& SeedSequence, GenOption 
     _RandomEngine(SeedSequence),
     _MagneticGenerators({
         UniformRealDistribution<>(std::log10(500.0f), std::log10(3000.0f)),
-        UniformRealDistribution<>(1.0f, 3.0f),
-        UniformRealDistribution<>(0.0f, 1.0f),
-        UniformRealDistribution<>(3.0f, 4.0f),
+        UniformRealDistribution<>( 1.0f, 3.0f),
+        UniformRealDistribution<>( 0.0f, 1.0f),
+        UniformRealDistribution<>( 3.0f, 4.0f),
         UniformRealDistribution<>(-1.0f, 0.0f),
-        UniformRealDistribution<>(2.0f, 3.0f),
-        UniformRealDistribution<>(0.5f, 4.5f),
-        UniformRealDistribution<>(1e9f, 1e11f)
-        }),
+        UniformRealDistribution<>( 2.0f, 3.0f),
+        UniformRealDistribution<>( 0.5f, 4.5f),
+        UniformRealDistribution<>( 1e9f, 1e11f)
+    }),
 
     _FeHGenerators({
         std::make_shared<LogNormalDistribution<>>(-0.3f, 0.5f),
         std::make_shared<NormalDistribution<>>(-0.3f, 0.15f),
         std::make_shared<NormalDistribution<>>(-0.08f, 0.12f),
         std::make_shared<NormalDistribution<>>(0.05f, 0.16f)
-        }),
+    }),
 
     _SpinGenerators({
         UniformRealDistribution<>(3.0f, 5.0f),
         UniformRealDistribution<>(0.001f, 0.998f)
-        }),
+    }),
 
     _AgeGenerator(AgeLowerLimit, AgeUpperLimit),
     _CommonGenerator(0.0f, 1.0f),
@@ -172,7 +172,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenBasicProperties() {
 
     float FeH = 0.0f;
     do {
-        FeH = FeHGenerator->Generate(_RandomEngine);
+        FeH = (*FeHGenerator)(_RandomEngine);
     } while (FeH > FeHUpperLimit || FeH < FeHLowerLimit);
 
     if (Properties.Age > _UniverseAge - 1.38e10 + 8e9) {
@@ -298,7 +298,7 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
     Star.SetEvolutionPhase(EvolutionPhase);
     Star.SetNormal(glm::vec2(Theta, Phi));
 
-    CalcSpectralType(Star, static_cast<float>(StarData.back()));
+    CalcSpectralType(static_cast<float>(StarData.back()), Star);
     GenerateMagnetic(Star);
     GenerateSpin(Star);
 
@@ -463,7 +463,7 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
     Files.second = UpperMassFile;
 
     std::vector<double> Result = InterpolateMistData(Files, TargetAge, TargetMass, MassCoefficient);
-    Result.emplace_back(TargetFeH);
+    Result.emplace_back(TargetFeH); // 加入插值使用的金属丰度，用于计算光谱类型
 
     return Result;
 }
@@ -526,7 +526,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 
                 Result = InterpolateRows(StarData, EvolutionProgress);
                 Result.emplace_back(Lifetime);
-                ExpandMistData(Result, TargetMass);
+                ExpandMistData(TargetMass, Result);
             }
         }
     } else {
@@ -574,7 +574,7 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::s
     return Result;
 }
 
-void StellarGenerator::CalcSpectralType(Astro::Star& StarData, float FeH) {
+void StellarGenerator::CalcSpectralType(float FeH, Astro::Star& StarData) {
     float Teff = StarData.GetTeff();
     auto EvolutionPhase = StarData.GetEvolutionPhase();
 
@@ -1049,7 +1049,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
     DeathStar.SetEvolutionEnding(EvolutionEnding);
     DeathStar.SetStellarClass(StellarClass(DeathStarType, DeathStarClass));
 
-    CalcSpectralType(DeathStar, 0.0);
+    CalcSpectralType(0.0, DeathStar);
     GenerateMagnetic(DeathStar);
     GenerateSpin(DeathStar);
 }
@@ -1091,18 +1091,18 @@ void StellarGenerator::GenerateMagnetic(Astro::Star& StarData) {
             MagneticGenerator = &_MagneticGenerators[5];
         }
 
-        MagneticField = std::pow(10.0f, MagneticGenerator->Generate(_RandomEngine)) / 10000;
+        MagneticField = std::pow(10.0f, (*MagneticGenerator)(_RandomEngine)) / 10000;
 
         break;
     }
     case StellarClass::StarType::kWhiteDwarf: {
         MagneticGenerator = &_MagneticGenerators[6];
-        MagneticField = std::pow(10.0f, MagneticGenerator->Generate(_RandomEngine));
+        MagneticField = std::pow(10.0f, (*MagneticGenerator)(_RandomEngine));
         break;
     }
     case StellarClass::StarType::kNeutronStar: {
         MagneticGenerator = &_MagneticGenerators[7];
-        float B0 = MagneticGenerator->Generate(_RandomEngine);
+        float B0 = (*MagneticGenerator)(_RandomEngine);
         MagneticField = B0 / (std::pow((0.034f * StarData.GetAge() / 1e4f), 1.17f) + 0.84f);
         break;
     }
@@ -1156,7 +1156,7 @@ void StellarGenerator::GenerateSpin(Astro::Star& StarData) {
     }
     case StellarClass::StarType::kWhiteDwarf: {
         SpinGenerator = &_SpinGenerators[0];
-        Spin = std::pow(10.0f, SpinGenerator->Generate(_RandomEngine));
+        Spin = std::pow(10.0f, (*SpinGenerator)(_RandomEngine));
         break;
     }
     case StellarClass::StarType::kNeutronStar: {
@@ -1165,7 +1165,7 @@ void StellarGenerator::GenerateSpin(Astro::Star& StarData) {
     }
     case StellarClass::StarType::kBlackHole: { // 此处表示无量纲自旋参数，而非自转时间
         SpinGenerator = &_SpinGenerators[1];
-        Spin = SpinGenerator->Generate(_RandomEngine);
+        Spin = (*SpinGenerator)(_RandomEngine);
         break;
     }
     default: {
@@ -1227,8 +1227,8 @@ std::unordered_map<std::shared_ptr<StellarGenerator::MistData>, std::vector<std:
 std::shared_mutex StellarGenerator::_kCacheMutex;
 bool StellarGenerator::_kbMistDataInitiated = false;
 
-// Tool functions implementations
-// ------------------------------
+// Processor functions implementations
+// -----------------------------------
 float DefaultAgePdf(float Fuck, float UniverseAge) {
     float pt = 0.0f;
     if (Fuck - (UniverseAge - 13.8f) < 8.0f) {
@@ -1400,10 +1400,10 @@ std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::ve
 
 void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) {
     auto TrimArray = [](std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays) -> void {
-        const auto& LastArray1 = Arrays.first.back();
-        const auto& LastArray2 = Arrays.second.back();
-        const auto& SubLastArray1 = *std::prev(Arrays.first.end(), 2);
-        const auto& SubLastArray2 = *std::prev(Arrays.second.end(), 2);
+        std::vector<double> LastArray1 = Arrays.first.back();
+        std::vector<double> LastArray2 = Arrays.second.back();
+        std::vector<double> SubLastArray1 = *std::prev(Arrays.first.end(), 2);
+        std::vector<double> SubLastArray2 = *std::prev(Arrays.second.end(), 2);
 
         std::size_t MinSize = std::min(Arrays.first.size(), Arrays.second.size());
 
@@ -1539,7 +1539,7 @@ std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, st
     return Result;
 }
 
-void ExpandMistData(std::vector<double>& StarData, double TargetMass) {
+void ExpandMistData(double TargetMass, std::vector<double>& StarData) {
     double RadiusSol     = std::pow(10.0, StarData[StellarGenerator::_kLogRIndex]);
     double Teff          = std::pow(10.0, StarData[StellarGenerator::_kLogTeffIndex]);
     double LuminositySol = std::pow(RadiusSol, 2.0) * std::pow((Teff / kSolarTeff), 4.0);

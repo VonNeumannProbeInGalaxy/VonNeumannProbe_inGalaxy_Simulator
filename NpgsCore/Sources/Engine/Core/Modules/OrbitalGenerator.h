@@ -17,6 +17,14 @@ _MODULES_BEGIN
 
 class NPGS_API OrbitalGenerator {
 public:
+    struct PlanetaryDisk {
+        float InterRadiusAu;
+        float OuterRadiusAu;
+        float DiskMassSol;
+        float DustMassSol;
+    };
+
+public:
     OrbitalGenerator() = delete;
     OrbitalGenerator(const std::seed_seq& SeedSequence, float UniverseAge = 1.38e10f, float AsteroidUpperLimit = 1e21f, float LifeOccurrenceProbatility = 0.0114514f, bool bContainUltravioletChz = false, bool bEnableAsiFilter = true);
     ~OrbitalGenerator() = default;
@@ -25,17 +33,13 @@ public:
     void GenerateOrbitals(StellarSystem& System);
 
 public: // private:
+    // Processor functions, as member functions to access class members
+    // ----------------------------------------------------------------
     void GeneratePlanets(StellarSystem& System);
     void GenOrbitElements(StellarSystem::OrbitalElements& Orbit);
+    float CalcPlanetMass(float CoreMass, float NewCoreMass, float SemiMajorAxisAu, const PlanetaryDisk& PlanetaryDiskTempData, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet);
 
 private:
-    struct PlanetaryDisk {
-        float InterRadiusAu;
-        float OuterRadiusAu;
-        float DiskMassSol;
-        float DustMassSol;
-    };
-
     std::mt19937 _RandomEngine;
     std::array<BernoulliDistribution<>, 2> _RingsProbabilities;
     BernoulliDistribution<>                _AsteroidBeltProbability;

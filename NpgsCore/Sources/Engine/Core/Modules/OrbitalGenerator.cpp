@@ -15,8 +15,14 @@
 _NPGS_BEGIN
 _MODULES_BEGIN
 
-static float CalcPlanetRadius(Astro::Planet::PlanetType Type, float Mass);
+#define CalcPlanetMassByIndex(Index) CalcPlanetMass(kSolarMass * CoreMassesSol[Index], kSolarMass * NewCoreMassesSol[Index], Planets[Index]->GetMigration() ? MigratedOriginSemiMajorAxisAu : Orbits[Index].SemiMajorAxis / kAuToMeter, PlanetaryDiskTempData, Star, Planets[Index])
 
+// Processor functions
+// -------------------
+static float CalcPlanetRadius(float MassEarth, std::unique_ptr<Astro::Planet>& Planet);
+
+// OrbitalGenerator implementations
+// --------------------------------
 OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float UniverseAge, float AsteroidUpperLimit, float LifeOccurrenceProbability, bool bContainUltravioletChz, bool bEnableAsiFilter)
     :
     _RandomEngine(SeedSequence),
@@ -214,6 +220,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
     float MigratedOriginSemiMajorAxisAu = 0.0f;       // 原有的半长轴，用于计算内迁行星
 
     // Lambda 封装
+    // -----------
     auto ErasePlanets = [&](float Limit) -> void { // 抹掉位于临界线以内的行星
         for (std::size_t i = 0; i < PlanetCount; ++i) {
             if (Orbits[0].SemiMajorAxis < Limit) {
@@ -224,149 +231,6 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                 --PlanetCount;
             }
         }
-    };
-
-    auto CalcIcePlanetMass = [&](std::size_t Index) -> float {
-        float Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-        float Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-
-        float CoreMass = kSolarMass * CoreMassesSol[Index];
-
-        float OceanMassVolatiles        = 0.0f;
-        float OceanMassEnergeticNuclide = 0.0f;
-        float OceanMassZ                = 0.0f;
-
-        if (std::to_underlying(Star->GetEvolutionPhase()) > 1) {
-            Planets[Index]->SetPlanetType(Astro::Planet::PlanetType::kRocky);
-        } else {
-            OceanMassVolatiles = CoreMass * 0.15f;
-            OceanMassEnergeticNuclide = 0.15f * 5e-5f * CoreMass;
-            OceanMassZ = CoreMass * 1.35f - OceanMassVolatiles - OceanMassEnergeticNuclide;
-        }
-
-        float CoreMassVolatiles = CoreMass * 1e-4f * Random2;
-        float CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
-        float CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
-
-        Planets[Index]->SetOceanMass({ boost::multiprecision::uint128_t(OceanMassZ), boost::multiprecision::uint128_t(OceanMassVolatiles), boost::multiprecision::uint128_t(OceanMassEnergeticNuclide) });
-        Planets[Index]->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
-
-        return (OceanMassVolatiles + OceanMassEnergeticNuclide + OceanMassZ + CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
-    };
-
-    auto CalcOceanicMass = [&](std::size_t Index) -> float {
-        float Random1 = _CommonGenerator(_RandomEngine) * 1.35f;
-        float Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-        float Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-
-        float CoreMass = kSolarMass * CoreMassesSol[Index];
-
-        float OceanMassVolatiles        = 0.0f;
-        float OceanMassEnergeticNuclide = 0.0f;
-        float OceanMassZ                = 0.0f;
-
-        if (std::to_underlying(Star->GetEvolutionPhase()) > 1) {
-            Planets[Index]->SetPlanetType(Astro::Planet::PlanetType::kRocky);
-        } else {
-            OceanMassVolatiles = (CoreMass * Random1) / 9.0f;
-            OceanMassEnergeticNuclide = 5e-5f * OceanMassVolatiles;
-            OceanMassZ = CoreMass * Random1 - OceanMassVolatiles - OceanMassEnergeticNuclide;
-        }
-
-        float CoreMassVolatiles = CoreMass * 1e-4f * Random2;
-        float CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
-        float CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
-
-        Planets[Index]->SetOceanMass({ boost::multiprecision::uint128_t(OceanMassZ), boost::multiprecision::uint128_t(OceanMassVolatiles), boost::multiprecision::uint128_t(OceanMassEnergeticNuclide) });
-        Planets[Index]->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
-
-        return (OceanMassVolatiles + OceanMassEnergeticNuclide + OceanMassZ + CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
-    };
-
-    auto CalcIceGiantMass = [&](std::size_t Index) -> float {
-        float Random1 = 2.0f + _CommonGenerator(_RandomEngine) * (std::log10(20.0f) - std::log10(2.0f));
-        float Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-        float Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-
-        float CoreMass = kSolarMass * CoreMassesSol[Index];
-        float NewCoreMass = kSolarMass * NewCoreMassesSol[Index];
-        float SemiMajorAxisAu = Planets[Index]->GetMigration() ? MigratedOriginSemiMajorAxisAu : Orbits[Index].SemiMajorAxis / kAuToMeter;
-
-        float AtmosphereMassVolatiles = (NewCoreMass - CoreMass) / 9.0f + CoreMass * (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDiskTempData.InterRadiusAu) / (PlanetaryDiskTempData.OuterRadiusAu - PlanetaryDiskTempData.InterRadiusAu)) * Random1 / 6.0f;
-        float AtmosphereMassEnergeticNuclide = 5e-5f * AtmosphereMassVolatiles;
-        float AtmosphereMassZ = CoreMass * (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDiskTempData.InterRadiusAu) / (PlanetaryDiskTempData.OuterRadiusAu - PlanetaryDiskTempData.InterRadiusAu)) * Random1 + (NewCoreMass - CoreMass) - AtmosphereMassVolatiles - AtmosphereMassEnergeticNuclide;
-
-        float CoreMassVolatiles = CoreMass * 1e-4f * Random2;
-        float CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
-        float CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
-
-        Planets[Index]->SetAtmosphereMass({ boost::multiprecision::uint128_t(AtmosphereMassZ), boost::multiprecision::uint128_t(AtmosphereMassVolatiles), boost::multiprecision::uint128_t(AtmosphereMassEnergeticNuclide) });
-        Planets[Index]->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
-        Planets[Index]->SetPlanetType(Astro::Planet::PlanetType::kIceGiant);
-
-        return (AtmosphereMassVolatiles + AtmosphereMassEnergeticNuclide + AtmosphereMassZ + CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
-    };
-
-    auto CalcGasGiantMass = [&](std::size_t Index) -> float {
-        float Random1 = 7.0f + _CommonGenerator(_RandomEngine) * (std::min(50.0f, 1.0f / 0.0142f * std::pow(10.0f, Star->GetFeH())) - 7.0f);
-        float Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-        float Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-
-        float CoreMass = kSolarMass * CoreMassesSol[Index];
-        float NewCoreMass = kSolarMass * NewCoreMassesSol[Index];
-        float SemiMajorAxisAu = Planets[Index]->GetMigration() ? MigratedOriginSemiMajorAxisAu : Orbits[Index].SemiMajorAxis / kAuToMeter;
-
-        float AtmosphereMassZ = (0.0142f * std::pow(10.0f, Star->GetFeH())) * CoreMass * (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDiskTempData.InterRadiusAu) / (PlanetaryDiskTempData.OuterRadiusAu - PlanetaryDiskTempData.InterRadiusAu)) * Random1 + (1.0f - (1.0f + 5e-5f) / 9.0f) * (NewCoreMass - CoreMass);
-        float AtmosphereMassEnergeticNuclide = 5e-5f * (CoreMass * (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDiskTempData.InterRadiusAu) / (PlanetaryDiskTempData.OuterRadiusAu - PlanetaryDiskTempData.InterRadiusAu)) * Random1 + (NewCoreMass - CoreMass) / 9.0f);
-        float AtmosphereMassVolatiles = CoreMass * (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDiskTempData.InterRadiusAu) / (PlanetaryDiskTempData.OuterRadiusAu - PlanetaryDiskTempData.InterRadiusAu)) * Random1 + (NewCoreMass - CoreMass) - AtmosphereMassZ - AtmosphereMassEnergeticNuclide;
-
-        float CoreMassVolatiles = CoreMass * 1e-4f * Random2;
-        float CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
-        float CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
-
-        Planets[Index]->SetAtmosphereMass({ boost::multiprecision::uint128_t(AtmosphereMassZ), boost::multiprecision::uint128_t(AtmosphereMassVolatiles), boost::multiprecision::uint128_t(AtmosphereMassEnergeticNuclide) });
-        Planets[Index]->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
-        Planets[Index]->SetPlanetType(Astro::Planet::PlanetType::kGasGiant);
-
-        return (AtmosphereMassVolatiles + AtmosphereMassEnergeticNuclide + AtmosphereMassZ + CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
-    };
-
-    auto CalcRockyAsteroidMass = [&](std::size_t Index) -> float {
-        float Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-        float Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-
-        float CoreMass = kSolarMass * CoreMassesSol[Index];
-
-        float CoreMassVolatiles = CoreMass * 1e-4f * Random2;
-        float CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
-        float CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
-
-        Planets[Index]->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
-
-        return (CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
-    };
-
-    auto CalcRockyIceAsteroidMass = [&](std::size_t Index) -> float {
-        float Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-        float Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-
-        float CoreMass = kSolarMass * CoreMassesSol[Index];
-
-        float OceanMassVolatiles = CoreMass * 0.15f;
-        float OceanMassEnergeticNuclide = 0.15f * 5e-5f * CoreMass;
-        float OceanMassZ = CoreMass * 1.35f - OceanMassVolatiles - OceanMassEnergeticNuclide;
-
-        float CoreMassVolatiles = CoreMass * 1e-4f * Random2;
-        float CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
-        float CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
-
-        CoreMassVolatiles += OceanMassVolatiles;
-        CoreMassEnergeticNuclide += OceanMassEnergeticNuclide;
-        CoreMassZ += OceanMassZ;
-
-        Planets[Index]->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
-
-        return (CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
     };
 
     StarType = Star->GetStellarClass().GetStarType();
@@ -415,7 +279,6 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
             PrevMainSequenceBalanceTemp = std::pow(PrevMainSequenceBalanceTemp, 0.25f);
             CommonFactor = PrevMainSequenceBalanceTemp * 4.638759e16f;
-            Planets[i]->SetBalanceTemperature(PrevMainSequenceBalanceTemp);
 
             // 开除大行星
             if (NewCoreMassesSol[i] * kSolarMass < _AsteroidUpperLimit || Planets[i]->GetPlanetType() == Astro::Planet::PlanetType::kRockyAsteroidCluster) {
@@ -449,11 +312,14 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                     float Coefficient = std::pow(10.0f, Exponent);
                     CoreMassesSol[i] *= Coefficient; // 对核心质量打个折扣
                 } else {
+                    // 计算初始核心半径
                     if (Orbits[i].SemiMajorAxis / kAuToMeter < FrostLineAu) {
-                        Planets[i]->SetRadius(CalcPlanetRadius(Astro::Planet::PlanetType::kRocky, NewCoreMassesSol[i] * kSolarMassToEarth));
+                        Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kRocky);
                     } else {
-                        Planets[i]->SetRadius(CalcPlanetRadius(Astro::Planet::PlanetType::kIcePlanet, NewCoreMassesSol[i] * kSolarMassToEarth));
+                        Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kIcePlanet);
                     }
+
+                    CalcPlanetRadius(NewCoreMassesSol[i] * kSolarMassToEarth, Planets[i]);
 
                     if ((NewCoreMassesSol[i] * kSolarMass / Planets[i]->GetRadius()) > (CommonFactor / 4.0f)) {
                         Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kGasGiant);
@@ -464,11 +330,11 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                     } else {
                         if (Orbits[i].SemiMajorAxis / kAuToMeter > FrostLineAu) {
                             Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kIcePlanet);
-                            Planets[i]->SetRadius(CalcPlanetRadius(Astro::Planet::PlanetType::kIcePlanet, NewCoreMassesSol[i] * kSolarMassToEarth));
                         } else {
-                            // 行星默认为 Rocky，不需要再另行更改
-                            Planets[i]->SetRadius(CalcPlanetRadius(Astro::Planet::PlanetType::kRocky, NewCoreMassesSol[i] * kSolarMassToEarth));
+                            Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kRocky);
                         }
+
+                        CalcPlanetRadius(NewCoreMassesSol[i] * kSolarMassToEarth, Planets[i]);
                     }
                 }
             }
@@ -551,7 +417,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                 Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kWhiteDwarf && Orbits[i].SemiMajorAxis < 2.0f * StarRadiusMaxSol * kSolarRadius) {
                 Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kChthonian);
                 NewCoreMassesSol[i] = CoreMassesSol[i];
-                Planets[i]->SetRadius(CalcPlanetRadius(Astro::Planet::PlanetType::kChthonian, CoreMassesSol[i] * kSolarMassToEarth));
+                CalcPlanetRadius(CoreMassesSol[i] * kSolarMassToEarth, Planets[i]);
             }
         }
 
@@ -588,51 +454,23 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
             auto PlanetType = Planets[i]->GetPlanetType();
             switch (PlanetType) {
             case Astro::Planet::PlanetType::kIcePlanet:
-                Planets[i]->SetRadius(kEarthRadius * 1.3f * std::pow(CalcIcePlanetMass(i), 1.0f / 3.905f));
-                break;
             case Astro::Planet::PlanetType::kOceanic:
-                Planets[i]->SetRadius(kEarthRadius * 1.3f * std::pow(CalcOceanicMass(i), 1.0f / 3.905f));
+            case Astro::Planet::PlanetType::kGasGiant:
+            case Astro::Planet::PlanetType::kRockyAsteroidCluster:
+            case Astro::Planet::PlanetType::kRockyIceAsteroidCluster:
+                CalcPlanetRadius(CalcPlanetMassByIndex(i), Planets[i]);
                 break;
             case Astro::Planet::PlanetType::kIceGiant:
-                if ((PlanetMassEarth = CalcIceGiantMass(i)) < 10.0f) {
+                if ((PlanetMassEarth = CalcPlanetMassByIndex(i)) < 10.0f) {
                     Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kSubIceGiant);
                 }
-                break;
-            case Astro::Planet::PlanetType::kHotIceGiant:
-                if ((PlanetMassEarth = CalcIceGiantMass(i)) < 10.0f) {
-                    Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kHotSubIceGiant);
-                }
-                break;
-            case Astro::Planet::PlanetType::kGasGiant:
-                PlanetMassEarth = CalcGasGiantMass(i);
-                break;
-            case Astro::Planet::PlanetType::kRockyAsteroidCluster:
-                PlanetMassEarth = CalcRockyAsteroidMass(i);
-                break;
-            case Astro::Planet::PlanetType::kRockyIceAsteroidCluster:
-                PlanetMassEarth = CalcRockyIceAsteroidMass(i);
                 break;
             default:
                 break;
             }
 
-            PlanetType = Planets[i]->GetPlanetType();
-
-            // 计算最终半径
-            if (PlanetType == Astro::Planet::PlanetType::kIceGiant ||
-                PlanetType == Astro::Planet::PlanetType::kSubIceGiant ||
-                PlanetType == Astro::Planet::PlanetType::kGasGiant) {
-                if (PlanetMassEarth < 6.2f) {
-                    Planets[i]->SetRadius(kEarthRadius * 1.41f * std::pow(PlanetMassEarth, 1.0f / 3.905f));
-                } else if (PlanetMassEarth < 15.0f) {
-                    Planets[i]->SetRadius(kEarthRadius * 0.6f * std::pow(PlanetMassEarth, 0.72f));
-                } else {
-                    float CommonFactor = PlanetMassEarth / (kJupiterMass / kEarthMass);
-                    Planets[i]->SetRadius(kEarthRadius * 11.0f * (0.96f + 0.21f * std::log10(CommonFactor) - 0.2f * std::pow(std::log10(CommonFactor), 2.0f) + 0.1f * std::pow(CommonFactor, 0.215f)));
-                }
-            }
-
             // 判断热木星
+            PlanetType = Planets[i]->GetPlanetType();
             float PoyntingVector = static_cast<float>(Star->GetLuminosity()) / (4.0f * kPi * std::pow(Orbits[i].SemiMajorAxis, 2.0f));
 #ifdef DEBUG_OUTPUT
             std::println("Planet {} poynting vector: {} W/m^2", i + 1, PoyntingVector);
@@ -922,7 +760,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                 }
 
                 if (bCanHasLife) {
-                    _CivilizationGenerator->GenerateCivilization(Star->GetAge(), PoyntingVector, Planets[i]->GetRadius(), Planets[i]->GetMassFloat(), Planets[i].get());
+                    _CivilizationGenerator->GenerateCivilization(Star->GetAge(), PoyntingVector, Planets[i]->GetRadius(), Planets[i]->GetMassFloat(), Planets[i]);
                 }
             }
 
@@ -985,13 +823,166 @@ void OrbitalGenerator::GenOrbitElements(StellarSystem::OrbitalElements& Orbit) {
     Orbit.TrueAnomaly              = _CommonGenerator(_RandomEngine) * 360.0f;
 }
 
-// Tool functions implementations
-// ------------------------------
-float CalcPlanetRadius(Astro::Planet::PlanetType Type, float Mass) {
-    float RadiusEarth = 0.0f;
-    float MassEarth = Mass / kEarthMass;
+float OrbitalGenerator::CalcPlanetMass(float CoreMass, float NewCoreMass, float SemiMajorAxisAu, const PlanetaryDisk& PlanetaryDiskTempData, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet) {
+    float Random1 = 0.0f;
+    float Random2 = 0.0f;
+    float Random3 = 0.0f;
 
-    switch (Type) {
+    float AtmosphereMassVolatiles        = 0.0f;
+    float AtmosphereMassEnergeticNuclide = 0.0f;
+    float AtmosphereMassZ                = 0.0f;
+    float CoreMassVolatiles              = 0.0f;
+    float CoreMassEnergeticNuclide       = 0.0f;
+    float CoreMassZ                      = 0.0f;
+    float OceanMassVolatiles             = 0.0f;
+    float OceanMassEnergeticNuclide      = 0.0f;
+    float OceanMassZ                     = 0.0f;
+
+    auto CalcIcePlanetMass = [&]() -> float {
+        Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+        Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+
+        if (std::to_underlying(Star->GetEvolutionPhase()) < 1) {
+            OceanMassVolatiles = CoreMass * 0.15f;
+            OceanMassEnergeticNuclide = 0.15f * 5e-5f * CoreMass;
+            OceanMassZ = CoreMass * 1.35f - OceanMassVolatiles - OceanMassEnergeticNuclide;
+        } else {
+            Planet->SetPlanetType(Astro::Planet::PlanetType::kRocky);
+        }
+
+        CoreMassVolatiles = CoreMass * 1e-4f * Random2;
+        CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
+        CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
+
+        Planet->SetOceanMass({ boost::multiprecision::uint128_t(OceanMassZ), boost::multiprecision::uint128_t(OceanMassVolatiles), boost::multiprecision::uint128_t(OceanMassEnergeticNuclide) });
+        Planet->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
+
+        return (OceanMassVolatiles + OceanMassEnergeticNuclide + OceanMassZ + CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
+    };
+
+    auto CalcOceanicMass = [&]() -> float {
+        Random1 = _CommonGenerator(_RandomEngine) * 1.35f;
+        Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+        Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+
+        if (std::to_underlying(Star->GetEvolutionPhase()) < 1) {
+            OceanMassVolatiles = (CoreMass * Random1) / 9.0f;
+            OceanMassEnergeticNuclide = 5e-5f * OceanMassVolatiles;
+            OceanMassZ = CoreMass * Random1 - OceanMassVolatiles - OceanMassEnergeticNuclide;
+        } else {
+            Planet->SetPlanetType(Astro::Planet::PlanetType::kRocky);
+        }
+
+        CoreMassVolatiles = CoreMass * 1e-4f * Random2;
+        CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
+        CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
+
+        Planet->SetOceanMass({ boost::multiprecision::uint128_t(OceanMassZ), boost::multiprecision::uint128_t(OceanMassVolatiles), boost::multiprecision::uint128_t(OceanMassEnergeticNuclide) });
+        Planet->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
+
+        return (OceanMassVolatiles + OceanMassEnergeticNuclide + OceanMassZ + CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
+    };
+
+    auto CalcIceGiantMass = [&]() -> float {
+        Random1 = 2.0f + _CommonGenerator(_RandomEngine) * (std::log10(20.0f) - std::log10(2.0f));
+        Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+        Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+
+        AtmosphereMassVolatiles = (NewCoreMass - CoreMass) / 9.0f + CoreMass * (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDiskTempData.InterRadiusAu) / (PlanetaryDiskTempData.OuterRadiusAu - PlanetaryDiskTempData.InterRadiusAu)) * Random1 / 6.0f;
+        AtmosphereMassEnergeticNuclide = 5e-5f * AtmosphereMassVolatiles;
+        AtmosphereMassZ = CoreMass * (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDiskTempData.InterRadiusAu) / (PlanetaryDiskTempData.OuterRadiusAu - PlanetaryDiskTempData.InterRadiusAu)) * Random1 + (NewCoreMass - CoreMass) - AtmosphereMassVolatiles - AtmosphereMassEnergeticNuclide;
+
+        CoreMassVolatiles = CoreMass * 1e-4f * Random2;
+        CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
+        CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
+
+        Planet->SetAtmosphereMass({ boost::multiprecision::uint128_t(AtmosphereMassZ), boost::multiprecision::uint128_t(AtmosphereMassVolatiles), boost::multiprecision::uint128_t(AtmosphereMassEnergeticNuclide) });
+        Planet->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
+        Planet->SetPlanetType(Astro::Planet::PlanetType::kIceGiant);
+
+        return (AtmosphereMassVolatiles + AtmosphereMassEnergeticNuclide + AtmosphereMassZ + CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
+    };
+
+    auto CalcGasGiantMass = [&]() -> float {
+        Random1 = 7.0f + _CommonGenerator(_RandomEngine) * (std::min(50.0f, 1.0f / 0.0142f * std::pow(10.0f, Star->GetFeH())) - 7.0f);
+        Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+        Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+
+        AtmosphereMassZ = (0.0142f * std::pow(10.0f, Star->GetFeH())) * CoreMass * (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDiskTempData.InterRadiusAu) / (PlanetaryDiskTempData.OuterRadiusAu - PlanetaryDiskTempData.InterRadiusAu)) * Random1 + (1.0f - (1.0f + 5e-5f) / 9.0f) * (NewCoreMass - CoreMass);
+        AtmosphereMassEnergeticNuclide = 5e-5f * (CoreMass * (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDiskTempData.InterRadiusAu) / (PlanetaryDiskTempData.OuterRadiusAu - PlanetaryDiskTempData.InterRadiusAu)) * Random1 + (NewCoreMass - CoreMass) / 9.0f);
+        AtmosphereMassVolatiles = CoreMass * (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDiskTempData.InterRadiusAu) / (PlanetaryDiskTempData.OuterRadiusAu - PlanetaryDiskTempData.InterRadiusAu)) * Random1 + (NewCoreMass - CoreMass) - AtmosphereMassZ - AtmosphereMassEnergeticNuclide;
+
+        CoreMassVolatiles = CoreMass * 1e-4f * Random2;
+        CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
+        CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
+
+        Planet->SetAtmosphereMass({ boost::multiprecision::uint128_t(AtmosphereMassZ), boost::multiprecision::uint128_t(AtmosphereMassVolatiles), boost::multiprecision::uint128_t(AtmosphereMassEnergeticNuclide) });
+        Planet->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
+        Planet->SetPlanetType(Astro::Planet::PlanetType::kGasGiant);
+
+        return (AtmosphereMassVolatiles + AtmosphereMassEnergeticNuclide + AtmosphereMassZ + CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
+    };
+
+    auto CalcRockyAsteroidMass = [&]() -> float {
+        Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+        Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+
+        CoreMassVolatiles = CoreMass * 1e-4f * Random2;
+        CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
+        CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
+
+        Planet->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
+
+        return (CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
+    };
+
+    auto CalcRockyIceAsteroidMass = [&]() -> float {
+        Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+        Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+
+        OceanMassVolatiles = CoreMass * 0.15f;
+        OceanMassEnergeticNuclide = 0.15f * 5e-5f * CoreMass;
+        OceanMassZ = CoreMass * 1.35f - OceanMassVolatiles - OceanMassEnergeticNuclide;
+
+        CoreMassVolatiles = CoreMass * 1e-4f * Random2;
+        CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
+        CoreMassZ = CoreMass - CoreMassVolatiles - CoreMassEnergeticNuclide;
+
+        CoreMassVolatiles += OceanMassVolatiles;
+        CoreMassEnergeticNuclide += OceanMassEnergeticNuclide;
+        CoreMassZ += OceanMassZ;
+
+        Planet->SetCoreMass({ boost::multiprecision::uint128_t(CoreMassZ), boost::multiprecision::uint128_t(CoreMassVolatiles), boost::multiprecision::uint128_t(CoreMassEnergeticNuclide) });
+
+        return (CoreMassVolatiles + CoreMassEnergeticNuclide + CoreMassZ) / kEarthMass;
+    };
+
+    auto PlanetType = Planet->GetPlanetType();
+    switch (PlanetType) {
+    case Astro::Planet::PlanetType::kIcePlanet:
+        return CalcIcePlanetMass();
+    case Astro::Planet::PlanetType::kOceanic:
+        return CalcOceanicMass();
+    case Astro::Planet::PlanetType::kIceGiant:
+        return CalcIceGiantMass();
+    case Astro::Planet::PlanetType::kGasGiant:
+        return CalcGasGiantMass();
+    case Astro::Planet::PlanetType::kRockyAsteroidCluster:
+        return CalcRockyAsteroidMass();
+    case Astro::Planet::PlanetType::kRockyIceAsteroidCluster:
+        return CalcRockyIceAsteroidMass();
+    default:
+        return 0.0f;
+    }
+}
+
+// Processor functions implementations
+// -----------------------------------
+float CalcPlanetRadius(float MassEarth, std::unique_ptr<Astro::Planet>& Planet) {
+    float RadiusEarth = 0.0f;
+    auto  PlanetType  = Planet->GetPlanetType();
+
+    switch (PlanetType) {
     case Astro::Planet::PlanetType::kRocky:
     case Astro::Planet::PlanetType::kTerra:
     case Astro::Planet::PlanetType::kChthonian:
@@ -1025,7 +1016,10 @@ float CalcPlanetRadius(Astro::Planet::PlanetType Type, float Mass) {
         break;
     }
 
-    return RadiusEarth * kEarthRadius;
+    float Radius = RadiusEarth * kEarthRadius;
+    Planet->SetRadius(Radius);
+
+    return Radius;
 }
 
 _MODULES_END

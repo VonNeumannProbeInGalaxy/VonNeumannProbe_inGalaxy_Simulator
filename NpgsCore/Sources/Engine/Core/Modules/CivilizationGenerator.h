@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <memory>
 #include <random>
 
 #include "Engine/Base/NpgsObject/Astro/Planet.h"
@@ -16,7 +17,7 @@ public:
     CivilizationGenerator(const std::seed_seq& SeedSequence, float LifeOccurrenceProbability, bool bEnableAsiFilter = false);
     ~CivilizationGenerator() = default;
 
-    void GenerateCivilization(double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass, Astro::Planet* Planet);
+    void GenerateCivilization(double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass, std::unique_ptr<Astro::Planet>& Planet);
 
 private:
     std::mt19937 _RandomEngine;
