@@ -837,16 +837,16 @@ StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const Astro:
 }
 
 void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStarProbability) {
-    float InputAge  = DeathStar.GetAge();
-    float InputFeH  = DeathStar.GetFeH();
-    float InputMass = DeathStar.GetInitialMass();
+    double InputAge  = DeathStar.GetAge();
+    float  InputFeH  = DeathStar.GetFeH();
+    float  InputMass = DeathStar.GetInitialMass();
 
     Astro::Star::Phase         EvolutionPhase{};
     Astro::Star::Death         EvolutionEnding{};
     StellarClass::StarType     DeathStarType{};
     StellarClass::SpectralType DeathStarClass{};
 
-    float DeathStarAge  = InputAge - static_cast<float>(DeathStar.GetLifetime());
+    double DeathStarAge = InputAge - static_cast<float>(DeathStar.GetLifetime());
     float DeathStarMass = 0.0f;
 
     if (InputFeH <= -2.0f && InputMass >= 140 && InputMass < 250) {
@@ -957,7 +957,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
 
     switch (DeathStarType) {
     case StellarClass::StarType::kWhiteDwarf: {
-        std::vector<double> WhiteDwarfData = GetActuallyMistData({ DeathStarAge, 0.0f, DeathStarMass }, true, true);
+        std::vector<double> WhiteDwarfData = GetActuallyMistData({ static_cast<float>(DeathStarAge), 0.0f, DeathStarMass }, true, true);
 
         StarAge      = static_cast<float>(WhiteDwarfData[_kWdStarAgeIndex]);
         LogR         = static_cast<float>(WhiteDwarfData[_kWdLogRIndex]);
@@ -973,7 +973,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
 
         if (DeathStarAge > StarAge) {
             float T1   = std::pow(10.0f, LogTeff);
-            LogTeff    = std::log10(T1 * std::pow((20.0f * StarAge) / (DeathStarAge + 19.0f * StarAge), 7.0f / 4.0f));
+            LogTeff    = static_cast<float>(std::log10(T1 * std::pow((20.0 * StarAge) / (DeathStarAge + 19.0 * StarAge), 7.0 / 4.0)));
             LogCenterT = std::numeric_limits<float>::min();
         }
 
@@ -998,7 +998,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
         }
 
         LogR    = std::log10(Radius * 1000 / kSolarRadius);
-        LogTeff = std::log10(1.5e8f * std::pow((DeathStarAge - 1e5f) + 22000, -0.5f));
+        LogTeff = static_cast<float>(std::log10(1.5e8 * std::pow((DeathStarAge - 1e5) + 22000, -0.5)));
 
         SurfaceZ                = std::numeric_limits<float>::quiet_NaN();
         SurfaceEnergeticNuclide = std::numeric_limits<float>::quiet_NaN();
@@ -1023,7 +1023,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
     }
 
     double EvolutionProgress = static_cast<double>(EvolutionPhase);
-    float  Age               = DeathStarAge;
+    double Age               = DeathStarAge;
     float  MassSol           = DeathStarMass;
     float  RadiusSol         = std::pow(10.0f, LogR);
     float  Teff              = std::pow(10.0f, LogTeff);
@@ -1109,7 +1109,7 @@ void StellarGenerator::GenerateMagnetic(Astro::Star& StarData) {
     case StellarClass::StarType::kNeutronStar: {
         MagneticGenerator = &_MagneticGenerators[7];
         float B0 = (*MagneticGenerator)(_RandomEngine);
-        MagneticField = B0 / (std::pow((0.034f * StarData.GetAge() / 1e4f), 1.17f) + 0.84f);
+        MagneticField = B0 / static_cast<float>(std::pow((0.034f * StarData.GetAge() / 1e4f), 1.17f) + 0.84f);
         break;
     }
     case StellarClass::StarType::kBlackHole: {
@@ -1129,7 +1129,7 @@ void StellarGenerator::GenerateMagnetic(Astro::Star& StarData) {
 
 void StellarGenerator::GenerateSpin(Astro::Star& StarData) {
     StellarClass::StarType StarType = StarData.GetStellarClass().GetStarType();
-    float StarAge   = StarData.GetAge();
+    float StarAge   = static_cast<float>(StarData.GetAge());
     float MassSol   = static_cast<float>(StarData.GetMass() / kSolarMass);
     float RadiusSol = StarData.GetRadius() / kSolarRadius;
     float Spin      = 0.0f;

@@ -24,7 +24,7 @@ inline CelestialBody& CelestialBody::SetName(const std::string& Name) {
     return *this;
 }
 
-inline CelestialBody& CelestialBody::SetAge(float Age) {
+inline CelestialBody& CelestialBody::SetAge(double Age) {
     _Properties.Age = Age;
     return *this;
 }
@@ -62,7 +62,7 @@ inline const std::string& CelestialBody::GetName() const {
     return _Properties.Name;
 }
 
-inline float CelestialBody::GetAge() const {
+inline double CelestialBody::GetAge() const {
     return _Properties.Age;
 }
 

@@ -6,7 +6,7 @@ int main() {
     using namespace Npgs::Modules;
 
     Logger::Init();
-    ThreadPool::Init();
+    //ThreadPool::Init();
 
     //std::println("Enter the star count:");
     //std::size_t StarCount = 0;
@@ -23,18 +23,19 @@ int main() {
     std::random_device rd;
     unsigned seed = rd();//800323521;//472035744;//2442947453;
     std::println("Seed: {}", seed);
-    StellarGenerator sg({ seed }, Modules::StellarGenerator::GenOption::kNormal);
-    StellarGenerator::BasicProperties b{ 4.6e9f, 0.0f, 1.0f };
+    StellarGenerator sg({ seed });
+    StellarGenerator::BasicProperties b{ 1.6e6f, 0.0f, 1.0f, Modules::StellarGenerator::GenOption::kMergeStar };
     auto s = sg.GenerateStar(b);
 
     OrbitalGenerator og({ seed });
     StellarSystem ss;
     ss.StarData().push_back(std::make_unique<Astro::Star>(s));
     og.GeneratePlanets(ss);
+
     //std::vector<StellarSystem> sss(200000);
 
     //auto start = std::chrono::high_resolution_clock::now();
-    //for (int i = 0; i != 200000; ++i) {
+    //for (int i = 0; i != 20000; ++i) {
     //    try {
     //        sss[i].StarData().emplace_back(std::make_unique<Astro::Star>(s));
     //        og.GeneratePlanets(sss[i]);

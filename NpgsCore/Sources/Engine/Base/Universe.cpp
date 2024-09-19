@@ -291,7 +291,7 @@ void Universe::CountStars() const {
     };
 
     struct Oldest {
-        float Age{};
+        double Age{};
         const Astro::Star* Star = nullptr;
     };
 
@@ -363,7 +363,7 @@ void Universe::CountStars() const {
     };
 
     auto CountOldest = [](const Astro::Star* Star, Oldest& OldestStar) {
-        float Age = 0.0f;
+        double Age = 0.0;
         Age = Star->GetAge();
         if (OldestStar.Age < Age) {
             OldestStar.Age = Age;
