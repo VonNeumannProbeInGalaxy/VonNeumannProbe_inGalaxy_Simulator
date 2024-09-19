@@ -79,8 +79,8 @@ private:
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassCoefficient);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
-    void CalcSpectralType(float FeH, Astro::Star& StarData);
-    StellarClass::LuminosityClass CalcLuminosityClass(const Astro::Star& StarData);
+    void CalculateSpectralType(float FeH, Astro::Star& StarData);
+    StellarClass::LuminosityClass CalculateLuminosityClass(const Astro::Star& StarData);
     void ProcessDeathStar(Astro::Star& DeathStar, double MergeStarProbability = 0.005);
     void GenerateMagnetic(Astro::Star& StarData);
     void GenerateSpin(Astro::Star& StarData);

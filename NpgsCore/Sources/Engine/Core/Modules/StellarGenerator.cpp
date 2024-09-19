@@ -43,7 +43,7 @@ _MODULES_BEGIN
 // -------------------
 static float DefaultAgePdf(float Age, float UniverseAge);
 static float DefaultLogMassPdf(float Mass, bool bIsBinary);
-double CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
+double CalculateEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
 std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
 std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
 void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays);
@@ -304,7 +304,7 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
     Star.SetEvolutionPhase(EvolutionPhase);
     Star.SetNormal(glm::vec2(Theta, Phi));
 
-    CalcSpectralType(static_cast<float>(StarData.back()), Star);
+    CalculateSpectralType(static_cast<float>(StarData.back()), Star);
     GenerateMagnetic(Star);
     GenerateSpin(Star);
 
@@ -493,7 +493,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             }
 
             std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ LowerPhaseChanges, UpperPhaseChanges };
-            double EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassCoefficient);
+            double EvolutionProgress = CalculateEvolutionProgress(PhaseChangePair, TargetAge, MassCoefficient);
 
             double LowerLifetime = PhaseChangePair.first.back()[_kStarAgeIndex];
             double UpperLifetime = PhaseChangePair.second.back()[_kStarAgeIndex];
@@ -512,7 +512,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             double Lifetime = 0.0;
             if (TargetMass >= 0.1) {
                 std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{ PhaseChanges, {} };
-                EvolutionProgress = CalcEvolutionProgress(PhaseChangePair, TargetAge, MassCoefficient);
+                EvolutionProgress = CalculateEvolutionProgress(PhaseChangePair, TargetAge, MassCoefficient);
                 Lifetime = PhaseChanges.back()[_kStarAgeIndex];
                 Result = InterpolateRows(StarData, EvolutionProgress);
                 Result.emplace_back(Lifetime);
@@ -580,7 +580,7 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::s
     return Result;
 }
 
-void StellarGenerator::CalcSpectralType(float FeH, Astro::Star& StarData) {
+void StellarGenerator::CalculateSpectralType(float FeH, Astro::Star& StarData) {
     float Teff = StarData.GetTeff();
     auto EvolutionPhase = StarData.GetEvolutionPhase();
 
@@ -594,14 +594,14 @@ void StellarGenerator::CalcSpectralType(float FeH, Astro::Star& StarData) {
     float SurfaceH1 = StarData.GetSurfaceH1();
     float MinSurfaceH1 = Astro::Star::_kFeHSurfaceH1Map.at(FeH) - 0.01f;
 
-    std::function<void(Astro::Star::Phase, float)> CalcSpectralSubclass = [&](Astro::Star::Phase Phase, float SurfaceH1) -> void {
+    std::function<void(Astro::Star::Phase, float)> CalculateSpectralSubclass = [&](Astro::Star::Phase Phase, float SurfaceH1) -> void {
         std::uint32_t SpectralClass = Phase == Astro::Star::Phase::kWolfRayet ? 11 : 0;
 
         if (Phase != Astro::Star::Phase::kWolfRayet) {
             if (Phase == Astro::Star::Phase::kMainSequence) {
                 if (SurfaceH1 < 0.5f) { // 如果表面氢质量分数低于 0.5 并且还是主序星阶段，转为 WR 星
                     EvolutionPhase = Astro::Star::Phase::kWolfRayet;
-                    CalcSpectralSubclass(EvolutionPhase, SurfaceH1);
+                    CalculateSpectralSubclass(EvolutionPhase, SurfaceH1);
                     return;
                 }
             }
@@ -670,19 +670,19 @@ void StellarGenerator::CalcSpectralType(float FeH, Astro::Star& StarData) {
         switch (StarType) {
         case StellarClass::StarType::kNormalStar: {
             if (Teff < 54000) { // 高于 O0 上限，转到通过表面氢质量分数判断阶段
-                CalcSpectralSubclass(EvolutionPhase, SurfaceH1);
+                CalculateSpectralSubclass(EvolutionPhase, SurfaceH1);
 
                 if (EvolutionPhase != Astro::Star::Phase::kWolfRayet) {
                     if (EvolutionPhase == Astro::Star::Phase::kPrevMainSequence) {
-                        SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
+                        SpectralType.LuminosityClass = CalculateLuminosityClass(StarData);
                     } else if (EvolutionPhase == Astro::Star::Phase::kMainSequence) {
                         if (SpectralType.HSpectralClass == StellarClass::SpectralClass::kSpectral_O && SurfaceH1 < MinSurfaceH1) {
-                            SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
+                            SpectralType.LuminosityClass = CalculateLuminosityClass(StarData);
                         } else {
                             SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_V;
                         }
                     } else {
-                        SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
+                        SpectralType.LuminosityClass = CalculateLuminosityClass(StarData);
                     }
                 } else {
                     SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
@@ -695,9 +695,9 @@ void StellarGenerator::CalcSpectralType(float FeH, Astro::Star& StarData) {
                 } else if (SurfaceH1 > 0.5f) {
                     SpectralType.HSpectralClass = StellarClass::SpectralClass::kSpectral_O;
                     SpectralType.Subclass = 2.0f;
-                    SpectralType.LuminosityClass = CalcLuminosityClass(StarData);
+                    SpectralType.LuminosityClass = CalculateLuminosityClass(StarData);
                 } else {
-                    CalcSpectralSubclass(Astro::Star::Phase::kWolfRayet, SurfaceH1);
+                    CalculateSpectralSubclass(Astro::Star::Phase::kWolfRayet, SurfaceH1);
                 }
             }
 
@@ -747,7 +747,7 @@ void StellarGenerator::CalcSpectralType(float FeH, Astro::Star& StarData) {
         }
         }
     } else {
-        CalcSpectralSubclass(Astro::Star::Phase::kWolfRayet, SurfaceH1);
+        CalculateSpectralSubclass(Astro::Star::Phase::kWolfRayet, SurfaceH1);
         SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
     }
 
@@ -755,7 +755,7 @@ void StellarGenerator::CalcSpectralType(float FeH, Astro::Star& StarData) {
     StarData.SetStellarClass(Class);
 }
 
-StellarClass::LuminosityClass StellarGenerator::CalcLuminosityClass(const Astro::Star& StarData) {
+StellarClass::LuminosityClass StellarGenerator::CalculateLuminosityClass(const Astro::Star& StarData) {
     float MassLossRateSolPerYear = StarData.GetStellarWindMassLossRate() * kYearInSeconds / kSolarMass;
     double MassSol = StarData.GetMass() / kSolarMass;
     StellarClass::LuminosityClass LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
@@ -1055,7 +1055,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
     DeathStar.SetEvolutionEnding(EvolutionEnding);
     DeathStar.SetStellarClass(StellarClass(DeathStarType, DeathStarClass));
 
-    CalcSpectralType(0.0, DeathStar);
+    CalculateSpectralType(0.0, DeathStar);
     GenerateMagnetic(DeathStar);
     GenerateSpin(DeathStar);
 }
@@ -1267,7 +1267,7 @@ float DefaultLogMassPdf(float Fuck, bool bIsBinary) {
     return g;
 }
 
-double CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient) {
+double CalculateEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient) {
     double Result = 0.0;
     double Phase  = 0.0;
 
@@ -1325,7 +1325,7 @@ double CalcEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::ve
 
             AlignArrays(PhaseChanges);
 
-            Result = CalcEvolutionProgress(PhaseChanges, TargetAge, MassCoefficient);
+            Result = CalculateEvolutionProgress(PhaseChanges, TargetAge, MassCoefficient);
             double IntegerPart = 0.0;
             double FractionalPart = std::modf(Result, &IntegerPart);
             if (PhaseChanges.second.back()[StellarGenerator::_kPhaseIndex] == 9 && FractionalPart > 0.99 && Result < 9.0 && IntegerPart >= (*std::prev(PhaseChanges.first.end(), 3))[StellarGenerator::_kPhaseIndex]) {

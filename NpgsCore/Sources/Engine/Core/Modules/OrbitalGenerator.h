@@ -36,12 +36,13 @@ public: // private:
     // Processor functions, as member functions to access class members
     // ----------------------------------------------------------------
     void GeneratePlanets(StellarSystem& System);
-    void GenOrbitElements(StellarSystem::OrbitalElements& Orbit);
+    void GenerateOrbitElements(StellarSystem::OrbitalElements& Orbit);
     std::size_t JudgePlanets(float InterHabitableZoneRadiusAu, float FrostLineAu, const Astro::Star* Star, std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets);
-    float CalcPlanetMass(float CoreMass, float NewCoreMass, float SemiMajorAxisAu, const PlanetaryDisk& PlanetaryDiskTempData, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet);
+    float CalculatePlanetMass(float CoreMass, float NewCoreMass, float SemiMajorAxisAu, const PlanetaryDisk& PlanetaryDiskTempData, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet);
+    void CalculatePlanetRadius(float MassEarth, std::unique_ptr<Astro::Planet>& Planet);
     void GenerateRings(std::size_t Index, float FrostLineAu, const Astro::Star* Star, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets, std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters);
     void GenerateSpin(float SemiMajorAxis, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet);
-    void CalcTemperature(float PoyntingVector, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet);
+    void CalculateTemperature(float PoyntingVector, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet);
 
 private:
     std::mt19937 _RandomEngine;

@@ -28,7 +28,7 @@ public:
                 Point.z >= _Center.z - _Radius && Point.z <= _Center.z + _Radius);
     }
 
-    int CalcOctant(const glm::vec3& Point) const {
+    int CalculateOctant(const glm::vec3& Point) const {
         int Octant = 0;
 
         if (Point.x >= _Center.x) Octant |= 4;
@@ -229,7 +229,7 @@ private:
             }
         }
 
-        int Octant = Node->CalcOctant(Point);
+        int Octant = Node->CalculateOctant(Point);
         if (Depth == _MaxDepth) {
             Node->AddPoint(Point);
         } else {
@@ -250,7 +250,7 @@ private:
                     Points.erase(it);
                 }
             } else {
-                int Octant = Node->CalcOctant(Point);
+                int Octant = Node->CalculateOctant(Point);
                 DeleteImpl(Node->GetNextMutable(Octant).get(), Point);
             }
 
