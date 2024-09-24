@@ -44,15 +44,20 @@ public:
         bool  bIsMigrated;                                 // 是否为迁移行星
 
         PlanetType Type;
-        std::shared_ptr<Civilization> CivilizationData;
+        std::unique_ptr<Civilization> CivilizationData;
     };
 
 public:
     Planet() = default;
-    Planet(const CelestialBody::BasicProperties& PlanetBasicProperties, const ExtendedProperties& PlanetExtraProperties);
+    Planet(const CelestialBody::BasicProperties& PlanetBasicProperties, ExtendedProperties&& PlanetExtraProperties);
+    Planet(const Planet&) = delete;
+    Planet(Planet&&) = default;
     ~Planet() = default;
 
-    Planet& SetExtendedProperties(const ExtendedProperties& PlanetExtraProperties);
+    Planet& operator=(const Planet&) = delete;
+    Planet& operator=(Planet&&) = default;
+
+    Planet& SetExtendedProperties(ExtendedProperties&& PlanetExtraProperties);
     const ExtendedProperties& GetExtendedProperties() const;
 
     // Setters
@@ -126,7 +131,7 @@ public:
     bool  GetMigration() const;
     PlanetType GetPlanetType() const;
 
-    std::shared_ptr<Civilization>& CivilizationData();
+    std::unique_ptr<Civilization>& CivilizationData();
 
 private:
     ExtendedProperties _PlanetExtraProperties{};

@@ -17,6 +17,11 @@ _MODULES_BEGIN
 
 class NPGS_API OrbitalGenerator {
 public:
+    enum class GenerateOption {
+        kStars,
+        kPlanets
+    };
+
     struct PlanetaryDisk {
         float InterRadiusAu;
         float OuterRadiusAu;
@@ -32,7 +37,7 @@ public:
 public:
     void GenerateOrbitals(StellarSystem& System);
 
-public: // private:
+private:
     // Processor functions, as member functions to access class members
     // ----------------------------------------------------------------
     void GeneratePlanets(StellarSystem& System);

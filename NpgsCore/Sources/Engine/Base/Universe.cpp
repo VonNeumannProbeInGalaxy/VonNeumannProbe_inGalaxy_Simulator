@@ -62,13 +62,13 @@ void Universe::FillUniverse() {
     std::vector<Modules::StellarGenerator> Generators;
     std::vector<Modules::StellarGenerator::BasicProperties> BasicProperties;
 
-    using enum Modules::StellarGenerator::GenDistribution;
-    using enum Modules::StellarGenerator::GenOption;
+    using enum Modules::StellarGenerator::GenerateDistribution;
+    using enum Modules::StellarGenerator::GenerateOption;
     auto CreateGenerators =
-        [&, this](Modules::StellarGenerator::GenOption Option  = kNormal,
-            float MassLowerLimit =  0.1f, float MassUpperLimit = 300.0f,   Modules::StellarGenerator::GenDistribution MassDistribution = kFromPdf,
-            float AgeLowerLimit  =  0.0f, float AgeUpperLimit  = 1.26e10f, Modules::StellarGenerator::GenDistribution AgeDistribution  = kFromPdf,
-            float FeHLowerLimit  = -4.0f, float FeHUpperLimit  = 0.5f,     Modules::StellarGenerator::GenDistribution FeHDistribution  = kFromPdf) -> void {
+        [&, this](Modules::StellarGenerator::GenerateOption Option  = kNormal,
+            float MassLowerLimit =  0.1f, float MassUpperLimit = 300.0f,   Modules::StellarGenerator::GenerateDistribution MassDistribution = kFromPdf,
+            float AgeLowerLimit  =  0.0f, float AgeUpperLimit  = 1.26e10f, Modules::StellarGenerator::GenerateDistribution AgeDistribution  = kFromPdf,
+            float FeHLowerLimit  = -4.0f, float FeHUpperLimit  = 0.5f,     Modules::StellarGenerator::GenerateDistribution FeHDistribution  = kFromPdf) -> void {
         for (int i = 0; i != MaxThread; ++i) {
             std::vector<std::uint32_t> Seeds(32);
             for (int i = 0; i != 32; ++i) {
@@ -85,7 +85,7 @@ void Universe::FillUniverse() {
     auto GenerateBasicProperties = [&, this](std::size_t NumStars) -> void {
         for (std::size_t i = 0; i != NumStars; ++i) {
             std::size_t ThreadId = i % Generators.size();
-            BasicProperties.emplace_back(Generators[ThreadId].GenBasicProperties());
+            BasicProperties.emplace_back(Generators[ThreadId].GenerateBasicProperties());
         }
     };
 
@@ -98,32 +98,32 @@ void Universe::FillUniverse() {
 
     if (_NumExtraMassiveStars != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 20.0f, 300.0f, Modules::StellarGenerator::GenDistribution::kUniform, 0.0f, 3.5e6f, Modules::StellarGenerator::GenDistribution::kUniform);
+        CreateGenerators(Modules::StellarGenerator::GenerateOption::kNormal, 20.0f, 300.0f, Modules::StellarGenerator::GenerateDistribution::kUniform, 0.0f, 3.5e6f, Modules::StellarGenerator::GenerateDistribution::kUniform);
         GenerateBasicProperties(_NumExtraMassiveStars);
     }
 
     if (_NumExtraNeutronStars != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenOption::kDeathStar, 10.0f, 20.0f, Modules::StellarGenerator::GenDistribution::kUniform, 1e7f, 1e8f, Modules::StellarGenerator::GenDistribution::kUniformByExponent);
+        CreateGenerators(Modules::StellarGenerator::GenerateOption::kDeathStar, 10.0f, 20.0f, Modules::StellarGenerator::GenerateDistribution::kUniform, 1e7f, 1e8f, Modules::StellarGenerator::GenerateDistribution::kUniformByExponent);
         GenerateBasicProperties(_NumExtraNeutronStars);
     }
 
     if (_NumExtraBlackHoles != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 35.0f, 300.0f, Modules::StellarGenerator::GenDistribution::kUniform, 1e7f, 1.26e10f, Modules::StellarGenerator::GenDistribution::kFromPdf, -2.0, 0.5);
+        CreateGenerators(Modules::StellarGenerator::GenerateOption::kNormal, 35.0f, 300.0f, Modules::StellarGenerator::GenerateDistribution::kUniform, 1e7f, 1.26e10f, Modules::StellarGenerator::GenerateDistribution::kFromPdf, -2.0, 0.5);
         GenerateBasicProperties(_NumExtraBlackHoles);
     }
 
     if (_NumExtraMergeStars != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenOption::kMergeStar, 0.0f, 0.0f, Modules::StellarGenerator::GenDistribution::kUniform, 1e6f, 1e8f, Modules::StellarGenerator::GenDistribution::kUniformByExponent);
+        CreateGenerators(Modules::StellarGenerator::GenerateOption::kMergeStar, 0.0f, 0.0f, Modules::StellarGenerator::GenerateDistribution::kUniform, 1e6f, 1e8f, Modules::StellarGenerator::GenerateDistribution::kUniformByExponent);
         GenerateBasicProperties(_NumExtraMergeStars);
     }
 
     std::size_t NumCommonStars = _NumStars - _NumExtraGiants - _NumExtraMassiveStars - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
 
     Generators.clear();
-    CreateGenerators(Modules::StellarGenerator::GenOption::kNormal, 0.075f);
+    CreateGenerators(Modules::StellarGenerator::GenerateOption::kNormal, 0.075f);
     GenerateBasicProperties(NumCommonStars);
 
     NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);

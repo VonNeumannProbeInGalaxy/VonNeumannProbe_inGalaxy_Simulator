@@ -21,13 +21,13 @@ public:
     using WdMistData = Assets::Csv<double, 5>;
     using HrDiagram  = Assets::Csv<double, 7>;
 
-    enum class GenDistribution {
+    enum class GenerateDistribution {
         kFromPdf,
         kUniform,
         kUniformByExponent
     };
 
-    enum class GenOption {
+    enum class GenerateOption {
         kNormal,
         kGiant,
         kDeathStar,
@@ -35,11 +35,11 @@ public:
     };
 
     struct BasicProperties {
-        float Age;
-        float FeH;
-        float InitialMass;
+        float Age = 0.0f;
+        float FeH = 0.0f;
+        float InitialMass = 0.0f;
 
-        GenOption Option; // 用于保存生成选项，类的生成选项仅影响该属性。生成的恒星完整信息也将根据该属性决定。该选项用于防止多线程生成恒星时属性和生成器胡乱匹配
+        GenerateOption Option; // 用于保存生成选项，类的生成选项仅影响该属性。生成的恒星完整信息也将根据该属性决定。该选项用于防止多线程生成恒星时属性和生成器胡乱匹配
 
         explicit operator Astro::Star() const {
             Astro::Star Star;
@@ -53,18 +53,18 @@ public:
 
 public:
     StellarGenerator() = delete;
-    StellarGenerator(
-        const std::seed_seq& SeedSequence, GenOption Option = GenOption::kNormal, float UniverseAge = 1.38e10f,
-        float MassLowerLimit =  0.1f,      float MassUpperLimit = 300.0f,   GenDistribution MassDistribution = GenDistribution::kFromPdf,
-        float AgeLowerLimit  =  0.0f,      float AgeUpperLimit  = 1.26e10f, GenDistribution AgeDistribution  = GenDistribution::kFromPdf,
-        float FeHLowerLimit  = -4.0f,      float FeHUpperLimit  = 0.5f,     GenDistribution FeHDistribution  = GenDistribution::kFromPdf,
+    explicit StellarGenerator(
+        const std::seed_seq& SeedSequence, GenerateOption Option = GenerateOption::kNormal, float UniverseAge = 1.38e10f,
+        float MassLowerLimit =  0.1f,      float MassUpperLimit = 300.0f,   GenerateDistribution MassDistribution = GenerateDistribution::kFromPdf,
+        float AgeLowerLimit  =  0.0f,      float AgeUpperLimit  = 1.26e10f, GenerateDistribution AgeDistribution  = GenerateDistribution::kFromPdf,
+        float FeHLowerLimit  = -4.0f,      float FeHUpperLimit  = 0.5f,     GenerateDistribution FeHDistribution  = GenerateDistribution::kFromPdf,
         float CoilTempLimit  =  1514.114f, float dEpdM          = 2e6f
     );
 
     ~StellarGenerator() = default;
 
 public:
-    BasicProperties GenBasicProperties();
+    BasicProperties GenerateBasicProperties();
     Astro::Star GenerateStar();
     Astro::Star GenerateStar(BasicProperties&  Properties);
     Astro::Star GenerateStar(BasicProperties&& Properties);
@@ -88,6 +88,30 @@ private:
     template <typename CsvType>
     static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
 
+private:
+    std::mt19937 _RandomEngine;
+    std::array<UniformRealDistribution<>, 8>       _MagneticGenerators;
+    std::array<std::shared_ptr<Distribution<>>, 4> _FeHGenerators;
+    std::array<UniformRealDistribution<>, 2>       _SpinGenerators;
+    UniformRealDistribution<> _AgeGenerator;
+    UniformRealDistribution<> _CommonGenerator;
+    UniformRealDistribution<> _LogMassGenerator;
+
+    float _UniverseAge;
+    float _AgeLowerLimit;
+    float _AgeUpperLimit;
+    float _FeHLowerLimit;
+    float _FeHUpperLimit;
+    float _MassLowerLimit;
+    float _MassUpperLimit;
+    float _CoilTempLimit;
+    float _dEpdM;
+
+    GenerateDistribution _AgeDistribution;
+    GenerateDistribution _FeHDistribution;
+    GenerateDistribution _MassDistribution;
+    GenerateOption       _Option;
+
 public:
     static const int _kStarAgeIndex;
     static const int _kStarMassIndex;
@@ -110,29 +134,6 @@ public:
     static const int _kWdLogCenterRhoIndex;
 
 private:
-    std::mt19937 _RandomEngine;
-    std::array<UniformRealDistribution<>, 8>       _MagneticGenerators;
-    std::array<std::shared_ptr<Distribution<>>, 4> _FeHGenerators;
-    std::array<UniformRealDistribution<>, 2>       _SpinGenerators;
-    UniformRealDistribution<> _AgeGenerator;
-    UniformRealDistribution<> _CommonGenerator;
-    UniformRealDistribution<> _LogMassGenerator;
-
-    float _UniverseAge;
-    float _AgeLowerLimit;
-    float _AgeUpperLimit;
-    float _FeHLowerLimit;
-    float _FeHUpperLimit;
-    float _MassLowerLimit;
-    float _MassUpperLimit;
-    float _CoilTempLimit;
-    float _dEpdM;
-
-    GenDistribution _AgeDistribution;
-    GenDistribution _FeHDistribution;
-    GenDistribution _MassDistribution;
-    GenOption       _Option;
-
     static const std::vector<std::string> _kMistHeaders;
     static const std::vector<std::string> _kWdMistHeaders;
     static const std::vector<std::string> _kHrDiagramHeaders;

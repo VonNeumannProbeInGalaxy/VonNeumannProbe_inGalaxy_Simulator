@@ -1,10 +1,11 @@
 #include "Planet.h"
+#include <utility>
 
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-Planet::Planet(const CelestialBody::BasicProperties& PlanetBasicProperties, const ExtendedProperties& PlanetExtraProperties)
-    : CelestialBody(PlanetBasicProperties), _PlanetExtraProperties(PlanetExtraProperties)
+Planet::Planet(const CelestialBody::BasicProperties& PlanetBasicProperties, ExtendedProperties&& PlanetExtraProperties)
+    : CelestialBody(PlanetBasicProperties), _PlanetExtraProperties(std::move(PlanetExtraProperties))
 {}
 
 AsteroidCluster::AsteroidCluster(const BasicProperties& Properties)

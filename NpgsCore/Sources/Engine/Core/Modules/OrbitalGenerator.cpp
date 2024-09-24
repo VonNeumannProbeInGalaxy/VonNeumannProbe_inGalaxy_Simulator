@@ -26,7 +26,7 @@ OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float Univ
     _RandomEngine(SeedSequence),
     _RingsProbabilities({ BernoulliDistribution<>(0.5), BernoulliDistribution<>(0.2) }),
     _AsteroidBeltProbability(0.4),
-    _MigrationProbability(0.1),
+    _MigrationProbability(1.0),
     _ScatteringProbability(0.15),
     _WalkInProbability(0.8),
     _CommonGenerator(0.0f, 1.0f),
@@ -44,7 +44,9 @@ OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float Univ
     _CivilizationGenerator = std::make_unique<CivilizationGenerator>(ShuffledSeeds, LifeOccurrenceProbability, bEnableAsiFilter);
 }
 
-void OrbitalGenerator::GenerateOrbitals(StellarSystem& System) {}
+void OrbitalGenerator::GenerateOrbitals(StellarSystem& System) {
+    GeneratePlanets(System);
+}
 
 void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
     // 目前只处理单星情况
@@ -303,7 +305,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
                     // 迁移到指定位置
                     Planets[i]->SetMigration(true);
-                    *Planets[MigrationIndex] = *Planets[i];
+                    Planets[MigrationIndex] = std::move(Planets[i]);
                     NewCoreMassesSol[MigrationIndex] = NewCoreMassesSol[i];
                     CoreMassesSol[MigrationIndex] = CoreMassesSol[i];
                     MigratedOriginSemiMajorAxisAu = Orbits[i].SemiMajorAxis / kAuToMeter;
@@ -371,7 +373,6 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
         std::println("");
 #endif // DEBUG_OUTPUT
 
-        // 计算最终质量
         for (std::size_t i = 0; i < PlanetCount; ++i) {
             float PlanetMassEarth = 0.0f;
             auto PlanetType = Planets[i]->GetPlanetType();
@@ -393,12 +394,12 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                 break;
             }
 
-            // 判断热木星
             PlanetType = Planets[i]->GetPlanetType();
             float PoyntingVector = static_cast<float>(Star->GetLuminosity()) / (4.0f * kPi * std::pow(Orbits[i].SemiMajorAxis, 2.0f));
 #ifdef DEBUG_OUTPUT
             std::println("Planet {} poynting vector: {} W/m^2", i + 1, PoyntingVector);
 #endif // DEBUG_OUTPUT
+            // 判断热木星
             if (PoyntingVector >= 10000) {
                 if (PlanetType == Astro::Planet::PlanetType::kGasGiant) {
                     Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kHotGasGiant);
@@ -425,7 +426,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
             GenerateRings(i, FrostLineAu, Star, Orbits, Planets, AsteroidClusters);
 
             float PlanetMass = 0.0f;
-            // 计算类地行星和次生大气层
+            // 计算类地行星、次生大气层和地壳矿脉
             if (Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kNormalStar) {
                 PlanetType = Planets[i]->GetPlanetType();
                 PlanetMass = Planets[i]->GetMassFloat();
@@ -481,9 +482,9 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                             }
                         }
 
-                        float NewAtmosphereMassVolatiles = 0.0f;
+                        float NewAtmosphereMassVolatiles        = 0.0f;
                         float NewAtmosphereMassEnergeticNuclide = 0.0f;
-                        float NewAtmosphereMassZ = 0.0f;
+                        float NewAtmosphereMassZ                = 0.0f;
                         if (NewAtmosphereMass > 1e16f) {
                             NewAtmosphereMassVolatiles = NewAtmosphereMass * 1e-2f;
                             NewAtmosphereMassEnergeticNuclide = 0.0f;
@@ -512,7 +513,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
             float BalanceTemperature = Planets[i]->GetBalanceTemperature();
             // 判断有没有被烧似
             if ((PlanetType != Astro::Planet::PlanetType::kRockyAsteroidCluster && PlanetType != Astro::Planet::PlanetType::kRockyIceAsteroidCluster && BalanceTemperature >= 2700) ||
-                ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) {
+               ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) {
                 Planets.erase(Planets.begin() + i);
                 CoreMassesSol.erase(CoreMassesSol.begin() + i);
                 NewCoreMassesSol.erase(NewCoreMassesSol.begin() + i);
@@ -550,6 +551,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
         }
     } else {
         PlanetCount = JudgePlanets(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), Star, CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
+
         for (std::size_t i = 0; i < PlanetCount; ++i) {
 #ifdef DEBUG_OUTPUT
             float PlanetMassEarth = Planets[i]->GetMassFloat() / kEarthMass;
@@ -558,8 +560,22 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
             CalculatePlanetRadius(CoreMassesSol[i] * kSolarMassToEarth, Planets[i]);
             GenerateRings(i, std::numeric_limits<float>::infinity(), Star, Orbits, Planets, AsteroidClusters);
             GenerateSpin(Orbits[i].SemiMajorAxis, Star, Planets[i]);
+            
             float PoyntingVector = static_cast<float>(Star->GetLuminosity()) / (4.0f * kPi * std::pow(Orbits[i].SemiMajorAxis, 2.0f));
             CalculateTemperature(PoyntingVector, Star, Planets[i]);
+            float BalanceTemperature = Planets[i]->GetBalanceTemperature();
+            // 判断有没有被烧似
+            auto PlanetType = Planets[i]->GetPlanetType();
+            if ((PlanetType != Astro::Planet::PlanetType::kRockyAsteroidCluster && PlanetType != Astro::Planet::PlanetType::kRockyIceAsteroidCluster && BalanceTemperature >= 2700) ||
+               ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) {
+                Planets.erase(Planets.begin() + i);
+                CoreMassesSol.erase(CoreMassesSol.begin() + i);
+                NewCoreMassesSol.erase(NewCoreMassesSol.begin() + i);
+                Orbits.erase(Orbits.begin() + i);
+                --PlanetCount;
+                --i;
+                continue;
+            }
         }
 
         for (std::size_t i = 0; i < PlanetCount; ++i) {

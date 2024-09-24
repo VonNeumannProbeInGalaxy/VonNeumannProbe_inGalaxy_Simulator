@@ -31,7 +31,7 @@ void CivilizationGenerator::GenerateCivilization(double StarAge, float PoyntingV
 
         const std::array<float, 7>* ProbabilityListPtr = nullptr;
         auto& CivilizationData = Planet->CivilizationData();
-        CivilizationData = std::make_shared<Civilization>();
+        CivilizationData = std::make_unique<Civilization>();
 
         int IntegerPart = 0;
         if (LifePhase != Civilization::LifePhase::kCenoziocEra &&

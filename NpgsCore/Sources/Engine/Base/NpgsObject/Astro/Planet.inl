@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Planet.h"
+#include <utility>
 
 _NPGS_BEGIN
 _ASTRO_BEGIN
@@ -9,8 +10,8 @@ inline static float ConvertToFloat(const boost::multiprecision::uint128_t& Multi
     return MultiPrecision.convert_to<float>();
 }
 
-inline Planet& Planet::SetExtendedProperties(const ExtendedProperties& PlanetExtraProperties) {
-    _PlanetExtraProperties = PlanetExtraProperties;
+inline Planet& Planet::SetExtendedProperties(ExtendedProperties&& PlanetExtraProperties) {
+    _PlanetExtraProperties = std::move(PlanetExtraProperties);
     return *this;
 }
 
@@ -283,7 +284,7 @@ inline Planet::PlanetType Planet::GetPlanetType() const {
     return _PlanetExtraProperties.Type;
 }
 
-inline std::shared_ptr<Civilization>& Planet::CivilizationData() {
+inline std::unique_ptr<Civilization>& Planet::CivilizationData() {
     return _PlanetExtraProperties.CivilizationData;
 }
 
