@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 // NPGS_API
 // ---------
 #ifdef _WIN64
@@ -36,7 +38,11 @@
 #define Bit(x) (1ULL << x)
 
 // NpgsBind
-// ---------
-#define NpgsBind(Func) [this](auto&&... Args) -> decltype(auto) { \
-    return this->Func(std::forward<decltype(Args)>(Args)...);     \
+// --------
+#define NpgsBindMemberFunc(Func) [this](auto&&... Args) -> decltype(auto) { \
+    return this->Func(std::forward<decltype(Args)>(Args)...);               \
+}
+
+#define NpgsBind(Func) [](auto&&... Args) -> decltype(auto) { \
+    return Func(std::forward<decltype(Args)>(Args)...);       \
 }

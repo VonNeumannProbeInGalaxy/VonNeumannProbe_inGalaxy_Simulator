@@ -24,7 +24,7 @@
     <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Star.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Base\Universe.cpp">
+    <ClCompile Include="Sources\Engine\Core\Universe\Universe.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Core\AssetLoader\AssetManager.cpp">
@@ -77,7 +77,7 @@
     <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Star.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Base\Universe.h">
+    <ClInclude Include="Sources\Engine\Core\Universe\Universe.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h">
@@ -152,6 +152,9 @@
       <Filter>头文件</Filter>
     </None>
     <None Include="Sources\Engine\Base\NpgsObject\Civilization.inl">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Sources\Engine\Core\Modules\StellarGenerator.inl">
       <Filter>头文件</Filter>
     </None>
   </ItemGroup>

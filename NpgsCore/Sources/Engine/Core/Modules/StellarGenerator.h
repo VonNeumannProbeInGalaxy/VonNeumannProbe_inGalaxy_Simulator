@@ -1,11 +1,14 @@
 #pragma once
 
 #include <array>
+#include <functional>
 #include <memory>
 #include <random>
 #include <shared_mutex>
 #include <unordered_map>
 #include <utility>
+
+#include <glm/glm.hpp>
 
 #include "Engine/Base/NpgsObject/Astro/Star.h"
 #include "Engine/Core/AssetLoader/AssetManager.h"
@@ -31,13 +34,16 @@ public:
         kNormal,
         kGiant,
         kDeathStar,
-        kMergeStar
+        kMergeStar,
+        kBinaryFirstStar,
+        kBinarySecondStar,
     };
 
     struct BasicProperties {
         float Age = 0.0f;
         float FeH = 0.0f;
-        float InitialMass = 0.0f;
+        float InitialMassSol = 0.0f;
+        bool  bIsSingleStar  = true;
 
         GenerateOption Option; // 用于保存生成选项，类的生成选项仅影响该属性。生成的恒星完整信息也将根据该属性决定。该选项用于防止多线程生成恒星时属性和生成器胡乱匹配
 
@@ -45,7 +51,8 @@ public:
             Astro::Star Star;
             Star.SetAge(Age);
             Star.SetFeH(FeH);
-            Star.SetInitialMass(InitialMass);
+            Star.SetInitialMass(InitialMassSol);
+            Star.SetIsSingleStar(bIsSingleStar);
 
             return Star;
         }
@@ -58,24 +65,49 @@ public:
         float MassLowerLimit =  0.1f,      float MassUpperLimit = 300.0f,   GenerateDistribution MassDistribution = GenerateDistribution::kFromPdf,
         float AgeLowerLimit  =  0.0f,      float AgeUpperLimit  = 1.26e10f, GenerateDistribution AgeDistribution  = GenerateDistribution::kFromPdf,
         float FeHLowerLimit  = -4.0f,      float FeHUpperLimit  = 0.5f,     GenerateDistribution FeHDistribution  = GenerateDistribution::kFromPdf,
-        float CoilTempLimit  =  1514.114f, float dEpdM          = 2e6f
+        float CoilTempLimit  =  1514.114f, float dEpdM          = 2e6f,
+        const std::function<float(const glm::vec3&, float, float)>& AgePdf = nullptr,
+        const glm::vec2& AgeMaxPdf = glm::vec2(),
+        const std::array<std::function<float(float, std::function<float(float)>)>, 3>& MassPdfs = { nullptr, nullptr, nullptr },
+        const std::array<glm::vec2, 3>& MassMaxPdfs = { glm::vec2(), glm::vec2(), glm::vec2() }
     );
 
     ~StellarGenerator() = default;
 
 public:
     BasicProperties GenerateBasicProperties();
+    BasicProperties GenerateBasicProperties(float Age, float FeH);
     Astro::Star GenerateStar();
     Astro::Star GenerateStar(BasicProperties&  Properties);
     Astro::Star GenerateStar(BasicProperties&& Properties);
 
+    StellarGenerator& SetLogMassSuggestDistribution(UniformRealDistribution<>& Distribution);
+    StellarGenerator& SetUniverseAge(float Age);
+    StellarGenerator& SetAgeLowerLimit(float Limit);
+    StellarGenerator& SetAgeUpperLimit(float Limit);
+    StellarGenerator& SetFeHLowerLimit(float Limit);
+    StellarGenerator& SetFeHUpperLimit(float Limit);
+    StellarGenerator& SetMassLowerLimit(float Limit);
+    StellarGenerator& SetMassUpperLimit(float Limit);
+    StellarGenerator& SetCoilTempLimit(float Limit);
+    StellarGenerator& SetdEpdM(float dEpdM);
+    StellarGenerator& SetAgePdf(const std::function<float(const glm::vec3&, float, float)>& AgePdf);
+    StellarGenerator& SetAgeMaxPdf(const glm::vec2& MaxPdf);
+    StellarGenerator& SetMassPdfs(const std::array<std::function<float(float, std::function<float(float)>)>, 3>& MassPdfs);
+    StellarGenerator& SetMassMaxPdfs(const std::array<glm::vec2, 3>& MaxPdfs);
+    StellarGenerator& SetAgeDistribution(GenerateDistribution Distribution);
+    StellarGenerator& SetFeHDistribution(GenerateDistribution Distribution);
+    StellarGenerator& SetMassDistribution(GenerateDistribution Distribution);
+    StellarGenerator& SetGenerateOption(GenerateOption Option);
+
 private:
     void InitMistData();
+    void InitPdfs();
 
     // Processor functions, as member functions to access class members
     // ----------------------------------------------------------------
     float GenerateAge(float MaxPdf);
-    float GenerateMass(float MaxPdf, bool bIsBinary);
+    float GenerateMass(float MaxPdf, auto& LogMassPdf, GenerateOption Option);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassCoefficient);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
@@ -96,6 +128,12 @@ private:
     UniformRealDistribution<> _AgeGenerator;
     UniformRealDistribution<> _CommonGenerator;
     UniformRealDistribution<> _LogMassGenerator;
+
+    std::array<std::function<float(float, std::function<float(float)>)>, 3> _MassPdfs;
+    std::array<glm::vec2, 3> _MassMaxPdfs;
+
+    std::function<float(glm::vec3, float, float)> _AgePdf;
+    glm::vec2 _AgeMaxPdf;
 
     float _UniverseAge;
     float _AgeLowerLimit;
@@ -145,3 +183,5 @@ private:
 
 _MODULES_END
 _NPGS_END
+
+#include "StellarGenerator.inl"

@@ -14,8 +14,6 @@
 #include <string>
 #include <vector>
 
-#include <glm/glm.hpp>
-
 #define ENABLE_LOGGER
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/Logger.h"
@@ -41,19 +39,21 @@ _MODULES_BEGIN
 
 // Processor functions
 // -------------------
-static float DefaultAgePdf(float Age, float UniverseAge);
-static float DefaultLogMassPdf(float MassSol, bool bIsBinary);
-double CalculateEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
-std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
-std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
-void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays);
-std::vector<double> InterpolateHrDiagram(const std::shared_ptr<StellarGenerator::HrDiagram>& Data, double BvColorIndex);
-std::vector<double> InterpolateStarData(const std::shared_ptr<StellarGenerator::MistData>& Data, double EvolutionProgress);
-std::vector<double> InterpolateStarData(const std::shared_ptr<StellarGenerator::WdMistData>& Data, double TargetAge);
-std::vector<double> InterpolateStarData(const auto& Data, double Target, const std::string& Header, int Index, bool bIsWhiteDwarf);
-std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient);
-std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient, bool bIsWhiteDwarf);
-void ExpandMistData(double TargetMass, std::vector<double>& StarData);
+static float DefaultAgePdf(const glm::vec3&, float Age, float UniverseAge);
+static float DefaultLogMassPdfSingleStar(float LogMassSol, std::function<float(float)>);
+static float DefaultLogMassPdfBinaryFirstStar(float LogMassSol, std::function<float(float)>);
+static float DefaultLogMassPdfBinarySecondStar(float LogMassSol, std::function<float(float)>);
+static double CalculateEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
+static std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
+static std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
+static void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays);
+static std::vector<double> InterpolateHrDiagram(const std::shared_ptr<StellarGenerator::HrDiagram>& Data, double BvColorIndex);
+static std::vector<double> InterpolateStarData(const std::shared_ptr<StellarGenerator::MistData>& Data, double EvolutionProgress);
+static std::vector<double> InterpolateStarData(const std::shared_ptr<StellarGenerator::WdMistData>& Data, double TargetAge);
+static std::vector<double> InterpolateStarData(const auto& Data, double Target, const std::string& Header, int Index, bool bIsWhiteDwarf);
+static std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient);
+static std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient, bool bIsWhiteDwarf);
+static void ExpandMistData(double TargetMass, std::vector<double>& StarData);
 
 // StellarGenerator implementations
 // --------------------------------
@@ -62,7 +62,11 @@ StellarGenerator::StellarGenerator(
     float MassLowerLimit, float MassUpperLimit, GenerateDistribution MassDistribution,
     float AgeLowerLimit,  float AgeUpperLimit,  GenerateDistribution AgeDistribution,
     float FeHLowerLimit,  float FeHUpperLimit,  GenerateDistribution FeHDistribution,
-    float CoilTempLimit,  float dEpdM
+    float CoilTempLimit,  float dEpdM,
+    const std::function<float(const glm::vec3&, float, float)>& AgePdf,
+    const glm::vec2& AgeMaxPdf,
+    const std::array<std::function<float(float, std::function<float(float)>)>, 3>& MassPdfs,
+    const std::array<glm::vec2, 3>& MassMaxPdfs
 )   :
     _RandomEngine(SeedSequence),
     _MagneticGenerators({
@@ -92,6 +96,10 @@ StellarGenerator::StellarGenerator(
     _CommonGenerator(0.0f, 1.0f),
     _LogMassGenerator(Option == StellarGenerator::GenerateOption::kMergeStar ? (0.0f, 1.0f) : std::log10(MassLowerLimit), std::log10(MassUpperLimit)),
 
+    _MassPdfs(MassPdfs),
+    _MassMaxPdfs(MassMaxPdfs),
+    _AgeMaxPdf(AgeMaxPdf),
+    _AgePdf(AgePdf),
     _UniverseAge(UniverseAge),
     _AgeLowerLimit(AgeLowerLimit), _AgeUpperLimit(AgeUpperLimit),
     _FeHLowerLimit(FeHLowerLimit), _FeHUpperLimit(FeHUpperLimit),
@@ -101,90 +109,125 @@ StellarGenerator::StellarGenerator(
     _AgeDistribution(AgeDistribution), _FeHDistribution(FeHDistribution), _MassDistribution(MassDistribution), _Option(Option)
 {
     InitMistData();
+    InitPdfs();
 }
 
 StellarGenerator::BasicProperties StellarGenerator::GenerateBasicProperties() {
+    return GenerateBasicProperties(0.0f, 0.0f);
+}
+
+StellarGenerator::BasicProperties StellarGenerator::GenerateBasicProperties(float Age, float FeH) {
     BasicProperties Properties{};
 
     // 生成 3 个基本参数
-    switch (_AgeDistribution) {
-    case GenerateDistribution::kFromPdf: {
-        float MaxProbability = 2.6f;
-        if (!(_AgeLowerLimit < _UniverseAge - 1.38e10f + 8e9f && _AgeUpperLimit > _UniverseAge - 1.38e10f + 8e9f)) {
-            if (_AgeLowerLimit > _UniverseAge - 1.38e10f + 8e9f) {
-                MaxProbability = DefaultAgePdf(_AgeLowerLimit, _UniverseAge / 1e9f);
-            } else if (_AgeUpperLimit < _UniverseAge - 1.38e10f + 8e9f) {
-                MaxProbability = DefaultAgePdf(_AgeUpperLimit, _UniverseAge / 1e9f);
+    if (Age == 0.0f) {
+        switch (_AgeDistribution) {
+        case GenerateDistribution::kFromPdf: {
+            glm::vec2 MaxPdf = _AgeMaxPdf;
+            if (!(_AgeLowerLimit < _UniverseAge - 1.38e10f + _AgeMaxPdf.x && _AgeUpperLimit > _UniverseAge - 1.38e10f + _AgeMaxPdf.x)) {
+                if (_AgeLowerLimit > _UniverseAge - 1.38e10f + _AgeMaxPdf.x) {
+                    MaxPdf.y = _AgePdf(glm::vec3(), _AgeLowerLimit, _UniverseAge / 1e9f);
+                } else if (_AgeUpperLimit < _UniverseAge - 1.38e10f + _AgeMaxPdf.x) {
+                    MaxPdf.y = _AgePdf(glm::vec3(), _AgeUpperLimit, _UniverseAge / 1e9f);
+                }
             }
+            Properties.Age = GenerateAge(MaxPdf.y);
+            break;
         }
-        Properties.Age = GenerateAge(MaxProbability);
-        break;
-    }
-    case GenerateDistribution::kUniform: {
-        Properties.Age = _AgeLowerLimit + _CommonGenerator(_RandomEngine) * (_AgeUpperLimit - _AgeLowerLimit);
-        break;
-    }
-    case GenerateDistribution::kUniformByExponent: {
-        float Random = _CommonGenerator(_RandomEngine);
-        float LogAgeLower = std::log10(_AgeLowerLimit);
-        float LogAgeUpper = std::log10(_AgeUpperLimit);
-        Properties.Age = std::pow(10.0f, LogAgeLower + Random * (LogAgeUpper - LogAgeLower));
-        break;
-    }
-    default:
-        break;
-    }
-
-    Distribution<>* FeHGenerator = nullptr;
-
-    float FeHLowerLimit = _FeHLowerLimit;
-    float FeHUpperLimit = _FeHUpperLimit;
-
-    // 不同的年龄使用不同的分布
-    if (Properties.Age > _UniverseAge - 1.38e10f + 8e9f) {
-        FeHGenerator = _FeHGenerators[0].get();
-        FeHLowerLimit = -_FeHUpperLimit; // 对数分布，但是是反的
-        FeHUpperLimit = -_FeHLowerLimit;
-    } else if (Properties.Age > _UniverseAge - 1.38e10f + 6e9f) {
-        FeHGenerator = _FeHGenerators[1].get();
-    } else if (Properties.Age > _UniverseAge - 1.38e10f + 4e9f) {
-        FeHGenerator = _FeHGenerators[2].get();
+        case GenerateDistribution::kUniform: {
+            Properties.Age = _AgeLowerLimit + _CommonGenerator(_RandomEngine) * (_AgeUpperLimit - _AgeLowerLimit);
+            break;
+        }
+        case GenerateDistribution::kUniformByExponent: {
+            float Random = _CommonGenerator(_RandomEngine);
+            float LogAgeLower = std::log10(_AgeLowerLimit);
+            float LogAgeUpper = std::log10(_AgeUpperLimit);
+            Properties.Age = std::pow(10.0f, LogAgeLower + Random * (LogAgeUpper - LogAgeLower));
+            break;
+        }
+        default:
+            break;
+        }
     } else {
-        FeHGenerator = _FeHGenerators[3].get();
+        Properties.Age = Age;
     }
 
-    float FeH = 0.0f;
-    do {
-        FeH = (*FeHGenerator)(_RandomEngine);
-    } while (FeH > FeHUpperLimit || FeH < FeHLowerLimit);
+    if (FeH == 0.0f) {
+        Distribution<>* FeHGenerator = nullptr;
 
-    if (Properties.Age > _UniverseAge - 1.38e10 + 8e9) {
-        FeH *= -1.0f; // 把对数分布反过来
+        float FeHLowerLimit = _FeHLowerLimit;
+        float FeHUpperLimit = _FeHUpperLimit;
+
+        // 不同的年龄使用不同的分布
+        if (Properties.Age > _UniverseAge - 1.38e10f + 8e9f) {
+            FeHGenerator = _FeHGenerators[0].get();
+            FeHLowerLimit = -_FeHUpperLimit; // 对数分布，但是是反的
+            FeHUpperLimit = -_FeHLowerLimit;
+        } else if (Properties.Age > _UniverseAge - 1.38e10f + 6e9f) {
+            FeHGenerator = _FeHGenerators[1].get();
+        } else if (Properties.Age > _UniverseAge - 1.38e10f + 4e9f) {
+            FeHGenerator = _FeHGenerators[2].get();
+        } else {
+            FeHGenerator = _FeHGenerators[3].get();
+        }
+
+        do {
+            FeH = (*FeHGenerator)(_RandomEngine);
+        } while (FeH > FeHUpperLimit || FeH < FeHLowerLimit);
+
+        if (Properties.Age > _UniverseAge - 1.38e10 + 8e9) {
+            FeH *= -1.0f; // 把对数分布反过来
+        }
     }
 
     Properties.FeH = FeH;
 
+    if (_Option != GenerateOption::kBinarySecondStar) {
+        BernoulliDistribution<> BinaryProbability(0.43 - 0.140585 * std::pow(std::pow(10, FeH), 0.5));
+        if (BinaryProbability(_RandomEngine)) {
+            Properties.Option = GenerateOption::kBinaryFirstStar;
+            Properties.bIsSingleStar = false;
+        }
+    } else {
+        Properties.Option = GenerateOption::kBinarySecondStar;
+        Properties.bIsSingleStar = false;
+    }
+
     if (_MassLowerLimit == 0.0f && _MassUpperLimit == 0.0f) {
-        Properties.InitialMass = 0.0f;
+        Properties.InitialMassSol = 0.0f;
     } else {
         switch (_MassDistribution) {
         case GenerateDistribution::kFromPdf: {
-            // TODO: 单星质量 MaxPdf
-            float MaxProbability = 0.086f;
+            glm::vec2 MaxPdf{};
             float LogMassLower = std::log10(_MassLowerLimit);
             float LogMassUpper = std::log10(_MassUpperLimit);
-            if (!(LogMassLower < 0.22f && LogMassUpper > 0.22f)) { //  调整最大值，防止接受率过低
-                if (LogMassLower > 0.22f) {
-                    MaxProbability = DefaultLogMassPdf(LogMassLower, true);
-                } else if (LogMassUpper < 0.22f) {
-                    MaxProbability = DefaultLogMassPdf(LogMassUpper, true);
+            std::function<float(float, std::function<float(float)>)> LogMassPdf = nullptr;
+
+            if (Properties.Option != GenerateOption::kBinarySecondStar) {
+                if (Properties.Option == GenerateOption::kBinaryFirstStar) {
+                    LogMassPdf = _MassPdfs[1];
+                    MaxPdf = _MassMaxPdfs[1];
+                } else {
+                    LogMassPdf = _MassPdfs[0];
+                    MaxPdf = _MassMaxPdfs[0];
+                }
+            } else {
+                LogMassPdf = _MassPdfs[2];
+                MaxPdf = _MassMaxPdfs[2];
+            }
+
+            if (!(LogMassLower < MaxPdf.x && LogMassUpper > MaxPdf.x)) { // 调整最大值，防止接受率过低
+                if (LogMassLower > MaxPdf.x) {
+                    MaxPdf.y = LogMassPdf(LogMassLower, nullptr);
+                } else if (LogMassUpper < MaxPdf.x) {
+                    MaxPdf.y = LogMassPdf(LogMassUpper, nullptr);
                 }
             }
-            Properties.InitialMass = GenerateMass(MaxProbability, true);
+            Properties.InitialMassSol = GenerateMass(MaxPdf.y, LogMassPdf, Properties.Option);
             break;
         }
         case GenerateDistribution::kUniform: {
-            Properties.InitialMass = _MassLowerLimit + _CommonGenerator(_RandomEngine) * (_MassUpperLimit - _MassLowerLimit);
+            Properties.InitialMassSol = _MassLowerLimit + _CommonGenerator(_RandomEngine) * (_MassUpperLimit - _MassLowerLimit);
             break;
         }
         default:
@@ -210,13 +253,15 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
     std::vector<double> StarData;
 
     switch (Properties.Option) {
+    case GenerateOption::kBinaryFirstStar:
+    case GenerateOption::kBinarySecondStar:
     case GenerateOption::kNormal: {
         try {
             StarData = GetActuallyMistData(Properties, false, true);
         } catch (Astro::Star& DeathStar) {
             DeathStar.SetAge(Properties.Age);
             DeathStar.SetFeH(Properties.FeH);
-            DeathStar.SetInitialMass(Properties.InitialMass);
+            DeathStar.SetInitialMass(Properties.InitialMassSol);
             ProcessDeathStar(DeathStar);
             if (DeathStar.GetEvolutionPhase() == Astro::Star::Phase::kNull) {
                 DeathStar = GenerateStar();
@@ -290,6 +335,7 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
     Astro::Star::Phase EvolutionPhase = static_cast<Astro::Star::Phase>(StarData[_kPhaseIndex]);
 
     Star.SetInitialMass(Star.GetInitialMass() * kSolarMass);
+    Star.SetIsSingleStar(Properties.bIsSingleStar);
     Star.SetAge(Age);
     Star.SetMass(MassSol * kSolarMass);
     Star.SetLifetime(Lifetime);
@@ -368,23 +414,54 @@ void StellarGenerator::InitMistData() {
     _kbMistDataInitiated = true;
 }
 
+void StellarGenerator::InitPdfs() {
+    if (_AgePdf == nullptr) {
+        _AgePdf = DefaultAgePdf;
+        _AgeMaxPdf = glm::vec2(8e9, 2.7f);
+    }
+
+    if (_MassPdfs[0] == nullptr) {
+        _MassPdfs[0] = DefaultLogMassPdfSingleStar;
+        _MassMaxPdfs[0] = glm::vec2(0.158f, 0.1f);
+    }
+
+    if (_MassPdfs[1] == nullptr) {
+        _MassPdfs[1] = DefaultLogMassPdfBinaryFirstStar;
+        _MassMaxPdfs[1] = glm::vec2(0.086f, 0.22f);
+    }
+
+    if (_MassPdfs[2] == nullptr) {
+        _MassPdfs[2] = DefaultLogMassPdfBinarySecondStar;
+        _MassMaxPdfs[2] = glm::vec2(0.0492699f, -0.8929049f);
+    }
+}
+
 float StellarGenerator::GenerateAge(float MaxPdf) {
     float Age = 0.0f;
     float Probability = 0.0f;
     do {
         Age = _AgeGenerator(_RandomEngine);
-        Probability = DefaultAgePdf(Age / 1e9f, _UniverseAge / 1e9f);
+        Probability = DefaultAgePdf(glm::vec3(), Age / 1e9f, _UniverseAge / 1e9f);
     } while (_CommonGenerator(_RandomEngine) * MaxPdf > Probability);
 
     return Age;
 }
 
-float StellarGenerator::GenerateMass(float MaxPdf, bool bIsBinary) {
+float StellarGenerator::GenerateMass(float MaxPdf, auto& LogMassPdf, GenerateOption Option) {
     float LogMass = 0.0f;
     float Probability = 0.0f;
+
+    std::function<float(float)> BinaryPdf = nullptr;
+
+    if (Option == GenerateOption::kBinaryFirstStar) {
+        BinaryPdf = [this](float LogMassSol) -> float {
+            return _MassPdfs[2](LogMassSol, nullptr);
+        };
+    }
+
     do {
         LogMass = _LogMassGenerator(_RandomEngine);
-        Probability = DefaultLogMassPdf(LogMass, bIsBinary);
+        Probability = LogMassPdf(LogMass, BinaryPdf);
     } while (_CommonGenerator(_RandomEngine) * MaxPdf > Probability);
 
     return std::pow(10.0f, LogMass);
@@ -393,7 +470,7 @@ float StellarGenerator::GenerateMass(float MaxPdf, bool bIsBinary) {
 std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd) {
     float TargetAge  = Properties.Age;
     float TargetFeH  = Properties.FeH;
-    float TargetMass = Properties.InitialMass;
+    float TargetMass = Properties.InitialMassSol;
 
     std::string PrefixDirectory;
     std::string MassStr;
@@ -1240,36 +1317,68 @@ bool StellarGenerator::_kbMistDataInitiated = false;
 
 // Processor functions implementations
 // -----------------------------------
-float DefaultAgePdf(float Age, float UniverseAge) {
-    float pt = 0.0f;
+float DefaultAgePdf(const glm::vec3&, float Age, float UniverseAge) {
+    float Probability = 0.0f;
     if (Age - (UniverseAge - 13.8f) < 8.0f) {
-        pt = std::exp((Age - (UniverseAge - 13.8f) / 8.4f));
+        Probability = std::exp((Age - (UniverseAge - 13.8f) / 8.4f));
     } else {
-        pt = 2.6f * std::exp((-0.5f * std::pow((Age - (UniverseAge - 13.8f)) - 8.0f, 2.0f)) / (std::pow(1.5f, 2.0f)));
+        Probability = 2.6f * std::exp((-0.5f * std::pow((Age - (UniverseAge - 13.8f)) - 8.0f, 2.0f)) / (std::pow(1.5f, 2.0f)));
     }
 
-    return static_cast<float>(pt);
+    return static_cast<float>(Probability);
 }
 
-float DefaultLogMassPdf(float MassSol, bool bIsBinary) {
-    float g = 0.0f;
-    if (!bIsBinary) {
-        if (std::pow(10.0f, MassSol) <= 1.0f) {
-            g = 0.158f * std::exp(-1.0f * std::pow(MassSol + 1.0f, 2.0f) / 1.101128f);
-        } else {
-            float n01 = 0.06371598f;
-            g = n01 * std::pow(std::pow(10.0f, MassSol), -0.65f);
-        }
+float DefaultLogMassPdfSingleStar(float LogMassSol, std::function<float(float)>) {
+    float Probability = 0.0f;
+
+    if (std::pow(10.0f, LogMassSol) <= 1.0f) {
+        Probability = 0.158f * std::exp(-1.0f * std::pow(LogMassSol + 1.0f, 2.0f) / 1.101128f);
     } else {
-        if (std::pow(10.0, MassSol) <= 1.0f) {
-            g = 0.086f * std::exp(-1.0f * std::pow(MassSol + 0.65757734f, 2.0f) / 1.101128f);
-        } else {
-            float n02 = 0.058070157f;
-            g = n02 * std::pow(std::pow(10.0f, MassSol), -0.65f);
-        }
+        Probability = 0.06371598f * std::pow(std::pow(10.0f, LogMassSol), -0.8f);
     }
 
-    return g;
+    return Probability;
+}
+
+float DefaultLogMassPdfBinaryFirstStar(float LogMassSol, std::function<float(float)> SecondStarPdf) {
+    float Constant1   = 0.07997648173037668f;
+    float Constant2   = 0.952974098634161f;
+    float Constant3   = 0.65757734f;
+    float Constant4   = 0.6245025364335309f;
+    float Constant5   = 0.038799305766700744f;
+    float Constant6   = 0.12547908906065644f;
+    float Constant7   = 0.0033008700496499955f;
+    float Coefficient = 0.0f;
+
+    if (LogMassSol < -1) {
+        Coefficient = Constant1 * (std::erf(Constant2 * (Constant3 + LogMassSol + 1)) - std::erf(Constant2 * (Constant3 + LogMassSol)));
+    } else if (LogMassSol >= -1 && LogMassSol < 0) {
+        Coefficient = Constant1 * (Constant3 - std::erf(Constant2 * (Constant3 + LogMassSol))) + Constant5 * (1 - std::pow(std::pow(10.0f, (LogMassSol + 1)), -0.65f));
+    } else if (LogMassSol >= 0) {
+        Coefficient = Constant5 * (std::pow(std::pow(10.0f, LogMassSol), -0.65f) - std::pow(std::pow(10.0f, (LogMassSol + 1)), -0.65f));
+    }
+
+    float Probabililty = 0.0f;
+
+    if (LogMassSol <= std::log10(30)) {
+        Probabililty = SecondStarPdf(LogMassSol) * Coefficient / Constant6;
+    } else {
+        Probabililty = SecondStarPdf(LogMassSol) * Constant7 / Constant6;
+    }
+
+    return Probabililty;
+}
+
+float DefaultLogMassPdfBinarySecondStar(float LogMassSol, std::function<float(float)>) {
+    float Probability = 0.0f;
+    
+    if (std::pow(10.0, LogMassSol) <= 1.0f) {
+        Probability = 0.086f * std::exp(-1.0f * std::pow(LogMassSol + 0.65757734f, 2.0f) / 1.101128f);
+    } else {
+        Probability = 0.058070157f * std::pow(std::pow(10.0f, LogMassSol), -0.65f);
+    }
+
+    return Probability;
 }
 
 double CalculateEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient) {

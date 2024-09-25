@@ -5,7 +5,6 @@
 #include "Engine/Base/NpgsObject/Astro/Star.h"
 #include "Engine/Base/NpgsObject/Civilization.h"
 #include "Engine/Base/Octree.hpp"
-#include "Engine/Base/Universe.h"
 
 #include "Engine/Core/AssetLoader/AssetManager.h"
 
@@ -20,3 +19,4 @@
 #include "Engine/Core/Logger.h"
 #include "Engine/Core/Random.hpp"
 #include "Engine/Core/ThreadPool.h"
+#include "Engine/Core/Universe/Universe.h"

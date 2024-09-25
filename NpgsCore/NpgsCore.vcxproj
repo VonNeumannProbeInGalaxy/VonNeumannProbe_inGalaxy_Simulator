@@ -153,7 +153,7 @@
     <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.cpp" />
     <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Planet.cpp" />
     <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Star.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Universe.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Universe\Universe.cpp" />
     <ClCompile Include="Sources\Engine\Core\AssetLoader\AssetManager.cpp" />
     <ClCompile Include="Sources\Engine\Core\Logger.cpp" />
     <ClCompile Include="Sources\Engine\Core\Modules\StellarClass.cpp" />
@@ -176,7 +176,7 @@
     <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.h" />
     <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Planet.h" />
     <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Star.h" />
-    <ClInclude Include="Sources\Engine\Base\Universe.h" />
+    <ClInclude Include="Sources\Engine\Core\Universe\Universe.h" />
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
     <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h" />
     <ClInclude Include="Sources\Engine\Core\AssetLoader\Csv.hpp" />
@@ -198,6 +198,7 @@
     <None Include="Sources\Engine\Base\NpgsObject\Astro\Planet.inl" />
     <None Include="Sources\Engine\Base\NpgsObject\Astro\Star.inl" />
     <None Include="Sources\Engine\Base\StellarSystem.inl" />
+    <None Include="Sources\Engine\Core\Modules\StellarGenerator.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

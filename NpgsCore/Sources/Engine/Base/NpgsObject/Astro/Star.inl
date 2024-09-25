@@ -94,6 +94,11 @@ inline Star& Star::SetMinCoilMass(float MinCoilMass) {
     return *this;
 }
 
+inline Star& Star::SetIsSingleStar(bool bIsSingleStar) {
+    _StarExtraProperties.bIsSingleStar = bIsSingleStar;
+    return *this;
+}
+
 inline Star& Star::SetEvolutionPhase(Phase EvolutionPhase) {
     _StarExtraProperties.EvolutionPhase = EvolutionPhase;
     return *this;
@@ -171,6 +176,10 @@ inline float Star::GetStellarWindMassLossRate() const {
 
 inline float Star::GetMinCoilMass() const {
     return _StarExtraProperties.MinCoilMass;
+}
+
+inline bool Star::GetIsSingleStar() const {
+    return _StarExtraProperties.bIsSingleStar;
 }
 
 inline Star::Phase Star::GetEvolutionPhase() const {

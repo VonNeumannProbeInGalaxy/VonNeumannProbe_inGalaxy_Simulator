@@ -17,7 +17,18 @@ _NPGS_BEGIN
 
 class NPGS_API Universe {
 public:
-    Universe(unsigned Seed, std::size_t NumStars, std::size_t NumExtraGiants = 0, std::size_t NumExtraMassiveStars = 0, std::size_t NumExtraNeutronStars = 0, std::size_t NumExtraBlackHoles = 0, std::size_t NumExtraMergeStars = 0, float UniverseAge = 1.38e10f);
+    Universe() = delete;
+    Universe(
+        unsigned    Seed,
+        std::size_t NumStars,
+        std::size_t NumExtraGiants       = 0,
+        std::size_t NumExtraMassiveStars = 0,
+        std::size_t NumExtraNeutronStars = 0,
+        std::size_t NumExtraBlackHoles   = 0,
+        std::size_t NumExtraMergeStars   = 0,
+        float       UniverseAge          = 1.38e10f
+    );
+
     ~Universe();
 
     void FillUniverse();
@@ -27,6 +38,7 @@ public:
 private:
     void GenerateSlots(float DistMin, std::size_t NumSamples, float Density);
     void OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>& StarFutures, std::vector<glm::vec3>& Slots);
+    void GenerateBinaryStars(int MaxThread);
 
 private:
     using NodeType = Octree<StellarSystem>::NodeType;
@@ -46,7 +58,7 @@ private:
     float       _UniverseAge;
 
     std::vector<StellarSystem> _StellarSystems;
-    std::vector<Astro::Star*>  _StarPtrs;
+    std::vector<Astro::Star*>  _StarPointers;
 };
 
 _NPGS_END

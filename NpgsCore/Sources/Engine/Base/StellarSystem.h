@@ -46,8 +46,8 @@ public:
     };
 
 public:
-    StellarSystem() = default;
-    StellarSystem(const BaryCenter& SystemBary);
+    explicit StellarSystem() = default;
+    explicit StellarSystem(const BaryCenter& SystemBary);
     StellarSystem(const StellarSystem&) = delete;
     StellarSystem(StellarSystem&&) = default;
     ~StellarSystem() = default;

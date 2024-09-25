@@ -39,7 +39,7 @@ public:
     static int  GetPhysicalCoreCount();
 
 private:
-    ThreadPool();
+    explicit ThreadPool();
     ~ThreadPool() {}
 
     static void SetThreadAffinity(std::thread& Thread, std::size_t CoreId);

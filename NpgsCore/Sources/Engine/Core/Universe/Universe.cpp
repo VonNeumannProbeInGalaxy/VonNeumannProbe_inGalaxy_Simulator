@@ -13,7 +13,7 @@
 #include <string>
 #include <utility>
 
-#define OUTPUT_DATA
+// #define OUTPUT_DATA
 #define ENABLE_LOGGER
 #include "Engine/Core/Modules/OrbitalGenerator.h"
 #include "Engine/Core/Modules/StellarClass.h"
@@ -26,8 +26,16 @@ _NPGS_BEGIN
 
 static void FillStellarSystem(StellarSystem& System);
 
-Universe::Universe(unsigned Seed, std::size_t NumStars, std::size_t NumExtraGiants, std::size_t NumExtraMassiveStars, std::size_t NumExtraNeutronStars, std::size_t NumExtraBlackHoles, std::size_t NumExtraMergeStars, float UniverseAge)
-    :
+Universe::Universe(
+    unsigned Seed,
+    std::size_t NumStars,
+    std::size_t NumExtraGiants,
+    std::size_t NumExtraMassiveStars,
+    std::size_t NumExtraNeutronStars,
+    std::size_t NumExtraBlackHoles,
+    std::size_t NumExtraMergeStars,
+    float UniverseAge
+)   :
     _RandomEngine(Seed),
     _SeedGenerator(0ull, std::numeric_limits<std::uint32_t>::max()),
     _CommonGenerator(0.0f, 1.0f),
@@ -77,7 +85,12 @@ void Universe::FillUniverse() {
 
             std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
             std::seed_seq SeedSequence(Seeds.begin(), Seeds.end());
-            Generators.emplace_back(SeedSequence, Option, _UniverseAge, MassLowerLimit, MassUpperLimit, MassDistribution, AgeLowerLimit, AgeUpperLimit, AgeDistribution, FeHLowerLimit, FeHUpperLimit, FeHDistribution);
+            Generators.emplace_back(
+                SeedSequence, Option, _UniverseAge,
+                MassLowerLimit, MassUpperLimit, MassDistribution,
+                AgeLowerLimit,  AgeUpperLimit,  AgeDistribution,
+                FeHLowerLimit,  FeHUpperLimit,  FeHDistribution
+            );
         }
     };
 
@@ -151,9 +164,19 @@ void Universe::FillUniverse() {
         }
     );
 
+    std::size_t NumBinaryStars = 0;
+    std::size_t NumSingleStars = 0;
+
     for (auto& Star : *Stars) {
-        _StarPtrs.emplace_back(&Star);
+        _StarPointers.emplace_back(&Star);
+        if (Star.GetIsSingleStar()) {
+            ++NumSingleStars;
+        } else {
+            ++NumBinaryStars;
+        }
     }
+
+    std::println("Single stars: {}; Binary stars: {}. Binary rate: {}", NumSingleStars, NumBinaryStars, static_cast<float>(NumBinaryStars) / static_cast<float>(NumSingleStars));
 
     return;
 #endif // OUTPUT_DATA
@@ -166,6 +189,9 @@ void Universe::FillUniverse() {
     std::shuffle(StarFutures.begin(), StarFutures.end(), _RandomEngine);
     std::vector<glm::vec3> Slots;
     OctreeLinkToStellarSystems(StarFutures, Slots);
+
+    NpgsCoreInfo("Generating binary stars...");
+    GenerateBinaryStars(MaxThread);
 
     NpgsCoreInfo("Sorting...");
     std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
@@ -194,6 +220,7 @@ void Universe::FillUniverse() {
             char Rank = 'A';
             for (auto& Star : Stars) {
                 Star->SetName("STAR-" + Stream.str() + " " + Rank);
+                ++Rank;
             }
         } else {
             Stars.front()->SetName("STAR-" + Stream.str());
@@ -228,7 +255,7 @@ void Universe::FillUniverse() {
 
     for (auto& System : _StellarSystems) {
         for (auto& Star : System.StarData()) {
-            _StarPtrs.emplace_back(Star.get());
+            _StarPointers.emplace_back(Star.get());
         }
     }
 
@@ -428,7 +455,7 @@ void Universe::CountStars() const {
     MostOblateness MostOblatenessHypergiant;
     MostOblateness MostOblatenessWolfRayet;
 
-    for (const auto* Star : _StarPtrs) {
+    for (const auto* Star : _StarPointers) {
         const Modules::StellarClass& Class = Star->GetStellarClass();
         Modules::StellarClass::StarType StarType = Class.GetStarType();
         if (StarType != Modules::StellarClass::StarType::kNormalStar) {
@@ -685,7 +712,7 @@ void Universe::CountStars() const {
 
     std::println("");
     std::println("Total main sequence: {}", TotalMainSequence);
-    std::println("Total main sequence rate: {}", TotalMainSequence / static_cast<double>(_StarPtrs.size()));
+    std::println("Total main sequence rate: {}", TotalMainSequence / static_cast<double>(_StarPointers.size()));
     std::println("Total O type star rate: {}", static_cast<double>(MainSequence[kTypeO]) / static_cast<double>(TotalMainSequence));
     std::println("Total B type star rate: {}", static_cast<double>(MainSequence[kTypeB]) / static_cast<double>(TotalMainSequence));
     std::println("Total A type star rate: {}", static_cast<double>(MainSequence[kTypeA]) / static_cast<double>(TotalMainSequence));
@@ -799,6 +826,60 @@ void Universe::OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>&
             }
         }
     });
+}
+
+void Universe::GenerateBinaryStars(int MaxThread) {
+    std::vector<Modules::StellarGenerator> Generators;
+    for (int i = 0; i != MaxThread; ++i) {
+        std::vector<std::uint32_t> Seeds(32);
+        for (int i = 0; i != 32; ++i) {
+            Seeds.emplace_back(_SeedGenerator(_RandomEngine));
+        }
+
+        std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
+        std::seed_seq SeedSequence(Seeds.begin(), Seeds.end());
+        Generators.emplace_back(SeedSequence);
+    }
+
+    std::vector<StellarSystem*> BinarySystems;
+    for (auto& System : _StellarSystems) {
+        const auto& Star = System.StarData().front();
+        if (!Star->GetIsSingleStar()) {
+            BinarySystems.emplace_back(&System);
+        }
+    }
+    
+    std::vector<std::future<void>> Futures;
+    for (std::size_t i = 0; i != BinarySystems.size(); ++i) {
+        Futures.emplace_back(_ThreadPool->Commit([&, i]() -> void {
+            std::size_t ThreadId = i % MaxThread;
+            const auto& Star = BinarySystems[i]->StarData().front();
+            float MassLowerLimit = 0.0f;
+            float MassUpperLimit = 0.0f;
+            float FirstStarInitialMassSol = Star->GetInitialMass() / kSolarMass;
+            if (FirstStarInitialMassSol < 30) {
+                MassLowerLimit = FirstStarInitialMassSol;
+                MassUpperLimit = FirstStarInitialMassSol * 10.0f;
+            } else {
+                MassLowerLimit = 30;
+                MassUpperLimit = 300;
+            }
+
+            UniformRealDistribution LogMassSuggestDistribution(std::log10(MassLowerLimit), std::log10(MassUpperLimit));
+
+            Generators[ThreadId].SetGenerateOption(Modules::StellarGenerator::GenerateOption::kBinarySecondStar);
+            Generators[ThreadId].SetLogMassSuggestDistribution(LogMassSuggestDistribution);
+
+            auto BasicProperties = Generators[ThreadId].GenerateBasicProperties(static_cast<float>(Star->GetAge()), Star->GetFeH());
+            auto NewStar = Generators[ThreadId].GenerateStar(BasicProperties);
+
+            BinarySystems[i]->StarData().emplace_back(std::make_unique<Astro::Star>(NewStar));
+        }));
+    }
+
+    for (auto& Future : Futures) {
+        Future.get();
+    }
 }
 
 void FillStellarSystem(StellarSystem& System) {}

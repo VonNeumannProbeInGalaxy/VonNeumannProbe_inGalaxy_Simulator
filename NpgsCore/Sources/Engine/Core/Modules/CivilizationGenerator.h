@@ -14,7 +14,7 @@ _MODULES_BEGIN
 class CivilizationGenerator {
 public:
     CivilizationGenerator() = delete;
-    CivilizationGenerator(const std::seed_seq& SeedSequence, float LifeOccurrenceProbability, bool bEnableAsiFilter = false);
+    explicit CivilizationGenerator(const std::seed_seq& SeedSequence, float LifeOccurrenceProbability, bool bEnableAsiFilter = false);
     ~CivilizationGenerator() = default;
 
     void GenerateCivilization(double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass, std::unique_ptr<Astro::Planet>& Planet);

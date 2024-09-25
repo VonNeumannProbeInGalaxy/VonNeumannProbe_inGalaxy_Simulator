@@ -42,8 +42,8 @@ public:
     };
 
 public:
-    Civilization() = default;
-    Civilization(const LifeProperties& LifeProperties, const CivilizationProperties& CivilizationProperties);
+    explicit Civilization() = default;
+    explicit Civilization(const LifeProperties& LifeProperties, const CivilizationProperties& CivilizationProperties);
     ~Civilization() = default;
 
     // Setters

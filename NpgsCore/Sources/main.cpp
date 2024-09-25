@@ -6,31 +6,31 @@ int main() {
     using namespace Npgs::Modules;
 
     Logger::Init();
-    //ThreadPool::Init();
+    ThreadPool::Init();
 
-    //std::println("Enter the star count:");
-    //std::size_t StarCount = 0;
-    //std::cin >> StarCount;
+    std::println("Enter the star count:");
+    std::size_t StarCount = 0;
+    std::cin >> StarCount;
 
-    //std::println("Enter the seed:");
-    //unsigned Seed = 0;
-    //std::cin >> Seed;
+    std::println("Enter the seed:");
+    unsigned Seed = 0;
+    std::cin >> Seed;
 
-    //Universe Space(Seed, StarCount);
-    //Space.FillUniverse();
-    //Space.CountStars();
+    Universe Space(Seed, StarCount);
+    Space.FillUniverse();
+    Space.CountStars();
 
-    std::random_device rd;
-    unsigned seed = 3141777642;//800323521;//472035744;//2442947453;
-    std::println("Seed: {}", seed);
-    StellarGenerator sg({ seed });
-    StellarGenerator::BasicProperties b{ 4.6e9f, 0.0f, 1.0f };
-    auto s = sg.GenerateStar(b);
+    //std::random_device rd;
+    //unsigned seed = 3141777642;//800323521;//472035744;//2442947453;
+    //std::println("Seed: {}", seed);
+    //StellarGenerator sg({ seed });
+    //StellarGenerator::BasicProperties b{ 4.6e9f, 0.0f, 1.0f };
+    //auto s = sg.GenerateStar(b);
 
-    OrbitalGenerator og({ seed });
-    StellarSystem ss;
-    ss.StarData().push_back(std::make_unique<Astro::Star>(s));
-    og.GenerateOrbitals(ss);
+    //OrbitalGenerator og({ seed });
+    //StellarSystem ss;
+    //ss.StarData().push_back(std::make_unique<Astro::Star>(s));
+    //og.GenerateOrbitals(ss);
 
     //std::vector<StellarSystem> sss(200000);
 
