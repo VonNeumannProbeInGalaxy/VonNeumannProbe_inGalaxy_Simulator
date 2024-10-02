@@ -51,7 +51,7 @@ Universe::Universe(
 {
     std::vector<std::uint32_t> Seeds(32);
     for (int i = 0; i != 32; ++i) {
-        Seeds.emplace_back(_SeedGenerator(_RandomEngine));
+        Seeds[i] = _SeedGenerator(_RandomEngine);
     }
 
     std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
@@ -80,7 +80,7 @@ void Universe::FillUniverse() {
         for (int i = 0; i != MaxThread; ++i) {
             std::vector<std::uint32_t> Seeds(32);
             for (int i = 0; i != 32; ++i) {
-                Seeds.emplace_back(_SeedGenerator(_RandomEngine));
+                Seeds[i] = _SeedGenerator(_RandomEngine);
             }
 
             std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
@@ -253,12 +253,6 @@ void Universe::FillUniverse() {
 
     NpgsCoreInfo("Star generation completed.");
 
-    for (auto& System : _StellarSystems) {
-        for (auto& Star : System.StarData()) {
-            _StarPointers.emplace_back(Star.get());
-        }
-    }
-
     _ThreadPool->Terminate();
 }
 
@@ -276,7 +270,7 @@ void Universe::ReplaceStar(std::size_t DistanceRank, const Astro::Star& StarData
     }
 }
 
-void Universe::CountStars() const {
+void Universe::CountStars() {
     constexpr int kTypeO = 0;
     constexpr int kTypeB = 1;
     constexpr int kTypeA = 2;
@@ -327,6 +321,42 @@ void Universe::CountStars() const {
         const Astro::Star* Star = nullptr;
     };
 
+    auto FormatTitle = []() -> std::string {
+        return std::format(
+            "{:>6} {:>6} {:>8} {:>8} {:7} {:>5} {:>13} {:>8} {:>8} {:>11} {:>8} {:>9} {:>5} {:>15} {:>9} {:>8}",
+            "InMass", "Mass", "Radius", "Age", "Class", "FeH", "Lum", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "Magnetic", "Lifetime", "Oblateness"
+        );
+    };
+
+    auto FormatInfo = [](const Astro::Star* Star) -> std::string {
+        if (Star == nullptr) {
+            return "No star generated.";
+        }
+
+        return std::format("{:6.2f} {:6.2f} {:8.2f} {:8.2E} {:7} {:5.2f} {:13.4f} {:8.1f} {:8.2E} {:11.2E} {:8.2E} {:9} {:5} {:15.5f} {:9.2E} {:8.2f}",
+            Star->GetInitialMass() / kSolarMass,
+            Star->GetMass() / kSolarMass,
+            Star->GetRadius() / kSolarRadius,
+            Star->GetAge(),
+            Star->GetStellarClass().ToString(),
+            Star->GetFeH(),
+            Star->GetLuminosity() / kSolarLuminosity,
+            // kSolarAbsoluteMagnitude - 2.5 * std::log10(Star->GetLuminosity() / kSolarLuminosity),
+            Star->GetTeff(),
+            Star->GetCoreTemp(),
+            Star->GetCoreDensity(),
+            Star->GetStellarWindMassLossRate() * kYearInSeconds / kSolarMass,
+            static_cast<int>(std::round(Star->GetStellarWindSpeed())),
+            static_cast<int>(Star->GetEvolutionPhase()),
+            Star->GetSurfaceZ(),
+            // Star->GetSurfaceEnergeticNuclide(),
+            // Star->GetSurfaceVolatiles(),
+            // Star->GetMagneticField(),
+            Star->GetLifetime(),
+            Star->GetOblateness()
+        );
+    };
+
     auto CountClass = [](const Modules::StellarClass::SpectralType& SpectralType, std::array<std::size_t, 7>& Type) {
         switch (SpectralType.HSpectralClass) {
         case Modules::StellarClass::SpectralClass::kSpectral_O:
@@ -353,57 +383,57 @@ void Universe::CountStars() const {
         }
     };
 
-    auto CountMostLuminous = [](const Astro::Star* Star, MostLuminous& MostLuminousStar) {
+    auto CountMostLuminous = [](const std::unique_ptr<Astro::Star>& Star, MostLuminous& MostLuminousStar) {
         double LuminositySol = 0.0;
         LuminositySol = Star->GetLuminosity() / kSolarLuminosity;
         if (MostLuminousStar.LuminositySol < LuminositySol) {
             MostLuminousStar.LuminositySol = LuminositySol;
-            MostLuminousStar.Star = Star;
+            MostLuminousStar.Star = Star.get();
         }
     };
 
-    auto CountMostMassive = [](const Astro::Star* Star, MostMassive& MostMassiveStar) {
+    auto CountMostMassive = [](const std::unique_ptr<Astro::Star>& Star, MostMassive& MostMassiveStar) {
         double MassSol = 0.0;
         MassSol = Star->GetMass() / kSolarMass;
         if (MostMassiveStar.MassSol < MassSol) {
             MostMassiveStar.MassSol = MassSol;
-            MostMassiveStar.Star = Star;
+            MostMassiveStar.Star = Star.get();
         }
     };
 
-    auto CountLargest = [](const Astro::Star* Star, Largest& LargestStar) {
+    auto CountLargest = [](const std::unique_ptr<Astro::Star>& Star, Largest& LargestStar) {
         float RadiusSol = 0.0f;
         RadiusSol = Star->GetRadius() / kSolarRadius;
         if (LargestStar.RadiusSol < RadiusSol) {
             LargestStar.RadiusSol = RadiusSol;
-            LargestStar.Star = Star;
+            LargestStar.Star = Star.get();
         }
     };
 
-    auto CountHottest = [](const Astro::Star* Star, Hottest& HottestStar) {
+    auto CountHottest = [](const std::unique_ptr<Astro::Star>& Star, Hottest& HottestStar) {
         float Teff = 0.0f;
         Teff = Star->GetTeff();
         if (HottestStar.Teff < Teff) {
             HottestStar.Teff = Teff;
-            HottestStar.Star = Star;
+            HottestStar.Star = Star.get();
         }
     };
 
-    auto CountOldest = [](const Astro::Star* Star, Oldest& OldestStar) {
+    auto CountOldest = [](const std::unique_ptr<Astro::Star>& Star, Oldest& OldestStar) {
         double Age = 0.0;
         Age = Star->GetAge();
         if (OldestStar.Age < Age) {
             OldestStar.Age = Age;
-            OldestStar.Star = Star;
+            OldestStar.Star = Star.get();
         }
     };
 
-    auto CountMostOblateness = [](const Astro::Star* Star, MostOblateness& MostOblatenessStar) {
+    auto CountMostOblateness = [](const std::unique_ptr<Astro::Star>& Star, MostOblateness& MostOblatenessStar) {
         float Oblateness = 0.0f;
         Oblateness = Star->GetOblateness();
         if (MostOblatenessStar.Oblateness < Oblateness) {
             MostOblatenessStar.Oblateness = Oblateness;
-            MostOblatenessStar.Star = Star;
+            MostOblatenessStar.Star = Star.get();
         }
     };
 
@@ -455,165 +485,150 @@ void Universe::CountStars() const {
     MostOblateness MostOblatenessHypergiant;
     MostOblateness MostOblatenessWolfRayet;
 
-    for (const auto* Star : _StarPointers) {
-        const Modules::StellarClass& Class = Star->GetStellarClass();
-        Modules::StellarClass::StarType StarType = Class.GetStarType();
-        if (StarType != Modules::StellarClass::StarType::kNormalStar) {
-            switch (StarType) {
-            case Modules::StellarClass::StarType::kBlackHole:
-                ++BlackHoles;
-                break;
-            case Modules::StellarClass::StarType::kNeutronStar:
-                ++NeutronStars;
-                break;
-            case Modules::StellarClass::StarType::kWhiteDwarf:
-                ++WhiteDwarfs;
-                break;
-            default:
-                break;
-            }
+    std::size_t TotalStars = 1;
 
-            continue;
+    std::println("Star statistics results:");
+    std::println("{}", FormatTitle());
+    std::println("");
+
+    for (auto& System : _StellarSystems) {
+        bool bHasMassiveStar = false;
+        bool bIsBinary = System.StarData().size() == 2;
+
+        if (bIsBinary) {
+            bHasMassiveStar =
+                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_O ||
+                System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_O ||
+                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
+                System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
+                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
+                System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
+                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO ||
+                System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO;
+        } else {
+            bHasMassiveStar =
+                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_O ||
+                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
+                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
+                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO;
         }
 
-        Modules::StellarClass::SpectralType SpectralType = Class.Data();
-        if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Unknown) {
-            if (SpectralType.HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
-                SpectralType.HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
-                SpectralType.HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO) {
-                ++WolfRayet;
-                CountMostLuminous(Star, MostLuminousWolfRayet);
-                CountMostMassive(Star, MostMassiveWolfRayet);
-                CountLargest(Star, LargestWolfRayet);
-                CountHottest(Star, HottestWolfRayet);
-                CountOldest(Star, OldestWolfRayet);
-                CountMostOblateness(Star, MostOblatenessWolfRayet);
+        for (auto& Star : System.StarData()) {
+            if (bHasMassiveStar) {
+                std::println("{}", FormatInfo(Star.get()));
+            }
+
+            const auto& Class = Star->GetStellarClass();
+            Modules::StellarClass::StarType StarType = Class.GetStarType();
+            if (StarType != Modules::StellarClass::StarType::kNormalStar) {
+                switch (StarType) {
+                case Modules::StellarClass::StarType::kBlackHole:
+                    ++BlackHoles;
+                    break;
+                case Modules::StellarClass::StarType::kNeutronStar:
+                    ++NeutronStars;
+                    break;
+                case Modules::StellarClass::StarType::kWhiteDwarf:
+                    ++WhiteDwarfs;
+                    break;
+                default:
+                    break;
+                }
+
+                continue;
+            }
+
+            Modules::StellarClass::SpectralType SpectralType = Class.Data();
+
+            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Unknown) {
+                if (SpectralType.HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
+                    SpectralType.HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
+                    SpectralType.HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO) {
+                    ++WolfRayet;
+                    CountMostLuminous(Star, MostLuminousWolfRayet);
+                    CountMostMassive(Star, MostMassiveWolfRayet);
+                    CountLargest(Star, LargestWolfRayet);
+                    CountHottest(Star, HottestWolfRayet);
+                    CountOldest(Star, OldestWolfRayet);
+                    CountMostOblateness(Star, MostOblatenessWolfRayet);
+                    continue;
+                }
+            }
+
+            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_0 ||
+                SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_IaPlus) {
+                CountClass(SpectralType, Hypergiants);
+                CountMostLuminous(Star, MostLuminousHypergiant);
+                CountMostMassive(Star, MostMassiveHypergiant);
+                CountLargest(Star, LargestHypergiant);
+                CountHottest(Star, HottestHypergiant);
+                CountOldest(Star, OldestHypergiant);
+                CountMostOblateness(Star, MostOblatenessHypergiant);
+                continue;
+            }
+
+            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Ia ||
+                SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Iab ||
+                SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Ib) {
+                CountClass(SpectralType, Supergiants);
+                CountMostLuminous(Star, MostLuminousSupergiant);
+                CountMostMassive(Star, MostMassiveSupergiant);
+                CountLargest(Star, LargestSupergiant);
+                CountHottest(Star, HottestSupergiant);
+                CountOldest(Star, OldestSupergiant);
+                CountMostOblateness(Star, MostOblatenessSupergiant);
+                continue;
+            }
+
+            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_II) {
+                CountClass(SpectralType, BrightGiants);
+                CountMostLuminous(Star, MostLuminousBrightGiant);
+                CountMostMassive(Star, MostMassiveBrightGiant);
+                CountLargest(Star, LargestBrightGiant);
+                CountHottest(Star, HottestBrightGiant);
+                CountOldest(Star, OldestBrightGiant);
+                CountMostOblateness(Star, MostOblatenessBrightGiant);
+                continue;
+            }
+
+            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_III) {
+                CountClass(SpectralType, Giants);
+                CountMostLuminous(Star, MostLuminousGiant);
+                CountMostMassive(Star, MostMassiveGiant);
+                CountLargest(Star, LargestGiant);
+                CountHottest(Star, HottestGiant);
+                CountOldest(Star, OldestGiant);
+                CountMostOblateness(Star, MostOblatenessGiant);
+                continue;
+            }
+
+            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_IV) {
+                CountClass(SpectralType, Subgiants);
+                CountMostLuminous(Star, MostLuminousSubgiant);
+                CountMostMassive(Star, MostMassiveSubgiant);
+                CountLargest(Star, LargestSubgiant);
+                CountHottest(Star, HottestSubgiant);
+                CountOldest(Star, OldestSubgiant);
+                CountMostOblateness(Star, MostOblatenessSubgiant);
+                continue;
+            }
+
+            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_V) {
+                CountClass(SpectralType, MainSequence);
+                CountMostLuminous(Star, MostLuminousMainSequence);
+                CountMostMassive(Star, MostMassiveMainSequence);
+                CountLargest(Star, LargestMainSequence);
+                CountHottest(Star, HottestMainSequence);
+                CountOldest(Star, OldestMainSequence);
+                CountMostOblateness(Star, MostOblatenessMainSequence);
                 continue;
             }
         }
 
-        if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_0 ||
-            SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_IaPlus) {
-            CountClass(SpectralType, Hypergiants);
-            CountMostLuminous(Star, MostLuminousHypergiant);
-            CountMostMassive(Star, MostMassiveHypergiant);
-            CountLargest(Star, LargestHypergiant);
-            CountHottest(Star, HottestHypergiant);
-            CountOldest(Star, OldestHypergiant);
-            CountMostOblateness(Star, MostOblatenessHypergiant);
-            continue;
-        }
-
-        if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Ia ||
-            SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Iab ||
-            SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Ib) {
-            CountClass(SpectralType, Supergiants);
-            CountMostLuminous(Star, MostLuminousSupergiant);
-            CountMostMassive(Star, MostMassiveSupergiant);
-            CountLargest(Star, LargestSupergiant);
-            CountHottest(Star, HottestSupergiant);
-            CountOldest(Star, OldestSupergiant);
-            CountMostOblateness(Star, MostOblatenessSupergiant);
-            continue;
-        }
-
-        if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_II) {
-            CountClass(SpectralType, BrightGiants);
-            CountMostLuminous(Star, MostLuminousBrightGiant);
-            CountMostMassive(Star, MostMassiveBrightGiant);
-            CountLargest(Star, LargestBrightGiant);
-            CountHottest(Star, HottestBrightGiant);
-            CountOldest(Star, OldestBrightGiant);
-            CountMostOblateness(Star, MostOblatenessBrightGiant);
-            continue;
-        }
-
-        if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_III) {
-            CountClass(SpectralType, Giants);
-            CountMostLuminous(Star, MostLuminousGiant);
-            CountMostMassive(Star, MostMassiveGiant);
-            CountLargest(Star, LargestGiant);
-            CountHottest(Star, HottestGiant);
-            CountOldest(Star, OldestGiant);
-            CountMostOblateness(Star, MostOblatenessGiant);
-            continue;
-        }
-
-        if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_IV) {
-            CountClass(SpectralType, Subgiants);
-            CountMostLuminous(Star, MostLuminousSubgiant);
-            CountMostMassive(Star, MostMassiveSubgiant);
-            CountLargest(Star, LargestSubgiant);
-            CountHottest(Star, HottestSubgiant);
-            CountOldest(Star, OldestSubgiant);
-            CountMostOblateness(Star, MostOblatenessSubgiant);
-            continue;
-        }
-
-        if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_V) {
-            CountClass(SpectralType, MainSequence);
-            CountMostLuminous(Star, MostLuminousMainSequence);
-            CountMostMassive(Star, MostMassiveMainSequence);
-            CountLargest(Star, LargestMainSequence);
-            CountHottest(Star, HottestMainSequence);
-            CountOldest(Star, OldestMainSequence);
-            CountMostOblateness(Star, MostOblatenessMainSequence);
-            continue;
+        if (bHasMassiveStar) {
+            std::println("");
         }
     }
-
-    auto FormatTitle = []() -> std::string {
-        return std::format(
-            "{:>6} {:>6} {:>8} {:>8} {:7} {:>5} {:>13} {:>8} {:>8} {:>11} {:>8} {:>9} {:>5} {:>15} {:>9} {:>8}",
-            "InMass", "Mass", "Radius", "Age", "Class", "FeH", "Lum", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "Magnetic", "Lifetime", "Oblateness");
-    };
-
-    auto FormatInfo = [](const Astro::Star* Star) -> std::string {
-        if (Star == nullptr) {
-            return "No star generated.";
-        }
-
-        return std::format("{:6.2f} {:6.2f} {:8.2f} {:8.2E} {:7} {:5.2f} {:13.4f} {:8.1f} {:8.2E} {:11.2E} {:8.2E} {:9} {:5} {:15.5f} {:9.2E} {:8.2f}",
-            Star->GetInitialMass() / kSolarMass,
-            Star->GetMass() / kSolarMass,
-            Star->GetRadius() / kSolarRadius,
-            Star->GetAge(),
-            Star->GetStellarClass().ToString(),
-            Star->GetFeH(),
-            Star->GetLuminosity() / kSolarLuminosity,
-            // kSolarAbsoluteMagnitude - 2.5 * std::log10(Star->GetLuminosity() / kSolarLuminosity),
-            Star->GetTeff(),
-            Star->GetCoreTemp(),
-            Star->GetCoreDensity(),
-            Star->GetStellarWindMassLossRate() * kYearInSeconds / kSolarMass,
-            static_cast<int>(std::round(Star->GetStellarWindSpeed())),
-            static_cast<int>(Star->GetEvolutionPhase()),
-            Star->GetSurfaceZ(),
-            // Star->GetSurfaceEnergeticNuclide(),
-            // Star->GetSurfaceVolatiles(),
-            // Star->GetMagneticField(),
-            Star->GetLifetime(),
-            Star->GetOblateness()
-        );
-    };
-
-    std::println("O type main sequence: {}\nB type main sequence: {}\nA type main sequence: {}\nF type main sequence: {}\nG type main sequence: {}\nK type main sequence: {}\nM type main sequence: {}",
-        MainSequence[kTypeO], MainSequence[kTypeB], MainSequence[kTypeA], MainSequence[kTypeF], MainSequence[kTypeG], MainSequence[kTypeK], MainSequence[kTypeM]);
-    std::println("O type subgiants: {}\nB type subgiants: {}\nA type subgiants: {}\nF type subgiants: {}\nG type subgiants: {}\nK type subgiants: {}\nM type subgiants: {}",
-        Subgiants[kTypeO], Subgiants[kTypeB], Subgiants[kTypeA], Subgiants[kTypeF], Subgiants[kTypeG], Subgiants[kTypeK], Subgiants[kTypeM]);
-    std::println("O type giants: {}\nB type giants: {}\nA type giants: {}\nF type giants: {}\nG type giants: {}\nK type giants: {}\nM type giants: {}",
-        Giants[kTypeO], Giants[kTypeB], Giants[kTypeA], Giants[kTypeF], Giants[kTypeG], Giants[kTypeK], Giants[kTypeM]);
-    std::println("O type bright giants: {}\nB type bright giants: {}\nA type bright giants: {}\nF type bright giants: {}\nG type bright giants: {}\nK type bright giants: {}\nM type bright giants: {}",
-        BrightGiants[kTypeO], BrightGiants[kTypeB], BrightGiants[kTypeA], BrightGiants[kTypeA], BrightGiants[kTypeF], BrightGiants[kTypeG], BrightGiants[kTypeM]);
-    std::println("O type supergiants: {}\nB type supergiants: {}\nA type supergiants: {}\nF type supergiants: {}\nG type supergiants: {}\nK type supergiants: {}\nM type supergiants: {}",
-        Supergiants[kTypeO], Supergiants[kTypeB], Supergiants[kTypeA], Supergiants[kTypeF], Supergiants[kTypeG], Supergiants[kTypeK], Supergiants[kTypeM]);
-    std::println("O type hypergiants: {}\nB type hypergiants: {}\nA type hypergiants: {}\nF type hypergiants: {}\nG type hypergiants: {}\nK type hypergiants: {}\nM type hypergiants: {}",
-        Hypergiants[kTypeO], Hypergiants[kTypeB], Hypergiants[kTypeA], Hypergiants[kTypeF], Hypergiants[kTypeG], Hypergiants[kTypeK], Hypergiants[kTypeM]);
-    std::println("Wolf-Rayet stars: {}", WolfRayet);
-    std::println("White dwarfs: {}\nNeutron stars: {}\nBlack holes: {}", WhiteDwarfs, NeutronStars, BlackHoles);
-
-    std::println("");
-    std::println("{}", FormatTitle());
 
     std::println("Most luminous main sequence star: luminosity: {}", MostLuminousMainSequence.LuminositySol);
     std::println("{}", FormatInfo(MostLuminousMainSequence.Star));
@@ -712,7 +727,7 @@ void Universe::CountStars() const {
 
     std::println("");
     std::println("Total main sequence: {}", TotalMainSequence);
-    std::println("Total main sequence rate: {}", TotalMainSequence / static_cast<double>(_StarPointers.size()));
+    std::println("Total main sequence rate: {}", TotalMainSequence / static_cast<double>(TotalStars));
     std::println("Total O type star rate: {}", static_cast<double>(MainSequence[kTypeO]) / static_cast<double>(TotalMainSequence));
     std::println("Total B type star rate: {}", static_cast<double>(MainSequence[kTypeB]) / static_cast<double>(TotalMainSequence));
     std::println("Total A type star rate: {}", static_cast<double>(MainSequence[kTypeA]) / static_cast<double>(TotalMainSequence));
@@ -721,6 +736,21 @@ void Universe::CountStars() const {
     std::println("Total K type star rate: {}", static_cast<double>(MainSequence[kTypeK]) / static_cast<double>(TotalMainSequence));
     std::println("Total M type star rate: {}", static_cast<double>(MainSequence[kTypeM]) / static_cast<double>(TotalMainSequence));
     std::println("Total Wolf-Rayet / O main star rate: {}", static_cast<double>(WolfRayet) / static_cast<double>(MainSequence[kTypeO]));
+
+    std::println("O type main sequence: {}\nB type main sequence: {}\nA type main sequence: {}\nF type main sequence: {}\nG type main sequence: {}\nK type main sequence: {}\nM type main sequence: {}",
+        MainSequence[kTypeO], MainSequence[kTypeB], MainSequence[kTypeA], MainSequence[kTypeF], MainSequence[kTypeG], MainSequence[kTypeK], MainSequence[kTypeM]);
+    std::println("O type subgiants: {}\nB type subgiants: {}\nA type subgiants: {}\nF type subgiants: {}\nG type subgiants: {}\nK type subgiants: {}\nM type subgiants: {}",
+        Subgiants[kTypeO], Subgiants[kTypeB], Subgiants[kTypeA], Subgiants[kTypeF], Subgiants[kTypeG], Subgiants[kTypeK], Subgiants[kTypeM]);
+    std::println("O type giants: {}\nB type giants: {}\nA type giants: {}\nF type giants: {}\nG type giants: {}\nK type giants: {}\nM type giants: {}",
+        Giants[kTypeO], Giants[kTypeB], Giants[kTypeA], Giants[kTypeF], Giants[kTypeG], Giants[kTypeK], Giants[kTypeM]);
+    std::println("O type bright giants: {}\nB type bright giants: {}\nA type bright giants: {}\nF type bright giants: {}\nG type bright giants: {}\nK type bright giants: {}\nM type bright giants: {}",
+        BrightGiants[kTypeO], BrightGiants[kTypeB], BrightGiants[kTypeA], BrightGiants[kTypeA], BrightGiants[kTypeF], BrightGiants[kTypeG], BrightGiants[kTypeM]);
+    std::println("O type supergiants: {}\nB type supergiants: {}\nA type supergiants: {}\nF type supergiants: {}\nG type supergiants: {}\nK type supergiants: {}\nM type supergiants: {}",
+        Supergiants[kTypeO], Supergiants[kTypeB], Supergiants[kTypeA], Supergiants[kTypeF], Supergiants[kTypeG], Supergiants[kTypeK], Supergiants[kTypeM]);
+    std::println("O type hypergiants: {}\nB type hypergiants: {}\nA type hypergiants: {}\nF type hypergiants: {}\nG type hypergiants: {}\nK type hypergiants: {}\nM type hypergiants: {}",
+        Hypergiants[kTypeO], Hypergiants[kTypeB], Hypergiants[kTypeA], Hypergiants[kTypeF], Hypergiants[kTypeG], Hypergiants[kTypeK], Hypergiants[kTypeM]);
+    std::println("Wolf-Rayet stars: {}", WolfRayet);
+    std::println("White dwarfs: {}\nNeutron stars: {}\nBlack holes: {}", WhiteDwarfs, NeutronStars, BlackHoles);
 }
 
 void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Density) {
@@ -833,7 +863,7 @@ void Universe::GenerateBinaryStars(int MaxThread) {
     for (int i = 0; i != MaxThread; ++i) {
         std::vector<std::uint32_t> Seeds(32);
         for (int i = 0; i != 32; ++i) {
-            Seeds.emplace_back(_SeedGenerator(_RandomEngine));
+            Seeds[i] = _SeedGenerator(_RandomEngine);
         }
 
         std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
@@ -848,7 +878,7 @@ void Universe::GenerateBinaryStars(int MaxThread) {
             BinarySystems.emplace_back(&System);
         }
     }
-    
+
     std::vector<std::future<void>> Futures;
     for (std::size_t i = 0; i != BinarySystems.size(); ++i) {
         Futures.emplace_back(_ThreadPool->Commit([&, i]() -> void {
@@ -870,7 +900,14 @@ void Universe::GenerateBinaryStars(int MaxThread) {
             Generators[ThreadId].SetGenerateOption(Modules::StellarGenerator::GenerateOption::kBinarySecondStar);
             Generators[ThreadId].SetLogMassSuggestDistribution(LogMassSuggestDistribution);
 
-            auto BasicProperties = Generators[ThreadId].GenerateBasicProperties(static_cast<float>(Star->GetAge()), Star->GetFeH());
+            double Age = Star->GetAge();
+            float  FeH = Star->GetFeH();
+
+            if (std::to_underlying(Star->GetEvolutionPhase()) > 9) {
+                Age -= Star->GetLifetime();
+            }
+
+            auto BasicProperties = Generators[ThreadId].GenerateBasicProperties(static_cast<float>(Age), FeH);
             auto NewStar = Generators[ThreadId].GenerateStar(BasicProperties);
 
             BinarySystems[i]->StarData().emplace_back(std::make_unique<Astro::Star>(NewStar));

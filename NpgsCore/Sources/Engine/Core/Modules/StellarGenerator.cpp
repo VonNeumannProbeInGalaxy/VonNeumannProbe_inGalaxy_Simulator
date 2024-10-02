@@ -249,6 +249,10 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
 }
 
 Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
+    if (Properties.InitialMassSol == -1.0f) {
+        Properties = GenerateBasicProperties(Properties.Age, Properties.FeH);
+    }
+    
     Astro::Star Star(Properties);
     std::vector<double> StarData;
 
@@ -264,7 +268,10 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
             DeathStar.SetInitialMass(Properties.InitialMassSol);
             ProcessDeathStar(DeathStar);
             if (DeathStar.GetEvolutionPhase() == Astro::Star::Phase::kNull) {
-                DeathStar = GenerateStar();
+                // 对于双星，二者年龄和金属丰度要保持一致
+                // 赋值为 -1.0 生成另一个质量数值，避免无限递归
+                Properties.InitialMassSol = -1.0f;
+                DeathStar = GenerateStar(Properties);
             }
 
             return DeathStar;

@@ -33,7 +33,7 @@ public:
 
     void FillUniverse();
     void ReplaceStar(std::size_t DistanceRank, const Astro::Star& StarData);
-    void CountStars() const;
+    void CountStars();
 
 private:
     void GenerateSlots(float DistMin, std::size_t NumSamples, float Density);
@@ -58,7 +58,6 @@ private:
     float       _UniverseAge;
 
     std::vector<StellarSystem> _StellarSystems;
-    std::vector<Astro::Star*>  _StarPointers;
 };
 
 _NPGS_END
