@@ -183,7 +183,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenerateBasicProperties(floa
     Properties.FeH = FeH;
 
     if (_Option != GenerateOption::kBinarySecondStar) {
-        BernoulliDistribution<> BinaryProbability(0.43 - 0.140585 * std::pow(std::pow(10, FeH), 0.5));
+        BernoulliDistribution<> BinaryProbability(0.45 - 0.07 * std::pow(10, FeH));
         if (BinaryProbability(_RandomEngine)) {
             Properties.Option = GenerateOption::kBinaryFirstStar;
             Properties.bIsSingleStar = false;
@@ -266,6 +266,7 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
             DeathStar.SetAge(Properties.Age);
             DeathStar.SetFeH(Properties.FeH);
             DeathStar.SetInitialMass(Properties.InitialMassSol);
+            DeathStar.SetIsSingleStar(Properties.bIsSingleStar);
             ProcessDeathStar(DeathStar);
             if (DeathStar.GetEvolutionPhase() == Astro::Star::Phase::kNull) {
                 // 对于双星，二者年龄和金属丰度要保持一致

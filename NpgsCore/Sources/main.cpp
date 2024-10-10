@@ -8,7 +8,7 @@ int main() {
     Logger::Init();
     ThreadPool::Init();
 
-    std::println("Enter the star count:");
+    std::println("Enter the system count:");
     std::size_t StarCount = 0;
     std::cin >> StarCount;
 

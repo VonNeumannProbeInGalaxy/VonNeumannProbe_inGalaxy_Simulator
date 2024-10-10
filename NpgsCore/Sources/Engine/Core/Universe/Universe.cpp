@@ -290,6 +290,9 @@ void Universe::CountStars() {
     std::size_t WhiteDwarfs  = 0;
     std::size_t NeutronStars = 0;
     std::size_t BlackHoles   = 0;
+    std::size_t TotalStars   = 1;
+    std::size_t TotalBinarys = 0;
+    std::size_t TotalSingles = 0;
 
     struct MostLuminous {
         double LuminositySol{};
@@ -485,37 +488,51 @@ void Universe::CountStars() {
     MostOblateness MostOblatenessHypergiant;
     MostOblateness MostOblatenessWolfRayet;
 
-    std::size_t TotalStars = 1;
-
     std::println("Star statistics results:");
     std::println("{}", FormatTitle());
     std::println("");
 
     for (auto& System : _StellarSystems) {
-        bool bHasMassiveStar = false;
-        bool bIsBinary = System.StarData().size() == 2;
+        // bool bHasMassiveStar = false;
+        // bool bIsBinary = System.StarData().size() == 2;
 
-        if (bIsBinary) {
-            bHasMassiveStar =
-                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_O ||
-                System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_O ||
-                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
-                System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
-                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
-                System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
-                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO ||
-                System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO;
-        } else {
-            bHasMassiveStar =
-                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_O ||
-                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
-                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
-                System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO;
-        }
+        // if (bIsBinary) {
+        //     ++TotalBinarys;
+        // } else {
+        //     ++TotalSingles;
+        // }
+
+        // if (bIsBinary) {
+        //     bHasMassiveStar =
+        //         System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_O ||
+        //         System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_O ||
+        //         System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
+        //         System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
+        //         System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
+        //         System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
+        //         System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO ||
+        //         System.StarData().back()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO;
+        // } else {
+        //     bHasMassiveStar =
+        //         System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_O ||
+        //         System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
+        //         System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
+        //         System.StarData().front()->GetStellarClass().Data().HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO;
+        // }
 
         for (auto& Star : System.StarData()) {
-            if (bHasMassiveStar) {
-                std::println("{}", FormatInfo(Star.get()));
+            ++TotalStars;
+
+            // if (bHasMassiveStar) {
+            //     std::println("{}", FormatInfo(Star.get()));
+            // }
+
+            if (Star->GetInitialMass() / kSolarMass >= 8) {
+                if (Star->GetIsSingleStar()) {
+                    ++TotalSingles;
+                } else {
+                    ++TotalBinarys;
+                }
             }
 
             const auto& Class = Star->GetStellarClass();
@@ -625,9 +642,9 @@ void Universe::CountStars() {
             }
         }
 
-        if (bHasMassiveStar) {
-            std::println("");
-        }
+        // if (bHasMassiveStar) {
+        //     std::println("");
+        // }
     }
 
     std::println("Most luminous main sequence star: luminosity: {}", MostLuminousMainSequence.LuminositySol);
@@ -751,6 +768,10 @@ void Universe::CountStars() {
         Hypergiants[kTypeO], Hypergiants[kTypeB], Hypergiants[kTypeA], Hypergiants[kTypeF], Hypergiants[kTypeG], Hypergiants[kTypeK], Hypergiants[kTypeM]);
     std::println("Wolf-Rayet stars: {}", WolfRayet);
     std::println("White dwarfs: {}\nNeutron stars: {}\nBlack holes: {}", WhiteDwarfs, NeutronStars, BlackHoles);
+    std::println("");
+    std::println("Number of single stars: {}", TotalSingles);
+    std::println("Number of binary stars: {}", TotalBinarys);
+    std::println("");
 }
 
 void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Density) {
@@ -868,7 +889,7 @@ void Universe::GenerateBinaryStars(int MaxThread) {
 
         std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
         std::seed_seq SeedSequence(Seeds.begin(), Seeds.end());
-        Generators.emplace_back(SeedSequence);
+        Generators.emplace_back(SeedSequence, Modules::StellarGenerator::GenerateOption::kBinarySecondStar);
     }
 
     std::vector<StellarSystem*> BinarySystems;
@@ -897,13 +918,13 @@ void Universe::GenerateBinaryStars(int MaxThread) {
 
             UniformRealDistribution LogMassSuggestDistribution(std::log10(MassLowerLimit), std::log10(MassUpperLimit));
 
-            Generators[ThreadId].SetGenerateOption(Modules::StellarGenerator::GenerateOption::kBinarySecondStar);
+            // Generators[ThreadId].SetGenerateOption(Modules::StellarGenerator::GenerateOption::kBinarySecondStar);
             Generators[ThreadId].SetLogMassSuggestDistribution(LogMassSuggestDistribution);
 
             double Age = Star->GetAge();
             float  FeH = Star->GetFeH();
 
-            if (std::to_underlying(Star->GetEvolutionPhase()) > 9) {
+            if (std::to_underlying(Star->GetEvolutionPhase()) > 10) {
                 Age -= Star->GetLifetime();
             }
 
