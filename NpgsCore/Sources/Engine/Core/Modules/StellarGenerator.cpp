@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "StellarGenerator.h"
 
 #include <cmath>
@@ -9,6 +10,7 @@
 #include <iostream>
 #include <iterator>
 #include <limits>
+#include <print>
 #include <sstream>
 #include <stdexcept>
 #include <string>
