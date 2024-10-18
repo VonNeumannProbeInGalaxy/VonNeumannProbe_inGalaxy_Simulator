@@ -193,63 +193,63 @@ void Universe::FillUniverse() {
     NpgsCoreInfo("Generating binary stars...");
     GenerateBinaryStars(MaxThread);
 
-    NpgsCoreInfo("Sorting...");
-    std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
-        return glm::length(Point1) < glm::length(Point2);
-    });
+    //NpgsCoreInfo("Sorting...");
+    //std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
+    //    return glm::length(Point1) < glm::length(Point2);
+    //});
 
-    NpgsCoreInfo("Assigning name...");
-    std::string Name;
-    std::ostringstream Stream;
-    for (auto& System : _StellarSystems) {
-        glm::vec3 Position = System.GetBaryPosition();
-        auto it = std::lower_bound(Slots.begin(), Slots.end(), Position, [](const glm::vec3& Point1, const glm::vec3& Point2) -> bool {
-            return glm::length(Point1) < glm::length(Point2);
-        });
-        std::ptrdiff_t Offset = it - Slots.begin();
-        Stream << std::setfill('0') << std::setw(8) << std::to_string(Offset);
-        Name = "SYSTEM-" + Stream.str();
-        System.SetBaryName(Name).SetBaryDistanceRank(Offset);
+    //NpgsCoreInfo("Assigning name...");
+    //std::string Name;
+    //std::ostringstream Stream;
+    //for (auto& System : _StellarSystems) {
+    //    glm::vec3 Position = System.GetBaryPosition();
+    //    auto it = std::lower_bound(Slots.begin(), Slots.end(), Position, [](const glm::vec3& Point1, const glm::vec3& Point2) -> bool {
+    //        return glm::length(Point1) < glm::length(Point2);
+    //    });
+    //    std::ptrdiff_t Offset = it - Slots.begin();
+    //    Stream << std::setfill('0') << std::setw(8) << std::to_string(Offset);
+    //    Name = "SYSTEM-" + Stream.str();
+    //    System.SetBaryName(Name).SetBaryDistanceRank(Offset);
 
-        auto& Stars = System.StarData();
-        if (Stars.size() > 1) {
-            std::sort(Stars.begin(), Stars.end(), [](const std::unique_ptr<Astro::Star>& Star1, std::unique_ptr<Astro::Star>& Star2) -> bool {
-                return Star1->GetMass() > Star2->GetMass();
-            });
+    //    auto& Stars = System.StarData();
+    //    if (Stars.size() > 1) {
+    //        std::sort(Stars.begin(), Stars.end(), [](const std::unique_ptr<Astro::Star>& Star1, std::unique_ptr<Astro::Star>& Star2) -> bool {
+    //            return Star1->GetMass() > Star2->GetMass();
+    //        });
 
-            char Rank = 'A';
-            for (auto& Star : Stars) {
-                Star->SetName("STAR-" + Stream.str() + " " + Rank);
-                ++Rank;
-            }
-        } else {
-            Stars.front()->SetName("STAR-" + Stream.str());
-        }
+    //        char Rank = 'A';
+    //        for (auto& Star : Stars) {
+    //            Star->SetName("STAR-" + Stream.str() + " " + Rank);
+    //            ++Rank;
+    //        }
+    //    } else {
+    //        Stars.front()->SetName("STAR-" + Stream.str());
+    //    }
 
-        Stream.str("");
-        Stream.clear();
-    }
+    //    Stream.str("");
+    //    Stream.clear();
+    //}
 
-    NpgsCoreInfo("Reset home stellar system...");
-    NodeType* HomeNode = _Octree->Find(glm::vec3(0.0f), [](const NodeType& Node) -> bool {
-        if (Node.IsLeafNode()) {
-            auto& Points = Node.GetPoints();
-            return std::find(Points.begin(), Points.end(), glm::vec3(0.0f)) != Points.end();
-        } else {
-            return false;
-        }
-    });
+    //NpgsCoreInfo("Reset home stellar system...");
+    //NodeType* HomeNode = _Octree->Find(glm::vec3(0.0f), [](const NodeType& Node) -> bool {
+    //    if (Node.IsLeafNode()) {
+    //        auto& Points = Node.GetPoints();
+    //        return std::find(Points.begin(), Points.end(), glm::vec3(0.0f)) != Points.end();
+    //    } else {
+    //        return false;
+    //    }
+    //});
 
-    auto* HomeSystem = HomeNode->GetLink([](StellarSystem* System) -> bool {
-        return System->GetBaryPosition() == glm::vec3(0.0f);
-    });
-    HomeNode->RemoveStorage();
-    HomeNode->AddPoint(glm::vec3(0.0f));
-    HomeSystem->SetBaryNormal(glm::vec2(0.0f));
+    //auto* HomeSystem = HomeNode->GetLink([](StellarSystem* System) -> bool {
+    //    return System->GetBaryPosition() == glm::vec3(0.0f);
+    //});
+    //HomeNode->RemoveStorage();
+    //HomeNode->AddPoint(glm::vec3(0.0f));
+    //HomeSystem->SetBaryNormal(glm::vec2(0.0f));
 
-    for (auto& Star : HomeSystem->StarData()) {
-        Star->SetNormal(glm::vec3(0.0f));
-    }
+    //for (auto& Star : HomeSystem->StarData()) {
+    //    Star->SetNormal(glm::vec3(0.0f));
+    //}
 
     NpgsCoreInfo("Star generation completed.");
 
@@ -527,7 +527,7 @@ void Universe::CountStars() {
             //     std::println("{}", FormatInfo(Star.get()));
             // }
 
-            if (Star->GetInitialMass() / kSolarMass >= 8) {
+            if (Star->GetInitialMass() / kSolarMass >= 15 && Star->GetInitialMass() / kSolarMass < 20) {
                 if (Star->GetIsSingleStar()) {
                     ++TotalSingles;
                 } else {
@@ -772,6 +772,19 @@ void Universe::CountStars() {
     std::println("Number of single stars: {}", TotalSingles);
     std::println("Number of binary stars: {}", TotalBinarys);
     std::println("");
+
+    //std::ofstream BinaryFirstStar("BinaryFirstStar.csv");
+    //std::ofstream BinarySecondStar("BinarySecondStar.csv");
+
+    //for (auto& System : _StellarSystems) {
+    //    if (System.StarData().size() > 1) {
+    //        BinaryFirstStar << System.StarData().front()->GetInitialMass() / kSolarMass << ",";
+    //        BinarySecondStar << System.StarData().back()->GetInitialMass() / kSolarMass << ",";
+    //    }
+    //}
+
+    //BinaryFirstStar.close();
+    //BinarySecondStar.close();
 }
 
 void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Density) {
