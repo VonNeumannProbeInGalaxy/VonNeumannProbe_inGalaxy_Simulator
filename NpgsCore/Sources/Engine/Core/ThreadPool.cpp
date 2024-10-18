@@ -89,7 +89,7 @@ void ThreadPool::SetThreadAffinity(std::thread& Thread, std::size_t CoreId) {
     SetThreadAffinityMask(Handle, Mask);
 }
 
-ThreadPool* ThreadPool::_kInstance = nullptr;
+ThreadPool* ThreadPool::_kInstance  = nullptr;
 std::once_flag ThreadPool::_kOnce;
 int ThreadPool::_kMaxThreadCount    = 0;
 int ThreadPool::_kPhysicalCoreCount = 0;
