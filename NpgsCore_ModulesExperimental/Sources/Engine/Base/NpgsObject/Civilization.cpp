@@ -1,4 +1,9 @@
-#include "Civilization.h"
+module;
+
+#include <boost/multiprecision/cpp_int.hpp>
+#include "Engine/Core/Base.h"
+
+module Base.Civilization;
 
 _NPGS_BEGIN
 

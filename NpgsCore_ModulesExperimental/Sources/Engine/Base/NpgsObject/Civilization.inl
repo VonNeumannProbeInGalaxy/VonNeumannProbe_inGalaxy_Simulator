@@ -1,4 +1,6 @@
-#include "Civilization.h"
+#pragma once
+
+#include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
 

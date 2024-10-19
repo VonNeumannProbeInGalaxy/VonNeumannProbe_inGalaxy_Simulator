@@ -71,4 +71,4 @@ private:
 _ASTRO_END
 _NPGS_END
 
-#include "CelestialObject1.inl"
+#include "CelestialObject.inl"

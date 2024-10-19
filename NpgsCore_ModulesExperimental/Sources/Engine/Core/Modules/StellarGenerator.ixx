@@ -189,4 +189,4 @@ private:
 _MODULES_END
 _NPGS_END
 
-#include "StellarGenerator1.inl"
+#include "StellarGenerator.inl"

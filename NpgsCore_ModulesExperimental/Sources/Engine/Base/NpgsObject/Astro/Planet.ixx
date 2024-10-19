@@ -188,4 +188,4 @@ private:
 _ASTRO_END
 _NPGS_END
 
-#include "Planet1.inl"
+#include "Planet.inl"

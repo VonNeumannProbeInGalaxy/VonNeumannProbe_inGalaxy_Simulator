@@ -1,4 +1,4 @@
-#include "Universe.h"
+module;
 
 #include <cstdlib>
 #include <algorithm>
@@ -13,14 +13,16 @@
 #include <string>
 #include <utility>
 
-// #define OUTPUT_DATA
-#define ENABLE_LOGGER
-#include "Engine/Core/Modules/OrbitalGenerator.h"
-#include "Engine/Core/Modules/StellarClass.h"
-#include "Engine/Core/Modules/StellarGenerator.h"
+#include <glm/glm.hpp>
+
+#include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
-#include "Engine/Core/Logger.h"
-#include "Engine/Core/Random.hpp"
+
+module Universe;
+
+import Core.Logger;
+import Module.StellarClass;
+import Module.StellarGenerator;
 
 _NPGS_BEGIN
 
@@ -66,7 +68,7 @@ Universe::~Universe() {
 void Universe::FillUniverse() {
     int MaxThread = _ThreadPool->GetPhysicalCoreCount();
 
-    NpgsCoreInfo("Initializating and generating basic properties...");
+    // NpgsCoreInfo("Initializating and generating basic properties...");
     std::vector<Modules::StellarGenerator> Generators;
     std::vector<Modules::StellarGenerator::BasicProperties> BasicProperties;
 
@@ -139,7 +141,7 @@ void Universe::FillUniverse() {
     CreateGenerators(Modules::StellarGenerator::GenerateOption::kNormal, 0.075f);
     GenerateBasicProperties(NumCommonStars);
 
-    NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
+    // NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
 
     std::vector<std::future<Astro::Star>> StarFutures(_NumStars);
     for (std::size_t i = 0; i != _NumStars; ++i) {
@@ -181,18 +183,21 @@ void Universe::FillUniverse() {
     return;
 #endif // OUTPUT_DATA
 
-    NpgsCoreInfo("Building stellar octree in 8 threads...");
+    // NpgsCoreInfo("Building stellar octree in 8 threads...");
     GenerateSlots(0.1f, _NumStars, 0.004f);
 
-    NpgsCoreInfo("Linking positions in octree to stellar systems...");
-    _StellarSystems.reserve(_NumStars);
-    std::shuffle(StarFutures.begin(), StarFutures.end(), _RandomEngine);
-    std::vector<glm::vec3> Slots;
-    OctreeLinkToStellarSystems(StarFutures, Slots);
+    try {
+        // NpgsCoreInfo("Linking positions in octree to stellar systems...");
+        _StellarSystems.reserve(_NumStars);
+        std::shuffle(StarFutures.begin(), StarFutures.end(), _RandomEngine);
+        std::vector<glm::vec3> Slots;
+        OctreeLinkToStellarSystems(StarFutures, Slots);
 
-    NpgsCoreInfo("Generating binary stars...");
-    GenerateBinaryStars(MaxThread);
-
+        // NpgsCoreInfo("Generating binary stars...");
+        GenerateBinaryStars(MaxThread);
+    } catch (std::exception& e) {
+        std::println("{}", e.what());
+    }
     //NpgsCoreInfo("Sorting...");
     //std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
     //    return glm::length(Point1) < glm::length(Point2);
@@ -251,7 +256,7 @@ void Universe::FillUniverse() {
     //    Star->SetNormal(glm::vec3(0.0f));
     //}
 
-    NpgsCoreInfo("Star generation completed.");
+    // NpgsCoreInfo("Star generation completed.");
 
     _ThreadPool->Terminate();
 }

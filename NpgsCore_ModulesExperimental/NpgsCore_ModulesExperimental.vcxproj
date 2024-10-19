@@ -110,7 +110,7 @@
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <EnableModules>true</EnableModules>
       <BuildStlModules>true</BuildStlModules>
-      <AdditionalIncludeDirectories>$(SolutionDir)\NpgsCore_ModuleExperimental\Sources</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\NpgsCore_ModulesExperimental\Sources</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,7 +132,7 @@
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <EnableModules>true</EnableModules>
       <BuildStlModules>true</BuildStlModules>
-      <AdditionalIncludeDirectories>$(SolutionDir)\NpgsCore_ModuleExperimental\Sources</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\NpgsCore_ModulesExperimental\Sources</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,91 +142,52 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.cpp" />
     <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.ixx" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObjectImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Planet.cpp" />
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.cpp" />
     <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Planet.ixx" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\PlanetImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Star.cpp" />
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Planet.cpp" />
     <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Star.ixx" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\StarImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Civilization.cpp" />
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Star.cpp" />
     <ClCompile Include="Sources\Engine\Base\NpgsObject\Civilization.ixx" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\CivilizationImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\NpgsObject.cpp" />
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Civilization.cpp" />
     <ClCompile Include="Sources\Engine\Base\NpgsObject\NpgsObject.ixx" />
     <ClCompile Include="Sources\Engine\Base\Octree.ixx" />
-    <ClCompile Include="Sources\Engine\Base\StellarSystem.cpp" />
     <ClCompile Include="Sources\Engine\Base\StellarSystem.ixx" />
-    <ClCompile Include="Sources\Engine\Base\StellarSystemImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Core\AssetLoader\AssetManager.cpp" />
+    <ClCompile Include="Sources\Engine\Base\StellarSystem.cpp" />
     <ClCompile Include="Sources\Engine\Core\AssetLoader\Csv.ixx" />
     <ClCompile Include="Sources\Engine\Core\AssetLoader\Manager.ixx" />
-    <ClCompile Include="Sources\Engine\Core\AssetLoader\ManagerImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Logger.cpp" />
+    <ClCompile Include="Sources\Engine\Core\AssetLoader\Manager.cpp" />
     <ClCompile Include="Sources\Engine\Core\Logger.ixx" />
-    <ClCompile Include="Sources\Engine\Core\LoggerImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Modules\CivilizationGenerator.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Logger.cpp" />
     <ClCompile Include="Sources\Engine\Core\Modules\CivilizationGenerator.ixx" />
-    <ClCompile Include="Sources\Engine\Core\Modules\CivilizationGeneratorImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Modules\OrbitalGenerator.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Modules\CivilizationGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Core\Modules\OrbitalGenerator.ixx" />
-    <ClCompile Include="Sources\Engine\Core\Modules\OrbitalGeneratorImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Modules\StellarClass.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Modules\OrbitalGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Core\Modules\StellarClass.ixx" />
-    <ClCompile Include="Sources\Engine\Core\Modules\StellarClassImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Modules\StellarGenerator.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Modules\StellarClass.cpp" />
     <ClCompile Include="Sources\Engine\Core\Modules\StellarGenerator.ixx" />
-    <ClCompile Include="Sources\Engine\Core\Modules\StellarGeneratorImpl.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Modules\StellarGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Core\Random.ixx" />
-    <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp" />
     <ClCompile Include="Sources\Engine\Core\ThreadPool.ixx" />
-    <ClCompile Include="Sources\Engine\Core\ThreadPoolImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Universe\Universe.cpp" />
+    <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp" />
     <ClCompile Include="Sources\Engine\Core\Universe\Universe.ixx" />
-    <ClCompile Include="Sources\Engine\Core\Universe\UniverseImpl.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Universe\Universe.cpp" />
     <ClCompile Include="Sources\main.cpp" />
-    <ClCompile Include="Sources\stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.h" />
-    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Planet.h" />
-    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Star.h" />
-    <ClInclude Include="Sources\Engine\Base\NpgsObject\Civilization.h" />
-    <ClInclude Include="Sources\Engine\Base\NpgsObject\NpgsObject.h" />
-    <ClInclude Include="Sources\Engine\Base\Octree.hpp" />
-    <ClInclude Include="Sources\Engine\Base\StellarSystem.h" />
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
-    <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h" />
-    <ClInclude Include="Sources\Engine\Core\AssetLoader\Csv.hpp" />
     <ClInclude Include="Sources\Engine\Core\Base.h" />
     <ClInclude Include="Sources\Engine\Core\Constants.h" />
-    <ClInclude Include="Sources\Engine\Core\Logger.h" />
-    <ClInclude Include="Sources\Engine\Core\Modules\CivilizationGenerator.h" />
-    <ClInclude Include="Sources\Engine\Core\Modules\OrbitalGenerator.h" />
-    <ClInclude Include="Sources\Engine\Core\Modules\StellarClass.h" />
-    <ClInclude Include="Sources\Engine\Core\Modules\StellarGenerator.h" />
-    <ClInclude Include="Sources\Engine\Core\Random.hpp" />
-    <ClInclude Include="Sources\Engine\Core\ThreadPool.h" />
-    <ClInclude Include="Sources\Engine\Core\Universe\Universe.h" />
     <ClInclude Include="Sources\Engine\Core\Utilities\Utilities.h" />
     <ClInclude Include="Sources\Npgs.h" />
-    <ClInclude Include="Sources\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.inl" />
-    <None Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject1.inl" />
     <None Include="Sources\Engine\Base\NpgsObject\Astro\Planet.inl" />
-    <None Include="Sources\Engine\Base\NpgsObject\Astro\Planet1.inl" />
     <None Include="Sources\Engine\Base\NpgsObject\Astro\Star.inl" />
-    <None Include="Sources\Engine\Base\NpgsObject\Astro\Star1.inl" />
     <None Include="Sources\Engine\Base\NpgsObject\Civilization.inl" />
-    <None Include="Sources\Engine\Base\NpgsObject\Civilization1.inl" />
     <None Include="Sources\Engine\Base\StellarSystem.inl" />
-    <None Include="Sources\Engine\Base\StellarSystem1.inl" />
     <None Include="Sources\Engine\Core\Modules\StellarGenerator.inl" />
-    <None Include="Sources\Engine\Core\Modules\StellarGenerator1.inl" />
     <None Include="Sources\Engine\Core\Utilities\Utilities.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

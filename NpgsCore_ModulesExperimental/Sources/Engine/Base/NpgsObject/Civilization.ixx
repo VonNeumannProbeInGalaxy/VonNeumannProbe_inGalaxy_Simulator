@@ -118,4 +118,4 @@ private:
 
 _NPGS_END
 
-#include "Civilization1.inl"
+#include "Civilization.inl"

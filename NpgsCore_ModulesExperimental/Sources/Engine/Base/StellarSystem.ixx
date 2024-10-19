@@ -82,4 +82,4 @@ private:
 
 _NPGS_END
 
-#include "StellarSystem1.inl"
+#include "StellarSystem.inl"

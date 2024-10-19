@@ -156,4 +156,4 @@ private:
 _ASTRO_END
 _NPGS_END
 
-#include "Star1.inl"
+#include "Star.inl"
