@@ -77,9 +77,6 @@
     <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Star.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Universe\Universe.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -135,6 +132,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\Utilities\Utilities.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\Universe\Universe.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

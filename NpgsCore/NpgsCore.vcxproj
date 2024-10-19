@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -109,7 +109,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\NpgsCore\Sources</AdditionalIncludeDirectories>
-      <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
       <EnableModules>true</EnableModules>
       <BuildStlModules>true</BuildStlModules>
@@ -137,7 +137,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\NpgsCore\Sources</AdditionalIncludeDirectories>
-      <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <EnableModules>true</EnableModules>
       <BuildStlModules>true</BuildStlModules>
     </ClCompile>
@@ -180,7 +180,6 @@
     <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.h" />
     <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Planet.h" />
     <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Star.h" />
-    <ClInclude Include="Sources\Engine\Core\Universe\Universe.h" />
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
     <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h" />
     <ClInclude Include="Sources\Engine\Core\AssetLoader\Csv.hpp" />
@@ -191,6 +190,7 @@
     <ClInclude Include="Sources\Engine\Core\Modules\StellarGenerator.h" />
     <ClInclude Include="Sources\Engine\Core\Random.hpp" />
     <ClInclude Include="Sources\Engine\Core\ThreadPool.h" />
+    <ClInclude Include="Sources\Engine\Core\Universe\Universe.h" />
     <ClInclude Include="Sources\Npgs.h" />
     <ClInclude Include="Sources\stdafx.h" />
     <ClInclude Include="Sources\Engine\Base\StellarSystem.h" />
