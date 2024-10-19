@@ -18,7 +18,7 @@ public:
 class NPGS_API CelestialBody : public AstroObject {
 public:
     struct BasicProperties {
-        glm::vec2 Normal;     // 法向量，球坐标表示，(theta, phi)
+        glm::vec2 Normal;      // 法向量，球坐标表示，(theta, phi)
 
         double Age;            // 年龄，单位年
         float  Radius;         // 半径，单位 m
@@ -27,7 +27,7 @@ public:
         float  EscapeVelocity; // 逃逸速度，单位 m/s
         float  MagneticField;  // 磁场强度，单位 T
 
-        std::string Name;     // 名字
+        std::string Name;      // 名字
     };
 
 public:

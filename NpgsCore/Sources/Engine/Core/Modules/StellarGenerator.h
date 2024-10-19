@@ -7,6 +7,7 @@
 #include <shared_mutex>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include <glm/glm.hpp>
 

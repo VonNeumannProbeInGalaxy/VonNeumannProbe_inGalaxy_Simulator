@@ -14,7 +14,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <vector>
 
 #define ENABLE_LOGGER
 #include "Engine/Core/Constants.h"

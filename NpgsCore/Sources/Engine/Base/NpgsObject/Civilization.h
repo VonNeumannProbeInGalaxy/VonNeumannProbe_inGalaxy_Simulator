@@ -7,7 +7,7 @@
 
 _NPGS_BEGIN
 
-class Civilization : public NpgsObject {
+class NPGS_API Civilization : public NpgsObject {
 public:
     enum class LifePhase : int {
         kNull                  = 0,

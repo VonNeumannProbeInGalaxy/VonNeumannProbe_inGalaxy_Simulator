@@ -482,9 +482,9 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                             }
                         }
 
-                        float NewAtmosphereMassVolatiles        = 0.0f;
+                        float NewAtmosphereMassVolatiles = 0.0f;
                         float NewAtmosphereMassEnergeticNuclide = 0.0f;
-                        float NewAtmosphereMassZ                = 0.0f;
+                        float NewAtmosphereMassZ = 0.0f;
                         if (NewAtmosphereMass > 1e16f) {
                             NewAtmosphereMassVolatiles = NewAtmosphereMass * 1e-2f;
                             NewAtmosphereMassEnergeticNuclide = 0.0f;
@@ -513,7 +513,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
             float BalanceTemperature = Planets[i]->GetBalanceTemperature();
             // 判断有没有被烧似
             if ((PlanetType != Astro::Planet::PlanetType::kRockyAsteroidCluster && PlanetType != Astro::Planet::PlanetType::kRockyIceAsteroidCluster && BalanceTemperature >= 2700) ||
-               ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) {
+                ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) {
                 Planets.erase(Planets.begin() + i);
                 CoreMassesSol.erase(CoreMassesSol.begin() + i);
                 NewCoreMassesSol.erase(NewCoreMassesSol.begin() + i);
@@ -560,14 +560,14 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
             CalculatePlanetRadius(CoreMassesSol[i] * kSolarMassToEarth, Planets[i]);
             GenerateRings(i, std::numeric_limits<float>::infinity(), Star, Orbits, Planets, AsteroidClusters);
             GenerateSpin(Orbits[i].SemiMajorAxis, Star, Planets[i]);
-            
+
             float PoyntingVector = static_cast<float>(Star->GetLuminosity()) / (4.0f * kPi * std::pow(Orbits[i].SemiMajorAxis, 2.0f));
             CalculateTemperature(PoyntingVector, Star, Planets[i]);
             float BalanceTemperature = Planets[i]->GetBalanceTemperature();
             // 判断有没有被烧似
             auto PlanetType = Planets[i]->GetPlanetType();
             if ((PlanetType != Astro::Planet::PlanetType::kRockyAsteroidCluster && PlanetType != Astro::Planet::PlanetType::kRockyIceAsteroidCluster && BalanceTemperature >= 2700) ||
-               ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) {
+                ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) {
                 Planets.erase(Planets.begin() + i);
                 CoreMassesSol.erase(CoreMassesSol.begin() + i);
                 NewCoreMassesSol.erase(NewCoreMassesSol.begin() + i);

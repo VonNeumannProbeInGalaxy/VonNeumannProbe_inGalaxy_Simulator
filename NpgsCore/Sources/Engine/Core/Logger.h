@@ -5,9 +5,6 @@
 
 #include "Engine/Core/Base.h"
 
-// Macro function use pascal style
-// Those macro make function call easily
-// -------------------------------------
 #ifdef ENABLE_LOGGER
 // Core logger
 // -----------

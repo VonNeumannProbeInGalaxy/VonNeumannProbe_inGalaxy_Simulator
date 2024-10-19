@@ -24,8 +24,8 @@ public:
 
     bool Contains(const glm::vec3& Point) const {
         return (Point.x >= _Center.x - _Radius && Point.x <= _Center.x + _Radius &&
-                Point.y >= _Center.y - _Radius && Point.y <= _Center.y + _Radius &&
-                Point.z >= _Center.z - _Radius && Point.z <= _Center.z + _Radius);
+            Point.y >= _Center.y - _Radius && Point.y <= _Center.y + _Radius &&
+            Point.z >= _Center.z - _Radius && Point.z <= _Center.z + _Radius);
     }
 
     int CalculateOctant(const glm::vec3& Point) const {
@@ -125,10 +125,10 @@ public:
     }
 
 private:
-    glm::vec3 _Center;
+    glm::vec3   _Center;
     OctreeNode* _Prev;
-    float     _Radius;
-    bool    _bIsValid;
+    float       _Radius;
+    bool        _bIsValid;
 
     std::array<std::unique_ptr<OctreeNode>, 8> _Next;
     std::vector<glm::vec3>   _Points;
@@ -349,8 +349,8 @@ private:
 
 private:
     std::unique_ptr<NodeType> _Root;
-    ThreadPool* _ThreadPool;
-    int  _MaxDepth;
+    ThreadPool*               _ThreadPool;
+    int                       _MaxDepth;
 };
 
 _NPGS_END

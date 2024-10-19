@@ -1,3 +1,5 @@
+#pragma once
+
 #include "StellarGenerator.h"
 
 _NPGS_BEGIN

@@ -6,7 +6,25 @@
 
 _NPGS_BEGIN
 
-static int CountPhysicalCore();
+static int CountPhysicalCore() {
+    DWORD Length = 0;
+    GetLogicalProcessorInformationEx(RelationProcessorCore, nullptr, &Length);
+    std::vector<std::uint8_t> Buffer(Length);
+    auto* BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(Buffer.data());
+    GetLogicalProcessorInformationEx(RelationProcessorCore, BufferPtr, &Length);
+
+    int CoreCount = 0;
+    while (Length > 0) {
+        if (BufferPtr->Relationship == RelationProcessorCore) {
+            ++CoreCount;
+        }
+
+        Length -= BufferPtr->Size;
+        BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(reinterpret_cast<std::uint8_t*>(BufferPtr) + BufferPtr->Size);
+    }
+
+    return CoreCount;
+}
 
 void ThreadPool::Terminate() {
     {
@@ -28,9 +46,9 @@ ThreadPool* ThreadPool::GetInstance() {
 
 void ThreadPool::Init() {
     if (_kInstance == nullptr) {
-        _kMaxThreadCount    = std::thread::hardware_concurrency();
+        _kMaxThreadCount = std::thread::hardware_concurrency();
         _kPhysicalCoreCount = CountPhysicalCore();
-        _kInstance          = new ThreadPool();
+        _kInstance = new ThreadPool();
         std::atexit(Destroy);
     }
 }
@@ -94,25 +112,5 @@ std::once_flag ThreadPool::_kOnce;
 int ThreadPool::_kMaxThreadCount    = 0;
 int ThreadPool::_kPhysicalCoreCount = 0;
 int ThreadPool::_kHyperThreadIndex  = 0;
-
-int CountPhysicalCore() {
-    DWORD Length = 0;
-    GetLogicalProcessorInformationEx(RelationProcessorCore, nullptr, &Length);
-    std::vector<std::uint8_t> Buffer(Length);
-    auto* BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(Buffer.data());
-    GetLogicalProcessorInformationEx(RelationProcessorCore, BufferPtr, &Length);
-
-    int CoreCount = 0;
-    while (Length > 0) {
-        if (BufferPtr->Relationship == RelationProcessorCore) {
-            ++CoreCount;
-        }
-
-        Length -= BufferPtr->Size;
-        BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(reinterpret_cast<std::uint8_t*>(BufferPtr) + BufferPtr->Size);
-    }
-
-    return CoreCount;
-}
 
 _NPGS_END
