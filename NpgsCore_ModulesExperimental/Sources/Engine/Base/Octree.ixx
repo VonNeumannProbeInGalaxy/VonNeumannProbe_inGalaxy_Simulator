@@ -24,6 +24,7 @@ public:
         : _Center(Center), _Radius(Radius), _Prev(Prev), _bIsValid(true)
     {}
 
+public:
     bool Contains(const glm::vec3& Point) const {
         return (Point.x >= _Center.x - _Radius && Point.x <= _Center.x + _Radius &&
                 Point.y >= _Center.y - _Radius && Point.y <= _Center.y + _Radius &&
@@ -149,6 +150,7 @@ public:
         _ThreadPool(ThreadPool::GetInstance()), _MaxDepth(MaxDepth)
     {}
 
+public:
     void BuildEmptyTree(float LeafRadius) {
         int Depth = static_cast<int>(std::ceil(std::log2(_Root->GetRadius() / LeafRadius)));
         BuildEmptyTreeImpl(_Root.get(), LeafRadius, Depth);
