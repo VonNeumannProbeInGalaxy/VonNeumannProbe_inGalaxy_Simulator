@@ -23,6 +23,7 @@ module;
 
 module Module.StellarGenerator;
 
+import Asset.Manager;
 import Core.Logger;
 
 _NPGS_BEGIN

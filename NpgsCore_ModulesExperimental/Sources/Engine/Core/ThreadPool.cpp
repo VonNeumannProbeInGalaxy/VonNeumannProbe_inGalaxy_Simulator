@@ -2,7 +2,6 @@ module;
 
 #include <cstdint>
 #include <cstdlib>
-#include <type_traits>
 
 #define NOMINMAX
 #include <Windows.h>

@@ -11,6 +11,7 @@ import <memory>;
 import <mutex>;
 import <queue>;
 import <thread>;
+import <type_traits>;
 import <utility>;
 import <vector>;
 

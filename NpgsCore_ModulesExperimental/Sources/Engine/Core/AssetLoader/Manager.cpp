@@ -1,5 +1,6 @@
 module;
 
+#include <unordered_map>
 #include "Engine/Core/Assert.h"
 #include "Engine/Core/Base.h"
 
