@@ -15,7 +15,6 @@ import <utility>;
 import <vector>;
 
 import Asset.Csv;
-import Asset.Manager;
 import Base.Astro.Star;
 import Core.Random;
 import Module.StellarClass;
