@@ -15,6 +15,7 @@ module;
 
 #include <glm/glm.hpp>
 
+#define ENABLE_LOGGER
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
 
@@ -68,7 +69,7 @@ Universe::~Universe() {
 void Universe::FillUniverse() {
     int MaxThread = _ThreadPool->GetPhysicalCoreCount();
 
-    // NpgsCoreInfo("Initializating and generating basic properties...");
+    NpgsCoreInfo("Initializating and generating basic properties...");
     std::vector<Modules::StellarGenerator> Generators;
     std::vector<Modules::StellarGenerator::BasicProperties> BasicProperties;
 
@@ -141,7 +142,7 @@ void Universe::FillUniverse() {
     CreateGenerators(Modules::StellarGenerator::GenerateOption::kNormal, 0.075f);
     GenerateBasicProperties(NumCommonStars);
 
-    // NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
+    NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
 
     std::vector<std::future<Astro::Star>> StarFutures(_NumStars);
     for (std::size_t i = 0; i != _NumStars; ++i) {
@@ -183,21 +184,17 @@ void Universe::FillUniverse() {
     return;
 #endif // OUTPUT_DATA
 
-    // NpgsCoreInfo("Building stellar octree in 8 threads...");
+    NpgsCoreInfo("Building stellar octree in 8 threads...");
     GenerateSlots(0.1f, _NumStars, 0.004f);
 
-    try {
-        // NpgsCoreInfo("Linking positions in octree to stellar systems...");
-        _StellarSystems.reserve(_NumStars);
-        std::shuffle(StarFutures.begin(), StarFutures.end(), _RandomEngine);
-        std::vector<glm::vec3> Slots;
-        OctreeLinkToStellarSystems(StarFutures, Slots);
+    NpgsCoreInfo("Linking positions in octree to stellar systems...");
+    _StellarSystems.reserve(_NumStars);
+    std::shuffle(StarFutures.begin(), StarFutures.end(), _RandomEngine);
+    std::vector<glm::vec3> Slots;
+    OctreeLinkToStellarSystems(StarFutures, Slots);
 
-        // NpgsCoreInfo("Generating binary stars...");
-        GenerateBinaryStars(MaxThread);
-    } catch (std::exception& e) {
-        std::println("{}", e.what());
-    }
+    NpgsCoreInfo("Generating binary stars...");
+    GenerateBinaryStars(MaxThread);
     //NpgsCoreInfo("Sorting...");
     //std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
     //    return glm::length(Point1) < glm::length(Point2);
@@ -792,7 +789,7 @@ void Universe::CountStars() {
     //BinarySecondStar.close();
 }
 
-void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Density) {
+void Universe::GenerateSlots(float MinDistance, std::size_t NumSamples, float Density) {
     float Radius     = std::pow((3.0f * NumSamples / (4 * kPi * Density)), (1.0f / 3.0f));
     float LeafSize   = std::pow((1.0f / Density), (1.0f / 3.0f));
     int   Exponent   = static_cast<int>(std::ceil(std::log2(Radius / LeafSize)));
@@ -850,9 +847,9 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
         }
     }
 
-    UniformRealDistribution<> Offset(-LeafRadius, LeafRadius - DistMin); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
+    UniformRealDistribution<> Offset(-LeafRadius, LeafRadius - MinDistance); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
     // 遍历八叉树，为每个有效的叶子节点生成一个恒星
-    _Octree->Traverse([&Offset, LeafRadius, DistMin, this](NodeType& Node) -> void {
+    _Octree->Traverse([&Offset, LeafRadius, MinDistance, this](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
             glm::vec3 Center(Node.GetCenter());
             glm::vec3 StellarSlot(

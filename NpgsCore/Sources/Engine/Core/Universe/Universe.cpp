@@ -787,7 +787,7 @@ void Universe::CountStars() {
     //BinarySecondStar.close();
 }
 
-void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Density) {
+void Universe::GenerateSlots(float MinDistance, std::size_t NumSamples, float Density) {
     float Radius     = std::pow((3.0f * NumSamples / (4 * kPi * Density)), (1.0f / 3.0f));
     float LeafSize   = std::pow((1.0f / Density), (1.0f / 3.0f));
     int   Exponent   = static_cast<int>(std::ceil(std::log2(Radius / LeafSize)));
@@ -845,9 +845,9 @@ void Universe::GenerateSlots(float DistMin, std::size_t NumSamples, float Densit
         }
     }
 
-    UniformRealDistribution<> Offset(-LeafRadius, LeafRadius - DistMin); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
+    UniformRealDistribution<> Offset(-LeafRadius, LeafRadius - MinDistance); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
     // 遍历八叉树，为每个有效的叶子节点生成一个恒星
-    _Octree->Traverse([&Offset, LeafRadius, DistMin, this](NodeType& Node) -> void {
+    _Octree->Traverse([&Offset, LeafRadius, MinDistance, this](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
             glm::vec3 Center(Node.GetCenter());
             glm::vec3 StellarSlot(

@@ -1,6 +1,5 @@
 module;
 
-#include <glm/glm.hpp>
 #include "Engine/Core/Base.h"
 
 module Base.Astro.CelestialObject;

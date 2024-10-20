@@ -1,11 +1,12 @@
-#include <stdafx.h>
 #define ENABLE_LOGGER
 // #include "Npgs.h"
 
-import Universe;
-import Module.StellarGenerator;
+#include <xstdafx.h>
+
 import Core.Logger;
 import Core.ThreadPool;
+import Module.StellarGenerator;
+import Universe;
 
 int main() {
     using namespace Npgs;

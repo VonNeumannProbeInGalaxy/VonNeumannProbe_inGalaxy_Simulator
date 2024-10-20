@@ -179,7 +179,6 @@
     <ClInclude Include="Sources\Engine\Core\Base.h" />
     <ClInclude Include="Sources\Engine\Core\Constants.h" />
     <ClInclude Include="Sources\Engine\Core\Utilities\Utilities.h" />
-    <ClInclude Include="Sources\Npgs.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.inl" />

@@ -122,9 +122,6 @@
     <ClInclude Include="Sources\Engine\Core\Constants.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Npgs.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.inl">

@@ -5,6 +5,7 @@ module;
 #include <algorithm>
 #include <filesystem>
 #include <functional>
+#include <format>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -16,6 +17,8 @@ module;
 
 #include <glm/glm.hpp>
 
+#define ENABLE_LOGGER
+#include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
 
 module Module.StellarGenerator;
@@ -1579,7 +1582,7 @@ std::vector<double> InterpolateHrDiagram(const std::shared_ptr<StellarGenerator:
     try {
         SurroundingRows = Data->FindSurroundingValues("B-V", BvColorIndex);
     } catch (std::out_of_range& e) {
-        // NpgsCoreError(std::string("H-R Diagram interpolation capture exception: ") + std::string(e.what()));
+        NpgsCoreError(std::string("H-R Diagram interpolation capture exception: ") + std::string(e.what()));
     }
 
     double Coefficient = (BvColorIndex - SurroundingRows.first[0]) / (SurroundingRows.second[0] - SurroundingRows.first[0]);
@@ -1613,8 +1616,8 @@ std::vector<double> InterpolateStarData(const auto& Data, double Target, const s
         SurroundingRows = Data->FindSurroundingValues(Header, Target);
     } catch (std::out_of_range& e) {
         if (!bIsWhiteDwarf) {
-            // NpgsCoreError(std::string("Stellar data interpolation capture exception: ") + std::string(e.what()));
-            // NpgsCoreError("Header: {}, Target: {}", Header, Target);
+            NpgsCoreError(std::string("Stellar data interpolation capture exception: ") + std::string(e.what()));
+            NpgsCoreError("Header: {}, Target: {}", Header, Target);
         } else {
             SurroundingRows.first  = Data->Data()->back();
             SurroundingRows.second = Data->Data()->back();
