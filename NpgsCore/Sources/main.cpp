@@ -23,29 +23,33 @@ int main() {
     unsigned Seed = 0;
     std::cin >> Seed;
 
-    //Universe Space(Seed, StarCount);
-    //Space.FillUniverse();
-    //Space.CountStars();
-
-    using enum StellarGenerator::GenerateOption;
-
-    StellarGenerator sg({ Seed }, kNormal, 1.38e10f, 0.075f);
-    std::vector<StellarGenerator::BasicProperties> bp;
-    for (; --StarCount; bp.push_back(sg.GenerateBasicProperties()));
-
-    std::ofstream SingleStar("SingleStar.csv");
-    std::ofstream BinaryFirstStar("BinaryFirstStar.csv");
-    std::ofstream BinarySecondStar("BinarySecondStar.csv");
-
-    for (auto& e : bp) {
-        if (e.bIsSingleStar) {
-            SingleStar << e.InitialMassSol << ",";
-        } else if (e.Option == kBinaryFirstStar) {
-            BinaryFirstStar << e.InitialMassSol << ",";
-        } else if (e.Option == kBinarySecondStar) {
-            BinarySecondStar << e.InitialMassSol << ",";
-        }
+    try {
+        Universe Space(Seed, StarCount);
+        Space.FillUniverse();
+        Space.CountStars();
+    } catch (std::out_of_range& e) {
+        std::cout << e.what() << std::endl;
     }
+
+    //using enum StellarGenerator::GenerateOption;
+
+    //StellarGenerator sg({ Seed }, kNormal, 1.38e10f, 0.075f);
+    //std::vector<StellarGenerator::BasicProperties> bp;
+    //for (; --StarCount; bp.push_back(sg.GenerateBasicProperties()));
+
+    //std::ofstream SingleStar("SingleStar.csv");
+    //std::ofstream BinaryFirstStar("BinaryFirstStar.csv");
+    //std::ofstream BinarySecondStar("BinarySecondStar.csv");
+
+    //for (auto& e : bp) {
+    //    if (e.bIsSingleStar) {
+    //        SingleStar << e.InitialMassSol << ",";
+    //    } else if (e.Option == kBinaryFirstStar) {
+    //        BinaryFirstStar << e.InitialMassSol << ",";
+    //    } else if (e.Option == kBinarySecondStar) {
+    //        BinarySecondStar << e.InitialMassSol << ",";
+    //    }
+    //}
 
     //std::random_device rd;
     //unsigned seed = 3141777642;//800323521;//472035744;//2442947453;

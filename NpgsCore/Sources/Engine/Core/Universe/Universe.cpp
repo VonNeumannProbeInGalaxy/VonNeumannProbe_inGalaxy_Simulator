@@ -776,9 +776,9 @@ void Universe::CountStars() {
     std::println("Number of binary stars: {}", TotalBinarys);
     std::println("");
 
-    std::ofstream SingleStar("SingleStar.csv");
-    std::ofstream BinaryFirstStar("BinaryFirstStar.csv");
-    std::ofstream BinarySecondStar("BinarySecondStar.csv");
+    std::ofstream SingleStar("Tools/SingleStar.csv");
+    std::ofstream BinaryFirstStar("Tools/BinaryFirstStar.csv");
+    std::ofstream BinarySecondStar("Tools/BinarySecondStar.csv");
 
     for (auto& System : _StellarSystems) {
         if (System.StarData().size() > 1) {
@@ -925,24 +925,14 @@ void Universe::GenerateBinaryStars(int MaxThread) {
         Futures.emplace_back(_ThreadPool->Commit([&, i]() -> void {
             std::size_t ThreadId = i % MaxThread;
             const auto& Star = BinarySystems[i]->StarData().front();
-            float MassLowerLimit = 0.0f;
-            float MassUpperLimit = 0.0f;
             float FirstStarInitialMassSol = Star->GetInitialMass() / kSolarMass;
-            if (FirstStarInitialMassSol < 30) {
-                MassLowerLimit = FirstStarInitialMassSol;
-                MassUpperLimit = FirstStarInitialMassSol * 10.0f;
-            } else {
-                MassLowerLimit = 30;
-                MassUpperLimit = 300;
-            }
+            float MassLowerLimit = std::max(0.075f, 0.1f * FirstStarInitialMassSol);
+            float MassUpperLimit = std::min(10 * FirstStarInitialMassSol, 300.0f);
 
-            // MassLowerLimit = std::max(0.075f, 0.01f * FirstStarInitialMassSol);
-            // MassUpperLimit = std::min(10 * FirstStarInitialMassSol, 300.0f);
-
-            UniformRealDistribution LogMassSuggestDistribution(std::log10(MassLowerLimit), std::log10(MassUpperLimit));
-
-            // Generators[ThreadId].SetGenerateOption(Modules::StellarGenerator::GenerateOption::kBinarySecondStar);
-            Generators[ThreadId].SetLogMassSuggestDistribution(LogMassSuggestDistribution);
+            Generators[ThreadId].SetMassLowerLimit(MassLowerLimit);
+            Generators[ThreadId].SetMassUpperLimit(MassUpperLimit);
+            Generators[ThreadId].SetLogMassSuggestDistribution(
+                std::make_shared<NormalDistribution<>>(std::log10(FirstStarInitialMassSol), 0.25f));
 
             double Age = Star->GetAge();
             float  FeH = Star->GetFeH();

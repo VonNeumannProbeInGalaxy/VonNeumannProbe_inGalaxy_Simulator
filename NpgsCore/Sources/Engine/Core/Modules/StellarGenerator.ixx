@@ -72,8 +72,8 @@ public:
         float CoilTempLimit  =  1514.114f, float dEpdM          = 2e6f,
         const std::function<float(const glm::vec3&, float, float)>& AgePdf = nullptr,
         const glm::vec2& AgeMaxPdf = glm::vec2(),
-        const std::array<std::function<float(float, std::function<float(float)>)>, 3>& MassPdfs = { nullptr, nullptr, nullptr },
-        const std::array<glm::vec2, 3>& MassMaxPdfs = { glm::vec2(), glm::vec2(), glm::vec2() }
+        const std::array<std::function<float(float)>, 2>& MassPdfs = { nullptr, nullptr },
+        const std::array<glm::vec2, 2>& MassMaxPdfs = { glm::vec2(), glm::vec2() }
     );
 
     ~StellarGenerator() = default;
@@ -85,7 +85,7 @@ public:
     Astro::Star GenerateStar(BasicProperties&  Properties);
     Astro::Star GenerateStar(BasicProperties&& Properties);
 
-    StellarGenerator& SetLogMassSuggestDistribution(UniformRealDistribution<>& Distribution);
+    StellarGenerator& SetLogMassSuggestDistribution(std::shared_ptr<Distribution<>> Distribution);
     StellarGenerator& SetUniverseAge(float Age);
     StellarGenerator& SetAgeLowerLimit(float Limit);
     StellarGenerator& SetAgeUpperLimit(float Limit);
@@ -97,8 +97,8 @@ public:
     StellarGenerator& SetdEpdM(float dEpdM);
     StellarGenerator& SetAgePdf(const std::function<float(const glm::vec3&, float, float)>& AgePdf);
     StellarGenerator& SetAgeMaxPdf(const glm::vec2& MaxPdf);
-    StellarGenerator& SetMassPdfs(const std::array<std::function<float(float, std::function<float(float)>)>, 3>& MassPdfs);
-    StellarGenerator& SetMassMaxPdfs(const std::array<glm::vec2, 3>& MaxPdfs);
+    StellarGenerator& SetMassPdfs(const std::array<std::function<float(float)>, 2>& MassPdfs);
+    StellarGenerator& SetMassMaxPdfs(const std::array<glm::vec2, 2>& MaxPdfs);
     StellarGenerator& SetAgeDistribution(GenerateDistribution Distribution);
     StellarGenerator& SetFeHDistribution(GenerateDistribution Distribution);
     StellarGenerator& SetMassDistribution(GenerateDistribution Distribution);
@@ -112,7 +112,7 @@ private:
     // ----------------------------------------------------------------
     float GenerateAge(float MaxPdf);
     float GenerateMass(float MaxPdf, auto& LogMassPdf, GenerateOption Option);
-    std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWd);
+    std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWhiteDwarf);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassCoefficient);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
     void CalculateSpectralType(float FeH, Astro::Star& StarData);
@@ -129,12 +129,12 @@ private:
     std::array<UniformRealDistribution<>, 8>       _MagneticGenerators;
     std::array<std::shared_ptr<Distribution<>>, 4> _FeHGenerators;
     std::array<UniformRealDistribution<>, 2>       _SpinGenerators;
+    std::shared_ptr<Distribution<>> _LogMassGenerator;
     UniformRealDistribution<> _AgeGenerator;
     UniformRealDistribution<> _CommonGenerator;
-    UniformRealDistribution<> _LogMassGenerator;
 
-    std::array<std::function<float(float, std::function<float(float)>)>, 3> _MassPdfs;
-    std::array<glm::vec2, 3> _MassMaxPdfs;
+    std::array<std::function<float(float)>, 2> _MassPdfs;
+    std::array<glm::vec2, 2> _MassMaxPdfs;
 
     std::function<float(glm::vec3, float, float)> _AgePdf;
     glm::vec2 _AgeMaxPdf;

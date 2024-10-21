@@ -5,7 +5,7 @@
 _NPGS_BEGIN
 _MODULES_BEGIN
 
-inline StellarGenerator& StellarGenerator::SetLogMassSuggestDistribution(UniformRealDistribution<>& Distribution) {
+inline StellarGenerator& StellarGenerator::SetLogMassSuggestDistribution(std::shared_ptr<Distribution<>> Distribution) {
     _LogMassGenerator = Distribution;
     return *this;
 }
@@ -65,12 +65,12 @@ inline StellarGenerator& StellarGenerator::SetAgeMaxPdf(const glm::vec2& MaxPdf)
     return *this;
 }
 
-inline StellarGenerator& StellarGenerator::SetMassPdfs(const std::array<std::function<float(float, std::function<float(float)>)>, 3>& MassPdfs) {
+inline StellarGenerator& StellarGenerator::SetMassPdfs(const std::array<std::function<float(float)>, 2>& MassPdfs) {
     _MassPdfs = MassPdfs;
     return *this;
 }
 
-inline StellarGenerator& StellarGenerator::SetMassMaxPdfs(const std::array<glm::vec2, 3>& MaxPdfs) {
+inline StellarGenerator& StellarGenerator::SetMassMaxPdfs(const std::array<glm::vec2, 2>& MaxPdfs) {
     _MassMaxPdfs = MaxPdfs;
     return *this;
 }

@@ -19,6 +19,7 @@ public:
 export template <typename Ty = int, typename RandomEngine = std::mt19937>
 class UniformIntDistribution : public Distribution<Ty> {
 public:
+    UniformIntDistribution() = default;
     UniformIntDistribution(Ty Min, Ty Max) : _Distribution(Min, Max) {}
 
     Ty operator()(RandomEngine& Engine) override {
@@ -36,6 +37,7 @@ private:
 export template <typename Ty = float, typename RandomEngine = std::mt19937>
 class UniformRealDistribution : public Distribution<Ty, RandomEngine> {
 public:
+    UniformRealDistribution() = default;
     UniformRealDistribution(Ty Min, Ty Max) : _Distribution(Min, Max) {}
 
     Ty operator()(RandomEngine& Engine) override {
@@ -53,6 +55,7 @@ private:
 export template <typename Ty = float, typename RandomEngine = std::mt19937>
 class NormalDistribution : public Distribution<Ty, RandomEngine> {
 public:
+    NormalDistribution() = default;
     NormalDistribution(Ty Mean, Ty Sigma) : _Distribution(Mean, Sigma) {}
 
     Ty operator()(RandomEngine& Engine) override {
@@ -70,6 +73,7 @@ private:
 export template <typename Ty = float, typename RandomEngine = std::mt19937>
 class LogNormalDistribution : public Distribution<Ty, RandomEngine> {
 public:
+    LogNormalDistribution() = default;
     LogNormalDistribution(Ty Mean, Ty Sigma) : _Distribution(Mean, Sigma) {}
 
     Ty operator()(RandomEngine& Engine) override {
@@ -87,6 +91,7 @@ private:
 export template <typename RandomEngine = std::mt19937>
 class BernoulliDistribution : public Distribution<double, RandomEngine> {
 public:
+    BernoulliDistribution() = default;
     BernoulliDistribution(double Probability) : _Distribution(Probability) {}
 
     double operator()(RandomEngine& Engine) override {
