@@ -4,6 +4,7 @@ module;
 #include <algorithm>
 #include <array>
 #include <format>
+#include <fstream>
 #include <future>
 #include <iomanip>
 #include <iterator>
@@ -775,18 +776,22 @@ void Universe::CountStars() {
     std::println("Number of binary stars: {}", TotalBinarys);
     std::println("");
 
-    //std::ofstream BinaryFirstStar("BinaryFirstStar.csv");
-    //std::ofstream BinarySecondStar("BinarySecondStar.csv");
+    std::ofstream SingleStar("SingleStar.csv");
+    std::ofstream BinaryFirstStar("BinaryFirstStar.csv");
+    std::ofstream BinarySecondStar("BinarySecondStar.csv");
 
-    //for (auto& System : _StellarSystems) {
-    //    if (System.StarData().size() > 1) {
-    //        BinaryFirstStar << System.StarData().front()->GetInitialMass() / kSolarMass << ",";
-    //        BinarySecondStar << System.StarData().back()->GetInitialMass() / kSolarMass << ",";
-    //    }
-    //}
+    for (auto& System : _StellarSystems) {
+        if (System.StarData().size() > 1) {
+            BinaryFirstStar << System.StarData().front()->GetInitialMass() / kSolarMass << ",";
+            BinarySecondStar << System.StarData().back()->GetInitialMass() / kSolarMass << ",";
+        } else {
+            SingleStar << System.StarData().front()->GetInitialMass() / kSolarMass << ",";
+        }
+    }
 
-    //BinaryFirstStar.close();
-    //BinarySecondStar.close();
+    SingleStar.close();
+    BinaryFirstStar.close();
+    BinarySecondStar.close();
 }
 
 void Universe::GenerateSlots(float MinDistance, std::size_t NumSamples, float Density) {
@@ -930,6 +935,9 @@ void Universe::GenerateBinaryStars(int MaxThread) {
                 MassLowerLimit = 30;
                 MassUpperLimit = 300;
             }
+
+            // MassLowerLimit = std::max(0.075f, 0.01f * FirstStarInitialMassSol);
+            // MassUpperLimit = std::min(10 * FirstStarInitialMassSol, 300.0f);
 
             UniformRealDistribution LogMassSuggestDistribution(std::log10(MassLowerLimit), std::log10(MassUpperLimit));
 

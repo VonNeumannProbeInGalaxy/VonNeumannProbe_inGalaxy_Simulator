@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StellarGenerator.h"
+#include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
 _MODULES_BEGIN

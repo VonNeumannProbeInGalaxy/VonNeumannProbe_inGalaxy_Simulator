@@ -1,8 +1,14 @@
-#include "ThreadPool.h"
+module;
 
 #include <cstdint>
+#include <cstdlib>
+
 #define NOMINMAX
 #include <Windows.h>
+
+#include "Engine/Core/Base.h"
+
+module Core.ThreadPool;
 
 _NPGS_BEGIN
 
@@ -26,6 +32,8 @@ static int CountPhysicalCore() {
     return CoreCount;
 }
 
+// ThreadPool implementations
+// --------------------------
 void ThreadPool::Terminate() {
     {
         std::unique_lock<std::mutex> Mutex(_Mutex);
@@ -104,6 +112,7 @@ void ThreadPool::SetThreadAffinity(std::thread& Thread, std::size_t CoreId) {
     } else {
         Mask = static_cast<DWORD_PTR>(Bit(CoreId * 2) + 1);
     }
+
     SetThreadAffinityMask(Handle, Mask);
 }
 

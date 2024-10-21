@@ -1,10 +1,12 @@
-#include "CelestialObject.h"
+module;
+
+#include "Engine/Core/Base.h"
+
+module Base.Astro.CelestialObject;
 
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-// Implementations for CelestialBody
-// ---------------------------------
 CelestialBody::CelestialBody(const BasicProperties& Properties)
     : _Properties(Properties)
 {}

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Civilization.h"
+#include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
 
-inline static float ConvertToFloat(const boost::multiprecision::uint128_t& MultiPrecision) {
+inline float ConvertToFloat(const boost::multiprecision::uint128_t& MultiPrecision) {
     return MultiPrecision.convert_to<float>();
 }
 

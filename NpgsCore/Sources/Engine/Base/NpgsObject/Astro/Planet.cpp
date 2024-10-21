@@ -1,5 +1,8 @@
-#include "Planet.h"
-#include <utility>
+module;
+
+#include "Engine/Core/Base.h"
+
+module Base.Astro.Planet;
 
 _NPGS_BEGIN
 _ASTRO_BEGIN

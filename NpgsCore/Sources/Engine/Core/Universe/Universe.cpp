@@ -1,9 +1,10 @@
-#include "Universe.h"
+module;
 
 #include <cstdlib>
 #include <algorithm>
 #include <array>
 #include <format>
+#include <fstream>
 #include <future>
 #include <iomanip>
 #include <iterator>
@@ -13,14 +14,17 @@
 #include <string>
 #include <utility>
 
-// #define OUTPUT_DATA
+#include <glm/glm.hpp>
+
 #define ENABLE_LOGGER
-#include "Engine/Core/Modules/OrbitalGenerator.h"
-#include "Engine/Core/Modules/StellarClass.h"
-#include "Engine/Core/Modules/StellarGenerator.h"
+#include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
-#include "Engine/Core/Logger.h"
-#include "Engine/Core/Random.hpp"
+
+module Universe;
+
+import Core.Logger;
+import Module.StellarClass;
+import Module.StellarGenerator;
 
 _NPGS_BEGIN
 
@@ -192,7 +196,6 @@ void Universe::FillUniverse() {
 
     NpgsCoreInfo("Generating binary stars...");
     GenerateBinaryStars(MaxThread);
-
     //NpgsCoreInfo("Sorting...");
     //std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
     //    return glm::length(Point1) < glm::length(Point2);
@@ -251,7 +254,7 @@ void Universe::FillUniverse() {
     //    Star->SetNormal(glm::vec3(0.0f));
     //}
 
-    NpgsCoreInfo("Star generation completed.");
+    // NpgsCoreInfo("Star generation completed.");
 
     _ThreadPool->Terminate();
 }
@@ -773,18 +776,22 @@ void Universe::CountStars() {
     std::println("Number of binary stars: {}", TotalBinarys);
     std::println("");
 
-    //std::ofstream BinaryFirstStar("BinaryFirstStar.csv");
-    //std::ofstream BinarySecondStar("BinarySecondStar.csv");
+    std::ofstream SingleStar("SingleStar.csv");
+    std::ofstream BinaryFirstStar("BinaryFirstStar.csv");
+    std::ofstream BinarySecondStar("BinarySecondStar.csv");
 
-    //for (auto& System : _StellarSystems) {
-    //    if (System.StarData().size() > 1) {
-    //        BinaryFirstStar << System.StarData().front()->GetInitialMass() / kSolarMass << ",";
-    //        BinarySecondStar << System.StarData().back()->GetInitialMass() / kSolarMass << ",";
-    //    }
-    //}
+    for (auto& System : _StellarSystems) {
+        if (System.StarData().size() > 1) {
+            BinaryFirstStar << System.StarData().front()->GetInitialMass() / kSolarMass << ",";
+            BinarySecondStar << System.StarData().back()->GetInitialMass() / kSolarMass << ",";
+        } else {
+            SingleStar << System.StarData().front()->GetInitialMass() / kSolarMass << ",";
+        }
+    }
 
-    //BinaryFirstStar.close();
-    //BinarySecondStar.close();
+    SingleStar.close();
+    BinaryFirstStar.close();
+    BinarySecondStar.close();
 }
 
 void Universe::GenerateSlots(float MinDistance, std::size_t NumSamples, float Density) {
@@ -928,6 +935,9 @@ void Universe::GenerateBinaryStars(int MaxThread) {
                 MassLowerLimit = 30;
                 MassUpperLimit = 300;
             }
+
+            // MassLowerLimit = std::max(0.075f, 0.01f * FirstStarInitialMassSol);
+            // MassUpperLimit = std::min(10 * FirstStarInitialMassSol, 300.0f);
 
             UniformRealDistribution LogMassSuggestDistribution(std::log10(MassLowerLimit), std::log10(MassUpperLimit));
 

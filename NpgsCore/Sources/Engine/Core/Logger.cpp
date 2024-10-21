@@ -1,6 +1,10 @@
-#include "Logger.h"
+module;
 
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+#include "Engine/Core/Base.h"
+
+module Core.Logger;
 
 _NPGS_BEGIN
 
@@ -14,7 +18,7 @@ void Logger::Init() {
     _kClientLogger->set_level(spdlog::level::trace);
 }
 
-std::shared_ptr<spdlog::logger> Logger::_kCoreLogger = nullptr;
+std::shared_ptr<spdlog::logger> Logger::_kCoreLogger   = nullptr;
 std::shared_ptr<spdlog::logger> Logger::_kClientLogger = nullptr;
 
 _NPGS_END

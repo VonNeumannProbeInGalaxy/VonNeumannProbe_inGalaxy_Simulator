@@ -1,11 +1,11 @@
-#define NOMINMAX
-#include "StellarGenerator.h"
+module;
 
 #include <cmath>
 
 #include <algorithm>
 #include <filesystem>
 #include <functional>
+#include <format>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -15,9 +15,16 @@
 #include <stdexcept>
 #include <string>
 
+#include <glm/glm.hpp>
+
 #define ENABLE_LOGGER
+#include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
-#include "Engine/Core/Logger.h"
+
+module Module.StellarGenerator;
+
+import Asset.Manager;
+import Core.Logger;
 
 _NPGS_BEGIN
 _MODULES_BEGIN
@@ -119,6 +126,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenerateBasicProperties() {
 
 StellarGenerator::BasicProperties StellarGenerator::GenerateBasicProperties(float Age, float FeH) {
     BasicProperties Properties{};
+    Properties.Option = _Option;
 
     // 生成 3 个基本参数
     if (Age == 0.0f) {
@@ -206,8 +214,8 @@ StellarGenerator::BasicProperties StellarGenerator::GenerateBasicProperties(floa
 
             if (Properties.Option != GenerateOption::kBinarySecondStar) {
                 if (Properties.Option == GenerateOption::kBinaryFirstStar) {
-                    LogMassPdf = _MassPdfs[1];
-                    MaxPdf = _MassMaxPdfs[1];
+                    LogMassPdf = _MassPdfs[2];
+                    MaxPdf = _MassMaxPdfs[2];
                 } else {
                     LogMassPdf = _MassPdfs[0];
                     MaxPdf = _MassMaxPdfs[0];
@@ -224,6 +232,7 @@ StellarGenerator::BasicProperties StellarGenerator::GenerateBasicProperties(floa
                     MaxPdf.y = LogMassPdf(LogMassUpper, nullptr);
                 }
             }
+
             Properties.InitialMassSol = GenerateMass(MaxPdf.y, LogMassPdf, Properties.Option);
             break;
         }
@@ -235,8 +244,6 @@ StellarGenerator::BasicProperties StellarGenerator::GenerateBasicProperties(floa
             break;
         }
     }
-
-    Properties.Option = _Option;
 
     return Properties;
 }
@@ -431,17 +438,17 @@ void StellarGenerator::InitPdfs() {
 
     if (_MassPdfs[0] == nullptr) {
         _MassPdfs[0] = DefaultLogMassPdfSingleStar;
-        _MassMaxPdfs[0] = glm::vec2(0.158f, 0.1f);
+        _MassMaxPdfs[0] = glm::vec2(std::log10(0.1f), 0.158f);
     }
 
     if (_MassPdfs[1] == nullptr) {
         _MassPdfs[1] = DefaultLogMassPdfBinaryFirstStar;
-        _MassMaxPdfs[1] = glm::vec2(0.086f, 0.22f);
+        _MassMaxPdfs[1] = glm::vec2(-0.8929049f, 0.0492699f);
     }
 
     if (_MassPdfs[2] == nullptr) {
         _MassPdfs[2] = DefaultLogMassPdfBinarySecondStar;
-        _MassMaxPdfs[2] = glm::vec2(0.0492699f, -0.8929049f);
+        _MassMaxPdfs[2] = glm::vec2(std::log10(0.22f), 0.086);
     }
 }
 

@@ -1,7 +1,12 @@
-#include "CivilizationGenerator.h"
+module;
 
 #include <memory>
-#include "Engine/Base/NpgsObject/Civilization.h"
+#include <boost/multiprecision/cpp_int.hpp>
+#include "Engine/Core/Base.h"
+
+module Module.CivilizationGenerator;
+
+import Base.Civilization;
 
 _NPGS_BEGIN
 _MODULES_BEGIN
@@ -35,7 +40,7 @@ void CivilizationGenerator::GenerateCivilization(double StarAge, float PoyntingV
 
         int IntegerPart = 0;
         if (LifePhase != Civilization::LifePhase::kCenoziocEra &&
-            LifePhase != Civilization::LifePhase::kSatTeeTouy  &&
+            LifePhase != Civilization::LifePhase::kSatTeeTouy &&
             LifePhase != Civilization::LifePhase::kSatTeeTouyButByAsi) {
             CivilizationData->SetCivilizationProgress(0.0f);
         } else if (LifePhase == Civilization::LifePhase::kCenoziocEra) {
@@ -77,3 +82,4 @@ const std::array<float, 7> CivilizationGenerator::_kProbabilityListForSatTeeTouy
 
 _MODULES_END
 _NPGS_END
+

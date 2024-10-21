@@ -1,4 +1,8 @@
-#include "Star.h"
+module;
+
+#include "Engine/Core/Base.h"
+
+module Base.Astro.Star;
 
 _NPGS_BEGIN
 _ASTRO_BEGIN

@@ -1,12 +1,15 @@
-#include "StellarClass.h"
+module;
 
 #include <cctype>
-#include <cmath>
+#include <cstdint>
 #include <iomanip>
 #include <sstream>
 #include <utility>
 
 #include "Engine/Core/Assert.h"
+#include "Engine/Core/Base.h"
+
+module Module.StellarClass;
 
 _NPGS_BEGIN
 _MODULES_BEGIN

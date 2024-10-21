@@ -1,4 +1,6 @@
-#include "OrbitalGenerator.h"
+module;
+
+#define NOMINMAX
 
 #include <cmath>
 #include <cstdint>
@@ -6,10 +8,14 @@
 #include <limits>
 #include <print>
 #include <utility>
-#include <vector>
+
+#include <boost/multiprecision/cpp_int.hpp>
 
 #include "Engine/Core/Assert.h"
+#include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
+
+module Module.OrbitalGenerator;
 
 #define DEBUG_OUTPUT
 
@@ -37,11 +43,12 @@ OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float Univ
     _UniverseAge(UniverseAge),
     _bContainUltravioletHabitableZone(bContainUltravioletHabitableZone)
 {
-    std::vector<std::uint32_t> Seeds(SeedSequence.size());
-    SeedSequence.param(Seeds.begin());
-    std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
-    std::seed_seq ShuffledSeeds(Seeds.begin(), Seeds.end());
-    _CivilizationGenerator = std::make_unique<CivilizationGenerator>(ShuffledSeeds, LifeOccurrenceProbability, bEnableAsiFilter);
+    // std::vector<std::uint32_t> Seeds(SeedSequence.size());
+    // SeedSequence.param(Seeds.begin());
+    // std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
+    // std::seed_seq ShuffledSeeds(Seeds.begin(), Seeds.end());
+    
+    _CivilizationGenerator = std::make_unique<CivilizationGenerator>(SeedSequence, LifeOccurrenceProbability, bEnableAsiFilter);
 }
 
 void OrbitalGenerator::GenerateOrbitals(StellarSystem& System) {
@@ -482,9 +489,9 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
                             }
                         }
 
-                        float NewAtmosphereMassVolatiles = 0.0f;
+                        float NewAtmosphereMassVolatiles        = 0.0f;
                         float NewAtmosphereMassEnergeticNuclide = 0.0f;
-                        float NewAtmosphereMassZ = 0.0f;
+                        float NewAtmosphereMassZ                = 0.0f;
                         if (NewAtmosphereMass > 1e16f) {
                             NewAtmosphereMassVolatiles = NewAtmosphereMass * 1e-2f;
                             NewAtmosphereMassEnergeticNuclide = 0.0f;
@@ -513,7 +520,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
             float BalanceTemperature = Planets[i]->GetBalanceTemperature();
             // 判断有没有被烧似
             if ((PlanetType != Astro::Planet::PlanetType::kRockyAsteroidCluster && PlanetType != Astro::Planet::PlanetType::kRockyIceAsteroidCluster && BalanceTemperature >= 2700) ||
-                ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) {
+               ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) {
                 Planets.erase(Planets.begin() + i);
                 CoreMassesSol.erase(CoreMassesSol.begin() + i);
                 NewCoreMassesSol.erase(NewCoreMassesSol.begin() + i);
@@ -560,14 +567,14 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
             CalculatePlanetRadius(CoreMassesSol[i] * kSolarMassToEarth, Planets[i]);
             GenerateRings(i, std::numeric_limits<float>::infinity(), Star, Orbits, Planets, AsteroidClusters);
             GenerateSpin(Orbits[i].SemiMajorAxis, Star, Planets[i]);
-
+            
             float PoyntingVector = static_cast<float>(Star->GetLuminosity()) / (4.0f * kPi * std::pow(Orbits[i].SemiMajorAxis, 2.0f));
             CalculateTemperature(PoyntingVector, Star, Planets[i]);
             float BalanceTemperature = Planets[i]->GetBalanceTemperature();
             // 判断有没有被烧似
             auto PlanetType = Planets[i]->GetPlanetType();
             if ((PlanetType != Astro::Planet::PlanetType::kRockyAsteroidCluster && PlanetType != Astro::Planet::PlanetType::kRockyIceAsteroidCluster && BalanceTemperature >= 2700) ||
-                ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) {
+               ((PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster || PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) && PoyntingVector > 1e6f)) {
                 Planets.erase(Planets.begin() + i);
                 CoreMassesSol.erase(CoreMassesSol.begin() + i);
                 NewCoreMassesSol.erase(NewCoreMassesSol.begin() + i);
