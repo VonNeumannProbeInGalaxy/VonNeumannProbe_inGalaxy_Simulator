@@ -5,6 +5,7 @@ module;
 #include <array>
 #include <format>
 #include <future>
+#include <fstream>
 #include <iomanip>
 #include <iterator>
 #include <limits>
@@ -70,16 +71,16 @@ void Universe::FillUniverse() {
     int MaxThread = _ThreadPool->GetPhysicalCoreCount();
 
     NpgsCoreInfo("Initializating and generating basic properties...");
-    std::vector<Modules::StellarGenerator> Generators;
-    std::vector<Modules::StellarGenerator::BasicProperties> BasicProperties;
+    std::vector<Module::StellarGenerator> Generators;
+    std::vector<Module::StellarGenerator::BasicProperties> BasicProperties;
 
-    using enum Modules::StellarGenerator::GenerateDistribution;
-    using enum Modules::StellarGenerator::GenerateOption;
+    using enum Module::StellarGenerator::GenerateDistribution;
+    using enum Module::StellarGenerator::GenerateOption;
     auto CreateGenerators =
-        [&, this](Modules::StellarGenerator::GenerateOption Option  = kNormal,
-            float MassLowerLimit =  0.1f, float MassUpperLimit = 300.0f,   Modules::StellarGenerator::GenerateDistribution MassDistribution = kFromPdf,
-            float AgeLowerLimit  =  0.0f, float AgeUpperLimit  = 1.26e10f, Modules::StellarGenerator::GenerateDistribution AgeDistribution  = kFromPdf,
-            float FeHLowerLimit  = -4.0f, float FeHUpperLimit  = 0.5f,     Modules::StellarGenerator::GenerateDistribution FeHDistribution  = kFromPdf) -> void {
+        [&, this](Module::StellarGenerator::GenerateOption Option  = kNormal,
+            float MassLowerLimit =  0.1f, float MassUpperLimit = 300.0f,   Module::StellarGenerator::GenerateDistribution MassDistribution = kFromPdf,
+            float AgeLowerLimit  =  0.0f, float AgeUpperLimit  = 1.26e10f, Module::StellarGenerator::GenerateDistribution AgeDistribution  = kFromPdf,
+            float FeHLowerLimit  = -4.0f, float FeHUpperLimit  = 0.5f,     Module::StellarGenerator::GenerateDistribution FeHDistribution  = kFromPdf) -> void {
         for (int i = 0; i != MaxThread; ++i) {
             std::vector<std::uint32_t> Seeds(32);
             for (int i = 0; i != 32; ++i) {
@@ -114,32 +115,32 @@ void Universe::FillUniverse() {
 
     if (_NumExtraMassiveStars != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenerateOption::kNormal, 20.0f, 300.0f, Modules::StellarGenerator::GenerateDistribution::kUniform, 0.0f, 3.5e6f, Modules::StellarGenerator::GenerateDistribution::kUniform);
+        CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal, 20.0f, 300.0f, Module::StellarGenerator::GenerateDistribution::kUniform, 0.0f, 3.5e6f, Module::StellarGenerator::GenerateDistribution::kUniform);
         GenerateBasicProperties(_NumExtraMassiveStars);
     }
 
     if (_NumExtraNeutronStars != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenerateOption::kDeathStar, 10.0f, 20.0f, Modules::StellarGenerator::GenerateDistribution::kUniform, 1e7f, 1e8f, Modules::StellarGenerator::GenerateDistribution::kUniformByExponent);
+        CreateGenerators(Module::StellarGenerator::GenerateOption::kDeathStar, 10.0f, 20.0f, Module::StellarGenerator::GenerateDistribution::kUniform, 1e7f, 1e8f, Module::StellarGenerator::GenerateDistribution::kUniformByExponent);
         GenerateBasicProperties(_NumExtraNeutronStars);
     }
 
     if (_NumExtraBlackHoles != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenerateOption::kNormal, 35.0f, 300.0f, Modules::StellarGenerator::GenerateDistribution::kUniform, 1e7f, 1.26e10f, Modules::StellarGenerator::GenerateDistribution::kFromPdf, -2.0, 0.5);
+        CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal, 35.0f, 300.0f, Module::StellarGenerator::GenerateDistribution::kUniform, 1e7f, 1.26e10f, Module::StellarGenerator::GenerateDistribution::kFromPdf, -2.0, 0.5);
         GenerateBasicProperties(_NumExtraBlackHoles);
     }
 
     if (_NumExtraMergeStars != 0) {
         Generators.clear();
-        CreateGenerators(Modules::StellarGenerator::GenerateOption::kMergeStar, 0.0f, 0.0f, Modules::StellarGenerator::GenerateDistribution::kUniform, 1e6f, 1e8f, Modules::StellarGenerator::GenerateDistribution::kUniformByExponent);
+        CreateGenerators(Module::StellarGenerator::GenerateOption::kMergeStar, 0.0f, 0.0f, Module::StellarGenerator::GenerateDistribution::kUniform, 1e6f, 1e8f, Module::StellarGenerator::GenerateDistribution::kUniformByExponent);
         GenerateBasicProperties(_NumExtraMergeStars);
     }
 
     std::size_t NumCommonStars = _NumStars - _NumExtraGiants - _NumExtraMassiveStars - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
 
     Generators.clear();
-    CreateGenerators(Modules::StellarGenerator::GenerateOption::kNormal, 0.075f);
+    CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal, 0.075f);
     GenerateBasicProperties(NumCommonStars);
 
     NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
@@ -195,6 +196,7 @@ void Universe::FillUniverse() {
 
     NpgsCoreInfo("Generating binary stars...");
     GenerateBinaryStars(MaxThread);
+
     NpgsCoreInfo("Sorting...");
     std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
         return glm::length(Point1) < glm::length(Point2);
@@ -362,27 +364,27 @@ void Universe::CountStars() {
         );
     };
 
-    auto CountClass = [](const Modules::StellarClass::SpectralType& SpectralType, std::array<std::size_t, 7>& Type) {
+    auto CountClass = [](const Module::StellarClass::SpectralType& SpectralType, std::array<std::size_t, 7>& Type) {
         switch (SpectralType.HSpectralClass) {
-        case Modules::StellarClass::SpectralClass::kSpectral_O:
+        case Module::StellarClass::SpectralClass::kSpectral_O:
             ++Type[kTypeO];
             break;
-        case Modules::StellarClass::SpectralClass::kSpectral_B:
+        case Module::StellarClass::SpectralClass::kSpectral_B:
             ++Type[kTypeB];
             break;
-        case Modules::StellarClass::SpectralClass::kSpectral_A:
+        case Module::StellarClass::SpectralClass::kSpectral_A:
             ++Type[kTypeA];
             break;
-        case Modules::StellarClass::SpectralClass::kSpectral_F:
+        case Module::StellarClass::SpectralClass::kSpectral_F:
             ++Type[kTypeF];
             break;
-        case Modules::StellarClass::SpectralClass::kSpectral_G:
+        case Module::StellarClass::SpectralClass::kSpectral_G:
             ++Type[kTypeG];
             break;
-        case Modules::StellarClass::SpectralClass::kSpectral_K:
+        case Module::StellarClass::SpectralClass::kSpectral_K:
             ++Type[kTypeK];
             break;
-        case Modules::StellarClass::SpectralClass::kSpectral_M:
+        case Module::StellarClass::SpectralClass::kSpectral_M:
             ++Type[kTypeM];
             break;
         }
@@ -505,16 +507,16 @@ void Universe::CountStars() {
             }
 
             const auto& Class = Star->GetStellarClass();
-            Modules::StellarClass::StarType StarType = Class.GetStarType();
-            if (StarType != Modules::StellarClass::StarType::kNormalStar) {
+            Module::StellarClass::StarType StarType = Class.GetStarType();
+            if (StarType != Module::StellarClass::StarType::kNormalStar) {
                 switch (StarType) {
-                case Modules::StellarClass::StarType::kBlackHole:
+                case Module::StellarClass::StarType::kBlackHole:
                     ++BlackHoles;
                     break;
-                case Modules::StellarClass::StarType::kNeutronStar:
+                case Module::StellarClass::StarType::kNeutronStar:
                     ++NeutronStars;
                     break;
-                case Modules::StellarClass::StarType::kWhiteDwarf:
+                case Module::StellarClass::StarType::kWhiteDwarf:
                     ++WhiteDwarfs;
                     break;
                 default:
@@ -524,12 +526,12 @@ void Universe::CountStars() {
                 continue;
             }
 
-            Modules::StellarClass::SpectralType SpectralType = Class.Data();
+            Module::StellarClass::SpectralType SpectralType = Class.Data();
 
-            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Unknown) {
-                if (SpectralType.HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WC ||
-                    SpectralType.HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WN ||
-                    SpectralType.HSpectralClass == Modules::StellarClass::SpectralClass::kSpectral_WO) {
+            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Unknown) {
+                if (SpectralType.HSpectralClass == Module::StellarClass::SpectralClass::kSpectral_WC ||
+                    SpectralType.HSpectralClass == Module::StellarClass::SpectralClass::kSpectral_WN ||
+                    SpectralType.HSpectralClass == Module::StellarClass::SpectralClass::kSpectral_WO) {
                     ++WolfRayet;
                     CountMostLuminous(Star, MostLuminousWolfRayet);
                     CountMostMassive(Star, MostMassiveWolfRayet);
@@ -541,8 +543,8 @@ void Universe::CountStars() {
                 }
             }
 
-            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_0 ||
-                SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_IaPlus) {
+            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_0 ||
+                SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_IaPlus) {
                 CountClass(SpectralType, Hypergiants);
                 CountMostLuminous(Star, MostLuminousHypergiant);
                 CountMostMassive(Star, MostMassiveHypergiant);
@@ -553,9 +555,9 @@ void Universe::CountStars() {
                 continue;
             }
 
-            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Ia ||
-                SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Iab ||
-                SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_Ib) {
+            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Ia ||
+                SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Iab ||
+                SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Ib) {
                 CountClass(SpectralType, Supergiants);
                 CountMostLuminous(Star, MostLuminousSupergiant);
                 CountMostMassive(Star, MostMassiveSupergiant);
@@ -566,7 +568,7 @@ void Universe::CountStars() {
                 continue;
             }
 
-            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_II) {
+            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_II) {
                 CountClass(SpectralType, BrightGiants);
                 CountMostLuminous(Star, MostLuminousBrightGiant);
                 CountMostMassive(Star, MostMassiveBrightGiant);
@@ -577,7 +579,7 @@ void Universe::CountStars() {
                 continue;
             }
 
-            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_III) {
+            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_III) {
                 CountClass(SpectralType, Giants);
                 CountMostLuminous(Star, MostLuminousGiant);
                 CountMostMassive(Star, MostMassiveGiant);
@@ -588,7 +590,7 @@ void Universe::CountStars() {
                 continue;
             }
 
-            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_IV) {
+            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_IV) {
                 CountClass(SpectralType, Subgiants);
                 CountMostLuminous(Star, MostLuminousSubgiant);
                 CountMostMassive(Star, MostMassiveSubgiant);
@@ -599,7 +601,7 @@ void Universe::CountStars() {
                 continue;
             }
 
-            if (SpectralType.LuminosityClass == Modules::StellarClass::LuminosityClass::kLuminosity_V) {
+            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_V) {
                 CountClass(SpectralType, MainSequence);
                 CountMostLuminous(Star, MostLuminousMainSequence);
                 CountMostMassive(Star, MostMassiveMainSequence);
@@ -845,7 +847,7 @@ void Universe::OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>&
 }
 
 void Universe::GenerateBinaryStars(int MaxThread) {
-    std::vector<Modules::StellarGenerator> Generators;
+    std::vector<Module::StellarGenerator> Generators;
     for (int i = 0; i != MaxThread; ++i) {
         std::vector<std::uint32_t> Seeds(32);
         for (int i = 0; i != 32; ++i) {
@@ -854,7 +856,7 @@ void Universe::GenerateBinaryStars(int MaxThread) {
 
         std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
         std::seed_seq SeedSequence(Seeds.begin(), Seeds.end());
-        Generators.emplace_back(SeedSequence, Modules::StellarGenerator::GenerateOption::kBinarySecondStar);
+        Generators.emplace_back(SeedSequence, Module::StellarGenerator::GenerateOption::kBinarySecondStar);
     }
 
     std::vector<StellarSystem*> BinarySystems;
@@ -865,30 +867,37 @@ void Universe::GenerateBinaryStars(int MaxThread) {
         }
     }
 
+    std::vector<Module::StellarGenerator::BasicProperties> BasicProperties;
+    for (std::size_t i = 0; i != BinarySystems.size(); ++i) {
+        std::size_t ThreadId = i % MaxThread;
+        auto& SelectedGenerator = Generators[ThreadId];
+
+        const auto& Star = BinarySystems[i]->StarData().front();
+        float FirstStarInitialMassSol = Star->GetInitialMass() / kSolarMass;
+        float MassLowerLimit = std::max(0.075f, 0.1f * FirstStarInitialMassSol);
+        float MassUpperLimit = std::min(10 * FirstStarInitialMassSol, 300.0f);
+
+        SelectedGenerator.SetMassLowerLimit(MassLowerLimit);
+        SelectedGenerator.SetMassUpperLimit(MassUpperLimit);
+        SelectedGenerator.SetLogMassSuggestDistribution(
+            std::make_shared<NormalDistribution<>>(std::log10(FirstStarInitialMassSol), 0.25f));
+
+        double Age = Star->GetAge();
+        float  FeH = Star->GetFeH();
+
+        if (std::to_underlying(Star->GetEvolutionPhase()) > 10) {
+            Age -= Star->GetLifetime();
+        }
+
+        BasicProperties.emplace_back(SelectedGenerator.GenerateBasicProperties(static_cast<float>(Age), FeH));
+    }
+
     std::vector<std::future<void>> Futures;
     for (std::size_t i = 0; i != BinarySystems.size(); ++i) {
         Futures.emplace_back(_ThreadPool->Commit([&, i]() -> void {
             std::size_t ThreadId = i % MaxThread;
-            const auto& Star = BinarySystems[i]->StarData().front();
-            float FirstStarInitialMassSol = Star->GetInitialMass() / kSolarMass;
-            float MassLowerLimit = std::max(0.075f, 0.1f * FirstStarInitialMassSol);
-            float MassUpperLimit = std::min(10 * FirstStarInitialMassSol, 300.0f);
-
-            Generators[ThreadId].SetMassLowerLimit(MassLowerLimit);
-            Generators[ThreadId].SetMassUpperLimit(MassUpperLimit);
-            Generators[ThreadId].SetLogMassSuggestDistribution(
-                std::make_shared<NormalDistribution<>>(std::log10(FirstStarInitialMassSol), 0.25f));
-
-            double Age = Star->GetAge();
-            float  FeH = Star->GetFeH();
-
-            if (std::to_underlying(Star->GetEvolutionPhase()) > 10) {
-                Age -= Star->GetLifetime();
-            }
-
-            auto BasicProperties = Generators[ThreadId].GenerateBasicProperties(static_cast<float>(Age), FeH);
-            auto NewStar = Generators[ThreadId].GenerateStar(BasicProperties);
-
+            auto& SelectedGenerator = Generators[ThreadId];
+            auto NewStar = SelectedGenerator.GenerateStar(BasicProperties[i]);
             BinarySystems[i]->StarData().emplace_back(std::make_unique<Astro::Star>(NewStar));
         }));
     }

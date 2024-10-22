@@ -50,7 +50,7 @@ public:
     };
 
     struct ExtendedProperties {
-        Modules::StellarClass StellarClass;
+        Module::StellarClass StellarClass;
 
         double Mass;                    // 质量，单位 kg
         double Luminosity;              // 辐射光度，单位 W
@@ -104,7 +104,7 @@ public:
     Star& SetIsSingleStar(bool bIsSingleStar);
     Star& SetEvolutionPhase(Phase EvolutionPhase);
     Star& SetEvolutionEnding(Death EvolutionEnding);
-    Star& SetStellarClass(const Modules::StellarClass& StellarClass);
+    Star& SetStellarClass(const Module::StellarClass& StellarClass);
 
     // Getters
     // Getters for ExtendedProperties
@@ -128,7 +128,7 @@ public:
     bool  GetIsSingleStar() const;
     Phase GetEvolutionPhase() const;
     Death GetEvolutionEnding() const;
-    const Modules::StellarClass& GetStellarClass() const;
+    const Module::StellarClass& GetStellarClass() const;
 
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_O;
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_B;
@@ -146,7 +146,7 @@ public:
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_WNxh;
     static const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> _kInitialCommonMap;
     static const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> _kInitialWolfRayetMap;
-    static const std::unordered_map<Phase, Npgs::Modules::StellarClass::LuminosityClass> _kLuminosityMap;
+    static const std::unordered_map<Phase, Npgs::Module::StellarClass::LuminosityClass> _kLuminosityMap;
     static const std::unordered_map<float, float> _kFeHSurfaceH1Map;
 
 private:

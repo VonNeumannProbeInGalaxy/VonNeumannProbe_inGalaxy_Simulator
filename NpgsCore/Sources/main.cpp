@@ -10,7 +10,7 @@ import Universe;
 
 int main() {
     using namespace Npgs;
-    using namespace Npgs::Modules;
+    using namespace Npgs::Module;
 
     Logger::Init();
     ThreadPool::Init();
@@ -32,6 +32,16 @@ int main() {
     }
 
     //using enum StellarGenerator::GenerateOption;
+    //StellarGenerator sg({ 42 });
+    //StellarGenerator::BasicProperties bp;
+    //bp.Age = 1e8;
+    //bp.FeH = -3;
+    //bp.InitialMassSol = 180;
+    //bp.Option = kNormal;
+    //auto s = sg.GenerateStar(bp);
+
+    //std::cout << s.GetAge() << " " << s.GetFeH() << " " << s.GetInitialMass() << " " << std::endl;
+
 
     //StellarGenerator sg({ Seed }, kNormal, 1.38e10f, 0.075f);
     //std::vector<StellarGenerator::BasicProperties> bp;

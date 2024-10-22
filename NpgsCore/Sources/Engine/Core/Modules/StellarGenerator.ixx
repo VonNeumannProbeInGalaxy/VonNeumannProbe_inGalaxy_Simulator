@@ -20,13 +20,13 @@ import Core.Random;
 import Module.StellarClass;
 
 _NPGS_BEGIN
-_MODULES_BEGIN
+_MODULE_BEGIN
 
 export class StellarGenerator {
 public:
-    using MistData   = Assets::Csv<double, 12>;
-    using WdMistData = Assets::Csv<double, 5>;
-    using HrDiagram  = Assets::Csv<double, 7>;
+    using MistData   = Asset::Csv<double, 12>;
+    using WdMistData = Asset::Csv<double, 5>;
+    using HrDiagram  = Asset::Csv<double, 7>;
 
     enum class GenerateDistribution {
         kFromPdf,
@@ -185,7 +185,7 @@ private:
     static bool _kbMistDataInitiated;
 };
 
-_MODULES_END
+_MODULE_END
 _NPGS_END
 
 #include "StellarGenerator.inl"

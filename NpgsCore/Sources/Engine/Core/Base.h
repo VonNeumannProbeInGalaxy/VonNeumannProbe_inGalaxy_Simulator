@@ -28,10 +28,10 @@
 #define _NPGS_END }
 #define _ASTRO_BEGIN namespace Astro {
 #define _ASTRO_END }
-#define _MODULES_BEGIN namespace Modules {
-#define _MODULES_END }
-#define _ASSETS_BEGIN namespace Assets {
-#define _ASSETS_END }
+#define _MODULE_BEGIN namespace Module {
+#define _MODULE_END }
+#define _ASSET_BEGIN namespace Asset {
+#define _ASSET_END }
 #define _THIRD_PARTY_BEGIN namespace ThirdParty {
 #define _THIRD_PARTY_END }
 

@@ -12,7 +12,7 @@ import Base.Astro.Planet;
 import Core.Random;
 
 _NPGS_BEGIN
-_MODULES_BEGIN
+_MODULE_BEGIN
 
 export class CivilizationGenerator {
 public:
@@ -32,5 +32,5 @@ private:
     static const std::array<float, 7> _kProbabilityListForSatTeeTouyButAsi;
 };
 
-_MODULES_END
+_MODULE_END
 _NPGS_END

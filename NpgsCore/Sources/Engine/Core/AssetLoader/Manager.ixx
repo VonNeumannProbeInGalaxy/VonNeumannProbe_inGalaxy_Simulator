@@ -13,7 +13,7 @@ import <vector>;
 import Asset.Csv;
 
 _NPGS_BEGIN
-_ASSETS_BEGIN
+_ASSET_BEGIN
 
 export enum class AssetType {
     kBinaryShader,
@@ -69,5 +69,5 @@ private:
     static std::unordered_map<std::string, std::shared_ptr<void>> _kAssets;
 };
 
-_ASSETS_END
+_ASSET_END
 _NPGS_END

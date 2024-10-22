@@ -15,7 +15,7 @@ import Core.Random;
 import Module.CivilizationGenerator;
 
 _NPGS_BEGIN
-_MODULES_BEGIN
+_MODULE_BEGIN
 
 export class OrbitalGenerator {
 public:
@@ -67,5 +67,5 @@ private:
     bool  _bContainUltravioletHabitableZone;
 };
 
-_MODULES_END
+_MODULE_END
 _NPGS_END

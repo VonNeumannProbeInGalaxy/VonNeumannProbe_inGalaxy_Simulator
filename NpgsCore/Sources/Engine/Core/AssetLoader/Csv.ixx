@@ -17,7 +17,7 @@ import <utility>;
 import <vector>;
 
 _NPGS_BEGIN
-_ASSETS_BEGIN
+_ASSET_BEGIN
 
 template <std::size_t Size>
 concept CsvConcept = Size > 0;
@@ -168,5 +168,5 @@ private:
     std::vector<RowArray>                        _Data;
 };
 
-_ASSETS_END
+_ASSET_END
 _NPGS_END

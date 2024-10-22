@@ -24,7 +24,7 @@ import Asset.Manager;
 import Core.Logger;
 
 _NPGS_BEGIN
-_MODULES_BEGIN
+_MODULE_BEGIN
 
 // Tool macros
 // -----------
@@ -278,8 +278,7 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
             ProcessDeathStar(DeathStar);
             if (DeathStar.GetEvolutionPhase() == Astro::Star::Phase::kNull) {
                 // 对于双星，二者年龄和金属丰度要保持一致
-                // 赋值为 -1.0 生成另一个质量数值，避免无限递归
-                Properties.InitialMassSol = -1.0f;
+                Properties.InitialMassSol /= 2;
                 DeathStar = GenerateStar(Properties);
             }
 
@@ -396,16 +395,16 @@ void StellarGenerator::InitMistData() {
     }
 
     const std::array<std::string, 10> kPresetPrefix{
-        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-4.0"),
-        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-3.0"),
-        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-2.0"),
-        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-1.5"),
-        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-1.0"),
-        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=-0.5"),
-        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=+0.0"),
-        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]=+0.5"),
-        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/WhiteDwarfs/Thin"),
-        Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/WhiteDwarfs/Thick")
+        Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/[Fe_H]=-4.0"),
+        Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/[Fe_H]=-3.0"),
+        Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/[Fe_H]=-2.0"),
+        Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/[Fe_H]=-1.5"),
+        Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/[Fe_H]=-1.0"),
+        Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/[Fe_H]=-0.5"),
+        Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/[Fe_H]=+0.0"),
+        Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/[Fe_H]=+0.5"),
+        Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/WhiteDwarfs/Thin"),
+        Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/WhiteDwarfs/Thick")
     };
 
     std::vector<float> Masses;
@@ -505,12 +504,12 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
         if (TargetFeH >= 0.0f) {
             PrefixDirectory.insert(PrefixDirectory.begin(), '+');
         }
-        PrefixDirectory.insert(0, Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/[Fe_H]="));
+        PrefixDirectory.insert(0, Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/[Fe_H]="));
     } else {
         if (bIsSingleWhiteDwarf) {
-            PrefixDirectory = Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/WhiteDwarfs/Thin");
+            PrefixDirectory = Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/WhiteDwarfs/Thin");
         } else {
-            PrefixDirectory = Assets::GetAssetFilepath(Assets::AssetType::kModel, "MIST/WhiteDwarfs/Thick");
+            PrefixDirectory = Asset::GetAssetFilepath(Asset::AssetType::kModel, "MIST/WhiteDwarfs/Thick");
         }
     }
 
@@ -867,7 +866,7 @@ StellarClass::LuminosityClass StellarGenerator::CalculateLuminosityClass(const A
         return LuminosityClass;
     }
 
-    std::shared_ptr<HrDiagram> HrDiagramData = LoadCsvAsset<HrDiagram>(Assets::GetAssetFilepath(Assets::AssetType::kModel, "H-R Diagram/H-R Diagram.csv"), _kHrDiagramHeaders);
+    std::shared_ptr<HrDiagram> HrDiagramData = LoadCsvAsset<HrDiagram>(Asset::GetAssetFilepath(Asset::AssetType::kModel, "H-R Diagram/H-R Diagram.csv"), _kHrDiagramHeaders);
 
     float Teff = StarData.GetTeff();
     float BvColorIndex = 0.0f;
@@ -1305,7 +1304,7 @@ template<typename CsvType>
 std::shared_ptr<CsvType> StellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers) {
     {
         std::shared_lock Lock(_kCacheMutex);
-        auto Asset = Assets::AssetManager::GetAsset<CsvType>(Filename);
+        auto Asset = Asset::AssetManager::GetAsset<CsvType>(Filename);
         if (Asset != nullptr) {
             return Asset;
         }
@@ -1313,7 +1312,7 @@ std::shared_ptr<CsvType> StellarGenerator::LoadCsvAsset(const std::string& Filen
 
     std::unique_lock Lock(_kCacheMutex);
     auto CsvAsset = std::make_shared<CsvType>(Filename, Headers);
-    Assets::AssetManager::AddAsset<CsvType>(Filename, CsvAsset);
+    Asset::AssetManager::AddAsset<CsvType>(Filename, CsvAsset);
 
     return CsvAsset;
 }
@@ -1681,5 +1680,5 @@ void ExpandMistData(double TargetMass, std::vector<double>& StarData) {
     LogR = std::log10(RadiusSol);
 }
 
-_MODULES_END
+_MODULE_END
 _NPGS_END

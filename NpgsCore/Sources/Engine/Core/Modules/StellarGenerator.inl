@@ -3,7 +3,7 @@
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
-_MODULES_BEGIN
+_MODULE_BEGIN
 
 inline StellarGenerator& StellarGenerator::SetLogMassSuggestDistribution(std::shared_ptr<Distribution<>> Distribution) {
     _LogMassGenerator = Distribution;
@@ -96,4 +96,4 @@ inline StellarGenerator& StellarGenerator::SetGenerateOption(GenerateOption Opti
 }
 
 _NPGS_END
-_MODULES_END
+_MODULE_END

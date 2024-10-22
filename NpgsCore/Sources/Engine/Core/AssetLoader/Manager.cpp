@@ -7,7 +7,7 @@ module;
 module Asset.Manager;
 
 _NPGS_BEGIN
-_ASSETS_BEGIN
+_ASSET_BEGIN
 
 #pragma warning(push)
 #pragma warning(disable : 4715)
@@ -40,5 +40,5 @@ std::string GetAssetFilepath(AssetType Type, const std::string& Filename) {
 
 std::unordered_map<std::string, std::shared_ptr<void>> AssetManager::_kAssets;
 
-_ASSETS_END
+_ASSET_END
 _NPGS_END

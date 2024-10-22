@@ -109,7 +109,7 @@ inline Star& Star::SetEvolutionEnding(Death EvolutionEnding) {
     return *this;
 }
 
-inline Star& Star::SetStellarClass(const Modules::StellarClass& StellarClass) {
+inline Star& Star::SetStellarClass(const Module::StellarClass& StellarClass) {
     _StarExtraProperties.StellarClass = StellarClass;
     return *this;
 }
@@ -190,7 +190,7 @@ inline Star::Death Star::GetEvolutionEnding() const {
     return _StarExtraProperties.EvolutionEnding;
 }
 
-inline const Modules::StellarClass& Star::GetStellarClass() const {
+inline const Module::StellarClass& Star::GetStellarClass() const {
     return _StarExtraProperties.StellarClass;
 }
 

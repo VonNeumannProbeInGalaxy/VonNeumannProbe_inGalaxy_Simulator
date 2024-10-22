@@ -20,7 +20,7 @@ module Module.OrbitalGenerator;
 #define DEBUG_OUTPUT
 
 _NPGS_BEGIN
-_MODULES_BEGIN
+_MODULE_BEGIN
 
 #define CalculatePlanetMassByIndex(Index) \
     CalculatePlanetMass(kSolarMass * CoreMassesSol[Index], kSolarMass * NewCoreMassesSol[Index], Planets[Index]->GetMigration() ? MigratedOriginSemiMajorAxisAu : Orbits[Index].SemiMajorAxis / kAuToMeter, PlanetaryDiskTempData, Star, Planets[Index])
@@ -69,7 +69,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
     float DiskBase = 1.0f + _CommonGenerator(_RandomEngine); // 基准随机数，1-2 之间
     float StarInitialMassSol = Star->GetInitialMass() / kSolarMass;
     auto  StarType = Star->GetStellarClass().GetStarType();
-    if (StarType != Modules::StellarClass::StarType::kNeutronStar && StarType != Modules::StellarClass::StarType::kBlackHole) {
+    if (StarType != Module::StellarClass::StarType::kNeutronStar && StarType != Module::StellarClass::StarType::kBlackHole) {
         float DiskMassSol = DiskBase * StarInitialMassSol * std::pow(10.0f, -2.05f + 0.1214f * StarInitialMassSol - 0.02669f * std::pow(StarInitialMassSol, 2.0f) - 0.2274f * std::log(StarInitialMassSol));
         float DustMassSol = DiskMassSol * 0.0142f * 0.4f * std::pow(10.0f, Star->GetFeH());
         float OuterRadiusAu = StarInitialMassSol >= 1.0f ? 45.0f * StarInitialMassSol : 45.0f * std::pow(StarInitialMassSol, 2.0f);
@@ -121,7 +121,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
     // 生成行星们
     std::size_t PlanetCount = 0;
-    if (StarType != Modules::StellarClass::StarType::kNeutronStar && StarType != Modules::StellarClass::StarType::kBlackHole) {
+    if (StarType != Module::StellarClass::StarType::kNeutronStar && StarType != Module::StellarClass::StarType::kBlackHole) {
         if (StarInitialMassSol < 0.6f) {
             PlanetCount = static_cast<std::size_t>(4.0f + _CommonGenerator(_RandomEngine) * 4.0f);
         } else if (StarInitialMassSol < 0.9f) {
@@ -244,7 +244,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
     };
 
     StarType = Star->GetStellarClass().GetStarType();
-    if (StarType != Modules::StellarClass::StarType::kNeutronStar && StarType != Modules::StellarClass::StarType::kBlackHole) {
+    if (StarType != Module::StellarClass::StarType::kNeutronStar && StarType != Module::StellarClass::StarType::kBlackHole) {
         // 宜居带半径，单位 AU
         float InterHabitableZoneRadiusAu = 0.0f;
         float OuterHabitableZoneRadiusAu = 0.0f;
@@ -352,7 +352,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
         // 判断冥府行星
         for (std::size_t i = 0; i != PlanetCount; ++i) {
             if ((Planets[i]->GetPlanetType() == Astro::Planet::PlanetType::kGasGiant || Planets[i]->GetPlanetType() == Astro::Planet::PlanetType::kIceGiant) &&
-                Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kWhiteDwarf && Orbits[i].SemiMajorAxis < 2.0f * StarRadiusMaxSol * kSolarRadius) {
+                Star->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kWhiteDwarf && Orbits[i].SemiMajorAxis < 2.0f * StarRadiusMaxSol * kSolarRadius) {
                 Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kChthonian);
                 NewCoreMassesSol[i] = CoreMassesSol[i];
                 CalculatePlanetRadius(CoreMassesSol[i] * kSolarMassToEarth, Planets[i]);
@@ -361,7 +361,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
         // 处理白矮星引力散射
         for (std::size_t i = 0; i != PlanetCount; ++i) {
-            if (Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kWhiteDwarf && Star->GetAge() > 1e6) {
+            if (Star->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kWhiteDwarf && Star->GetAge() > 1e6) {
                 if (Planets[i]->GetPlanetType() == Astro::Planet::PlanetType::kRocky) {
                     if (_ScatteringProbability(_RandomEngine)) {
                         float Random = 4.0f + _CommonGenerator(_RandomEngine) * 16.0f; // 4.0 Rsun 高于洛希极限
@@ -434,7 +434,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 
             float PlanetMass = 0.0f;
             // 计算类地行星、次生大气层和地壳矿脉
-            if (Star->GetStellarClass().GetStarType() == Modules::StellarClass::StarType::kNormalStar) {
+            if (Star->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kNormalStar) {
                 PlanetType = Planets[i]->GetPlanetType();
                 PlanetMass = Planets[i]->GetMassFloat();
                 PlanetMassEarth = Planets[i]->GetMassFloat() / kEarthMass;
@@ -1083,5 +1083,5 @@ void OrbitalGenerator::CalculateTemperature(float PoyntingVector, const Astro::S
     Planet->SetBalanceTemperature(BalanceTemperature);
 }
 
-_MODULES_END
+_MODULE_END
 _NPGS_END

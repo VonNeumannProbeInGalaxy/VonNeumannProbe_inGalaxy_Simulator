@@ -12,7 +12,7 @@ module;
 module Module.StellarClass;
 
 _NPGS_BEGIN
-_MODULES_BEGIN
+_MODULE_BEGIN
 
 enum class ParseState {
     kBegin,
@@ -680,5 +680,5 @@ std::string SpecialMarkToStr(StellarClass::SpecialPeculiarities SpecialMark) {
     }
 }
 
-_MODULES_END
+_MODULE_END
 _NPGS_END

@@ -10,7 +10,7 @@ export module Module.StellarClass;
 import <string>;
 
 _NPGS_BEGIN
-_MODULES_BEGIN
+_MODULE_BEGIN
 
 export class StellarClass {
 public:
@@ -150,5 +150,5 @@ private:
     StarType      _StarType;
 };
 
-_MODULES_END
+_MODULE_END
 _NPGS_END
