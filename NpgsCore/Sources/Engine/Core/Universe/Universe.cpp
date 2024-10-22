@@ -23,7 +23,6 @@ module Universe;
 
 import Core.Logger;
 import Module.StellarClass;
-import Module.StellarGenerator;
 
 _NPGS_BEGIN
 
@@ -167,35 +166,7 @@ void Universe::FillUniverse() {
 
     NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
 
-    std::vector<std::vector<Module::StellarGenerator::BasicProperties>> PropertyLists(MaxThread);
-    for (std::size_t i = 0; i != BasicProperties.size(); ++i) {
-        std::size_t ThreadId = i % Generators.size();
-        PropertyLists[ThreadId].emplace_back(std::move(BasicProperties[i]));
-    }
-
-    std::vector<std::promise<std::vector<Astro::Star>>> Promises(MaxThread);
-    std::vector<std::future<std::vector<Astro::Star>>> ChunkFutures;
-    for (int i = 0; i != MaxThread; ++i) {
-        ChunkFutures.emplace_back(Promises[i].get_future());
-    }
-
-    for (int i = 0; i != MaxThread; ++i) {
-        _ThreadPool->Commit([&, i]() -> void {
-            std::vector<Astro::Star> Stars;
-            for (auto& Properties : PropertyLists[i]) {
-                Stars.emplace_back(Generators[i].GenerateStar(std::move(Properties)));
-            }
-            Promises[i].set_value(std::move(Stars));
-        });
-    }
-
-    BasicProperties.clear();
-
-    std::vector<Astro::Star> Stars;
-    for (auto& Future : ChunkFutures) {
-        auto Chunk = Future.get();
-        Stars.insert(Stars.end(), std::make_move_iterator(Chunk.begin()), std::make_move_iterator(Chunk.end()));
-    }
+    std::vector<Astro::Star> Stars = InterpolateStars(MaxThread, Generators, BasicProperties);
 
 #ifdef OUTPUT_DATA
     NpgsCoreInfo("Outputing data...");
@@ -779,6 +750,40 @@ void Universe::CountStars() {
     std::println("");
 }
 
+std::vector<Astro::Star> Universe::InterpolateStars(int MaxThread, std::vector<Module::StellarGenerator>& Generators, std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties) {
+    std::vector<std::vector<Module::StellarGenerator::BasicProperties>> PropertyLists(MaxThread);
+    for (std::size_t i = 0; i != BasicProperties.size(); ++i) {
+        std::size_t ThreadId = i % Generators.size();
+        PropertyLists[ThreadId].emplace_back(std::move(BasicProperties[i]));
+    }
+
+    std::vector<std::promise<std::vector<Astro::Star>>> Promises(MaxThread);
+    std::vector<std::future<std::vector<Astro::Star>>> ChunkFutures;
+    for (int i = 0; i != MaxThread; ++i) {
+        ChunkFutures.emplace_back(Promises[i].get_future());
+    }
+
+    for (int i = 0; i != MaxThread; ++i) {
+        _ThreadPool->Commit([&, i]() -> void {
+            std::vector<Astro::Star> Stars;
+            for (auto& Properties : PropertyLists[i]) {
+                Stars.emplace_back(Generators[i].GenerateStar(std::move(Properties)));
+            }
+            Promises[i].set_value(std::move(Stars));
+        });
+    }
+
+    BasicProperties.clear();
+
+    std::vector<Astro::Star> Stars;
+    for (auto& Future : ChunkFutures) {
+        auto Chunk = Future.get();
+        Stars.insert(Stars.end(), std::make_move_iterator(Chunk.begin()), std::make_move_iterator(Chunk.end()));
+    }
+
+    return Stars;
+}
+
 void Universe::GenerateSlots(float MinDistance, std::size_t NumSamples, float Density) {
     float Radius     = std::pow((3.0f * NumSamples / (4 * kPi * Density)), (1.0f / 3.0f));
     float LeafSize   = std::pow((1.0f / Density), (1.0f / 3.0f));
@@ -930,35 +935,7 @@ void Universe::GenerateBinaryStars(int MaxThread) {
         BasicProperties.emplace_back(SelectedGenerator.GenerateBasicProperties(static_cast<float>(Age), FeH));
     }
 
-    std::vector<std::vector<Module::StellarGenerator::BasicProperties>> PropertyLists(MaxThread);
-    for (std::size_t i = 0; i != BasicProperties.size(); ++i) {
-        std::size_t ThreadId = i % Generators.size();
-        PropertyLists[ThreadId].emplace_back(std::move(BasicProperties[i]));
-    }
-
-    std::vector<std::promise<std::vector<Astro::Star>>> Promises(MaxThread);
-    std::vector<std::future<std::vector<Astro::Star>>> ChunkFutures;
-    for (int i = 0; i != MaxThread; ++i) {
-        ChunkFutures.emplace_back(Promises[i].get_future());
-    }
-
-    for (int i = 0; i != MaxThread; ++i) {
-        _ThreadPool->Commit([&, i]() -> void {
-            std::vector<Astro::Star> Stars;
-            for (auto& Properties : PropertyLists[i]) {
-                Stars.emplace_back(Generators[i].GenerateStar(std::move(Properties)));
-            }
-            Promises[i].set_value(std::move(Stars));
-        });
-    }
-
-    BasicProperties.clear();
-
-    std::vector<Astro::Star> Stars;
-    for (auto& Future : ChunkFutures) {
-        auto Chunk = Future.get();
-        Stars.insert(Stars.end(), std::make_move_iterator(Chunk.begin()), std::make_move_iterator(Chunk.end()));
-    }
+    std::vector<Astro::Star> Stars = InterpolateStars(MaxThread, Generators, BasicProperties);
 
     for (std::size_t i = 0; i != BinarySystems.size(); ++i) {
         BinarySystems[i]->StarData().emplace_back(std::make_unique<Astro::Star>(Stars[i]));

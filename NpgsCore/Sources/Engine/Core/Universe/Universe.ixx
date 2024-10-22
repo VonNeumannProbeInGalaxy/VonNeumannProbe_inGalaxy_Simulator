@@ -16,6 +16,7 @@ import Base.Octree;
 import Base.StellarSystem;
 import Core.Random;
 import Core.ThreadPool;
+import Module.StellarGenerator;
 
 _NPGS_BEGIN
 
@@ -40,6 +41,7 @@ public:
     void CountStars();
 
 private:
+    std::vector<Astro::Star> InterpolateStars(int MaxThread, std::vector<Module::StellarGenerator>& Generators, std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties);
     void GenerateSlots(float MinDistance, std::size_t NumSamples, float Density);
     void OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots);
     void GenerateBinaryStars(int MaxThread);

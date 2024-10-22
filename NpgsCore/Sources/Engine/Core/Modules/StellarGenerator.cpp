@@ -1026,7 +1026,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
     }
 
     if (DeathStarType == StellarClass::StarType::kNeutronStar || MergeStarProbability == 1.0) {
-        BernoulliDistribution MergeProbability(MergeStarProbability);
+        BernoulliDistribution MergeProbability(MergeStarProbability * static_cast<int>(DeathStar.GetIsSingleStar()));
         if (MergeProbability(_RandomEngine)) {
             EvolutionEnding = Astro::Star::Death::kWhiteDwarfMerge;
             BernoulliDistribution BlackHoleProbability(0.114514);
