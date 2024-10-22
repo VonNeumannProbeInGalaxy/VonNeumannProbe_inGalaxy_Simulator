@@ -5,7 +5,6 @@ module;
 #include <array>
 #include <format>
 #include <future>
-#include <fstream>
 #include <iomanip>
 #include <iterator>
 #include <limits>
@@ -535,9 +534,6 @@ void Universe::CountStars() {
     std::println("{}", FormatTitle());
     std::println("");
 
-    std::ofstream NeutronStarData("NeutronStars.csv");
-    std::ofstream BlackHoleData("BlackHoles.csv");
-
     for (auto& System : _StellarSystems) {
         for (auto& Star : System.StarData()) {
             ++TotalStars;
@@ -554,11 +550,9 @@ void Universe::CountStars() {
                 switch (StarType) {
                 case Module::StellarClass::StarType::kBlackHole:
                     ++BlackHoles;
-                    BlackHoleData << Star->GetAge() << "," << Star->GetFeH() << "," << Star->GetInitialMass() / kSolarMass << "," << Star->GetMass() / kSolarMass << "," << Star->GetIsSingleStar() << "\n";
                     break;
                 case Module::StellarClass::StarType::kNeutronStar:
                     ++NeutronStars;
-                    NeutronStarData << Star->GetAge() << "," << Star->GetFeH() << "," << Star->GetInitialMass() / kSolarMass << "," << Star->GetMass() / kSolarMass << "," << Star->GetIsSingleStar() << "\n";
                     break;
                 case Module::StellarClass::StarType::kWhiteDwarf:
                     ++WhiteDwarfs;
