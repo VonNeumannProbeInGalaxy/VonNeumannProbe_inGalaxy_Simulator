@@ -77,10 +77,16 @@ void Universe::FillUniverse() {
     using enum Module::StellarGenerator::GenerateDistribution;
     using enum Module::StellarGenerator::GenerateOption;
     auto CreateGenerators =
-        [&, this](Module::StellarGenerator::GenerateOption Option  = kNormal,
-            float MassLowerLimit =  0.1f, float MassUpperLimit = 300.0f,   Module::StellarGenerator::GenerateDistribution MassDistribution = kFromPdf,
-            float AgeLowerLimit  =  0.0f, float AgeUpperLimit  = 1.26e10f, Module::StellarGenerator::GenerateDistribution AgeDistribution  = kFromPdf,
-            float FeHLowerLimit  = -4.0f, float FeHUpperLimit  = 0.5f,     Module::StellarGenerator::GenerateDistribution FeHDistribution  = kFromPdf) -> void {
+        [&, this](Module::StellarGenerator::GenerateOption Option = kNormal,
+            float MassLowerLimit =  0.1f,
+            float MassUpperLimit = 300.0f,
+            Module::StellarGenerator::GenerateDistribution MassDistribution = kFromPdf,
+            float AgeLowerLimit  =  0.0f,
+            float AgeUpperLimit  = 1.26e10f,
+            Module::StellarGenerator::GenerateDistribution AgeDistribution  = kFromPdf,
+            float FeHLowerLimit  = -4.0f,
+            float FeHUpperLimit  = 0.5f,
+            Module::StellarGenerator::GenerateDistribution FeHDistribution  = kFromPdf) -> void {
         for (int i = 0; i != MaxThread; ++i) {
             std::vector<std::uint32_t> Seeds(32);
             for (int i = 0; i != 32; ++i) {
@@ -115,25 +121,42 @@ void Universe::FillUniverse() {
 
     if (_NumExtraMassiveStars != 0) {
         Generators.clear();
-        CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal, 20.0f, 300.0f, Module::StellarGenerator::GenerateDistribution::kUniform, 0.0f, 3.5e6f, Module::StellarGenerator::GenerateDistribution::kUniform);
+        CreateGenerators(
+            Module::StellarGenerator::GenerateOption::kNormal,
+            20.0f, 300.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
+            0.0f,  3.5e6f, Module::StellarGenerator::GenerateDistribution::kUniform
+        );
         GenerateBasicProperties(_NumExtraMassiveStars);
     }
 
     if (_NumExtraNeutronStars != 0) {
         Generators.clear();
-        CreateGenerators(Module::StellarGenerator::GenerateOption::kDeathStar, 10.0f, 20.0f, Module::StellarGenerator::GenerateDistribution::kUniform, 1e7f, 1e8f, Module::StellarGenerator::GenerateDistribution::kUniformByExponent);
+        CreateGenerators(
+            Module::StellarGenerator::GenerateOption::kDeathStar,
+            10.0f, 20.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
+            1e7f,  1e8f,  Module::StellarGenerator::GenerateDistribution::kUniformByExponent
+        );
         GenerateBasicProperties(_NumExtraNeutronStars);
     }
 
     if (_NumExtraBlackHoles != 0) {
         Generators.clear();
-        CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal, 35.0f, 300.0f, Module::StellarGenerator::GenerateDistribution::kUniform, 1e7f, 1.26e10f, Module::StellarGenerator::GenerateDistribution::kFromPdf, -2.0, 0.5);
+        CreateGenerators(
+            Module::StellarGenerator::GenerateOption::kNormal,
+            35.0f,  300.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
+            1e7f, 1.26e10f, Module::StellarGenerator::GenerateDistribution::kFromPdf,
+            -2.0, 0.5
+        );
         GenerateBasicProperties(_NumExtraBlackHoles);
     }
 
     if (_NumExtraMergeStars != 0) {
         Generators.clear();
-        CreateGenerators(Module::StellarGenerator::GenerateOption::kMergeStar, 0.0f, 0.0f, Module::StellarGenerator::GenerateDistribution::kUniform, 1e6f, 1e8f, Module::StellarGenerator::GenerateDistribution::kUniformByExponent);
+        CreateGenerators(
+            Module::StellarGenerator::GenerateOption::kMergeStar,
+            0.0f, 0.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
+            1e6f, 1e8f, Module::StellarGenerator::GenerateDistribution::kUniformByExponent
+        );
         GenerateBasicProperties(_NumExtraMergeStars);
     }
 
@@ -145,19 +168,35 @@ void Universe::FillUniverse() {
 
     NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
 
-    std::vector<std::future<Astro::Star>> StarFutures(_NumStars);
-    for (std::size_t i = 0; i != _NumStars; ++i) {
-        StarFutures[i] = std::move(_ThreadPool->Commit([&, i]() -> Astro::Star {
-            std::size_t ThreadId = i % Generators.size();
-            return Generators[ThreadId].GenerateStar(std::move(BasicProperties[i]));
-        }));
+    std::vector<std::vector<Module::StellarGenerator::BasicProperties>> PropertyLists(MaxThread);
+    for (std::size_t i = 0; i != BasicProperties.size(); ++i) {
+        std::size_t ThreadId = i % Generators.size();
+        PropertyLists[ThreadId].emplace_back(std::move(BasicProperties[i]));
     }
 
-    for (auto& Future : StarFutures) {
-        Future.wait();
+    std::vector<std::promise<std::vector<Astro::Star>>> Promises(MaxThread);
+    std::vector<std::future<std::vector<Astro::Star>>> ChunkFutures;
+    for (int i = 0; i != MaxThread; ++i) {
+        ChunkFutures.emplace_back(Promises[i].get_future());
+    }
+
+    for (int i = 0; i != MaxThread; ++i) {
+        _ThreadPool->Commit([&, i]() -> void {
+            std::vector<Astro::Star> Stars;
+            for (auto& Properties : PropertyLists[i]) {
+                Stars.emplace_back(Generators[i].GenerateStar(std::move(Properties)));
+            }
+            Promises[i].set_value(std::move(Stars));
+        });
     }
 
     BasicProperties.clear();
+
+    std::vector<Astro::Star> Stars;
+    for (auto& Future : ChunkFutures) {
+        auto Chunk = Future.get();
+        Stars.insert(Stars.end(), std::make_move_iterator(Chunk.begin()), std::make_move_iterator(Chunk.end()));
+    }
 
 #ifdef OUTPUT_DATA
     NpgsCoreInfo("Outputing data...");
@@ -190,9 +229,9 @@ void Universe::FillUniverse() {
 
     NpgsCoreInfo("Linking positions in octree to stellar systems...");
     _StellarSystems.reserve(_NumStars);
-    std::shuffle(StarFutures.begin(), StarFutures.end(), _RandomEngine);
+    std::shuffle(Stars.begin(), Stars.end(), _RandomEngine);
     std::vector<glm::vec3> Slots;
-    OctreeLinkToStellarSystems(StarFutures, Slots);
+    OctreeLinkToStellarSystems(Stars, Slots);
 
     NpgsCoreInfo("Generating binary stars...");
     GenerateBinaryStars(MaxThread);
@@ -496,6 +535,9 @@ void Universe::CountStars() {
     std::println("{}", FormatTitle());
     std::println("");
 
+    std::ofstream NeutronStarData("NeutronStars.csv");
+    std::ofstream BlackHoleData("BlackHoles.csv");
+
     for (auto& System : _StellarSystems) {
         for (auto& Star : System.StarData()) {
             ++TotalStars;
@@ -512,9 +554,11 @@ void Universe::CountStars() {
                 switch (StarType) {
                 case Module::StellarClass::StarType::kBlackHole:
                     ++BlackHoles;
+                    BlackHoleData << Star->GetAge() << "," << Star->GetFeH() << "," << Star->GetInitialMass() / kSolarMass << "," << Star->GetMass() / kSolarMass << "," << Star->GetIsSingleStar() << "\n";
                     break;
                 case Module::StellarClass::StarType::kNeutronStar:
                     ++NeutronStars;
+                    NeutronStarData << Star->GetAge() << "," << Star->GetFeH() << "," << Star->GetInitialMass() / kSolarMass << "," << Star->GetMass() / kSolarMass << "," << Star->GetIsSingleStar() << "\n";
                     break;
                 case Module::StellarClass::StarType::kWhiteDwarf:
                     ++WhiteDwarfs;
@@ -824,7 +868,7 @@ void Universe::GenerateSlots(float MinDistance, std::size_t NumSamples, float De
     HomeNode->AddPoint(glm::vec3(0.0f));
 }
 
-void Universe::OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>& StarFutures, std::vector<glm::vec3>& Slots) {
+void Universe::OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots) {
     std::size_t Index = 0;
 
     _Octree->Traverse([&](NodeType& Node) -> void {
@@ -832,9 +876,9 @@ void Universe::OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>&
             for (const auto& Point : Node.GetPoints()) {
                 StellarSystem::BaryCenter NewBary(Point, glm::vec2(0.0f), 0, "");
                 StellarSystem NewSystem(NewBary);
-                NewSystem.StarData().emplace_back(std::make_unique<Astro::Star>(StarFutures.back().get()));
+                NewSystem.StarData().emplace_back(std::make_unique<Astro::Star>(Stars.back()));
                 NewSystem.SetBaryNormal(NewSystem.StarData().front()->GetNormal());
-                StarFutures.pop_back();
+                Stars.pop_back();
 
                 _StellarSystems.emplace_back(std::move(NewSystem));
 
@@ -892,18 +936,38 @@ void Universe::GenerateBinaryStars(int MaxThread) {
         BasicProperties.emplace_back(SelectedGenerator.GenerateBasicProperties(static_cast<float>(Age), FeH));
     }
 
-    std::vector<std::future<void>> Futures;
-    for (std::size_t i = 0; i != BinarySystems.size(); ++i) {
-        Futures.emplace_back(_ThreadPool->Commit([&, i]() -> void {
-            std::size_t ThreadId = i % MaxThread;
-            auto& SelectedGenerator = Generators[ThreadId];
-            auto NewStar = SelectedGenerator.GenerateStar(BasicProperties[i]);
-            BinarySystems[i]->StarData().emplace_back(std::make_unique<Astro::Star>(NewStar));
-        }));
+    std::vector<std::vector<Module::StellarGenerator::BasicProperties>> PropertyLists(MaxThread);
+    for (std::size_t i = 0; i != BasicProperties.size(); ++i) {
+        std::size_t ThreadId = i % Generators.size();
+        PropertyLists[ThreadId].emplace_back(std::move(BasicProperties[i]));
     }
 
-    for (auto& Future : Futures) {
-        Future.get();
+    std::vector<std::promise<std::vector<Astro::Star>>> Promises(MaxThread);
+    std::vector<std::future<std::vector<Astro::Star>>> ChunkFutures;
+    for (int i = 0; i != MaxThread; ++i) {
+        ChunkFutures.emplace_back(Promises[i].get_future());
+    }
+
+    for (int i = 0; i != MaxThread; ++i) {
+        _ThreadPool->Commit([&, i]() -> void {
+            std::vector<Astro::Star> Stars;
+            for (auto& Properties : PropertyLists[i]) {
+                Stars.emplace_back(Generators[i].GenerateStar(std::move(Properties)));
+            }
+            Promises[i].set_value(std::move(Stars));
+        });
+    }
+
+    BasicProperties.clear();
+
+    std::vector<Astro::Star> Stars;
+    for (auto& Future : ChunkFutures) {
+        auto Chunk = Future.get();
+        Stars.insert(Stars.end(), std::make_move_iterator(Chunk.begin()), std::make_move_iterator(Chunk.end()));
+    }
+
+    for (std::size_t i = 0; i != BinarySystems.size(); ++i) {
+        BinarySystems[i]->StarData().emplace_back(std::make_unique<Astro::Star>(Stars[i]));
     }
 }
 

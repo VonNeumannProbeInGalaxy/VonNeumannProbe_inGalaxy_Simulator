@@ -34,13 +34,13 @@ int main() {
     //using enum StellarGenerator::GenerateOption;
     //StellarGenerator sg({ 42 });
     //StellarGenerator::BasicProperties bp;
-    //bp.Age = 1e8;
-    //bp.FeH = -3;
-    //bp.InitialMassSol = 180;
+    //bp.Age = 9.89589e+09;
+    //bp.FeH = -0.697439;
+    //bp.InitialMassSol = 14.9845;
     //bp.Option = kNormal;
     //auto s = sg.GenerateStar(bp);
 
-    //std::cout << s.GetAge() << " " << s.GetFeH() << " " << s.GetInitialMass() << " " << std::endl;
+    //std::cout << s.GetAge() << " " << s.GetFeH() << " " << s.GetMass() << " " << std::endl;
 
 
     //StellarGenerator sg({ Seed }, kNormal, 1.38e10f, 0.075f);

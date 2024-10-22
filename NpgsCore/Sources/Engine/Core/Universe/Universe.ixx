@@ -41,7 +41,7 @@ public:
 
 private:
     void GenerateSlots(float MinDistance, std::size_t NumSamples, float Density);
-    void OctreeLinkToStellarSystems(std::vector<std::future<Astro::Star>>& StarFutures, std::vector<glm::vec3>& Slots);
+    void OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots);
     void GenerateBinaryStars(int MaxThread);
 
 private:
