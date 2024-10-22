@@ -1,7 +1,7 @@
 module;
 
 #include <cmath>
-
+#include <cstdint>
 #include <algorithm>
 #include <filesystem>
 #include <format>
@@ -943,6 +943,29 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
     double DeathStarAge = InputAge - static_cast<float>(DeathStar.GetLifetime());
     float DeathStarMassSol = 0.0f;
 
+    auto CalculateBlackHoleMass = [&, this]() -> float {
+        UniformIntDistribution<std::uint32_t> SeedGenerator(0, std::numeric_limits<std::uint32_t>::max());
+        std::vector<std::uint32_t> Seeds(32);
+        for (int i = 0; i != 32; ++i) {
+            Seeds[i] = SeedGenerator(_RandomEngine);
+        }
+
+        std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
+        std::seed_seq SeedSequence(Seeds.begin(), Seeds.end());
+
+        StellarGenerator TempGenerator(SeedSequence);
+        TempGenerator.SetMassLowerLimit(33.75f);
+
+        BasicProperties Properties{};
+        Properties.Age = static_cast<float>(DeathStar.GetLifetime() - 100);
+        Properties.FeH = InputFeH;
+        Properties.InitialMassSol = InputMass;
+
+        auto GiantStar = TempGenerator.GenerateStar(Properties);
+
+        return static_cast<float>(GiantStar.GetMass() / kSolarMass * 0.8);
+    };
+
     if (InputFeH <= -2.0f && InputMass >= 140 && InputMass < 250) {
         EvolutionPhase  = Astro::Star::Phase::kNull;
         EvolutionEnding = Astro::Star::Death::kPairInstabilitySupernova;
@@ -953,7 +976,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
         EvolutionEnding = Astro::Star::Death::kPhotondisintegration;
         DeathStarType   = StellarClass::StarType::kBlackHole;
         DeathStarClass  = { StellarClass::SpectralClass::kSpectral_X, StellarClass::SpectralClass::kSpectral_Unknown, StellarClass::LuminosityClass::kLuminosity_Unknown, 0, 0.0f, 0.0f, false };
-        DeathStarMassSol   = 0.5f * InputMass;
+        DeathStarMassSol = CalculateBlackHoleMass();
     } else {
         if (InputMass > -0.75f && InputMass < 0.8f) {
             DeathStarMassSol = (0.9795f - 0.393f * InputMass) * InputMass;
@@ -967,10 +990,8 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, double MergeStar
             DeathStarMassSol = std::pow(10.0f, (1.334f - 0.009987f * InputMass));
         } else if (InputMass >= 23.3537f && InputMass < 33.75f) {
             DeathStarMassSol = 12.1f - 0.763f * InputMass + 0.0137f * std::pow(InputMass, 2.0f);
-        } else if (InputMass >= 33.75f && InputMass < 40.0f) {
-            DeathStarMassSol = std::pow(10.0f, (0.882f + 0.0105f * InputMass));
         } else {
-            DeathStarMassSol = 0.5f * InputMass;
+            DeathStarMassSol = CalculateBlackHoleMass();
         }
 
         if (InputMass >= 0.075f && InputMass < 0.5f) {

@@ -125,19 +125,19 @@ private:
     static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
 
 private:
-    std::mt19937 _RandomEngine;
+    std::mt19937                                   _RandomEngine;
     std::array<UniformRealDistribution<>, 8>       _MagneticGenerators;
     std::array<std::shared_ptr<Distribution<>>, 4> _FeHGenerators;
     std::array<UniformRealDistribution<>, 2>       _SpinGenerators;
-    std::shared_ptr<Distribution<>> _LogMassGenerator;
-    UniformRealDistribution<> _AgeGenerator;
-    UniformRealDistribution<> _CommonGenerator;
+    std::shared_ptr<Distribution<>>                _LogMassGenerator;
+    UniformRealDistribution<>                      _AgeGenerator;
+    UniformRealDistribution<>                      _CommonGenerator;
 
-    std::array<std::function<float(float)>, 2> _MassPdfs;
-    std::array<glm::vec2, 2> _MassMaxPdfs;
+    std::array<std::function<float(float)>, 2>     _MassPdfs;
+    std::array<glm::vec2, 2>                       _MassMaxPdfs;
 
-    std::function<float(glm::vec3, float, float)> _AgePdf;
-    glm::vec2 _AgeMaxPdf;
+    std::function<float(glm::vec3, float, float)>  _AgePdf;
+    glm::vec2                                      _AgeMaxPdf;
 
     float _UniverseAge;
     float _AgeLowerLimit;
