@@ -4,7 +4,6 @@ module;
 #include <algorithm>
 #include <array>
 #include <format>
-#include <future>
 #include <iomanip>
 #include <iterator>
 #include <limits>
@@ -168,32 +167,6 @@ void Universe::FillUniverse() {
 
     std::vector<Astro::Star> Stars = InterpolateStars(MaxThread, Generators, BasicProperties);
 
-#ifdef OUTPUT_DATA
-    NpgsCoreInfo("Outputing data...");
-    std::vector<Astro::Star>* Stars = new std::vector<Astro::Star>;
-    std::transform(StarFutures.begin(), StarFutures.end(), std::back_inserter(*Stars),
-        [](std::future<Astro::Star>& Future) -> Astro::Star {
-            return Future.get();
-        }
-    );
-
-    std::size_t NumBinaryStars = 0;
-    std::size_t NumSingleStars = 0;
-
-    for (auto& Star : *Stars) {
-        _StarPointers.emplace_back(&Star);
-        if (Star.GetIsSingleStar()) {
-            ++NumSingleStars;
-        } else {
-            ++NumBinaryStars;
-        }
-    }
-
-    std::println("Single stars: {}; Binary stars: {}. Binary rate: {}", NumSingleStars, NumBinaryStars, static_cast<float>(NumBinaryStars) / static_cast<float>(NumSingleStars));
-
-    return;
-#endif // OUTPUT_DATA
-
     NpgsCoreInfo("Building stellar octree in 8 threads...");
     GenerateSlots(0.1f, _NumStars, 0.004f);
 
@@ -264,7 +237,7 @@ void Universe::FillUniverse() {
         Star->SetNormal(glm::vec3(0.0f));
     }
 
-    NpgsCoreInfo("Star generation completed.");
+    NpgsCoreInfo("Stellar generation completed.");
 
     _ThreadPool->Terminate();
 }
@@ -842,7 +815,7 @@ void Universe::GenerateSlots(float MinDistance, std::size_t NumSamples, float De
         }
     }
 
-    UniformRealDistribution<> Offset(-LeafRadius, LeafRadius - MinDistance); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
+    UniformRealDistribution Offset(-LeafRadius, LeafRadius - MinDistance); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
     // 遍历八叉树，为每个有效的叶子节点生成一个恒星
     _Octree->Traverse([&Offset, LeafRadius, MinDistance, this](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
