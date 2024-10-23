@@ -24,7 +24,8 @@ public:
 
         BaryCenter() = default;
         BaryCenter(const glm::vec3& Position, const glm::vec2& Normal, std::size_t DistanceRank, const std::string& Name)
-            : Position(Position), Normal(Normal), DistanceRank(DistanceRank), Name(Name) {}
+            : Position(Position), Normal(Normal), DistanceRank(DistanceRank), Name(Name)
+        {}
     };
 
     struct OrbitalElements {
@@ -54,7 +55,6 @@ public:
     StellarSystem& operator=(const StellarSystem&) = delete;
     StellarSystem& operator=(StellarSystem&&) = default;
 
-public:
     StellarSystem& SetBaryPosition(const glm::vec3& Poisition);
     StellarSystem& SetBaryNormal(const glm::vec2& Normal);
     StellarSystem& SetBaryDistanceRank(std::size_t DistanceRank);
@@ -71,11 +71,11 @@ public:
     std::vector<OrbitalElements>& OrbitData();
 
 private:
-    BaryCenter _SystemBary;
-    std::vector<std::unique_ptr<Astro::Star>> _Stars;
-    std::vector<std::unique_ptr<Astro::Planet>> _Planets;
+    BaryCenter                                           _SystemBary;
+    std::vector<std::unique_ptr<Astro::Star>>            _Stars;
+    std::vector<std::unique_ptr<Astro::Planet>>          _Planets;
     std::vector<std::unique_ptr<Astro::AsteroidCluster>> _AsteroidClusters;
-    std::vector<OrbitalElements> _Orbits;
+    std::vector<OrbitalElements>                         _Orbits;
 };
 
 _NPGS_END

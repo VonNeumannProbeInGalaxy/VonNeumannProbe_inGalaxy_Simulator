@@ -33,7 +33,6 @@ public:
     explicit OrbitalGenerator(const std::seed_seq& SeedSequence, float UniverseAge = 1.38e10f, float AsteroidUpperLimit = 1e21f, float LifeOccurrenceProbatility = 0.0114514f, bool bContainUltravioletHabitableZone = false, bool bEnableAsiFilter = true);
     ~OrbitalGenerator() = default;
 
-public:
     void GenerateOrbitals(StellarSystem& System);
 
 private:
@@ -49,7 +48,7 @@ private:
     void CalculateTemperature(float PoyntingVector, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet);
 
 private:
-    std::mt19937 _RandomEngine;
+    std::mt19937                           _RandomEngine;
     std::array<BernoulliDistribution<>, 2> _RingsProbabilities;
     BernoulliDistribution<>                _AsteroidBeltProbability;
     BernoulliDistribution<>                _MigrationProbability;

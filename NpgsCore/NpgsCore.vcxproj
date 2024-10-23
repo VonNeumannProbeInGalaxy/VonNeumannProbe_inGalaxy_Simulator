@@ -190,6 +190,7 @@
     <None Include="Sources\Engine\Base\NpgsObject\Astro\Star.inl" />
     <None Include="Sources\Engine\Base\NpgsObject\Civilization.inl" />
     <None Include="Sources\Engine\Base\StellarSystem.inl" />
+    <None Include="Sources\Engine\Core\Modules\StellarClass.inl" />
     <None Include="Sources\Engine\Core\Modules\StellarGenerator.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

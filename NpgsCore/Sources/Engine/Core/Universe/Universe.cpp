@@ -185,9 +185,11 @@ void Universe::FillUniverse() {
     std::ostringstream Stream;
     for (auto& System : _StellarSystems) {
         glm::vec3 Position = System.GetBaryPosition();
-        auto it = std::lower_bound(Slots.begin(), Slots.end(), Position, [](const glm::vec3& Point1, const glm::vec3& Point2) -> bool {
-            return glm::length(Point1) < glm::length(Point2);
-        });
+        auto it = std::lower_bound(Slots.begin(), Slots.end(), Position,
+            [](const glm::vec3& Point1, const glm::vec3& Point2) -> bool {
+                return glm::length(Point1) < glm::length(Point2);
+            }
+        );
         std::ptrdiff_t Offset = it - Slots.begin();
         Stream << std::setfill('0') << std::setw(8) << std::to_string(Offset);
         Name = "SYSTEM-" + Stream.str();
@@ -195,9 +197,11 @@ void Universe::FillUniverse() {
 
         auto& Stars = System.StarData();
         if (Stars.size() > 1) {
-            std::sort(Stars.begin(), Stars.end(), [](const std::unique_ptr<Astro::Star>& Star1, std::unique_ptr<Astro::Star>& Star2) -> bool {
-                return Star1->GetMass() > Star2->GetMass();
-            });
+            std::sort(Stars.begin(), Stars.end(),
+                [](const std::unique_ptr<Astro::Star>& Star1, std::unique_ptr<Astro::Star>& Star2) -> bool {
+                    return Star1->GetMass() > Star2->GetMass();
+                }
+            );
 
             char Rank = 'A';
             for (auto& Star : Stars) {

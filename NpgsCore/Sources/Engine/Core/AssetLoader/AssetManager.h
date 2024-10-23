@@ -30,7 +30,6 @@ public:
     AssetManager() = default;
     ~AssetManager() = default;
 
-public:
     template<typename AssetType>
     requires Copyable<AssetType>
     static void AddAsset(const std::string& Name, const std::shared_ptr<AssetType>& Asset) {

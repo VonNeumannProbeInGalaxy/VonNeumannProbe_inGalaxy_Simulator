@@ -38,7 +38,6 @@ public:
 
     ~Csv() = default;
 
-public:
     RowArray FindFirstDataArray(const std::string& DataHeader, const BasicType& DataValue) const {
         std::size_t DataIndex = GetHeaderIndex(DataHeader);
         for (const auto& Row : _Data) {

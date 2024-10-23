@@ -1,9 +1,6 @@
 #include "CivilizationGenerator.h"
 
-#include <memory>
-
 #include "Engine/Base/NpgsObject/Civilization.h"
-#include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
 _MODULE_BEGIN

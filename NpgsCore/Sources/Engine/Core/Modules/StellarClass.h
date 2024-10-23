@@ -128,17 +128,12 @@ public:
     StellarClass(StarType StarType, const SpectralType& SpectralType);
     ~StellarClass() = default;
 
-public:
-    static StellarClass Parse(const std::string& StellarClassStr);
-
     SpectralType Data() const;
     bool Load(const SpectralType& SpectralType);
     std::string ToString() const;
+    StarType GetStarType() const;
 
-public:
-    StarType GetStarType() const {
-        return _StarType;
-    }
+    static StellarClass Parse(const std::string& StellarClassStr);
 
 private:
     std::uint64_t _SpectralType;
@@ -147,3 +142,5 @@ private:
 
 _MODULE_END
 _NPGS_END
+
+#include "StellarClass.inl"

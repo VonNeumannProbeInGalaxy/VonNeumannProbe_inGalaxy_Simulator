@@ -76,7 +76,6 @@ public:
 
     ~StellarGenerator() = default;
 
-public:
     BasicProperties GenerateBasicProperties();
     BasicProperties GenerateBasicProperties(float Age, float FeH);
     Astro::Star GenerateStar();
@@ -122,6 +121,27 @@ private:
     template <typename CsvType>
     static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
 
+public:
+    static const int _kStarAgeIndex;
+    static const int _kStarMassIndex;
+    static const int _kStarMdotIndex;
+    static const int _kLogTeffIndex;
+    static const int _kLogRIndex;
+    static const int _kLogSurfZIndex;
+    static const int _kSurfaceH1Index;
+    static const int _kSurfaceHe3Index;
+    static const int _kLogCenterTIndex;
+    static const int _kLogCenterRhoIndex;
+    static const int _kPhaseIndex;
+    static const int _kXIndex;
+    static const int _kLifetimeIndex;
+
+    static const int _kWdStarAgeIndex;
+    static const int _kWdLogRIndex;
+    static const int _kWdLogTeffIndex;
+    static const int _kWdLogCenterTIndex;
+    static const int _kWdLogCenterRhoIndex;
+
 private:
     std::mt19937                                   _RandomEngine;
     std::array<UniformRealDistribution<>, 8>       _MagneticGenerators;
@@ -152,28 +172,6 @@ private:
     GenerateDistribution _MassDistribution;
     GenerateOption       _Option;
 
-public:
-    static const int _kStarAgeIndex;
-    static const int _kStarMassIndex;
-    static const int _kStarMdotIndex;
-    static const int _kLogTeffIndex;
-    static const int _kLogRIndex;
-    static const int _kLogSurfZIndex;
-    static const int _kSurfaceH1Index;
-    static const int _kSurfaceHe3Index;
-    static const int _kLogCenterTIndex;
-    static const int _kLogCenterRhoIndex;
-    static const int _kPhaseIndex;
-    static const int _kXIndex;
-    static const int _kLifetimeIndex;
-
-    static const int _kWdStarAgeIndex;
-    static const int _kWdLogRIndex;
-    static const int _kWdLogTeffIndex;
-    static const int _kWdLogCenterTIndex;
-    static const int _kWdLogCenterRhoIndex;
-
-private:
     static const std::vector<std::string> _kMistHeaders;
     static const std::vector<std::string> _kWdMistHeaders;
     static const std::vector<std::string> _kHrDiagramHeaders;

@@ -20,9 +20,9 @@ public:
     void GenerateCivilization(double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass, std::unique_ptr<Astro::Planet>& Planet);
 
 private:
-    std::mt19937 _RandomEngine;
-    BernoulliDistribution<> _AsiFiltedProbability;
-    BernoulliDistribution<> _LifeOccurrenceProbability;
+    std::mt19937              _RandomEngine;
+    BernoulliDistribution<>   _AsiFiltedProbability;
+    BernoulliDistribution<>   _LifeOccurrenceProbability;
     UniformRealDistribution<> _CommonGenerator;
 
     static const std::array<float, 7> _kProbabilityListForCenoziocEra;

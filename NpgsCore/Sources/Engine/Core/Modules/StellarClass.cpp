@@ -61,6 +61,82 @@ StellarClass::StellarClass(StarType StarType, const SpectralType& SpectralType)
     Load(SpectralType);
 }
 
+StellarClass::SpectralType StellarClass::Data() const {
+    SpectralType StructSpectralType{};
+
+    StructSpectralType.HSpectralClass  = static_cast<SpectralClass>(_SpectralType >> 57 & 0x1F);
+    StructSpectralType.Subclass        = (_SpectralType >> 53 & 0xF) + (_SpectralType >> 49 & 0xF) / 10.0f;
+    StructSpectralType.bIsAmStar       = _SpectralType >> 48 & 0x1;
+    StructSpectralType.MSpectralClass  = static_cast<SpectralClass>(_SpectralType >> 44 & 0xF);
+    StructSpectralType.AmSubclass      = (_SpectralType >> 40 & 0xF) + (_SpectralType >> 36 & 0xF) / 10.0f;
+    StructSpectralType.LuminosityClass = static_cast<LuminosityClass>(_SpectralType >> 32 & 0xF);
+    StructSpectralType.SpecialMark     = static_cast<SpecialPeculiarity>(_SpectralType & 0x1FFFFFFFF);
+
+    if (StructSpectralType.HSpectralClass == SpectralClass::kSpectral_Unknown) {
+        StructSpectralType = {
+            SpectralClass::kSpectral_Unknown,
+            SpectralClass::kSpectral_Unknown,
+            LuminosityClass::kLuminosity_Unknown,
+            0, 0.0f, 0.0f, false
+        };
+    }
+
+    return StructSpectralType;
+}
+
+bool StellarClass::Load(const SpectralType& SpectralType) {
+    // 结构
+    // --------------------------------------------------------------------------------------------------
+    // std::uint64_t
+    // |----|-------|------|------|---|------|------|------|------|-------------------------------------|
+    // | 00 | 00000 | 0000 | 0000 | 0 | 0000 | 0000 | 0000 | 0000 | 00000000 00000000 00000000 00000000 |
+    // |----|-------|------|------|---|------|------|------|------|-------------------------------------|
+    // 恒星类型 光谱  亚型高位 亚型低位 Am m 光谱 m 亚型高位 m 亚型低位 光度级 特殊标识
+
+    std::uint64_t Data         = 0;
+    std::uint64_t SubclassHigh = static_cast<std::uint64_t>(SpectralType.Subclass);
+    float         Intermediate = std::round((SpectralType.Subclass - SubclassHigh) * 1000.0f) / 1000.0f;
+    std::uint64_t SubclassLow  = static_cast<std::uint64_t>(Intermediate * 10.0f);
+
+    Data |= static_cast<std::uint64_t>(_StarType)                    << 62;
+    Data |= static_cast<std::uint64_t>(SpectralType.HSpectralClass)  << 57;
+    Data |= SubclassHigh                                             << 53;
+    Data |= SubclassLow                                              << 49;
+    Data |= static_cast<std::uint64_t>(SpectralType.bIsAmStar)       << 48;
+    Data |= static_cast<std::uint64_t>(SpectralType.MSpectralClass)  << 44;
+
+    SubclassHigh = static_cast<std::uint64_t>(SpectralType.AmSubclass);
+    Intermediate = std::round((SpectralType.AmSubclass - SubclassHigh) * 1000.0f) / 1000.0f;
+    SubclassLow  = static_cast<std::uint64_t>(Intermediate * 10.0f);
+
+    Data |= SubclassHigh                                             << 40;
+    Data |= SubclassLow                                              << 36;
+    Data |= static_cast<std::uint64_t>(SpectralType.LuminosityClass) << 32;
+    Data |= static_cast<std::uint64_t>(SpectralType.SpecialMark)     << 0;
+
+    _SpectralType = Data;
+    return true;
+}
+
+std::string StellarClass::ToString() const {
+    SpectralType StructSpectralType = Data();
+
+    if (StructSpectralType.HSpectralClass == SpectralClass::kSpectral_Unknown) {
+        return "Unknown";
+    }
+
+    std::string SpectralTypeStr = SpectralToStr(StructSpectralType.HSpectralClass, StructSpectralType.Subclass);
+
+    if (StructSpectralType.bIsAmStar) {
+        SpectralTypeStr += "m" + SpectralToStr(StructSpectralType.MSpectralClass, StructSpectralType.AmSubclass);
+    }
+
+    SpectralTypeStr += LuminosityClassToStr(StructSpectralType.LuminosityClass);
+    SpectralTypeStr += SpecialMarkToStr(static_cast<SpecialPeculiarities>(StructSpectralType.SpecialMark));
+
+    return SpectralTypeStr;
+}
+
 StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
     NpgsAssert(!StellarClassStr.empty(), "StellarClassStr is empty.");
 
@@ -196,82 +272,6 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
     }
 
     return { StarType, { HSpectralClass, MSpectralClass, LuminosityClass, SpecialMark, Subclass, AmSubclass, bIsAmStar } };
-}
-
-StellarClass::SpectralType StellarClass::Data() const {
-    SpectralType StructSpectralType{};
-
-    StructSpectralType.HSpectralClass  = static_cast<SpectralClass>(_SpectralType >> 57 & 0x1F);
-    StructSpectralType.Subclass        = (_SpectralType >> 53 & 0xF) + (_SpectralType >> 49 & 0xF) / 10.0f;
-    StructSpectralType.bIsAmStar       = _SpectralType >> 48 & 0x1;
-    StructSpectralType.MSpectralClass  = static_cast<SpectralClass>(_SpectralType >> 44 & 0xF);
-    StructSpectralType.AmSubclass      = (_SpectralType >> 40 & 0xF) + (_SpectralType >> 36 & 0xF) / 10.0f;
-    StructSpectralType.LuminosityClass = static_cast<LuminosityClass>(_SpectralType >> 32 & 0xF);
-    StructSpectralType.SpecialMark     = static_cast<SpecialPeculiarity>(_SpectralType & 0x1FFFFFFFF);
-
-    if (StructSpectralType.HSpectralClass == SpectralClass::kSpectral_Unknown) {
-        StructSpectralType = {
-            SpectralClass::kSpectral_Unknown,
-            SpectralClass::kSpectral_Unknown,
-            LuminosityClass::kLuminosity_Unknown,
-            0, 0.0f, 0.0f, false
-        };
-    }
-
-    return StructSpectralType;
-}
-
-bool StellarClass::Load(const SpectralType& SpectralType) {
-    // 结构
-    // --------------------------------------------------------------------------------------------------
-    // std::uint64_t
-    // |----|-------|------|------|---|------|------|------|------|-------------------------------------|
-    // | 00 | 00000 | 0000 | 0000 | 0 | 0000 | 0000 | 0000 | 0000 | 00000000 00000000 00000000 00000000 |
-    // |----|-------|------|------|---|------|------|------|------|-------------------------------------|
-    // 恒星类型 光谱  亚型高位 亚型低位 Am m 光谱 m 亚型高位 m 亚型低位 光度级 特殊标识
-
-    std::uint64_t Data         = 0;
-    std::uint64_t SubclassHigh = static_cast<std::uint64_t>(SpectralType.Subclass);
-    float         Intermediate = std::round((SpectralType.Subclass - SubclassHigh) * 1000.0f) / 1000.0f;
-    std::uint64_t SubclassLow  = static_cast<std::uint64_t>(Intermediate * 10.0f);
-
-    Data |= static_cast<std::uint64_t>(_StarType)                    << 62;
-    Data |= static_cast<std::uint64_t>(SpectralType.HSpectralClass)  << 57;
-    Data |= SubclassHigh                                             << 53;
-    Data |= SubclassLow                                              << 49;
-    Data |= static_cast<std::uint64_t>(SpectralType.bIsAmStar)       << 48;
-    Data |= static_cast<std::uint64_t>(SpectralType.MSpectralClass)  << 44;
-
-    SubclassHigh = static_cast<std::uint64_t>(SpectralType.AmSubclass);
-    Intermediate = std::round((SpectralType.AmSubclass - SubclassHigh) * 1000.0f) / 1000.0f;
-    SubclassLow  = static_cast<std::uint64_t>(Intermediate * 10.0f);
-
-    Data |= SubclassHigh                                             << 40;
-    Data |= SubclassLow                                              << 36;
-    Data |= static_cast<std::uint64_t>(SpectralType.LuminosityClass) << 32;
-    Data |= static_cast<std::uint64_t>(SpectralType.SpecialMark)     << 0;
-
-    _SpectralType = Data;
-    return true;
-}
-
-std::string StellarClass::ToString() const {
-    SpectralType StructSpectralType = Data();
-
-    if (StructSpectralType.HSpectralClass == SpectralClass::kSpectral_Unknown) {
-        return "Unknown";
-    }
-
-    std::string SpectralTypeStr = SpectralToStr(StructSpectralType.HSpectralClass, StructSpectralType.Subclass);
-
-    if (StructSpectralType.bIsAmStar) {
-        SpectralTypeStr += "m" + SpectralToStr(StructSpectralType.MSpectralClass, StructSpectralType.AmSubclass);
-    }
-
-    SpectralTypeStr += LuminosityClassToStr(StructSpectralType.LuminosityClass);
-    SpectralTypeStr += SpecialMarkToStr(static_cast<SpecialPeculiarities>(StructSpectralType.SpecialMark));
-
-    return SpectralTypeStr;
 }
 
 // Tool functions implementations
