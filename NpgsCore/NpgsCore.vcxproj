@@ -181,7 +181,6 @@
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
     <ClInclude Include="Sources\Engine\Core\Base.h" />
     <ClInclude Include="Sources\Engine\Core\Constants.h" />
-    <ClInclude Include="Sources\Engine\Core\Utilities\Utilities.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.inl" />
@@ -190,7 +189,6 @@
     <None Include="Sources\Engine\Base\NpgsObject\Civilization.inl" />
     <None Include="Sources\Engine\Base\StellarSystem.inl" />
     <None Include="Sources\Engine\Core\Modules\StellarGenerator.inl" />
-    <None Include="Sources\Engine\Core\Utilities\Utilities.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

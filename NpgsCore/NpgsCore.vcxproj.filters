@@ -119,9 +119,6 @@
     <ClInclude Include="Sources\Engine\Core\Constants.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Utilities\Utilities.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.inl">
@@ -140,9 +137,6 @@
       <Filter>头文件</Filter>
     </None>
     <None Include="Sources\Engine\Core\Modules\StellarGenerator.inl">
-      <Filter>头文件</Filter>
-    </None>
-    <None Include="Sources\Engine\Core\Utilities\Utilities.inl">
       <Filter>头文件</Filter>
     </None>
   </ItemGroup>
