@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/Base.h"
+#include "Star.h"
 
 _NPGS_BEGIN
 _ASTRO_BEGIN

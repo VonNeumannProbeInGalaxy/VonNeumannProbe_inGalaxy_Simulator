@@ -1,23 +1,20 @@
-module;
+#pragma once
 
+#include <array>
+#include <memory>
+#include <random>
+#include <tuple>
+#include <vector>
+
+#include "Engine/Base/StellarSystem.h"
+#include "Engine/Core/Modules/CivilizationGenerator.h"
 #include "Engine/Core/Base.h"
-
-export module Module.OrbitalGenerator;
-
-import <array>;
-import <memory>;
-import <random>;
-import <tuple>;
-import <vector>;
-
-import Base.StellarSystem;
-import Core.Random;
-import Module.CivilizationGenerator;
+#include "Engine/Core/Random.hpp"
 
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-export class OrbitalGenerator {
+class OrbitalGenerator {
 public:
     enum class GenerateOption {
         kStars,

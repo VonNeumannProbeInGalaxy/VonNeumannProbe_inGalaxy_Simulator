@@ -1,4 +1,4 @@
-module;
+#include "StellarClass.h"
 
 #include <cctype>
 #include <cstdint>
@@ -7,9 +7,6 @@ module;
 #include <utility>
 
 #include "Engine/Core/Assert.h"
-#include "Engine/Core/Base.h"
-
-module Module.StellarClass;
 
 _NPGS_BEGIN
 _MODULE_BEGIN

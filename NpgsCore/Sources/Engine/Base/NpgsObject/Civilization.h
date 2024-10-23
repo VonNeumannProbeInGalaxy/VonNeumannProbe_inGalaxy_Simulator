@@ -1,15 +1,12 @@
-module;
+#pragma once
 
 #include <boost/multiprecision/cpp_int.hpp>
+#include "Engine/Base/NpgsObject/NpgsObject.h"
 #include "Engine/Core/Base.h"
-
-export module Base.Civilization;
-
-import Base.NpgsObject;
 
 _NPGS_BEGIN
 
-export class Civilization : public NpgsObject {
+class Civilization : public NpgsObject {
 public:
     enum class LifePhase : int {
         kNull                  = 0,

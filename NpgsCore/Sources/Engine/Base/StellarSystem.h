@@ -1,22 +1,20 @@
-module;
+#pragma once
+
+#include <memory>
+#include <string>
+#include <vector>
 
 #include <glm/glm.hpp>
+
+#include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
+#include "Engine/Base/NpgsObject/Astro/Planet.h"
+#include "Engine/Base/NpgsObject/Astro/Star.h"
+#include "Engine/Base/NpgsObject/NpgsObject.h"
 #include "Engine/Core/Base.h"
-
-export module Base.StellarSystem;
-
-import <memory>;
-import <string>;
-import <vector>;
-
-import Base.NpgsObject;
-import Base.Astro.CelestialObject;
-import Base.Astro.Planet;
-import Base.Astro.Star;
 
 _NPGS_BEGIN
 
-export class StellarSystem : public NpgsObject {
+class StellarSystem : public NpgsObject {
 public:
     struct BaryCenter : public Astro::AstroObject {
         glm::vec3   Position;           // 位置，使用 3 个 float 分量的向量存储

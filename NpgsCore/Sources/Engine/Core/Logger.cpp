@@ -1,10 +1,6 @@
-module;
+#include "Logger.h"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
-#include "Engine/Core/Base.h"
-
-module Core.Logger;
 
 _NPGS_BEGIN
 

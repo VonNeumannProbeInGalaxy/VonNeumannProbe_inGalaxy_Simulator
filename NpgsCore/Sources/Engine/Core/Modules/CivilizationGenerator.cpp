@@ -1,12 +1,9 @@
-module;
+#include "CivilizationGenerator.h"
 
 #include <memory>
-#include <boost/multiprecision/cpp_int.hpp>
+
+#include "Engine/Base/NpgsObject/Civilization.h"
 #include "Engine/Core/Base.h"
-
-module Module.CivilizationGenerator;
-
-import Base.Civilization;
 
 _NPGS_BEGIN
 _MODULE_BEGIN

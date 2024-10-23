@@ -1,14 +1,11 @@
-module;
+#pragma once
 
+#include <random>
 #include "Engine/Core/Base.h"
-
-export module Core.Random;
-
-import <random>;
 
 _NPGS_BEGIN
 
-export template <typename Ty = float, typename RandomEngine = std::mt19937>
+template <typename Ty = float, typename RandomEngine = std::mt19937>
 class Distribution {
 public:
     virtual ~Distribution() = default;
@@ -16,7 +13,7 @@ public:
     virtual Ty Generate(RandomEngine& Engine) = 0;
 };
 
-export template <typename Ty = int, typename RandomEngine = std::mt19937>
+template <typename Ty = int, typename RandomEngine = std::mt19937>
 class UniformIntDistribution : public Distribution<Ty> {
 public:
     UniformIntDistribution() = default;
@@ -34,7 +31,7 @@ private:
     std::uniform_int_distribution<Ty> _Distribution;
 };
 
-export template <typename Ty = float, typename RandomEngine = std::mt19937>
+template <typename Ty = float, typename RandomEngine = std::mt19937>
 class UniformRealDistribution : public Distribution<Ty, RandomEngine> {
 public:
     UniformRealDistribution() = default;
@@ -52,7 +49,7 @@ private:
     std::uniform_real_distribution<Ty> _Distribution;
 };
 
-export template <typename Ty = float, typename RandomEngine = std::mt19937>
+template <typename Ty = float, typename RandomEngine = std::mt19937>
 class NormalDistribution : public Distribution<Ty, RandomEngine> {
 public:
     NormalDistribution() = default;
@@ -70,7 +67,7 @@ private:
     std::normal_distribution<Ty> _Distribution;
 };
 
-export template <typename Ty = float, typename RandomEngine = std::mt19937>
+template <typename Ty = float, typename RandomEngine = std::mt19937>
 class LogNormalDistribution : public Distribution<Ty, RandomEngine> {
 public:
     LogNormalDistribution() = default;
@@ -88,7 +85,7 @@ private:
     std::lognormal_distribution<Ty> _Distribution;
 };
 
-export template <typename RandomEngine = std::mt19937>
+template <typename RandomEngine = std::mt19937>
 class BernoulliDistribution : public Distribution<double, RandomEngine> {
 public:
     BernoulliDistribution() = default;

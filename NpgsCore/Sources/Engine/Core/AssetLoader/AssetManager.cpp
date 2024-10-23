@@ -1,10 +1,6 @@
-module;
+#include "AssetManager.h"
 
-#include <unordered_map>
 #include "Engine/Core/Assert.h"
-#include "Engine/Core/Base.h"
-
-module Asset.Manager;
 
 _NPGS_BEGIN
 _ASSET_BEGIN

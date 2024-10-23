@@ -105,7 +105,7 @@
     <ClCompile Include="Sources\Engine\Core\ThreadPool.ixx">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Universe\Universe.ixx">
+    <ClCompile Include="Sources\Engine\Core\Universe\Universe.h">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

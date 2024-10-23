@@ -1,4 +1,4 @@
-module;
+#include "Universe.h"
 
 #include <cstdlib>
 #include <algorithm>
@@ -14,14 +14,10 @@ module;
 
 #include <glm/glm.hpp>
 
-#define ENABLE_LOGGER
+#define ENABLE_CONSOLE_LOGGER
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
-
-module Universe;
-
-import Core.Logger;
-import Module.StellarClass;
+#include "Engine/Core/Logger.h"
 
 _NPGS_BEGIN
 

@@ -1,8 +1,4 @@
-module;
-
-#include "Engine/Core/Base.h"
-
-module Base.Civilization;
+#include "Civilization.h"
 
 _NPGS_BEGIN
 

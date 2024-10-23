@@ -1,8 +1,4 @@
-module;
-
-#include "Engine/Core/Base.h"
-
-module Base.Astro.CelestialObject;
+#include "CelestialObject.h"
 
 _NPGS_BEGIN
 _ASTRO_BEGIN

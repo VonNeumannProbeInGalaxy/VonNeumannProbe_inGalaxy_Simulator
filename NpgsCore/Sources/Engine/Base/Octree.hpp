@@ -1,23 +1,21 @@
-module;
+#pragma once
 
 #include <cmath>
+#include <array>
+#include <functional>
+#include <future>
+#include <memory>
+#include <utility>
+#include <vector>
+
 #include <glm/glm.hpp>
+
 #include "Engine/Core/Base.h"
-
-export module Base.Octree;
-
-import <array>;
-import <functional>;
-import <future>;
-import <memory>;
-import <utility>;
-import <vector>;
-
-import Core.ThreadPool;
+#include "Engine/Core/ThreadPool.h"
 
 _NPGS_BEGIN
 
-export template <typename LinkTarget>
+template <typename LinkTarget>
 class OctreeNode {
 public:
     OctreeNode(const glm::vec3& Center, float Radius, OctreeNode* Prev)
@@ -138,7 +136,7 @@ private:
     std::vector<LinkTarget*> _DataLink;
 };
 
-export template <typename LinkTarget>
+template <typename LinkTarget>
 class Octree {
 public:
     using NodeType = OctreeNode<LinkTarget>;

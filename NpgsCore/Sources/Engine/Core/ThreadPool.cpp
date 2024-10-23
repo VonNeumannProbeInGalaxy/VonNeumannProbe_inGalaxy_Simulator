@@ -1,14 +1,8 @@
-module;
+#include "ThreadPool.h"
 
 #include <cstdint>
 #include <cstdlib>
-
-#define NOMINMAX
 #include <Windows.h>
-
-#include "Engine/Core/Base.h"
-
-module Core.ThreadPool;
 
 _NPGS_BEGIN
 

@@ -1,12 +1,10 @@
-module;
+#pragma once
 
 #include "Engine/Core/Base.h"
 
-export module Base.NpgsObject;
-
 _NPGS_BEGIN
 
-export class NpgsObject {
+class NpgsObject {
 public:
     NpgsObject() = default;
     virtual ~NpgsObject() = default;

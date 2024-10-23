@@ -1,26 +1,22 @@
-module;
+#pragma once
 
-#include <cstdint>
+#include <memory>
+#include <random>
+#include <vector>
+
 #include <glm/glm.hpp>
+
+#include "Engine/Base/NpgsObject/Astro/Star.h"
+#include "Engine/Base/Octree.hpp"
+#include "Engine/Base/StellarSystem.h"
+#include "Engine/Core/Modules/StellarGenerator.h"
 #include "Engine/Core/Base.h"
-
-export module Universe;
-
-import <future>;
-import <memory>;
-import <random>;
-import <vector>;
-
-import Base.Astro.Star;
-import Base.Octree;
-import Base.StellarSystem;
-import Core.Random;
-import Core.ThreadPool;
-import Module.StellarGenerator;
+#include "Engine/Core/Random.hpp"
+#include "Engine/Core/ThreadPool.h"
 
 _NPGS_BEGIN
 
-export class Universe {
+class Universe {
 public:
     Universe() = delete;
     Universe(

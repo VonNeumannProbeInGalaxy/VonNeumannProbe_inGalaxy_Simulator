@@ -1,22 +1,19 @@
-module;
+#pragma once
 
+#include <limits>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
+#include "Engine/Core/Modules/StellarClass.h"
 #include "Engine/Core/Base.h"
-
-export module Base.Astro.Star;
-
-import <limits>;
-import <string>;
-import <unordered_map>;
-import <utility>;
-import <vector>;
-
-import Base.Astro.CelestialObject;
-import Module.StellarClass;
 
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-export class Star : public CelestialBody {
+class Star : public CelestialBody {
 public:
     enum class Phase : int {
         kPrevMainSequence          = -1,

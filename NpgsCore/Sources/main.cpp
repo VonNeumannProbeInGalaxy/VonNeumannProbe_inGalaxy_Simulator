@@ -2,11 +2,7 @@
 // #include "Npgs.h"
 
 #include <xstdafx.h>
-
-import Core.Logger;
-import Core.ThreadPool;
-import Module.StellarGenerator;
-import Universe;
+#include "Npgs.h"
 
 int main() {
     using namespace Npgs;

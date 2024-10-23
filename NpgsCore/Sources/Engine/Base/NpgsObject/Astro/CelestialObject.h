@@ -1,23 +1,20 @@
-module;
+#pragma once
 
+#include <string>
 #include <glm/glm.hpp>
+#include "Engine/Base/NpgsObject/NpgsObject.h"
 #include "Engine/Core/Base.h"
-
-export module Base.Astro.CelestialObject;
-
-import <string>;
-import Base.NpgsObject;
 
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-export class AstroObject : public NpgsObject {
+class AstroObject : public NpgsObject {
 public:
     AstroObject() = default;
     virtual ~AstroObject() = default;
 };
 
-export class CelestialBody : public AstroObject {
+class CelestialBody : public AstroObject {
 public:
     struct BasicProperties {
         glm::vec2 Normal;      // 法向量，球坐标表示，(theta, phi)

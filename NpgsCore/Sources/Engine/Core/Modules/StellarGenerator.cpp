@@ -1,4 +1,4 @@
-module;
+#include "StellarGenerator.h"
 
 #include <cmath>
 #include <cstdint>
@@ -14,14 +14,11 @@ module;
 
 #include <glm/glm.hpp>
 
-#define ENABLE_LOGGER
+#define ENABLE_CONSOLE_LOGGER
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
-
-module Module.StellarGenerator;
-
-import Asset.Manager;
-import Core.Logger;
+#include "Engine/Core/AssetLoader/AssetManager.h"
+#include "Engine/Core/Logger.h"
 
 _NPGS_BEGIN
 _MODULE_BEGIN

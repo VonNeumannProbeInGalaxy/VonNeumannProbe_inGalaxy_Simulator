@@ -1,20 +1,19 @@
-module;
+#pragma once
+
+#include <algorithm>
+#include <concepts>
+#include <functional>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include <fast-cpp-csv-parser/csv.h>
+
 #include "Engine/Core/Base.h"
-
-export module Asset.Csv;
-
-import <algorithm>;
-import <concepts>;
-import <functional>;
-import <stdexcept>;
-import <string>;
-import <tuple>;
-import <type_traits>;
-import <unordered_map>;
-import <utility>;
-import <vector>;
 
 _NPGS_BEGIN
 _ASSET_BEGIN
@@ -22,7 +21,7 @@ _ASSET_BEGIN
 template <std::size_t Size>
 concept CsvConcept = Size > 0;
 
-export template <typename BasicType, std::size_t Size>
+template <typename BasicType, std::size_t Size>
 requires CsvConcept<Size>
 class Csv {
 public:

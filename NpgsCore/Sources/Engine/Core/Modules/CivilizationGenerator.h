@@ -1,20 +1,17 @@
-module;
+#pragma once
 
+#include <array>
+#include <memory>
+#include <random>
+
+#include "Engine/Base/NpgsObject/Astro/Planet.h"
 #include "Engine/Core/Base.h"
-
-export module Module.CivilizationGenerator;
-
-import <array>;
-import <memory>;
-import <random>;
-
-import Base.Astro.Planet;
-import Core.Random;
+#include "Engine/Core/Random.hpp"
 
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-export class CivilizationGenerator {
+class CivilizationGenerator {
 public:
     CivilizationGenerator() = delete;
     explicit CivilizationGenerator(const std::seed_seq& SeedSequence, float LifeOccurrenceProbability, bool bEnableAsiFilter = false);

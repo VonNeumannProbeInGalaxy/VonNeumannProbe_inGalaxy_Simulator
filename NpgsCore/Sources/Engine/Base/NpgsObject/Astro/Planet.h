@@ -1,24 +1,21 @@
-module;
+#pragma once
 
+#include <memory>
 #include <boost/multiprecision/cpp_int.hpp>
+#include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
+#include "Engine/Base/NpgsObject/Civilization.h"
 #include "Engine/Core/Base.h"
-
-export module Base.Astro.Planet;
-
-import <memory>;
-import Base.Astro.CelestialObject;
-import Base.Civilization;
 
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-export struct ComplexMass {
+struct ComplexMass {
     boost::multiprecision::uint128_t Z;
     boost::multiprecision::uint128_t Volatiles;
     boost::multiprecision::uint128_t EnergeticNuclide;
 };
 
-export class Planet : public CelestialBody {
+class Planet : public CelestialBody {
 public:
     enum class PlanetType : int {
         kRocky                            = 0,
@@ -139,7 +136,7 @@ private:
     ExtendedProperties _PlanetExtraProperties{};
 };
 
-export class AsteroidCluster : public AstroObject {
+class AsteroidCluster : public AstroObject {
 public:
     enum class AsteroidType {
         kRocky,

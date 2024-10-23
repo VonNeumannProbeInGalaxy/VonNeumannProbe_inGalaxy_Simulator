@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/Base.h"
+#include "CelestialObject.h"
 
 _NPGS_BEGIN
 _ASTRO_BEGIN

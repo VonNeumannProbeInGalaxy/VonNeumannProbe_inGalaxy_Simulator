@@ -1,21 +1,18 @@
-module;
+#pragma once
 
+#include <concepts>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include "Engine/Core/AssetLoader/Csv.hpp"
 #include "Engine/Core/Base.h"
-
-export module Asset.Manager;
-
-import <concepts>;
-import <memory>;
-import <string>;
-import <unordered_map>;
-import <vector>;
-
-import Asset.Csv;
 
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-export enum class AssetType {
+enum class AssetType {
     kBinaryShader,
     kFont,
     kModel,
@@ -23,12 +20,12 @@ export enum class AssetType {
     kTexture
 };
 
-export std::string GetAssetFilepath(AssetType Type, const std::string& Filename);
+std::string GetAssetFilepath(AssetType Type, const std::string& Filename);
 
 template <typename AssetType>
 concept Copyable = std::copyable<AssetType>;
 
-export class AssetManager {
+class AssetManager {
 public:
     AssetManager() = default;
     ~AssetManager() = default;

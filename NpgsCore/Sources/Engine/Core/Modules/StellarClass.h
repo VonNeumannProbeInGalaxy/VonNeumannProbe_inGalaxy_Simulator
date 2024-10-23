@@ -1,18 +1,13 @@
-module;
+#pragma once
 
 #include <cstdint>
-
-#include "Engine/Core/Assert.h"
+#include <string>
 #include "Engine/Core/Base.h"
-
-export module Module.StellarClass;
-
-import <string>;
 
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-export class StellarClass {
+class StellarClass {
 public:
     using SpecialPeculiarity = std::uint32_t;
 

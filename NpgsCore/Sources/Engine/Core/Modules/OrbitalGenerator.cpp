@@ -1,6 +1,4 @@
-module;
-
-#define NOMINMAX
+#include "OrbitalGenerator.h"
 
 #include <cmath>
 #include <cstdint>
@@ -14,8 +12,6 @@ module;
 #include "Engine/Core/Assert.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
-
-module Module.OrbitalGenerator;
 
 #define DEBUG_OUTPUT
 
@@ -43,12 +39,12 @@ OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float Univ
     _UniverseAge(UniverseAge),
     _bContainUltravioletHabitableZone(bContainUltravioletHabitableZone)
 {
-    // std::vector<std::uint32_t> Seeds(SeedSequence.size());
-    // SeedSequence.param(Seeds.begin());
-    // std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
-    // std::seed_seq ShuffledSeeds(Seeds.begin(), Seeds.end());
+    std::vector<std::uint32_t> Seeds(SeedSequence.size());
+    SeedSequence.param(Seeds.begin());
+    std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
+    std::seed_seq ShuffledSeeds(Seeds.begin(), Seeds.end());
     
-    _CivilizationGenerator = std::make_unique<CivilizationGenerator>(SeedSequence, LifeOccurrenceProbability, bEnableAsiFilter);
+    _CivilizationGenerator = std::make_unique<CivilizationGenerator>(ShuffledSeeds, LifeOccurrenceProbability, bEnableAsiFilter);
 }
 
 void OrbitalGenerator::GenerateOrbitals(StellarSystem& System) {

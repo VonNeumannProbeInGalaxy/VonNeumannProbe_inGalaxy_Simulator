@@ -1,28 +1,26 @@
-module;
+#pragma once
+
+#include <array>
+#include <functional>
+#include <memory>
+#include <random>
+#include <shared_mutex>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include <glm/glm.hpp>
+
+#include "Engine/Base/NpgsObject/Astro/Star.h"
+#include "Engine/Core/AssetLoader/Csv.hpp"
+#include "Engine/Core/Modules/StellarClass.h"
 #include "Engine/Core/Base.h"
-
-export module Module.StellarGenerator;
-
-import <array>;
-import <functional>;
-import <memory>;
-import <random>;
-import <shared_mutex>;
-import <unordered_map>;
-import <utility>;
-import <vector>;
-
-import Asset.Csv;
-import Base.Astro.Star;
-import Core.Random;
-import Module.StellarClass;
+#include "Engine/Core/Random.hpp"
 
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-export class StellarGenerator {
+class StellarGenerator {
 public:
     using MistData   = Asset::Csv<double, 12>;
     using WdMistData = Asset::Csv<double, 5>;

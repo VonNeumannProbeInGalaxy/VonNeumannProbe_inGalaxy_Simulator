@@ -1,23 +1,21 @@
-module;
+#pragma once
+
+#include <condition_variable>
+#include <functional>
+#include <future>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <thread>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 #include "Engine/Core/Base.h"
 
-export module Core.ThreadPool;
-
-import <condition_variable>;
-import <functional>;
-import <future>;
-import <memory>;
-import <mutex>;
-import <queue>;
-import <thread>;
-import <type_traits>;
-import <utility>;
-import <vector>;
-
 _NPGS_BEGIN
 
-export class ThreadPool {
+class ThreadPool {
 public:
     template <typename Func, typename... Args>
     auto Commit(Func&& Pred, Args&&... Params) {
