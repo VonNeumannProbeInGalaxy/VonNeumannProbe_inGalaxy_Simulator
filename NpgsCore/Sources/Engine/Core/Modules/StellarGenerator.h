@@ -47,7 +47,9 @@ public:
         float InitialMassSol = 0.0f;
         bool  bIsSingleStar  = true;
 
-        GenerateOption Option; // 用于保存生成选项，类的生成选项仅影响该属性。生成的恒星完整信息也将根据该属性决定。该选项用于防止多线程生成恒星时属性和生成器胡乱匹配
+        // 用于保存生成选项，类的生成选项仅影响该属性。生成的恒星完整信息也将根据该属性决定。该选项用于防止多线程生成恒星时属性和生成器胡乱匹配
+        GenerateOption MultiOption;
+        GenerateOption TypeOption;
 
         explicit operator Astro::Star() const {
             Astro::Star Star;
@@ -108,13 +110,13 @@ private:
     // Processor functions, as member functions to access class members
     // ----------------------------------------------------------------
     float GenerateAge(float MaxPdf);
-    float GenerateMass(float MaxPdf, auto& LogMassPdf, GenerateOption Option);
+    float GenerateMass(float MaxPdf, auto& LogMassPdf);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWhiteDwarf);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassCoefficient);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
     void CalculateSpectralType(float FeH, Astro::Star& StarData);
     StellarClass::LuminosityClass CalculateLuminosityClass(const Astro::Star& StarData);
-    void ProcessDeathStar(Astro::Star& DeathStar, double MergeStarProbability = 0.005);
+    void ProcessDeathStar(Astro::Star& DeathStar, GenerateOption Option = GenerateOption::kNormal);
     void GenerateMagnetic(Astro::Star& StarData);
     void GenerateSpin(Astro::Star& StarData);
 

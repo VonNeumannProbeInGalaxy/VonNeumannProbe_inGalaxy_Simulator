@@ -20,7 +20,7 @@ int main() {
     std::cin >> Seed;
 
     try {
-        Universe Space(Seed, StarCount);
+        Universe Space(Seed, StarCount, 0, 0, StarCount);
         Space.FillUniverse();
         Space.CountStars();
     } catch (std::out_of_range& e) {

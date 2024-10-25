@@ -34,8 +34,8 @@ public:
         kNull                      =  std::numeric_limits<int>::max()
     };
 
-    enum class Death : int {
-        kStillAlive                = 0,
+    enum class From : int {
+        kNormalFrom                = 0,
         kWhiteDwarfMerge           = 1,
         kSlowColdingDown           = 2,
         kEnvelopeDisperse          = 3,
@@ -68,7 +68,7 @@ public:
         bool   bIsSingleStar;
 
         Phase EvolutionPhase;
-        Death EvolutionEnding;
+        From  StarFrom;
     };
 
 public:
@@ -99,8 +99,8 @@ public:
     Star& SetStellarWindMassLossRate(float StellarWindMassLossRate);
     Star& SetMinCoilMass(float MinCoilMass);
     Star& SetIsSingleStar(bool bIsSingleStar);
+    Star& SetStarFrom(From StarFrom);
     Star& SetEvolutionPhase(Phase EvolutionPhase);
-    Star& SetEvolutionEnding(Death EvolutionEnding);
     Star& SetStellarClass(const Module::StellarClass& StellarClass);
 
     // Getters
@@ -123,8 +123,8 @@ public:
     float GetStellarWindMassLossRate() const;
     float GetMinCoilMass() const;
     bool  GetIsSingleStar() const;
+    From  GetStarFrom() const;
     Phase GetEvolutionPhase() const;
-    Death GetEvolutionEnding() const;
     const Module::StellarClass& GetStellarClass() const;
 
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_O;

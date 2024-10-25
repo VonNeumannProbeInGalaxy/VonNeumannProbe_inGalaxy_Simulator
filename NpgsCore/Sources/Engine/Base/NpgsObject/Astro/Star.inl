@@ -99,13 +99,13 @@ inline Star& Star::SetIsSingleStar(bool bIsSingleStar) {
     return *this;
 }
 
-inline Star& Star::SetEvolutionPhase(Phase EvolutionPhase) {
-    _StarExtraProperties.EvolutionPhase = EvolutionPhase;
+inline Star& Star::SetStarFrom(From StarFrom) {
+    _StarExtraProperties.StarFrom = StarFrom;
     return *this;
 }
 
-inline Star& Star::SetEvolutionEnding(Death EvolutionEnding) {
-    _StarExtraProperties.EvolutionEnding = EvolutionEnding;
+inline Star& Star::SetEvolutionPhase(Phase EvolutionPhase) {
+    _StarExtraProperties.EvolutionPhase = EvolutionPhase;
     return *this;
 }
 
@@ -182,12 +182,12 @@ inline bool Star::GetIsSingleStar() const {
     return _StarExtraProperties.bIsSingleStar;
 }
 
-inline Star::Phase Star::GetEvolutionPhase() const {
-    return _StarExtraProperties.EvolutionPhase;
+inline Star::From Star::GetStarFrom() const {
+    return _StarExtraProperties.StarFrom;
 }
 
-inline Star::Death Star::GetEvolutionEnding() const {
-    return _StarExtraProperties.EvolutionEnding;
+inline Star::Phase Star::GetEvolutionPhase() const {
+    return _StarExtraProperties.EvolutionPhase;
 }
 
 inline const Module::StellarClass& Star::GetStellarClass() const {
