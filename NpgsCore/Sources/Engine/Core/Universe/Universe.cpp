@@ -108,7 +108,7 @@ void Universe::FillUniverse() {
     // 特殊星基础参数设置
     if (_NumExtraGiants != 0) {
         Generators.clear();
-        CreateGenerators(kGiant, 1.0, 30.0);
+        CreateGenerators(Module::StellarGenerator::GenerateOption::kGiant, 1.0f, 35.0f);
         GenerateBasicProperties(_NumExtraGiants);
     }
 
@@ -257,13 +257,13 @@ void Universe::ReplaceStar(std::size_t DistanceRank, const Astro::Star& StarData
 }
 
 void Universe::CountStars() {
-    constexpr int kTypeO = 0;
-    constexpr int kTypeB = 1;
-    constexpr int kTypeA = 2;
-    constexpr int kTypeF = 3;
-    constexpr int kTypeG = 4;
-    constexpr int kTypeK = 5;
-    constexpr int kTypeM = 6;
+    constexpr int kTypeOIndex = 0;
+    constexpr int kTypeBIndex = 1;
+    constexpr int kTypeAIndex = 2;
+    constexpr int kTypeFIndex = 3;
+    constexpr int kTypeGIndex = 4;
+    constexpr int kTypeKIndex = 5;
+    constexpr int kTypeMIndex = 6;
 
     std::array<std::size_t, 7> MainSequence{};
     std::array<std::size_t, 7> Subgiants{};
@@ -349,25 +349,25 @@ void Universe::CountStars() {
     auto CountClass = [](const Module::StellarClass::SpectralType& SpectralType, std::array<std::size_t, 7>& Type) {
         switch (SpectralType.HSpectralClass) {
         case Module::StellarClass::SpectralClass::kSpectral_O:
-            ++Type[kTypeO];
+            ++Type[kTypeOIndex];
             break;
         case Module::StellarClass::SpectralClass::kSpectral_B:
-            ++Type[kTypeB];
+            ++Type[kTypeBIndex];
             break;
         case Module::StellarClass::SpectralClass::kSpectral_A:
-            ++Type[kTypeA];
+            ++Type[kTypeAIndex];
             break;
         case Module::StellarClass::SpectralClass::kSpectral_F:
-            ++Type[kTypeF];
+            ++Type[kTypeFIndex];
             break;
         case Module::StellarClass::SpectralClass::kSpectral_G:
-            ++Type[kTypeG];
+            ++Type[kTypeGIndex];
             break;
         case Module::StellarClass::SpectralClass::kSpectral_K:
-            ++Type[kTypeK];
+            ++Type[kTypeKIndex];
             break;
         case Module::StellarClass::SpectralClass::kSpectral_M:
-            ++Type[kTypeM];
+            ++Type[kTypeMIndex];
             break;
         }
     };
@@ -694,27 +694,27 @@ void Universe::CountStars() {
     std::println("");
     std::println("Total main sequence: {}", TotalMainSequence);
     std::println("Total main sequence rate: {}", TotalMainSequence / static_cast<double>(TotalStars));
-    std::println("Total O type star rate: {}", static_cast<double>(MainSequence[kTypeO]) / static_cast<double>(TotalMainSequence));
-    std::println("Total B type star rate: {}", static_cast<double>(MainSequence[kTypeB]) / static_cast<double>(TotalMainSequence));
-    std::println("Total A type star rate: {}", static_cast<double>(MainSequence[kTypeA]) / static_cast<double>(TotalMainSequence));
-    std::println("Total F type star rate: {}", static_cast<double>(MainSequence[kTypeF]) / static_cast<double>(TotalMainSequence));
-    std::println("Total G type star rate: {}", static_cast<double>(MainSequence[kTypeG]) / static_cast<double>(TotalMainSequence));
-    std::println("Total K type star rate: {}", static_cast<double>(MainSequence[kTypeK]) / static_cast<double>(TotalMainSequence));
-    std::println("Total M type star rate: {}", static_cast<double>(MainSequence[kTypeM]) / static_cast<double>(TotalMainSequence));
-    std::println("Total Wolf-Rayet / O main star rate: {}", static_cast<double>(WolfRayet) / static_cast<double>(MainSequence[kTypeO]));
+    std::println("Total O type star rate: {}", static_cast<double>(MainSequence[kTypeOIndex]) / static_cast<double>(TotalMainSequence));
+    std::println("Total B type star rate: {}", static_cast<double>(MainSequence[kTypeBIndex]) / static_cast<double>(TotalMainSequence));
+    std::println("Total A type star rate: {}", static_cast<double>(MainSequence[kTypeAIndex]) / static_cast<double>(TotalMainSequence));
+    std::println("Total F type star rate: {}", static_cast<double>(MainSequence[kTypeFIndex]) / static_cast<double>(TotalMainSequence));
+    std::println("Total G type star rate: {}", static_cast<double>(MainSequence[kTypeGIndex]) / static_cast<double>(TotalMainSequence));
+    std::println("Total K type star rate: {}", static_cast<double>(MainSequence[kTypeKIndex]) / static_cast<double>(TotalMainSequence));
+    std::println("Total M type star rate: {}", static_cast<double>(MainSequence[kTypeMIndex]) / static_cast<double>(TotalMainSequence));
+    std::println("Total Wolf-Rayet / O main star rate: {}", static_cast<double>(WolfRayet) / static_cast<double>(MainSequence[kTypeOIndex]));
 
     std::println("O type main sequence: {}\nB type main sequence: {}\nA type main sequence: {}\nF type main sequence: {}\nG type main sequence: {}\nK type main sequence: {}\nM type main sequence: {}",
-        MainSequence[kTypeO], MainSequence[kTypeB], MainSequence[kTypeA], MainSequence[kTypeF], MainSequence[kTypeG], MainSequence[kTypeK], MainSequence[kTypeM]);
+        MainSequence[kTypeOIndex], MainSequence[kTypeBIndex], MainSequence[kTypeAIndex], MainSequence[kTypeFIndex], MainSequence[kTypeGIndex], MainSequence[kTypeKIndex], MainSequence[kTypeMIndex]);
     std::println("O type subgiants: {}\nB type subgiants: {}\nA type subgiants: {}\nF type subgiants: {}\nG type subgiants: {}\nK type subgiants: {}\nM type subgiants: {}",
-        Subgiants[kTypeO], Subgiants[kTypeB], Subgiants[kTypeA], Subgiants[kTypeF], Subgiants[kTypeG], Subgiants[kTypeK], Subgiants[kTypeM]);
+        Subgiants[kTypeOIndex], Subgiants[kTypeBIndex], Subgiants[kTypeAIndex], Subgiants[kTypeFIndex], Subgiants[kTypeGIndex], Subgiants[kTypeKIndex], Subgiants[kTypeMIndex]);
     std::println("O type giants: {}\nB type giants: {}\nA type giants: {}\nF type giants: {}\nG type giants: {}\nK type giants: {}\nM type giants: {}",
-        Giants[kTypeO], Giants[kTypeB], Giants[kTypeA], Giants[kTypeF], Giants[kTypeG], Giants[kTypeK], Giants[kTypeM]);
+        Giants[kTypeOIndex], Giants[kTypeBIndex], Giants[kTypeAIndex], Giants[kTypeFIndex], Giants[kTypeGIndex], Giants[kTypeKIndex], Giants[kTypeMIndex]);
     std::println("O type bright giants: {}\nB type bright giants: {}\nA type bright giants: {}\nF type bright giants: {}\nG type bright giants: {}\nK type bright giants: {}\nM type bright giants: {}",
-        BrightGiants[kTypeO], BrightGiants[kTypeB], BrightGiants[kTypeA], BrightGiants[kTypeA], BrightGiants[kTypeF], BrightGiants[kTypeG], BrightGiants[kTypeM]);
+        BrightGiants[kTypeOIndex], BrightGiants[kTypeBIndex], BrightGiants[kTypeAIndex], BrightGiants[kTypeAIndex], BrightGiants[kTypeFIndex], BrightGiants[kTypeGIndex], BrightGiants[kTypeMIndex]);
     std::println("O type supergiants: {}\nB type supergiants: {}\nA type supergiants: {}\nF type supergiants: {}\nG type supergiants: {}\nK type supergiants: {}\nM type supergiants: {}",
-        Supergiants[kTypeO], Supergiants[kTypeB], Supergiants[kTypeA], Supergiants[kTypeF], Supergiants[kTypeG], Supergiants[kTypeK], Supergiants[kTypeM]);
+        Supergiants[kTypeOIndex], Supergiants[kTypeBIndex], Supergiants[kTypeAIndex], Supergiants[kTypeFIndex], Supergiants[kTypeGIndex], Supergiants[kTypeKIndex], Supergiants[kTypeMIndex]);
     std::println("O type hypergiants: {}\nB type hypergiants: {}\nA type hypergiants: {}\nF type hypergiants: {}\nG type hypergiants: {}\nK type hypergiants: {}\nM type hypergiants: {}",
-        Hypergiants[kTypeO], Hypergiants[kTypeB], Hypergiants[kTypeA], Hypergiants[kTypeF], Hypergiants[kTypeG], Hypergiants[kTypeK], Hypergiants[kTypeM]);
+        Hypergiants[kTypeOIndex], Hypergiants[kTypeBIndex], Hypergiants[kTypeAIndex], Hypergiants[kTypeFIndex], Hypergiants[kTypeGIndex], Hypergiants[kTypeKIndex], Hypergiants[kTypeMIndex]);
     std::println("Wolf-Rayet stars: {}", WolfRayet);
     std::println("White dwarfs: {}\nNeutron stars: {}\nBlack holes: {}", WhiteDwarfs, NeutronStars, BlackHoles);
     std::println("");

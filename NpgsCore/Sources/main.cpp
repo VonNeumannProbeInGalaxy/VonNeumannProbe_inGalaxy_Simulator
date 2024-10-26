@@ -20,7 +20,7 @@ int main() {
     std::cin >> Seed;
 
     try {
-        Universe Space(Seed, StarCount, 0, 0, StarCount);
+        Universe Space(Seed, StarCount);
         Space.FillUniverse();
         Space.CountStars();
     } catch (std::out_of_range& e) {
@@ -31,9 +31,9 @@ int main() {
     //StellarGenerator sg({ 42 });
     //StellarGenerator::BasicProperties bp;
     //bp.Age = 9.89589e+09;
-    //bp.FeH = -0.697439;
-    //bp.InitialMassSol = 14.9845;
-    //bp.Option = kNormal;
+    //bp.FeH = -0.16;
+    //bp.InitialMassSol = 1.76;
+    //bp.TypeOption = kGiant;
     //auto s = sg.GenerateStar(bp);
 
     //std::cout << s.GetAge() << " " << s.GetFeH() << " " << s.GetMass() << " " << std::endl;

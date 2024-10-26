@@ -289,12 +289,7 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
     }
     case GenerateOption::kGiant: {
         Properties.Age = -1.0f; // 使用 -1.0，在计算年龄的时候根据寿命赋值一个濒死年龄
-        try {
-            StarData = GetActuallyMistData(Properties, false, true);
-        } catch (Astro::Star&) {
-            return GenerateStar(); // 生成的东西超过了寿命，递归再生成一个新的
-        }
-
+        StarData = GetActuallyMistData(Properties, false, true);
         break;
     }
     case GenerateOption::kDeathStar: {
@@ -603,7 +598,13 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             Result = InterpolateFinalData({ LowerRows, UpperRows }, MassCoefficient, false);
         } else [[unlikely]] {
             std::shared_ptr<MistData> StarData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
-            auto   PhaseChanges = FindPhaseChanges(StarData);
+            auto PhaseChanges = FindPhaseChanges(StarData);
+
+            if (TargetAge == -1.0) { // 年龄为 -1.0 代表要生成濒死恒星
+                double Lifetime = PhaseChanges.back()[_kStarAgeIndex];
+                TargetAge = Lifetime - 500000;
+            }
+
             double EvolutionProgress = 0.0;
             double Lifetime = 0.0;
             if (TargetMass >= 0.1) {
