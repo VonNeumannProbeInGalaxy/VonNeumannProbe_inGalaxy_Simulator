@@ -700,6 +700,7 @@ void StellarGenerator::CalculateSpectralType(float FeH, Astro::Star& StarData) {
                 // 该情况只有 O 型星会出现
                 if (SurfaceH1 < 0.5f) {
                     EvolutionPhase = Astro::Star::Phase::kWolfRayet;
+                    StarData.SetEvolutionPhase(EvolutionPhase);
                     CalculateSpectralSubclass(EvolutionPhase, SurfaceH1);
                     return;
                 }
