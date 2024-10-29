@@ -40,7 +40,7 @@ inline const std::string& StellarSystem::GetBaryName() const {
     return _SystemBary.Name;
 }
 
-inline StellarSystem::BaryCenter* StellarSystem::GetBaryCenter() const {
+inline StellarSystem::BaryCenter* StellarSystem::GetBaryCenter() {
     return &_SystemBary;
 }
 
