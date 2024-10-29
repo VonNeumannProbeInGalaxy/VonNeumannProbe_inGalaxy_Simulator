@@ -49,26 +49,26 @@ public:
     struct ExtendedProperties {
         Module::StellarClass StellarClass;
 
-        double Mass;                    // 质量，单位 kg
-        double Luminosity;              // 辐射光度，单位 W
-        double Lifetime;                // 寿命，单位 yr
-        double EvolutionProgress;       // 演化进度
-        float  FeH;                     // 金属丰度
-        float  InitialMass;             // 恒星诞生时的质量，单位 kg
-        float  SurfaceH1;               // 表面氕质量分数
-        float  SurfaceZ;                // 表面金属丰度
-        float  SurfaceEnergeticNuclide; // 表面含能核素质量分数
-        float  SurfaceVolatiles;        // 表面挥发物质量分数
-        float  Teff;                    // 有效温度
-        float  CoreTemp;                // 核心温度
-        float  CoreDensity;             // 核心密度，单位 kg/m^3
-        float  StellarWindSpeed;        // 恒星风速度，单位 m/s
-        float  StellarWindMassLossRate; // 恒星风质量损失率，单位 kg/s
-        float  MinCoilMass;             // 最小举星器赤道偏转线圈质量，单位 kg
-        bool   bIsSingleStar;
+        double Mass                    = 0.0;  // 质量，单位 kg
+        double Luminosity              = 0.0;  // 辐射光度，单位 W
+        double Lifetime                = 0.0;  // 寿命，单位 yr
+        double EvolutionProgress       = 0.0;  // 演化进度
+        float  FeH                     = 0.0f; // 金属丰度
+        float  InitialMass             = 0.0f; // 恒星诞生时的质量，单位 kg
+        float  SurfaceH1               = 0.0f; // 表面氕质量分数
+        float  SurfaceZ                = 0.0f; // 表面金属丰度
+        float  SurfaceEnergeticNuclide = 0.0f; // 表面含能核素质量分数
+        float  SurfaceVolatiles        = 0.0f; // 表面挥发物质量分数
+        float  Teff                    = 0.0f; // 有效温度
+        float  CoreTemp                = 0.0f; // 核心温度
+        float  CoreDensity             = 0.0f; // 核心密度，单位 kg/m^3
+        float  StellarWindSpeed        = 0.0f; // 恒星风速度，单位 m/s
+        float  StellarWindMassLossRate = 0.0f; // 恒星风质量损失率，单位 kg/s
+        float  MinCoilMass             = 0.0f; // 最小举星器赤道偏转线圈质量，单位 kg
+        bool   bIsSingleStar           = 0.0f;
 
-        Phase EvolutionPhase;
-        From  StarFrom;
+        Phase EvolutionPhase = Phase::kPrevMainSequence;
+        From  StarFrom       = From::kNormalFrom;
     };
 
 public:

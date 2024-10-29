@@ -115,7 +115,7 @@ inline float Civilization::GetTotalOrganismUsedPower() const {
     return _LifeProperties.TotalOrganismUsedPower;
 }
 
-inline Civilization::LifePhase Civilization::GetPhase() const {
+inline Civilization::LifePhase Civilization::GetLifePhase() const {
     return _LifeProperties.Phase;
 }
 

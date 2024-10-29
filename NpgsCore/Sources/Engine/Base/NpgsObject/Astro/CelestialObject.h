@@ -17,16 +17,16 @@ public:
 class CelestialBody : public AstroObject {
 public:
     struct BasicProperties {
-        glm::vec2 Normal;      // 法向量，球坐标表示，(theta, phi)
+        glm::vec2 Normal;             // 法向量，球坐标表示，(theta, phi)
 
-        double Age;            // 年龄，单位年
-        float  Radius;         // 半径，单位 m
-        float  Spin;           // 对于普通天体表示自转周期，单位 s；对于黑洞表示无量纲自旋参数
-        float  Oblateness;     // 扁率
-        float  EscapeVelocity; // 逃逸速度，单位 m/s
-        float  MagneticField;  // 磁场强度，单位 T
+        double Age            = 0.0;  // 年龄，单位年
+        float  Radius         = 0.0f; // 半径，单位 m
+        float  Spin           = 0.0f; // 对于普通天体表示自转周期，单位 s；对于黑洞表示无量纲自旋参数
+        float  Oblateness     = 0.0f; // 扁率
+        float  EscapeVelocity = 0.0f; // 逃逸速度，单位 m/s
+        float  MagneticField  = 0.0f; // 磁场强度，单位 T
 
-        std::string Name;      // 名字
+        std::string Name;             // 名字
     };
 
 public:

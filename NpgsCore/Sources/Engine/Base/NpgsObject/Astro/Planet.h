@@ -39,10 +39,9 @@ public:
         ComplexMass CoreMass;                              // 核心质量，单位 kg
         ComplexMass OceanMass;                             // 海洋质量，单位 kg
         boost::multiprecision::uint128_t CrustMineralMass; // 地壳矿脉质量，单位 kg
-        float BalanceTemperature;                          // 平衡温度，单位 K
-        bool  bIsMigrated;                                 // 是否为迁移行星
-
-        PlanetType Type;
+        float BalanceTemperature = 0.0f;                   // 平衡温度，单位 K
+        bool  bIsMigrated        = 0.0f;                   // 是否为迁移行星
+        PlanetType Type          = PlanetType::kRocky;
         std::unique_ptr<Civilization> CivilizationData;
     };
 
@@ -145,6 +144,7 @@ public:
 
     struct BasicProperties {
         ComplexMass Mass;
+        AsteroidType Type = AsteroidType::kRocky;
     };
 
 public:
