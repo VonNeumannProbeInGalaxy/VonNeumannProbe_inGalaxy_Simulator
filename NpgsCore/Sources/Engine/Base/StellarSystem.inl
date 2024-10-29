@@ -40,6 +40,10 @@ inline const std::string& StellarSystem::GetBaryName() const {
     return _SystemBary.Name;
 }
 
+inline StellarSystem::BaryCenter* StellarSystem::GetBaryCenter() const {
+    return &_SystemBary;
+}
+
 inline std::vector<std::unique_ptr<Astro::Star>>& StellarSystem::StarData() {
     return _Stars;
 }

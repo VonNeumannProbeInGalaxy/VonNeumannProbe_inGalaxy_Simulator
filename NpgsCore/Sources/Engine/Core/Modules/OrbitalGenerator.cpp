@@ -23,14 +23,22 @@ _MODULE_BEGIN
 
 // OrbitalGenerator implementations
 // --------------------------------
-OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float UniverseAge, float AsteroidUpperLimit, float LifeOccurrenceProbability, bool bContainUltravioletHabitableZone, bool bEnableAsiFilter)
-    :
+OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence,
+    float UniverseAge,
+    float AsteroidUpperLimit,
+    float LifeOccurrenceProbability,
+    bool  bContainUltravioletHabitableZone,
+    bool  bEnableAsiFilter,
+    float BinaryPeriodMean,
+    float BinaryPeriodSigma
+)   :
     _RandomEngine(SeedSequence),
     _RingsProbabilities({ BernoulliDistribution<>(0.5), BernoulliDistribution<>(0.2) }),
     _AsteroidBeltProbability(0.4),
     _MigrationProbability(1.0),
     _ScatteringProbability(0.15),
     _WalkInProbability(0.8),
+    _BinaryPeriodDistribution(BinaryPeriodMean, BinaryPeriodSigma),
     _CommonGenerator(0.0f, 1.0f),
 
     _CivilizationGenerator(nullptr),
@@ -48,7 +56,20 @@ OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float Univ
 }
 
 void OrbitalGenerator::GenerateOrbitals(StellarSystem& System) {
+    if (System.StarData().size() == 2) {
+        GenerateBinaryOrbit(System);
+    }
+
     GeneratePlanets(System);
+}
+
+void OrbitalGenerator::GenerateBinaryOrbit(StellarSystem& System) {
+    std::pair<StellarSystem::OrbitalElements, StellarSystem::OrbitalElements> Elements;
+    Astro::AstroObject* SystemBaryCenter = System.GetBaryCenter();
+    float Period = _BinaryPeriodDistribution(_RandomEngine);
+
+    Elements.first.ParentBody = SystemBaryCenter;
+    Elements.second.ParentBody = SystemBaryCenter;
 }
 
 void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {

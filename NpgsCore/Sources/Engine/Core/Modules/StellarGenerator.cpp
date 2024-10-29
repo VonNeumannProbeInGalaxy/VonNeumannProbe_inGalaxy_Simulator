@@ -135,7 +135,8 @@ StellarGenerator::BasicProperties StellarGenerator::GenerateBasicProperties(floa
         switch (_AgeDistribution) {
         case GenerateDistribution::kFromPdf: {
             glm::vec2 MaxPdf = _AgeMaxPdf;
-            if (!(_AgeLowerLimit < _UniverseAge - 1.38e10f + _AgeMaxPdf.x && _AgeUpperLimit > _UniverseAge - 1.38e10f + _AgeMaxPdf.x)) {
+            if (!(_AgeLowerLimit < _UniverseAge - 1.38e10f + _AgeMaxPdf.x &&
+                  _AgeUpperLimit > _UniverseAge - 1.38e10f + _AgeMaxPdf.x)) {
                 if (_AgeLowerLimit > _UniverseAge - 1.38e10f + _AgeMaxPdf.x) {
                     MaxPdf.y = _AgePdf(glm::vec3(), _AgeLowerLimit, _UniverseAge / 1e9f);
                 } else if (_AgeUpperLimit < _UniverseAge - 1.38e10f + _AgeMaxPdf.x) {

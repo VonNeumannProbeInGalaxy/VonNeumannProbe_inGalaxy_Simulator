@@ -65,6 +65,7 @@ public:
     std::size_t GetBaryDistanceRank() const;
     const std::string& GetBaryName() const;
 
+    BaryCenter* GetBaryCenter() const;
     std::vector<std::unique_ptr<Astro::Star>>& StarData();
     std::vector<std::unique_ptr<Astro::Planet>>& PlanetData();
     std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusterData();

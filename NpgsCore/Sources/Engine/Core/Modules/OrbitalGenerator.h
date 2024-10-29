@@ -30,7 +30,16 @@ public:
 
 public:
     OrbitalGenerator() = delete;
-    explicit OrbitalGenerator(const std::seed_seq& SeedSequence, float UniverseAge = 1.38e10f, float AsteroidUpperLimit = 1e21f, float LifeOccurrenceProbatility = 0.0114514f, bool bContainUltravioletHabitableZone = false, bool bEnableAsiFilter = true);
+    explicit OrbitalGenerator(
+        const std::seed_seq& SeedSequence,
+        float UniverseAge                      = 1.38e10f,
+        float AsteroidUpperLimit               = 1e21f,
+        float LifeOccurrenceProbability        = 0.0114514f,
+        bool  bContainUltravioletHabitableZone = false,
+        bool  bEnableAsiFilter                 = true,
+        float BinaryPeriodMean                 = 0.0f,
+        float BinaryPeriodSigma                = 0.0f
+    );
     ~OrbitalGenerator() = default;
 
     void GenerateOrbitals(StellarSystem& System);
@@ -38,6 +47,7 @@ public:
 private:
     // Processor functions, as member functions to access class members
     // ----------------------------------------------------------------
+    void GenerateBinaryOrbit(StellarSystem& System);
     void GeneratePlanets(StellarSystem& System);
     void GenerateOrbitElements(StellarSystem::OrbitalElements& Orbit);
     std::size_t JudgePlanets(float InterHabitableZoneRadiusAu, float FrostLineAu, const Astro::Star* Star, std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets);
@@ -54,6 +64,7 @@ private:
     BernoulliDistribution<>                _MigrationProbability;
     BernoulliDistribution<>                _ScatteringProbability;
     BernoulliDistribution<>                _WalkInProbability;
+    NormalDistribution<>                   _BinaryPeriodDistribution;
     UniformRealDistribution<>              _CommonGenerator;
 
     std::unique_ptr<CivilizationGenerator> _CivilizationGenerator;
