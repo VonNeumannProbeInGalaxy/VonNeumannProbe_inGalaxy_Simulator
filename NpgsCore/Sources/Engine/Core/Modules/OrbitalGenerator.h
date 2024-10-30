@@ -33,23 +33,23 @@ public:
     explicit OrbitalGenerator(
         const std::seed_seq& SeedSequence,
         float UniverseAge                      = 1.38e10f,
+        float BinaryPeriodMean                 = 5.03f,
+        float BinaryPeriodSigma                = 2.28f,
         float AsteroidUpperLimit               = 1e21f,
         float LifeOccurrenceProbability        = 0.0114514f,
         bool  bContainUltravioletHabitableZone = false,
-        bool  bEnableAsiFilter                 = true,
-        float BinaryPeriodMean                 = 0.0f,
-        float BinaryPeriodSigma                = 0.0f
+        bool  bEnableAsiFilter                 = true
     );
     ~OrbitalGenerator() = default;
 
     void GenerateOrbitals(StellarSystem& System);
 
-private:
+public: // private:
     // Processor functions, as member functions to access class members
     // ----------------------------------------------------------------
     void GenerateBinaryOrbit(StellarSystem& System);
     void GeneratePlanets(StellarSystem& System);
-    void GenerateOrbitElements(StellarSystem::OrbitalElements& Orbit);
+    void GeneratePlanetOrbitElements(StellarSystem::OrbitalElements& Orbit);
     std::size_t JudgePlanets(float InterHabitableZoneRadiusAu, float FrostLineAu, const Astro::Star* Star, std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets);
     float CalculatePlanetMass(float CoreMass, float NewCoreMass, float SemiMajorAxisAu, const PlanetaryDisk& PlanetaryDiskTempData, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet);
     void CalculatePlanetRadius(float MassEarth, std::unique_ptr<Astro::Planet>& Planet);

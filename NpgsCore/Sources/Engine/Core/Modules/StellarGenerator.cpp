@@ -483,7 +483,7 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
     float TargetMass = Properties.InitialMassSol;
 
     std::string PrefixDirectory;
-    std::string MassStr;
+    std::string MassString;
     std::stringstream MassStream;
     std::pair<std::string, std::string> Files;
 
@@ -497,7 +497,7 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
         TargetFeH = ClosestFeH;
 
         MassStream << std::fixed << std::setfill('0') << std::setw(6) << std::setprecision(2) << TargetMass;
-        MassStr = MassStream.str() + "0";
+        MassString = MassStream.str() + "0";
 
         std::stringstream FeHStream;
         FeHStream << std::fixed << std::setprecision(1) << TargetFeH;
@@ -541,21 +541,21 @@ std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties&
 
     float MassCoefficient = (TargetMass - LowerMass) / (UpperMass - LowerMass);
 
-    MassStr.clear();
+    MassString.clear();
     MassStream.str("");
     MassStream.clear();
 
     MassStream << std::fixed << std::setfill('0') << std::setw(6) << std::setprecision(2) << LowerMass;
-    MassStr = MassStream.str() + "0";
-    std::string LowerMassFile = PrefixDirectory + "/" + MassStr + "Ms_track.csv";
+    MassString = MassStream.str() + "0";
+    std::string LowerMassFile = PrefixDirectory + "/" + MassString + "Ms_track.csv";
 
-    MassStr.clear();
+    MassString.clear();
     MassStream.str("");
     MassStream.clear();
 
     MassStream << std::fixed << std::setfill('0') << std::setw(6) << std::setprecision(2) << UpperMass;
-    MassStr = MassStream.str() + "0";
-    std::string UpperMassFile = PrefixDirectory + "/" + MassStr + "Ms_track.csv";
+    MassString = MassStream.str() + "0";
+    std::string UpperMassFile = PrefixDirectory + "/" + MassString + "Ms_track.csv";
 
     Files.first  = LowerMassFile;
     Files.second = UpperMassFile;

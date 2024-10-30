@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -29,25 +30,26 @@ public:
     };
 
     struct OrbitalElements {
-        Astro::AstroObject* ParentBody = nullptr;     // 上级天体
+        Astro::AstroObject* ParentBody = nullptr;                     // 上级天体
+        glm::vec2           Normal;                                   // 轨道法向量 (theta, phi)
 
-        float Epoch                    = 0.0f;        // 历元，单位儒略日
-        float Period                   = 0.0f;        // 周期，单位 s
-        float SemiMajorAxis            = 0.0f;        // 半长轴，单位 AU
-        float Eccentricity             = 0.0f;        // 离心率
-        float Inclination              = 0.0f;        // 轨道倾角，单位度
-        float LongitudeOfAscendingNode = 0.0f;        // 升交点经度，单位度
-        float ArgumentOfPeriapsis      = 0.0f;        // 近心点幅角，单位度
-        float TrueAnomaly              = 0.0f;        // 真近点角，单位度
-
-        std::vector<Astro::Star*>            Stars;
-        std::vector<Astro::Planet*>          Planets; // 广义 Planet，实际上行星、卫星都包括这里
-        std::vector<Astro::AsteroidCluster*> AsteroidClusers;
+        float Epoch                    = 0.0f;                        // 历元，单位儒略日
+        float Period                   = 0.0f;                        // 周期，单位 s
+        float SemiMajorAxis            = 0.0f;                        // 半长轴，单位 AU
+        float Eccentricity             = 0.0f;                        // 离心率
+        float Inclination              = 0.0f;                        // 轨道倾角，单位度
+        float LongitudeOfAscendingNode = 0.0f;                        // 升交点经度，单位度
+        float ArgumentOfPeriapsis      = 0.0f;                        // 近心点幅角，单位度
+        float TrueAnomaly              = 0.0f;                        // 真近点角，单位度
+        
+        std::vector<std::pair<Astro::Star*,            float>> Stars;
+        std::vector<std::pair<Astro::Planet*,          float>> Planets;
+        std::vector<std::pair<Astro::AsteroidCluster*, float>> AsteroidClusters;
     };
 
 public:
-    explicit StellarSystem() = default;
-    explicit StellarSystem(const BaryCenter& SystemBary);
+    StellarSystem() = default;
+    StellarSystem(const BaryCenter& SystemBary);
     StellarSystem(const StellarSystem&) = delete;
     StellarSystem(StellarSystem&&) = default;
     ~StellarSystem() = default;

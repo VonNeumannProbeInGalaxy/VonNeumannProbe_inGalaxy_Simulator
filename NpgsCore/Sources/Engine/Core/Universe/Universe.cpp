@@ -15,13 +15,12 @@
 #include <glm/glm.hpp>
 
 #define ENABLE_CONSOLE_LOGGER
+#include "Engine/Core/Modules/OrbitalGenerator.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/Logger.h"
 
 _NPGS_BEGIN
-
-static void FillStellarSystem(StellarSystem& System);
 
 Universe::Universe(
     unsigned Seed,
@@ -238,6 +237,12 @@ void Universe::FillUniverse() {
     }
 
     NpgsCoreInfo("Stellar generation completed.");
+
+    Module::OrbitalGenerator g({ 42 });
+    for (auto& System : _StellarSystems) {
+        if (System.StarData().size() > 1)
+            g.GenerateBinaryOrbit(System);
+    }
 
     _ThreadPool->Terminate();
 }
@@ -914,7 +919,5 @@ void Universe::GenerateBinaryStars(int MaxThread) {
         BinarySystems[i]->StarData().emplace_back(std::make_unique<Astro::Star>(Stars[i]));
     }
 }
-
-void FillStellarSystem(StellarSystem& System) {}
 
 _NPGS_END
