@@ -20,24 +20,24 @@ public:
     };
 
     struct LifeProperties {
-        boost::multiprecision::uint128_t TotalOrganismBiomass;         // 生物量，单位 kg
-        float TotalOrganismUsedPower = 0.0f;                           // 生物圈使用的总功率，单位 W
-        LifePhase Phase              = LifePhase::kNull;               // 生命阶段
+        boost::multiprecision::uint128_t TotalOrganismBiomass;          // 生物量，单位 kg
+        float TotalOrganismUsedPower = 0.0f;                            // 生物圈使用的总功率，单位 W
+        LifePhase Phase              = LifePhase::kNull;                // 生命阶段
     };
 
     struct CivilizationProperties {
-        boost::multiprecision::uint128_t TotalAtrificalStructureMass;  // 文明造物总质量，单位 kg
-        boost::multiprecision::uint128_t TotalCitizenBiomass;          // 文明生物生物量，单位 kg
-        boost::multiprecision::uint128_t TotalUseableEnergeticNuclide; // 可用含能核素总质量，单位 kg
-        float TotalCitizenUsedPower                            = 0.0f; // 文明使用的总功率，单位 W
-        float CivilizationProgress                             = 0.0f; // 文明演化进度
-        float GeneralIntelligenceAverageSynapseActivationCount = 0.0f; // 通用智能个体的智力活动，单位 o/s
-        float GeneralIntelligenceSynapseCount                  = 0.0f; // 通用智能个体的突触数
-        float GeneralIntelligenceAverageLifetime               = 0.0f; // 通用智能个体的平均寿命，单位 s
-        float GeneralintelligenceCount                         = 0.0f; // 通用智能个体的数量
-        float TotalStoragedHistoryDataSize                     = 0.0f; // 存储的历史数据总大小，单位 bit
-        float TeamworkCoefficient                              = 0.0f; // 合作系数
-        bool  bIsIndependentIndividual                         = 0.0f; // 是否为独立个体
+        boost::multiprecision::uint128_t TotalAtrificalStructureMass;   // 文明造物总质量，单位 kg
+        boost::multiprecision::uint128_t TotalCitizenBiomass;           // 文明生物生物量，单位 kg
+        boost::multiprecision::uint128_t TotalUseableEnergeticNuclide;  // 可用含能核素总质量，单位 kg
+        float TotalCitizenUsedPower                            = 0.0f;  // 文明使用的总功率，单位 W
+        float CivilizationProgress                             = 0.0f;  // 文明演化进度
+        float GeneralIntelligenceAverageSynapseActivationCount = 0.0f;  // 通用智能个体的智力活动，单位 o/s
+        float GeneralIntelligenceSynapseCount                  = 0.0f;  // 通用智能个体的突触数
+        float GeneralIntelligenceAverageLifetime               = 0.0f;  // 通用智能个体的平均寿命，单位 s
+        float GeneralintelligenceCount                         = 0.0f;  // 通用智能个体的数量
+        float TotalStoragedHistoryDataSize                     = 0.0f;  // 存储的历史数据总大小，单位 bit
+        float TeamworkCoefficient                              = 0.0f;  // 合作系数
+        bool  bIsIndependentIndividual                         = false; // 是否为独立个体
     };
 
 public:

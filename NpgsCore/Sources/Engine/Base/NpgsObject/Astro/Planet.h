@@ -165,6 +165,7 @@ public:
     AsteroidCluster& SetMassVolatiles(const boost::multiprecision::uint128_t& MassVolatiles);
     AsteroidCluster& SetMassEnergeticNuclide(float MassEnergeticNuclide);
     AsteroidCluster& SetMassEnergeticNuclide(const boost::multiprecision::uint128_t& MassEnergeticNuclide);
+    AsteroidCluster& SetAsteroidType(AsteroidType Type);
 
     // Getters
     // Getters for BasicProperties
@@ -177,6 +178,7 @@ public:
     const boost::multiprecision::uint128_t& GetMassVolatiles() const;
     float GetMassEnergeticNuclideFloat() const;
     const boost::multiprecision::uint128_t& GetMassEnergeticNuclide() const;
+    AsteroidType GetAsteroidType() const;
 
 private:
     BasicProperties _Properties{};

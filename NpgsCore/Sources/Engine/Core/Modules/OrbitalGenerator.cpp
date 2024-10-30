@@ -116,7 +116,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
         PlanetaryDiskTempData.OuterRadiusAu = OuterRadiusAu;
         PlanetaryDiskTempData.DiskMassSol = DiskMassSol;
         PlanetaryDiskTempData.DustMassSol = DustMassSol;
-    } else if (Star->GetStarFrom() == Astro::Star::From::kWhiteDwarfMerge) {
+    } else if (Star->GetStarFrom() == Astro::Star::StarFrom::kWhiteDwarfMerge) {
         DiskBase = std::pow(10.0f, -1.0f) + _CommonGenerator(_RandomEngine) * (1.0f - std::pow(10.0f, -1.0f));
         float StarMassSol = static_cast<float>(Star->GetMass() / kSolarMass);
         float DiskMassSol = DiskBase * 1e-5f * StarMassSol;
@@ -148,7 +148,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
         } else {
             PlanetCount = static_cast<std::size_t>(4.0f + _CommonGenerator(_RandomEngine) * 4.0f);
         }
-    } else if (Star->GetStarFrom() == Astro::Star::From::kWhiteDwarfMerge) {
+    } else if (Star->GetStarFrom() == Astro::Star::StarFrom::kWhiteDwarfMerge) {
         PlanetCount = static_cast<std::size_t>(2.0f + _CommonGenerator(_RandomEngine) * 2.0f);
     }
 

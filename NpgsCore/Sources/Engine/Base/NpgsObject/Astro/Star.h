@@ -15,7 +15,7 @@ _ASTRO_BEGIN
 
 class Star : public CelestialBody {
 public:
-    enum class Phase : int {
+    enum class EvolutionPhase : int {
         kPrevMainSequence          = -1,
         kMainSequence              =  0,
         kRedGiant                  =  2,
@@ -34,7 +34,7 @@ public:
         kNull                      =  std::numeric_limits<int>::max()
     };
 
-    enum class From : int {
+    enum class StarFrom : int {
         kNormalFrom                = 0,
         kWhiteDwarfMerge           = 1,
         kSlowColdingDown           = 2,
@@ -67,8 +67,8 @@ public:
         float  MinCoilMass             = 0.0f; // 最小举星器赤道偏转线圈质量，单位 kg
         bool   bIsSingleStar           = 0.0f;
 
-        Phase EvolutionPhase = Phase::kPrevMainSequence;
-        From  StarFrom       = From::kNormalFrom;
+        EvolutionPhase Phase           = EvolutionPhase::kPrevMainSequence;
+        StarFrom       From            = StarFrom::kNormalFrom;
     };
 
 public:
@@ -99,8 +99,8 @@ public:
     Star& SetStellarWindMassLossRate(float StellarWindMassLossRate);
     Star& SetMinCoilMass(float MinCoilMass);
     Star& SetIsSingleStar(bool bIsSingleStar);
-    Star& SetStarFrom(From StarFrom);
-    Star& SetEvolutionPhase(Phase EvolutionPhase);
+    Star& SetStarFrom(StarFrom From);
+    Star& SetEvolutionPhase(EvolutionPhase Phase);
     Star& SetStellarClass(const Module::StellarClass& StellarClass);
 
     // Getters
@@ -123,8 +123,8 @@ public:
     float GetStellarWindMassLossRate() const;
     float GetMinCoilMass() const;
     bool  GetIsSingleStar() const;
-    From  GetStarFrom() const;
-    Phase GetEvolutionPhase() const;
+    StarFrom GetStarFrom() const;
+    EvolutionPhase GetEvolutionPhase() const;
     const Module::StellarClass& GetStellarClass() const;
 
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_O;
@@ -143,7 +143,7 @@ public:
     static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_WNxh;
     static const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> _kInitialCommonMap;
     static const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> _kInitialWolfRayetMap;
-    static const std::unordered_map<Phase, Npgs::Module::StellarClass::LuminosityClass> _kLuminosityMap;
+    static const std::unordered_map<EvolutionPhase, Npgs::Module::StellarClass::LuminosityClass> _kLuminosityMap;
     static const std::unordered_map<float, float> _kFeHSurfaceH1Map;
 
 private:

@@ -322,6 +322,11 @@ inline AsteroidCluster& AsteroidCluster::SetMassEnergeticNuclide(const boost::mu
     return *this;
 }
 
+inline AsteroidCluster& AsteroidCluster::SetAsteroidType(AsteroidType Type) {
+    _Properties.Type = Type;
+    return *this;
+}
+
 inline float AsteroidCluster::GetMassFloat() const {
     return ConvertToFloat(GetMass());
 }
@@ -352,6 +357,10 @@ inline float AsteroidCluster::GetMassEnergeticNuclideFloat() const {
 
 inline const boost::multiprecision::uint128_t& AsteroidCluster::GetMassEnergeticNuclide() const {
     return _Properties.Mass.EnergeticNuclide;
+}
+
+inline AsteroidCluster::AsteroidType AsteroidCluster::GetAsteroidType() const {
+    return _Properties.Type;
 }
 
 _ASTRO_END

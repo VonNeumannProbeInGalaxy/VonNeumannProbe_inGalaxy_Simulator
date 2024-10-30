@@ -43,13 +43,13 @@ const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> Star::_kInit
     { 0, {} }
 };
 
-const std::unordered_map<Star::Phase, ::Npgs::Module::StellarClass::LuminosityClass> Star::_kLuminosityMap{
-    { Star::Phase::kMainSequence,     ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_V   },
-    { Star::Phase::kRedGiant,         ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_III },
-    { Star::Phase::kCoreHeBurn,       ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_IV  },
-    { Star::Phase::kEarlyAgb,         ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_II  },
-    { Star::Phase::kThermalPulseAgb,  ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_I   },
-    { Star::Phase::kPostAgb,          ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_I   }
+const std::unordered_map<Star::EvolutionPhase, ::Npgs::Module::StellarClass::LuminosityClass> Star::_kLuminosityMap{
+    { Star::EvolutionPhase::kMainSequence,     ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_V   },
+    { Star::EvolutionPhase::kRedGiant,         ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_III },
+    { Star::EvolutionPhase::kCoreHeBurn,       ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_IV  },
+    { Star::EvolutionPhase::kEarlyAgb,         ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_II  },
+    { Star::EvolutionPhase::kThermalPulseAgb,  ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_I   },
+    { Star::EvolutionPhase::kPostAgb,          ::Npgs::Module::StellarClass::LuminosityClass::kLuminosity_I   }
 };
 
 const std::unordered_map<float, float> Star::_kFeHSurfaceH1Map{
