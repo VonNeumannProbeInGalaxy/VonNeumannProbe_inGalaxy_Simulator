@@ -654,26 +654,30 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv) {
     std::vector<std::vector<double>> Result;
 
-    _kCacheMutex.lock();
-    if (_kPhaseChangesCache.contains(DataCsv)) {
-        Result = _kPhaseChangesCache[DataCsv];
-    } else {
-        _kCacheMutex.unlock();
-        const auto* const DataArray = DataCsv->Data();
-        int CurrentPhase = -2;
-        for (const auto& Row : *DataArray) {
-            if (Row[_kPhaseIndex] != CurrentPhase || Row[_kXIndex] == 10.0) {
-                CurrentPhase = static_cast<int>(Row[_kPhaseIndex]);
-                Result.emplace_back(Row);
-            }
-        }
-
-        _kCacheMutex.lock();
-        if (!_kPhaseChangesCache.contains(DataCsv)) {
-            _kPhaseChangesCache.emplace(DataCsv, Result);
+    {
+        std::shared_lock Lock(_kCacheMutex);
+        if (_kPhaseChangesCache.contains(DataCsv)) {
+            return _kPhaseChangesCache[DataCsv];
         }
     }
-    _kCacheMutex.unlock();
+
+    const auto* const DataArray = DataCsv->Data();
+    int CurrentPhase = -2;
+    for (const auto& Row : *DataArray) {
+        if (Row[_kPhaseIndex] != CurrentPhase || Row[_kXIndex] == 10.0) {
+            CurrentPhase = static_cast<int>(Row[_kPhaseIndex]);
+            Result.emplace_back(Row);
+        }
+    }
+
+    {
+        std::shared_lock Lock(_kCacheMutex);
+        if (!_kPhaseChangesCache.contains(DataCsv)) {
+            _kPhaseChangesCache.emplace(DataCsv, Result);
+        } else {
+            Result = _kPhaseChangesCache[DataCsv];
+        }
+    }
 
     return Result;
 }
