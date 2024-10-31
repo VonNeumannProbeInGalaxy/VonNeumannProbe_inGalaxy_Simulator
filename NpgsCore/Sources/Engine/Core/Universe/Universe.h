@@ -37,6 +37,17 @@ public:
     void CountStars();
 
 private:
+    template <typename AstroType, typename DataType>
+    void MakeChunks(
+        int MaxThread,
+        std::vector<DataType>& Data,
+        std::vector<std::vector<DataType>>& DataLists,
+        std::vector<std::promise<std::vector<AstroType>>>& Promises,
+        std::vector<std::future<std::vector<AstroType>>>& ChunkFutures
+    );
+
+    void GenerateStars(int MaxThread);
+    void FillStellarSystem(int MaxThread);
     std::vector<Astro::Star> InterpolateStars(int MaxThread, std::vector<Module::StellarGenerator>& Generators, std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties);
     void GenerateSlots(float MinDistance, std::size_t NumSamples, float Density);
     void OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots);

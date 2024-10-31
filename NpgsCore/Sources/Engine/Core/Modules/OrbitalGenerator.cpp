@@ -14,7 +14,7 @@
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
 
-#define DEBUG_OUTPUT
+// #define DEBUG_OUTPUT
 
 _NPGS_BEGIN
 _MODULE_BEGIN
@@ -59,9 +59,51 @@ OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence,
 void OrbitalGenerator::GenerateOrbitals(StellarSystem& System) {
     if (System.StarData().size() == 2) {
         GenerateBinaryOrbit(System);
+        auto& Star1 = System.StarData()[0];
+        auto& Star2 = System.StarData()[1];
+
+        for (auto& Star : System.StarData()) {
+            auto& Primary   = Star;
+            auto& Secondary = Star == Star1 ? Star2 : Star1;
+
+            if (Primary->GetMass() > 12 * kSolarMass) {
+                Primary->SetHasPlanets(false);
+            } else {
+                if ((Primary->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kNeutronStar || Primary->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kBlackHole) && Primary->GetStarFrom() != Astro::Star::StarFrom::kWhiteDwarfMerge) {
+                    Primary->SetHasPlanets(false);
+                } else {
+                    if (Secondary->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kNeutronStar || Secondary->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kBlackHole) {
+                        if (Secondary->GetFeH() >= -2.0f) {
+                            if (Primary->GetAge() > Secondary->GetAge()) {
+                                Primary->SetHasPlanets(false);
+                            }
+                        } else {
+                            if (Secondary->GetInitialMass() <= 40 * kSolarMass || Secondary->GetInitialMass() >= 140 * kSolarMass) {
+                                if (Primary->GetAge() > Secondary->GetAge()) {
+                                    Primary->SetHasPlanets(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        auto& Primary = System.StarData()[0];
+        if (Primary->GetMass() > 12 * kSolarMass) {
+            Primary->SetHasPlanets(false);
+        } else if (Primary->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kNeutronStar || Primary->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kBlackHole) {
+            if (Primary->GetStarFrom() != Astro::Star::StarFrom::kWhiteDwarfMerge) {
+                Primary->SetHasPlanets(false);
+            }
+        }
     }
 
-    GeneratePlanets(System);
+    for (std::size_t i = 0; i != System.StarData().size(); ++i) {
+        if (System.StarData()[i]->GetHasPlanets()) {
+            GeneratePlanets(i, System);
+        }
+    }
 }
 
 void OrbitalGenerator::GenerateBinaryOrbit(StellarSystem& System) {
@@ -127,7 +169,7 @@ void OrbitalGenerator::GenerateBinaryOrbit(StellarSystem& System) {
         StarNormal1.y += kPi;
     }
 
-    glm::vec2 StarNormal2(Elements.second.Inclination + glm::vec2(
+    glm::vec2 StarNormal2(Elements.second.Normal + glm::vec2(
         -0.09f + _CommonGenerator(_RandomEngine) * 0.18f,
         -0.09f + _CommonGenerator(_RandomEngine) * 0.18f
     ));
@@ -165,8 +207,8 @@ void OrbitalGenerator::GenerateBinaryOrbit(StellarSystem& System) {
         InitTrueAnomaly2 = InitTrueAnomaly1 + kPi;
     }
 
-    std::pair<Astro::AstroObject*, float> Star1 = { System.StarData().front().get(), InitTrueAnomaly1 };
-    std::pair<Astro::AstroObject*, float> Star2 = { System.StarData().back().get(),  InitTrueAnomaly2 };
+    std::pair<Astro::Star*, float> Star1 = { System.StarData().front().get(), InitTrueAnomaly1 };
+    std::pair<Astro::Star*, float> Star2 = { System.StarData().back().get(),  InitTrueAnomaly2 };
 
     Elements.first.Stars.emplace_back(Star1);
     Elements.second.Stars.emplace_back(Star2);
@@ -175,11 +217,10 @@ void OrbitalGenerator::GenerateBinaryOrbit(StellarSystem& System) {
     System.OrbitData().emplace_back(Elements.second);
 }
 
-void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
-    // 目前只处理单星情况
+void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& System) {
     // 变量名未标注单位均为国际单位制
     PlanetaryDisk PlanetaryDiskTempData{};
-    const Astro::Star* Star = System.StarData().front().get();
+    const Astro::Star* Star = System.StarData()[StarIndex].get();
 
     if (Star->GetFeH() < -2.0f) {
         return;
@@ -746,10 +787,7 @@ void OrbitalGenerator::GeneratePlanets(StellarSystem& System) {
 }
 
 void OrbitalGenerator::GeneratePlanetOrbitElements(StellarSystem::OrbitalElements& Orbit) {
-    Orbit.Eccentricity             = _CommonGenerator(_RandomEngine) * 0.05f;
-    Orbit.LongitudeOfAscendingNode = _CommonGenerator(_RandomEngine) * 360.0f;
-    Orbit.ArgumentOfPeriapsis      = _CommonGenerator(_RandomEngine) * 360.0f;
-    Orbit.TrueAnomaly              = _CommonGenerator(_RandomEngine) * 360.0f;
+    Orbit.Eccentricity = _CommonGenerator(_RandomEngine) * 0.05f;
 }
 
 std::size_t OrbitalGenerator::JudgePlanets(float InterHabitableZoneRadiusAu, float FrostLineAu, const Astro::Star* Star, std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets) {
@@ -1083,7 +1121,7 @@ void OrbitalGenerator::GenerateRings(std::size_t Index, float FrostLineAu, const
             RingsPtr->SetMassZ(RingsMassZ);
 
             RingsOrbit.ParentBody = Planets[Index].get();
-            std::pair<Astro::AstroObject*, float> Rings{ RingsPtr.get(), 0.0f };
+            std::pair<Astro::AsteroidCluster*, float> Rings{ RingsPtr.get(), 0.0f };
             RingsOrbit.AsteroidClusters.emplace_back(Rings);
             Orbits.emplace_back(RingsOrbit);
         }

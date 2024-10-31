@@ -30,17 +30,17 @@ public:
     };
 
     struct OrbitalElements {
-        Astro::AstroObject* ParentBody = nullptr;                     // 上级天体
-        glm::vec2           Normal;                                   // 轨道法向量 (theta, phi)
+        Astro::AstroObject* ParentBody = nullptr; // 上级天体
+        glm::vec2           Normal;               // 轨道法向量 (theta, phi)
 
-        float Epoch                    = 0.0f;                        // 历元，单位儒略日
-        float Period                   = 0.0f;                        // 周期，单位 s
-        float SemiMajorAxis            = 0.0f;                        // 半长轴，单位 AU
-        float Eccentricity             = 0.0f;                        // 离心率
-        float Inclination              = 0.0f;                        // 轨道倾角，单位度
-        float LongitudeOfAscendingNode = 0.0f;                        // 升交点经度，单位度
-        float ArgumentOfPeriapsis      = 0.0f;                        // 近心点幅角，单位度
-        float TrueAnomaly              = 0.0f;                        // 真近点角，单位度
+        float Epoch                    = 0.0f;    // 历元，单位儒略日
+        float Period                   = 0.0f;    // 周期，单位 s
+        float SemiMajorAxis            = 0.0f;    // 半长轴，单位 AU
+        float Eccentricity             = 0.0f;    // 离心率
+        // float Inclination              = 0.0f; // 轨道倾角，单位度
+        // float LongitudeOfAscendingNode = 0.0f; // 升交点经度，单位度
+        // float ArgumentOfPeriapsis      = 0.0f; // 近心点幅角，单位度
+        // float TrueAnomaly              = 0.0f; // 真近点角，单位度
         
         std::vector<std::pair<Astro::Star*,            float>> Stars;
         std::vector<std::pair<Astro::Planet*,          float>> Planets;
@@ -51,11 +51,11 @@ public:
     StellarSystem() = default;
     StellarSystem(const BaryCenter& SystemBary);
     StellarSystem(const StellarSystem&) = delete;
-    StellarSystem(StellarSystem&&) = default;
+    StellarSystem(StellarSystem&&) noexcept = default;
     ~StellarSystem() = default;
 
     StellarSystem& operator=(const StellarSystem&) = delete;
-    StellarSystem& operator=(StellarSystem&&) = default;
+    StellarSystem& operator=(StellarSystem&&) noexcept = default;
 
     StellarSystem& SetBaryPosition(const glm::vec3& Poisition);
     StellarSystem& SetBaryNormal(const glm::vec2& Normal);

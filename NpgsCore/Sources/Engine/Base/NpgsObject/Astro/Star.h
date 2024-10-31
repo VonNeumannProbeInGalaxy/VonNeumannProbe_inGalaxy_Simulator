@@ -65,7 +65,8 @@ public:
         float  StellarWindSpeed        = 0.0f; // 恒星风速度，单位 m/s
         float  StellarWindMassLossRate = 0.0f; // 恒星风质量损失率，单位 kg/s
         float  MinCoilMass             = 0.0f; // 最小举星器赤道偏转线圈质量，单位 kg
-        bool   bIsSingleStar           = 0.0f;
+        bool   bIsSingleStar           = true;
+        bool   bHasPlanets             = true;
 
         EvolutionPhase Phase           = EvolutionPhase::kPrevMainSequence;
         StarFrom       From            = StarFrom::kNormalFrom;
@@ -99,6 +100,7 @@ public:
     Star& SetStellarWindMassLossRate(float StellarWindMassLossRate);
     Star& SetMinCoilMass(float MinCoilMass);
     Star& SetIsSingleStar(bool bIsSingleStar);
+    Star& SetHasPlanets(bool bHasPlanets);
     Star& SetStarFrom(StarFrom From);
     Star& SetEvolutionPhase(EvolutionPhase Phase);
     Star& SetStellarClass(const Module::StellarClass& StellarClass);
@@ -122,7 +124,8 @@ public:
     float GetStellarWindSpeed() const;
     float GetStellarWindMassLossRate() const;
     float GetMinCoilMass() const;
-    bool  GetIsSingleStar() const;
+    bool GetIsSingleStar() const;
+    bool GetHasPlanets() const;
     StarFrom GetStarFrom() const;
     EvolutionPhase GetEvolutionPhase() const;
     const Module::StellarClass& GetStellarClass() const;

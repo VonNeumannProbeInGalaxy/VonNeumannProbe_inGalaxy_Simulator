@@ -62,187 +62,8 @@ Universe::~Universe() {
 void Universe::FillUniverse() {
     int MaxThread = _ThreadPool->GetPhysicalCoreCount();
 
-    NpgsCoreInfo("Initializating and generating basic properties...");
-    std::vector<Module::StellarGenerator> Generators;
-    std::vector<Module::StellarGenerator::BasicProperties> BasicProperties;
-
-    using enum Module::StellarGenerator::GenerateDistribution;
-    using enum Module::StellarGenerator::GenerateOption;
-    auto CreateGenerators =
-        [&, this](Module::StellarGenerator::GenerateOption Option = kNormal,
-            float MassLowerLimit =  0.1f,
-            float MassUpperLimit = 300.0f,
-            Module::StellarGenerator::GenerateDistribution MassDistribution = kFromPdf,
-            float AgeLowerLimit  =  0.0f,
-            float AgeUpperLimit  = 1.26e10f,
-            Module::StellarGenerator::GenerateDistribution AgeDistribution  = kFromPdf,
-            float FeHLowerLimit  = -4.0f,
-            float FeHUpperLimit  = 0.5f,
-            Module::StellarGenerator::GenerateDistribution FeHDistribution  = kFromPdf) -> void {
-        for (int i = 0; i != MaxThread; ++i) {
-            std::vector<std::uint32_t> Seeds(32);
-            for (int i = 0; i != 32; ++i) {
-                Seeds[i] = _SeedGenerator(_RandomEngine);
-            }
-
-            std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
-            std::seed_seq SeedSequence(Seeds.begin(), Seeds.end());
-            Generators.emplace_back(
-                SeedSequence, Option, _UniverseAge,
-                MassLowerLimit, MassUpperLimit, MassDistribution,
-                AgeLowerLimit,  AgeUpperLimit,  AgeDistribution,
-                FeHLowerLimit,  FeHUpperLimit,  FeHDistribution
-            );
-        }
-    };
-
-    // 生成基础属性
-    auto GenerateBasicProperties = [&, this](std::size_t NumStars) -> void {
-        for (std::size_t i = 0; i != NumStars; ++i) {
-            std::size_t ThreadId = i % Generators.size();
-            BasicProperties.emplace_back(Generators[ThreadId].GenerateBasicProperties());
-        }
-    };
-
-    // 特殊星基础参数设置
-    if (_NumExtraGiants != 0) {
-        Generators.clear();
-        CreateGenerators(Module::StellarGenerator::GenerateOption::kGiant, 1.0f, 35.0f);
-        GenerateBasicProperties(_NumExtraGiants);
-    }
-
-    if (_NumExtraMassiveStars != 0) {
-        Generators.clear();
-        CreateGenerators(
-            Module::StellarGenerator::GenerateOption::kNormal,
-            20.0f, 300.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
-            0.0f,  3.5e6f, Module::StellarGenerator::GenerateDistribution::kUniform
-        );
-        GenerateBasicProperties(_NumExtraMassiveStars);
-    }
-
-    if (_NumExtraNeutronStars != 0) {
-        Generators.clear();
-        CreateGenerators(
-            Module::StellarGenerator::GenerateOption::kDeathStar,
-            10.0f, 20.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
-            1e7f,  1e8f,  Module::StellarGenerator::GenerateDistribution::kUniformByExponent
-        );
-        GenerateBasicProperties(_NumExtraNeutronStars);
-    }
-
-    if (_NumExtraBlackHoles != 0) {
-        Generators.clear();
-        CreateGenerators(
-            Module::StellarGenerator::GenerateOption::kNormal,
-            35.0f,  300.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
-            1e7f, 1.26e10f, Module::StellarGenerator::GenerateDistribution::kFromPdf,
-            -2.0, 0.5
-        );
-        GenerateBasicProperties(_NumExtraBlackHoles);
-    }
-
-    if (_NumExtraMergeStars != 0) {
-        Generators.clear();
-        CreateGenerators(
-            Module::StellarGenerator::GenerateOption::kMergeStar,
-            0.0f, 0.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
-            1e6f, 1e8f, Module::StellarGenerator::GenerateDistribution::kUniformByExponent
-        );
-        GenerateBasicProperties(_NumExtraMergeStars);
-    }
-
-    std::size_t NumCommonStars = _NumStars - _NumExtraGiants - _NumExtraMassiveStars - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
-
-    Generators.clear();
-    CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal, 0.075f);
-    GenerateBasicProperties(NumCommonStars);
-
-    NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
-
-    std::vector<Astro::Star> Stars = InterpolateStars(MaxThread, Generators, BasicProperties);
-
-    NpgsCoreInfo("Building stellar octree in 8 threads...");
-    GenerateSlots(0.1f, _NumStars, 0.004f);
-
-    NpgsCoreInfo("Linking positions in octree to stellar systems...");
-    _StellarSystems.reserve(_NumStars);
-    std::shuffle(Stars.begin(), Stars.end(), _RandomEngine);
-    std::vector<glm::vec3> Slots;
-    OctreeLinkToStellarSystems(Stars, Slots);
-
-    NpgsCoreInfo("Generating binary stars...");
-    GenerateBinaryStars(MaxThread);
-
-    NpgsCoreInfo("Sorting...");
-    std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
-        return glm::length(Point1) < glm::length(Point2);
-    });
-
-    NpgsCoreInfo("Assigning name...");
-    std::string Name;
-    std::ostringstream Stream;
-    for (auto& System : _StellarSystems) {
-        glm::vec3 Position = System.GetBaryPosition();
-        auto it = std::lower_bound(Slots.begin(), Slots.end(), Position,
-            [](const glm::vec3& Point1, const glm::vec3& Point2) -> bool {
-                return glm::length(Point1) < glm::length(Point2);
-            }
-        );
-        std::ptrdiff_t Offset = it - Slots.begin();
-        Stream << std::setfill('0') << std::setw(8) << std::to_string(Offset);
-        Name = "SYSTEM-" + Stream.str();
-        System.SetBaryName(Name).SetBaryDistanceRank(Offset);
-
-        auto& Stars = System.StarData();
-        if (Stars.size() > 1) {
-            std::sort(Stars.begin(), Stars.end(),
-                [](const std::unique_ptr<Astro::Star>& Star1, std::unique_ptr<Astro::Star>& Star2) -> bool {
-                    return Star1->GetMass() > Star2->GetMass();
-                }
-            );
-
-            char Rank = 'A';
-            for (auto& Star : Stars) {
-                Star->SetName("STAR-" + Stream.str() + " " + Rank);
-                ++Rank;
-            }
-        } else {
-            Stars.front()->SetName("STAR-" + Stream.str());
-        }
-
-        Stream.str("");
-        Stream.clear();
-    }
-
-    NpgsCoreInfo("Reset home stellar system...");
-    NodeType* HomeNode = _Octree->Find(glm::vec3(0.0f), [](const NodeType& Node) -> bool {
-        if (Node.IsLeafNode()) {
-            auto& Points = Node.GetPoints();
-            return std::find(Points.begin(), Points.end(), glm::vec3(0.0f)) != Points.end();
-        } else {
-            return false;
-        }
-    });
-
-    auto* HomeSystem = HomeNode->GetLink([](StellarSystem* System) -> bool {
-        return System->GetBaryPosition() == glm::vec3(0.0f);
-    });
-    HomeNode->RemoveStorage();
-    HomeNode->AddPoint(glm::vec3(0.0f));
-    HomeSystem->SetBaryNormal(glm::vec2(0.0f));
-
-    for (auto& Star : HomeSystem->StarData()) {
-        Star->SetNormal(glm::vec3(0.0f));
-    }
-
-    NpgsCoreInfo("Stellar generation completed.");
-
-    Module::OrbitalGenerator g({ 42 });
-    for (auto& System : _StellarSystems) {
-        if (System.StarData().size() > 1)
-            g.GenerateBinaryOrbit(System);
-    }
+    GenerateStars(MaxThread);
+    FillStellarSystem(MaxThread);
 
     _ThreadPool->Terminate();
 }
@@ -728,18 +549,228 @@ void Universe::CountStars() {
     std::println("");
 }
 
-std::vector<Astro::Star> Universe::InterpolateStars(int MaxThread, std::vector<Module::StellarGenerator>& Generators, std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties) {
-    std::vector<std::vector<Module::StellarGenerator::BasicProperties>> PropertyLists(MaxThread);
-    for (std::size_t i = 0; i != BasicProperties.size(); ++i) {
-        std::size_t ThreadId = i % Generators.size();
-        PropertyLists[ThreadId].emplace_back(std::move(BasicProperties[i]));
+template<typename AstroType, typename DataType>
+void Universe::MakeChunks(
+    int MaxThread,
+    std::vector<DataType>& Data,
+    std::vector<std::vector<DataType>>& DataLists,
+    std::vector<std::promise<std::vector<AstroType>>>& Promises,
+    std::vector<std::future<std::vector<AstroType>>>& ChunkFutures
+) {
+    for (std::size_t i = 0; i != Data.size(); ++i) {
+        std::size_t ThreadId = i % MaxThread;
+        DataLists[ThreadId].emplace_back(std::move(Data[i]));
     }
 
-    std::vector<std::promise<std::vector<Astro::Star>>> Promises(MaxThread);
-    std::vector<std::future<std::vector<Astro::Star>>> ChunkFutures;
+    Promises.resize(MaxThread);
+
     for (int i = 0; i != MaxThread; ++i) {
         ChunkFutures.emplace_back(Promises[i].get_future());
     }
+}
+
+void Universe::GenerateStars(int MaxThread) {
+    NpgsCoreInfo("Initializating and generating basic properties...");
+    std::vector<Module::StellarGenerator> Generators;
+    std::vector<Module::StellarGenerator::BasicProperties> BasicProperties;
+
+    using enum Module::StellarGenerator::GenerateDistribution;
+    using enum Module::StellarGenerator::GenerateOption;
+    auto CreateGenerators =
+        [&, this](Module::StellarGenerator::GenerateOption Option = kNormal,
+            float MassLowerLimit =  0.1f,
+            float MassUpperLimit = 300.0f,
+            Module::StellarGenerator::GenerateDistribution MassDistribution = kFromPdf,
+            float AgeLowerLimit  =  0.0f,
+            float AgeUpperLimit  = 1.26e10f,
+            Module::StellarGenerator::GenerateDistribution AgeDistribution  = kFromPdf,
+            float FeHLowerLimit  = -4.0f,
+            float FeHUpperLimit  = 0.5f,
+            Module::StellarGenerator::GenerateDistribution FeHDistribution  = kFromPdf) -> void {
+        for (int i = 0; i != MaxThread; ++i) {
+            std::vector<std::uint32_t> Seeds(32);
+            for (int i = 0; i != 32; ++i) {
+                Seeds[i] = _SeedGenerator(_RandomEngine);
+            }
+
+            std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
+            std::seed_seq SeedSequence(Seeds.begin(), Seeds.end());
+            Generators.emplace_back(
+                SeedSequence, Option, _UniverseAge,
+                MassLowerLimit, MassUpperLimit, MassDistribution,
+                AgeLowerLimit,  AgeUpperLimit,  AgeDistribution,
+                FeHLowerLimit,  FeHUpperLimit,  FeHDistribution
+            );
+        }
+    };
+
+    // 生成基础属性
+    auto GenerateBasicProperties = [&, this](std::size_t NumStars) -> void {
+        for (std::size_t i = 0; i != NumStars; ++i) {
+            std::size_t ThreadId = i % Generators.size();
+            BasicProperties.emplace_back(Generators[ThreadId].GenerateBasicProperties());
+        }
+    };
+
+    // 特殊星基础参数设置
+    if (_NumExtraGiants != 0) {
+        Generators.clear();
+        CreateGenerators(Module::StellarGenerator::GenerateOption::kGiant, 1.0f, 35.0f);
+        GenerateBasicProperties(_NumExtraGiants);
+    }
+
+    if (_NumExtraMassiveStars != 0) {
+        Generators.clear();
+        CreateGenerators(
+            Module::StellarGenerator::GenerateOption::kNormal,
+            20.0f, 300.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
+            0.0f,  3.5e6f, Module::StellarGenerator::GenerateDistribution::kUniform
+        );
+        GenerateBasicProperties(_NumExtraMassiveStars);
+    }
+
+    if (_NumExtraNeutronStars != 0) {
+        Generators.clear();
+        CreateGenerators(
+            Module::StellarGenerator::GenerateOption::kDeathStar,
+            10.0f, 20.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
+            1e7f,  1e8f,  Module::StellarGenerator::GenerateDistribution::kUniformByExponent
+        );
+        GenerateBasicProperties(_NumExtraNeutronStars);
+    }
+
+    if (_NumExtraBlackHoles != 0) {
+        Generators.clear();
+        CreateGenerators(
+            Module::StellarGenerator::GenerateOption::kNormal,
+            35.0f,  300.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
+            1e7f, 1.26e10f, Module::StellarGenerator::GenerateDistribution::kFromPdf,
+            -2.0, 0.5
+        );
+        GenerateBasicProperties(_NumExtraBlackHoles);
+    }
+
+    if (_NumExtraMergeStars != 0) {
+        Generators.clear();
+        CreateGenerators(
+            Module::StellarGenerator::GenerateOption::kMergeStar,
+            0.0f, 0.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
+            1e6f, 1e8f, Module::StellarGenerator::GenerateDistribution::kUniformByExponent
+        );
+        GenerateBasicProperties(_NumExtraMergeStars);
+    }
+
+    std::size_t NumCommonStars = _NumStars - _NumExtraGiants - _NumExtraMassiveStars - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
+
+    Generators.clear();
+    CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal, 0.075f);
+    GenerateBasicProperties(NumCommonStars);
+
+    NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
+
+    std::vector<Astro::Star> Stars = InterpolateStars(MaxThread, Generators, BasicProperties);
+
+    NpgsCoreInfo("Building stellar octree in 8 threads...");
+    GenerateSlots(0.1f, _NumStars, 0.004f);
+
+    NpgsCoreInfo("Linking positions in octree to stellar systems...");
+    _StellarSystems.reserve(_NumStars);
+    std::shuffle(Stars.begin(), Stars.end(), _RandomEngine);
+    std::vector<glm::vec3> Slots;
+    OctreeLinkToStellarSystems(Stars, Slots);
+
+    NpgsCoreInfo("Generating binary stars...");
+    GenerateBinaryStars(MaxThread);
+
+    NpgsCoreInfo("Sorting...");
+    std::sort(Slots.begin(), Slots.end(), [](const glm::vec3& Point1, const glm::vec3& Point2) {
+        return glm::length(Point1) < glm::length(Point2);
+    });
+
+    NpgsCoreInfo("Assigning name...");
+    std::string Name;
+    std::ostringstream Stream;
+    for (auto& System : _StellarSystems) {
+        glm::vec3 Position = System.GetBaryPosition();
+        auto it = std::lower_bound(Slots.begin(), Slots.end(), Position,
+            [](const glm::vec3& Point1, const glm::vec3& Point2) -> bool {
+                return glm::length(Point1) < glm::length(Point2);
+            }
+        );
+        std::ptrdiff_t Offset = it - Slots.begin();
+        Stream << std::setfill('0') << std::setw(8) << std::to_string(Offset);
+        Name = "SYSTEM-" + Stream.str();
+        System.SetBaryName(Name).SetBaryDistanceRank(Offset);
+
+        auto& Stars = System.StarData();
+        if (Stars.size() > 1) {
+            std::sort(Stars.begin(), Stars.end(),
+                [](const std::unique_ptr<Astro::Star>& Star1, std::unique_ptr<Astro::Star>& Star2) -> bool {
+                    return Star1->GetMass() > Star2->GetMass();
+                }
+            );
+
+            char Rank = 'A';
+            for (auto& Star : Stars) {
+                Star->SetName("STAR-" + Stream.str() + " " + Rank);
+                ++Rank;
+            }
+        } else {
+            Stars.front()->SetName("STAR-" + Stream.str());
+        }
+
+        Stream.str("");
+        Stream.clear();
+    }
+
+    NpgsCoreInfo("Reset home stellar system...");
+    NodeType* HomeNode = _Octree->Find(glm::vec3(0.0f), [](const NodeType& Node) -> bool {
+        if (Node.IsLeafNode()) {
+            auto& Points = Node.GetPoints();
+            return std::find(Points.begin(), Points.end(), glm::vec3(0.0f)) != Points.end();
+        } else {
+            return false;
+        }
+    });
+
+    auto* HomeSystem = HomeNode->GetLink([](StellarSystem* System) -> bool {
+        return System->GetBaryPosition() == glm::vec3(0.0f);
+    });
+    HomeNode->RemoveStorage();
+    HomeNode->AddPoint(glm::vec3(0.0f));
+    HomeSystem->SetBaryNormal(glm::vec2(0.0f));
+
+    for (auto& Star : HomeSystem->StarData()) {
+        Star->SetNormal(glm::vec3(0.0f));
+    }
+
+    NpgsCoreInfo("Stellar generation completed.");
+}
+
+void Universe::FillStellarSystem(int MaxThread) {
+    NpgsCoreInfo("Generating planets...");
+
+    std::vector<Module::OrbitalGenerator> Generators;
+
+    for (int i = 0; i != MaxThread; ++i) {
+        std::vector<std::uint32_t> Seeds(32);
+        for (int i = 0; i != 32; ++i) {
+            Seeds[i] = _SeedGenerator(_RandomEngine);
+        }
+
+        std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
+        std::seed_seq SeedSequence(Seeds.begin(), Seeds.end());
+
+        Generators.emplace_back(SeedSequence);
+    }
+}
+
+std::vector<Astro::Star> Universe::InterpolateStars(int MaxThread, std::vector<Module::StellarGenerator>& Generators, std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties) {
+    std::vector<std::vector<Module::StellarGenerator::BasicProperties>> PropertyLists(MaxThread);
+    std::vector<std::promise<std::vector<Astro::Star>>> Promises(MaxThread);
+    std::vector<std::future<std::vector<Astro::Star>>> ChunkFutures;
+
+    MakeChunks(MaxThread, BasicProperties, PropertyLists, Promises, ChunkFutures);
 
     for (int i = 0; i != MaxThread; ++i) {
         _ThreadPool->Commit([&, i]() -> void {

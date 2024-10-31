@@ -99,6 +99,11 @@ inline Star& Star::SetIsSingleStar(bool bIsSingleStar) {
     return *this;
 }
 
+inline Star& Star::SetHasPlanets(bool bHasPlanets) {
+    _StarExtraProperties.bHasPlanets = bHasPlanets;
+    return *this;
+}
+
 inline Star& Star::SetStarFrom(StarFrom From) {
     _StarExtraProperties.From = From;
     return *this;
@@ -180,6 +185,10 @@ inline float Star::GetMinCoilMass() const {
 
 inline bool Star::GetIsSingleStar() const {
     return _StarExtraProperties.bIsSingleStar;
+}
+
+inline bool Star::GetHasPlanets() const {
+    return _StarExtraProperties.bHasPlanets;
 }
 
 inline Star::StarFrom Star::GetStarFrom() const {
