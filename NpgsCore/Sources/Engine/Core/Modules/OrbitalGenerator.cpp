@@ -1,6 +1,7 @@
 #include "OrbitalGenerator.h"
 
 #include <cmath>
+#include <cstdlib>
 #include <cstdint>
 #include <algorithm>
 #include <limits>
@@ -222,6 +223,11 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
     PlanetaryDisk PlanetaryDiskTempData{};
     const Astro::Star* Star = System.StarData()[StarIndex].get();
 
+    float BinarySemiMajorAxis = 0.0f;
+    if (System.StarData().size() > 1) {
+        BinarySemiMajorAxis = System.OrbitData()[0].SemiMajorAxis + System.OrbitData()[1].SemiMajorAxis;
+    }
+
     if (Star->GetFeH() < -2.0f) {
         return;
     }
@@ -386,6 +392,25 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
         }
     }
 
+    // 抹掉位于（双星）稳定区域以外的恒星
+    if (System.StarData().size() > 1) {
+        const auto& Primary   = System.StarData()[StarIndex];
+        const auto& Secondary = System.StarData()[1 - StarIndex];
+
+        float Eccentricity = System.OrbitData()[0].Eccentricity;
+        float Mu = static_cast<float>(Secondary->GetMass() / (Primary->GetMass() + Secondary->GetMass()));
+        float BoundaryLimit = BinarySemiMajorAxis * (0.464f - 0.38f * Mu - 0.361f * Eccentricity + 0.586f * Mu * Eccentricity + 0.15f * std::pow(Eccentricity, 2.0f) - 0.198f * Mu * std::pow(Eccentricity, 2.0f));
+    
+        for (std::size_t i = 0; i < PlanetCount; ++i) {
+            if (Orbits[i].SemiMajorAxis > BinarySemiMajorAxis) {
+                Planets.erase(Planets.begin() + i, Planets.end());
+                Orbits.erase(Orbits.begin() + i, Orbits.end());
+                CoreMassesSol.erase(CoreMassesSol.begin() + i, CoreMassesSol.end());
+                PlanetCount = Planets.size();
+            }
+        }
+    }
+
     std::vector<float> NewCoreMassesSol(PlanetCount); // 吸积核心质量，单位太阳
     float MigratedOriginSemiMajorAxisAu = 0.0f;       // 原有的半长轴，用于计算内迁行星
 
@@ -408,9 +433,21 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
         // 宜居带半径，单位 AU
         float InterHabitableZoneRadiusAu = 0.0f;
         float OuterHabitableZoneRadiusAu = 0.0f;
-        float StarLuminosity = static_cast<float>(Star->GetLuminosity());
-        InterHabitableZoneRadiusAu = sqrt(StarLuminosity / (4.0f * kPi * 3000)) / kAuToMeter;
-        OuterHabitableZoneRadiusAu = sqrt(StarLuminosity / (4.0f * kPi * 600))  / kAuToMeter;
+
+        if (System.StarData().size() > 1) {
+            const auto& Primary   = System.StarData()[StarIndex];
+            const auto& Secondary = System.StarData()[1 - StarIndex];
+
+            float PrimaryLuminosity   = static_cast<float>(Primary->GetLuminosity());
+            float SecondaryLuminoisty = static_cast<float>(Secondary->GetLuminosity());
+        
+            InterHabitableZoneRadiusAu = std::sqrt(PrimaryLuminosity / (4 * kPi * (3000 - SecondaryLuminoisty / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
+            OuterHabitableZoneRadiusAu = std::sqrt(PrimaryLuminosity / (4 * kPi * (600  - SecondaryLuminoisty / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
+        } else {
+            float StarLuminosity = static_cast<float>(Star->GetLuminosity());
+            InterHabitableZoneRadiusAu = std::sqrt(StarLuminosity / (4 * kPi * 3000)) / kAuToMeter;
+            OuterHabitableZoneRadiusAu = std::sqrt(StarLuminosity / (4 * kPi * 600))  / kAuToMeter;
+        }
 
 #ifdef DEBUG_OUTPUT
         std::println("Circumstellar habitable zone: {} - {} AU", InterHabitableZoneRadiusAu, OuterHabitableZoneRadiusAu);
@@ -419,13 +456,31 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
 
         // 冻结线半径，单位 AU
         float FrostLineAu = 0.0f;
-        float CommonCoefficient = (std::pow(10.0f, 2.0f - StarInitialMassSol) + 1.0f) * (static_cast<float>(kSolarLuminosity) / (4.0f * kPi * kStefanBoltzmann * std::pow(270.0f, 4.0f)));
-        if (StarInitialMassSol >= 0.075f && StarInitialMassSol < 0.43f) {
-            FrostLineAu = CommonCoefficient * (0.23f * std::pow(StarInitialMassSol, 2.3f));
-        } else if (StarInitialMassSol >= 0.43f && StarInitialMassSol < 2.0f) {
-            FrostLineAu = CommonCoefficient * std::pow(StarInitialMassSol, 4.0f);
-        } else if (StarInitialMassSol >= 2.0f && StarInitialMassSol <= 12.0f) {
-            FrostLineAu = CommonCoefficient * (1.5f * std::pow(StarInitialMassSol, 3.5f));
+        float CommonCoefficient = (std::pow(10.0f, 2.0f - StarInitialMassSol) + 1.0f) * static_cast<float>(kSolarLuminosity);
+        if (System.StarData().size() > 1) {
+            std::array<float, 2> Luminosities{ 0.0f, 0.0f };
+            for (std::size_t i = 0; i != 2; ++i) {
+                const auto& Star = System.StarData()[StarIndex == 0 ? i : 1 - i];
+                StarInitialMassSol = Star->GetInitialMass() / kSolarMass;
+                if (StarInitialMassSol >= 0.075f && StarInitialMassSol < 0.43f) {
+                    Luminosities[i] = CommonCoefficient * (0.23f * std::pow(StarInitialMassSol, 2.3f));
+                } else if (StarInitialMassSol >= 0.43f && StarInitialMassSol < 2.0f) {
+                    Luminosities[i] = CommonCoefficient * std::pow(StarInitialMassSol, 4.0f);
+                } else if (StarInitialMassSol >= 2.0f && StarInitialMassSol <= 12.0f) {
+                    Luminosities[i] = CommonCoefficient * (1.5f * std::pow(StarInitialMassSol, 3.5f));
+                }
+            }
+
+            FrostLineAu = (Luminosities[0] / (4 * kPi * ((kStefanBoltzmann * std::pow(270.0f, 4.0f)) - Luminosities[1] / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f)))));
+        } else {
+            CommonCoefficient /= (4 * kPi * kStefanBoltzmann * std::pow(270.0f, 4.0f));
+            if (StarInitialMassSol >= 0.075f && StarInitialMassSol < 0.43f) {
+                FrostLineAu = CommonCoefficient * (0.23f * std::pow(StarInitialMassSol, 2.3f));
+            } else if (StarInitialMassSol >= 0.43f && StarInitialMassSol < 2.0f) {
+                FrostLineAu = CommonCoefficient * std::pow(StarInitialMassSol, 4.0f);
+            } else if (StarInitialMassSol >= 2.0f && StarInitialMassSol <= 12.0f) {
+                FrostLineAu = CommonCoefficient * (1.5f * std::pow(StarInitialMassSol, 3.5f));
+            }
         }
 
         FrostLineAu = std::sqrt(FrostLineAu) / kAuToMeter;
@@ -436,7 +491,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
 #endif // DEBUG_OUTPUT
 
         // 判断大行星
-        PlanetCount = JudgePlanets(InterHabitableZoneRadiusAu, FrostLineAu, Star, CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
+        PlanetCount = JudgeLargePlanets(InterHabitableZoneRadiusAu, FrostLineAu, Star, CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
 
 #ifdef DEBUG_OUTPUT
         for (std::size_t i = 0; i < PlanetCount; ++i) {
@@ -717,7 +772,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
             Planets[i]->SetAge(DiskAge);
         }
     } else {
-        PlanetCount = JudgePlanets(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), Star, CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
+        PlanetCount = JudgeLargePlanets(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), Star, CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
 
         for (std::size_t i = 0; i < PlanetCount; ++i) {
 #ifdef DEBUG_OUTPUT
@@ -790,7 +845,7 @@ void OrbitalGenerator::GeneratePlanetOrbitElements(StellarSystem::OrbitalElement
     Orbit.Eccentricity = _CommonGenerator(_RandomEngine) * 0.05f;
 }
 
-std::size_t OrbitalGenerator::JudgePlanets(float InterHabitableZoneRadiusAu, float FrostLineAu, const Astro::Star* Star, std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets) {
+std::size_t OrbitalGenerator::JudgeLargePlanets(float InterHabitableZoneRadiusAu, float FrostLineAu, const Astro::Star* Star, std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets) {
     auto StarType = Star->GetStellarClass().GetStarType();
     std::size_t PlanetCount = CoreMassesSol.size();
 

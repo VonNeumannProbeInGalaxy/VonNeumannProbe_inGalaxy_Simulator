@@ -774,7 +774,7 @@ void StellarGenerator::CalculateSpectralType(float FeH, Astro::Star& StarData) {
     if (EvolutionPhase != Astro::Star::EvolutionPhase::kWolfRayet) {
         switch (StarType) {
         case StellarClass::StarType::kNormalStar: {
-            if (Teff < 54000) { // 高于 O0 上限，转到通过表面氢质量分数判断阶段
+            if (Teff < 54000) {
                 CalculateSpectralSubclass(EvolutionPhase, SurfaceH1);
 
                 if (EvolutionPhase != Astro::Star::EvolutionPhase::kWolfRayet) {
@@ -792,7 +792,7 @@ void StellarGenerator::CalculateSpectralType(float FeH, Astro::Star& StarData) {
                 } else {
                     SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
                 }
-            } else {
+            } else { // 高于 O2 上限，转到通过表面氢质量分数判断阶段
                 if (SurfaceH1 > MinSurfaceH1) {
                     SpectralType.HSpectralClass = StellarClass::SpectralClass::kSpectral_O;
                     SpectralType.Subclass = 2.0f;

@@ -16,7 +16,7 @@ CivilizationGenerator::CivilizationGenerator(const std::seed_seq& SeedSequence, 
 void CivilizationGenerator::GenerateCivilization(double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass, std::unique_ptr<Astro::Planet>& Planet) {
     if (_LifeOccurrenceProbability(_RandomEngine)) {
         float Random1 = 0.5f + _CommonGenerator(_RandomEngine) + 1.5f;
-        auto LifePhase = static_cast<Civilization::LifePhase>(std::min(4, std::max(1, static_cast<int>(Random1 * StarAge / (5 * std::pow(10, 8))))));
+        auto LifePhase = static_cast<Civilization::LifePhase>(std::min(4, std::max(1, static_cast<int>(Random1 * StarAge / (5e8)))));
 
         if (LifePhase == Civilization::LifePhase::kCenoziocEra) {
             float Random2 = 1.0f + _CommonGenerator(_RandomEngine) * 999.0f;
