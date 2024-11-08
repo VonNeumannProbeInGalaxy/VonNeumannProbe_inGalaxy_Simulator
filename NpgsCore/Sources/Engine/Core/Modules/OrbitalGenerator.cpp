@@ -11,6 +11,7 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <glm/glm.hpp>
 
+#include "Engine/Core/Utilities/Utilities.h"
 #include "Engine/Core/Assert.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
@@ -1262,10 +1263,10 @@ void OrbitalGenerator::CalculateTemperature(float PoyntingVector, const Astro::S
         }
 
         Emissivity = 0.98f;
-    } else if (Planet->GetAtmosphereMassFloat() != 0.0f) {
+    } else if (!Equal(Planet->GetAtmosphereMassFloat(), 0.0f)) {
         float AtmospherePressureAtm = (kGravityConstant * PlanetMass * Planet->GetAtmosphereMassFloat()) / (4.0f * kPi * std::pow(Planet->GetRadius(), 4.0f)) / kPascalToAtm;
         float Random = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-        float TidalLockCoefficient = Spin == -1.0f ? 2.0f : 1.0f;
+        float TidalLockCoefficient = Equal(Spin, -1.0f) ? 2.0f : 1.0f;
         if (PlanetType == Astro::Planet::PlanetType::kRocky || PlanetType == Astro::Planet::PlanetType::kChthonian) {
             Albedo = Random * std::min(0.7f, 0.12f + 0.2f * std::sqrt(TidalLockCoefficient * AtmospherePressureAtm));
             Emissivity = std::max(0.012f, 0.95f - 0.35f * std::pow(AtmospherePressureAtm, 0.25f));
@@ -1276,7 +1277,7 @@ void OrbitalGenerator::CalculateTemperature(float PoyntingVector, const Astro::S
             Albedo = Random * std::max(0.2f, 0.4f - 0.1f * std::sqrt(AtmospherePressureAtm));
             Emissivity = std::max(0.1f, 0.98f - 0.35f * std::pow(AtmospherePressureAtm, 0.25f));
         }
-    } else if (Planet->GetAtmosphereMassFloat() == 0.0f) {
+    } else if (Equal(Planet->GetAtmosphereMassFloat(), 0.0f)) {
         if (PlanetType == Astro::Planet::PlanetType::kRocky || PlanetType == Astro::Planet::PlanetType::kChthonian) {
             Albedo = 0.12f * (0.9f + _CommonGenerator(_RandomEngine) * 0.2f);
             Emissivity = 0.95f;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <charconv>
 #include <concepts>
 #include <functional>
 #include <stdexcept>
@@ -154,8 +155,12 @@ private:
     }
 
     static bool StrLessThan(const std::string& Str1, const std::string& Str2) {
-        double StrValue1 = std::stod(Str1);
-        double StrValue2 = std::stod(Str2);
+        double StrValue1 = 0.0;
+        double StrValue2 = 0.0;
+
+        std::from_chars(Str1.data(), Str1.data() + Str1.size(), StrValue1);
+        std::from_chars(Str2.data(), Str2.data() + Str2.size(), StrValue2);
+
         return StrValue1 < StrValue2;
     }
 

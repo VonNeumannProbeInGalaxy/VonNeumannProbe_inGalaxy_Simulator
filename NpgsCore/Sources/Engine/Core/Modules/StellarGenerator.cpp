@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdint>
 #include <algorithm>
+#include <charconv>
 #include <filesystem>
 #include <format>
 #include <iomanip>
@@ -16,6 +17,7 @@
 #include <glm/glm.hpp>
 
 #define ENABLE_CONSOLE_LOGGER
+#include <Engine/Core/Utilities/Utilities.h>
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/AssetLoader/AssetManager.h"
@@ -260,7 +262,7 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties& Properties) {
 }
 
 Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
-    if (Properties.InitialMassSol == -1.0f) {
+    if (Equal(Properties.InitialMassSol, -1.0f)) {
         Properties = GenerateBasicProperties(Properties.Age, Properties.FeH);
     }
     
@@ -413,7 +415,10 @@ void StellarGenerator::InitMistData() {
     for (const auto& PrefixDirectory : kPresetPrefix) {
         for (const auto& Entry : std::filesystem::directory_iterator(PrefixDirectory)) {
             std::string Filename = Entry.path().filename().string();
-            float Mass = std::stof(Filename.substr(0, Filename.find("Ms_track.csv")));
+
+            float Mass = 0.0f;
+            std::from_chars(Filename.data(), Filename.data() + Filename.find("Ms_track.csv"), Mass);
+            
             Masses.emplace_back(Mass);
 
             if (PrefixDirectory.find("WhiteDwarfs") != std::string::npos) {
@@ -577,7 +582,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             auto LowerPhaseChanges = FindPhaseChanges(LowerData);
             auto UpperPhaseChanges = FindPhaseChanges(UpperData);
 
-            if (TargetAge == -1.0) { // 年龄为 -1.0 代表要生成濒死恒星
+            if (Equal(TargetAge, -1.0)) { // 年龄为 -1.0 代表要生成濒死恒星
                 double LowerLifetime = LowerPhaseChanges.back()[_kStarAgeIndex];
                 double UpperLifetime = UpperPhaseChanges.back()[_kStarAgeIndex];
                 double Lifetime = LowerLifetime + (UpperLifetime - LowerLifetime) * MassCoefficient;
@@ -601,7 +606,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
             std::shared_ptr<MistData> StarData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
             auto PhaseChanges = FindPhaseChanges(StarData);
 
-            if (TargetAge == -1.0) { // 年龄为 -1.0 代表要生成濒死恒星
+            if (Equal(TargetAge, -1.0)) { // 年龄为 -1.0 代表要生成濒死恒星
                 double Lifetime = PhaseChanges.back()[_kStarAgeIndex];
                 TargetAge = Lifetime - 500000;
             }

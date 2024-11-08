@@ -154,6 +154,7 @@
     <ClCompile Include="Sources\Engine\Core\Modules\StellarGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp" />
     <ClCompile Include="Sources\Engine\Core\Universe\Universe.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Utilities\Utilities.cpp" />
     <ClCompile Include="Sources\main.cpp" />
     <ClCompile Include="Sources\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -181,6 +182,7 @@
     <ClInclude Include="Sources\Engine\Core\Random.hpp" />
     <ClInclude Include="Sources\Engine\Core\ThreadPool.h" />
     <ClInclude Include="Sources\Engine\Core\Universe\Universe.h" />
+    <ClInclude Include="Sources\Engine\Core\Utilities\Utilities.h" />
     <ClInclude Include="Sources\Npgs.h" />
     <ClInclude Include="Sources\stdafx.h" />
   </ItemGroup>
