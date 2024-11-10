@@ -22,10 +22,10 @@ public:
     };
 
     struct PlanetaryDisk {
-        float InterRadiusAu;
-        float OuterRadiusAu;
-        float DiskMassSol;
-        float DustMassSol;
+        float InterRadiusAu = 0.0f;
+        float OuterRadiusAu = 0.0f;
+        float DiskMassSol   = 0.0f;
+        float DustMassSol   = 0.0f;
     };
 
 public:
@@ -56,12 +56,12 @@ private:
     void GenerateBinaryOrbit(StellarSystem& System);
     void GeneratePlanets(std::size_t StarIndex, StellarSystem& System);
     void GeneratePlanetOrbitElements(StellarSystem::OrbitalElements& Orbit);
-    std::size_t JudgeLargePlanets(float InterHabitableZoneRadiusAu, float FrostLineAu, const Astro::Star* Star, std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets);
-    float CalculatePlanetMass(float CoreMass, float NewCoreMass, float SemiMajorAxisAu, const PlanetaryDisk& PlanetaryDiskTempData, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet);
-    void CalculatePlanetRadius(float MassEarth, std::unique_ptr<Astro::Planet>& Planet);
-    void GenerateRings(std::size_t Index, float FrostLineAu, const Astro::Star* Star, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets, std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters);
-    void GenerateSpin(float SemiMajorAxis, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet);
-    void CalculateTemperature(float PoyntingVector, const Astro::Star* Star, std::unique_ptr<Astro::Planet>& Planet);
+    std::size_t JudgeLargePlanets(std::size_t StarIndex, const std::vector<std::unique_ptr<Astro::Star>>& StarData, float BinarySemiMajorAxis, float InterHabitableZoneRadiusAu, float FrostLineAu, std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets);
+    float CalculatePlanetMass(float CoreMass, float NewCoreMass, float SemiMajorAxisAu, const PlanetaryDisk& PlanetaryDiskTempData, const Astro::Star* Star, Astro::Planet* Planet);
+    void CalculatePlanetRadius(float MassEarth, Astro::Planet* Planet);
+    void GenerateRings(std::size_t PlanetIndex, float FrostLineAu, const Astro::Star* Star, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets, std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters);
+    void GenerateSpin(float SemiMajorAxis, const Astro::Star* Star, Astro::Planet* Planet);
+    void CalculateTemperature(float PoyntingVector, const Astro::Star* Star, Astro::Planet* Planet);
 
 private:
     std::mt19937                           _RandomEngine;

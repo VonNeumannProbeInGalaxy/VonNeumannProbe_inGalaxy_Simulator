@@ -30,8 +30,8 @@ public:
     };
 
     struct OrbitalElements {
-        Astro::AstroObject* ParentBody = nullptr; // 上级天体
-        glm::vec2           Normal;               // 轨道法向量 (theta, phi)
+        const Astro::AstroObject* ParentBody = nullptr; // 上级天体
+        glm::vec2                 Normal;               // 轨道法向量 (theta, phi)
 
         float Epoch                    = 0.0f;    // 历元，单位儒略日
         float Period                   = 0.0f;    // 周期，单位 s
@@ -42,8 +42,9 @@ public:
         // float ArgumentOfPeriapsis      = 0.0f; // 近心点幅角，单位度
         // float TrueAnomaly              = 0.0f; // 真近点角，单位度
         
-        std::vector<std::pair<Astro::Star*,            float>> Stars;
-        std::vector<std::pair<Astro::Planet*,          float>> Planets;
+        // pair 中存储每个天体及其对应的初始真近点角
+        std::vector<std::pair<Astro::Star*, float>>            Stars;
+        std::vector<std::pair<Astro::Planet*, float>>          Planets;
         std::vector<std::pair<Astro::AsteroidCluster*, float>> AsteroidClusters;
     };
 

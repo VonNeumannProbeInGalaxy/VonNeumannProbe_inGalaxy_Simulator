@@ -34,8 +34,8 @@ enum class ParseState {
     kSpecialMark
 };
 
-// Tool functions
-// --------------
+// Processor functions
+// -------------------
 static ParseState ParseStarType(unsigned char Char, StellarClass::StarType& StarType, StellarClass::SpectralClass& HSpectralClass, std::size_t& Index);
 static ParseState ParseSpectralClass(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index);
 static ParseState ParseWolfRayetStar(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index);
@@ -274,8 +274,8 @@ StellarClass StellarClass::Parse(const std::string& StellarClassStr) {
     return { StarType, { HSpectralClass, MSpectralClass, LuminosityClass, SpecialMark, Subclass, AmSubclass, bIsAmStar } };
 }
 
-// Tool functions implementations
-// ------------------------------
+// Processor functions implementations
+// -----------------------------------
 ParseState ParseStarType(unsigned char Char, StellarClass::StarType& StarType, StellarClass::SpectralClass& HSpectralClass, std::size_t& Index) {
     switch (Char) {
     case 'X':

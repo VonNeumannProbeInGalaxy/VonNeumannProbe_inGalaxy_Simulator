@@ -73,7 +73,7 @@ StellarGenerator::StellarGenerator(
     const std::array<glm::vec2, 2>& MassMaxPdfs
 )   :
     _RandomEngine(SeedSequence),
-    _MagneticGenerators({
+    _MagneticGenerators{
         UniformRealDistribution<>(std::log10(500.0f), std::log10(3000.0f)),
         UniformRealDistribution<>( 1.0f, 3.0f),
         UniformRealDistribution<>( 0.0f, 1.0f),
@@ -82,19 +82,19 @@ StellarGenerator::StellarGenerator(
         UniformRealDistribution<>( 2.0f, 3.0f),
         UniformRealDistribution<>( 0.5f, 4.5f),
         UniformRealDistribution<>( 1e9f, 1e11f)
-    }),
+    },
 
-    _FeHGenerators({
+    _FeHGenerators{
         std::make_shared<LogNormalDistribution<>>(-0.3f, 0.5f),
         std::make_shared<NormalDistribution<>>(-0.3f, 0.15f),
         std::make_shared<NormalDistribution<>>(-0.08f, 0.12f),
         std::make_shared<NormalDistribution<>>(0.05f, 0.16f)
-    }),
+    },
 
-    _SpinGenerators({
+    _SpinGenerators{
         UniformRealDistribution<>(3.0f, 5.0f),
         UniformRealDistribution<>(0.001f, 0.998f)
-    }),
+    },
 
     _LogMassGenerator(
         Option == StellarGenerator::GenerateOption::kMergeStar ?
