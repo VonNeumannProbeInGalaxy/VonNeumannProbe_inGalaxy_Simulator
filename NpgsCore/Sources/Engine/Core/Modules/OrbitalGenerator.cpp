@@ -477,18 +477,18 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
             float CurrentLuminosity  = static_cast<float>(Current->GetLuminosity());
             float TheOtherLuminoisty = static_cast<float>(TheOther->GetLuminosity());
         
-            InterHabitableZoneRadiusAu = std::sqrt(CurrentLuminosity /
+            HabitableZoneAu.first = std::sqrt(CurrentLuminosity /
                 (4 * kPi * (3000 - TheOtherLuminoisty / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
-            OuterHabitableZoneRadiusAu = std::sqrt(CurrentLuminosity /
+            HabitableZoneAu.second = std::sqrt(CurrentLuminosity /
                 (4 * kPi * (600  - TheOtherLuminoisty / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
         } else {
-            float StarLuminosity = static_cast<float>(Star->GetLuminosity());
-            InterHabitableZoneRadiusAu = std::sqrt(StarLuminosity / (4 * kPi * 3000)) / kAuToMeter;
-            OuterHabitableZoneRadiusAu = std::sqrt(StarLuminosity / (4 * kPi * 600))  / kAuToMeter;
+            float StarLuminosity   = static_cast<float>(Star->GetLuminosity());
+            HabitableZoneAu.first  = std::sqrt(StarLuminosity / (4 * kPi * 3000)) / kAuToMeter;
+            HabitableZoneAu.second = std::sqrt(StarLuminosity / (4 * kPi * 600))  / kAuToMeter;
         }
 
 #ifdef DEBUG_OUTPUT
-        std::println("Circumstellar habitable zone: {} - {} AU", InterHabitableZoneRadiusAu, OuterHabitableZoneRadiusAu);
+        std::println("Circumstellar habitable zone: {} - {} AU", HabitableZoneAu.first, HabitableZoneAu.second);
         std::println("");
 #endif // DEBUG_OUTPUT
 
@@ -517,7 +517,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
 #endif // DEBUG_OUTPUT
 
         // 判断大行星
-        PlanetCount = JudgeLargePlanets(StarIndex, System.StarData(), BinarySemiMajorAxis, InterHabitableZoneRadiusAu, FrostLineAu, CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
+        PlanetCount = JudgeLargePlanets(StarIndex, System.StarData(), BinarySemiMajorAxis, HabitableZoneAu.first, FrostLineAu, CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
 
 #ifdef DEBUG_OUTPUT
         for (std::size_t i = 0; i < PlanetCount; ++i) {
@@ -679,7 +679,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
                 Planets[i]->SetRadius(Planets[i]->GetRadius() * std::pow(PoyntingVector / 10000.0f, 0.094f));
             }
 
-            if (PlanetType == Astro::Planet::PlanetType::kOceanic && OuterHabitableZoneRadiusAu <= Orbits[i].SemiMajorAxis / kAuToMeter) {
+            if (PlanetType == Astro::Planet::PlanetType::kOceanic && HabitableZoneAu.second <= Orbits[i].SemiMajorAxis / kAuToMeter) {
                 Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kIcePlanet);
             }
 
@@ -689,7 +689,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
             float PlanetMass = 0.0f;
             // 计算类地行星、次生大气层和地壳矿脉
             if (Star->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kNormalStar) {
-                GenerateTerra(Star, PoyntingVector, { InterHabitableZoneRadiusAu, OuterHabitableZoneRadiusAu }, Orbits[i], Planets[i].get());
+                GenerateTerra(Star, PoyntingVector, HabitableZoneAu, Orbits[i], Planets[i].get());
             }
 
             // 计算自转周期和扁率
@@ -716,7 +716,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
             if (PlanetType == Astro::Planet::PlanetType::kTerra) {
                 bool bCanHasLife = false;
                 if (Star->GetAge() > 5e8) {
-                    if (Orbits[i].SemiMajorAxis / kAuToMeter > InterHabitableZoneRadiusAu && Orbits[i].SemiMajorAxis / kAuToMeter < OuterHabitableZoneRadiusAu) {
+                    if (Orbits[i].SemiMajorAxis / kAuToMeter > HabitableZoneAu.first && Orbits[i].SemiMajorAxis / kAuToMeter < HabitableZoneAu.second) {
                         if (_bContainUltravioletHabitableZone) {
                             double StarMassSol = Star->GetMass() / kSolarMass;
                             if (StarMassSol > 0.75 && StarMassSol < 1.5) {
