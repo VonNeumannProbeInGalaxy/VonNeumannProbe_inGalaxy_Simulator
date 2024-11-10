@@ -11,21 +11,21 @@ int main() {
     Logger::Init();
     ThreadPool::Init();
 
-    std::println("Enter the system count:");
-    std::size_t StarCount = 0;
-    std::cin >> StarCount;
+    //std::println("Enter the system count:");
+    //std::size_t StarCount = 0;
+    //std::cin >> StarCount;
 
-    std::println("Enter the seed:");
-    unsigned Seed = 0;
-    std::cin >> Seed;
+    //std::println("Enter the seed:");
+    //unsigned Seed = 0;
+    //std::cin >> Seed;
 
-    try {
-        Universe Space(Seed, StarCount);
-        Space.FillUniverse();
-        Space.CountStars();
-    } catch (std::out_of_range& e) {
-        std::cout << e.what() << std::endl;
-    }
+    //try {
+    //    Universe Space(Seed, StarCount);
+    //    Space.FillUniverse();
+    //    Space.CountStars();
+    //} catch (std::out_of_range& e) {
+    //    std::cout << e.what() << std::endl;
+    //}
 
     //using enum StellarGenerator::GenerateOption;
     //StellarGenerator sg({ 42 });
@@ -57,17 +57,23 @@ int main() {
     //    }
     //}
 
-    //std::random_device rd;
-    //unsigned seed = 3141777642;//800323521;//472035744;//2442947453;
-    //std::println("Seed: {}", seed);
-    //StellarGenerator sg({ seed });
-    //StellarGenerator::BasicProperties b{ 4.6e9f, 0.0f, 1.0f };
-    //auto s = sg.GenerateStar(b);
+    std::random_device rd;
+    unsigned seed = 3731860369;//3141777642;//800323521;//472035744;//2442947453;
+    std::println("Seed: {}", seed);
+    StellarGenerator sg({ seed });
+    StellarGenerator::BasicProperties b1{ 5e9f, 0.0f, 0.1f };
+    StellarGenerator::BasicProperties b2{ 5e9f, 0.0f, 0.3f };
+    auto s1 = sg.GenerateStar(b1);
+    auto s2 = sg.GenerateStar(b2);
 
-    //OrbitalGenerator og({ seed });
-    //StellarSystem ss;
-    //ss.StarData().push_back(std::make_unique<Astro::Star>(s));
-    //og.GenerateOrbitals(ss);
+    s1.SetIsSingleStar(false);
+    s2.SetIsSingleStar(false);
+
+    OrbitalGenerator og({ seed });
+    StellarSystem ss;
+    ss.StarData().push_back(std::make_unique<Astro::Star>(s1));
+    ss.StarData().push_back(std::make_unique<Astro::Star>(s2));
+    og.GenerateOrbitals(ss);
 
     //std::vector<StellarSystem> sss(200000);
 
@@ -75,7 +81,7 @@ int main() {
     //for (int i = 0; i != 20000; ++i) {
     //    try {
     //        sss[i].StarData().emplace_back(std::make_unique<Astro::Star>(s));
-    //        og.GeneratePlanets(sss[i]);
+    //        og.GenerateOrbitals(sss[i]);
     //    } catch (std::exception& e) {
     //        NpgsCoreError(e.what());
     //    }

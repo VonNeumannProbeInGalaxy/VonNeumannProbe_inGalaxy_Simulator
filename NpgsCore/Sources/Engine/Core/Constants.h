@@ -32,8 +32,8 @@ inline constexpr float kEuler                  = std::numbers::e_v<float>;
 inline constexpr int   kSpeedOfLight           = 299792458;
 inline constexpr float kGravityConstant        = 6.6743e-11f;
 inline constexpr float kStefanBoltzmann        = 5.6703744e-8f;
-inline constexpr int   kYearInSeconds          = 31536000;
-inline constexpr int   kDayInSeconds           = 86400;
+inline constexpr int   kYearToSeconds          = 31536000;
+inline constexpr int   kDayToSeconds           = 86400;
 inline constexpr int   kPascalToAtm            = 101325;
 inline constexpr std::uint64_t kAuToMeter      = 149597870700;
 
