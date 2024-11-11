@@ -136,6 +136,46 @@ public:
     static StellarClass Parse(const std::string& StellarClassStr);
 
 private:
+    enum class ParseState {
+        kBegin,
+        kEnd,
+        // Parsing special star type
+        // -------------------------
+        kWolfRayetStar,
+        kWhiteDwarf,
+        kWhiteDwarfEx,
+        kSubdwarfPerfix,
+        // Parsing spectral type
+        // ---------------------
+        kSpectralClass,
+        kSubclass,
+        kSubclassDecimal,
+        kSubclassDecimalFinal,
+        kLuminosityClass,
+        kLuminosityClassI,
+        kLuminosityClassIa,
+        kLuminosityClassII,
+        kLuminosityClassV,
+        kSpecialMark
+    };
+
+private:
+    static ParseState ParseStarType(unsigned char Char, StellarClass::StarType& StarType, StellarClass::SpectralClass& HSpectralClass, std::size_t& Index);
+    static ParseState ParseSpectralClass(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index);
+    static ParseState ParseWolfRayetStar(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index);
+    static ParseState ParseWhiteDwarf(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index);
+    static ParseState ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, StellarClass::SpectralClass& SpectralClass, std::size_t& Index);
+    static ParseState ParseLuminosityClass(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass, std::size_t& Index);
+    static ParseState ParseLuminosityClassI(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass, std::size_t& Index);
+    static ParseState ParseLuminosityClassIa(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass);
+    static ParseState ParseLuminosityClassII(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass);
+    static ParseState ParseLuminosityClassV(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass);
+    static ParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, StellarClass::SpecialPeculiarity& SpecialMark, std::size_t& Index);
+    static std::string SpectralToStr(StellarClass::SpectralClass Spectral, float Subclass);
+    static std::string LuminosityClassToStr(StellarClass::LuminosityClass Luminosity);
+    static std::string SpecialMarkToStr(StellarClass::SpecialPeculiarities SpecialMark);
+
+private:
     std::uint64_t _SpectralType;
     StarType      _StarType;
 };
