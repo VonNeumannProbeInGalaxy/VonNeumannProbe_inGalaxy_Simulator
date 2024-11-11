@@ -107,18 +107,27 @@ private:
     void InitMistData();
     void InitPdfs();
 
-    // Processor functions, as member functions to access class members
-    // ----------------------------------------------------------------
     float GenerateAge(float MaxPdf);
     float GenerateMass(float MaxPdf, auto& LogMassPdf);
     std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWhiteDwarf);
     std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassCoefficient);
     std::vector<std::vector<double>> FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv);
+    double CalculateEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
+    std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
+    std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
+    void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays);
+    std::vector<double> InterpolateHrDiagram(const std::shared_ptr<StellarGenerator::HrDiagram>& Data, double BvColorIndex);
+    std::vector<double> InterpolateStarData(const std::shared_ptr<StellarGenerator::MistData>& Data, double EvolutionProgress);
+    std::vector<double> InterpolateStarData(const std::shared_ptr<StellarGenerator::WdMistData>& Data, double TargetAge);
+    std::vector<double> InterpolateStarData(const auto& Data, double Target, const std::string& Header, int Index, bool bIsWhiteDwarf);
+    std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient);
+    std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient, bool bIsWhiteDwarf);
     void CalculateSpectralType(float FeH, Astro::Star& StarData);
     StellarClass::LuminosityClass CalculateLuminosityClass(const Astro::Star& StarData);
     void ProcessDeathStar(Astro::Star& DeathStar, GenerateOption Option = GenerateOption::kNormal);
     void GenerateMagnetic(Astro::Star& StarData);
     void GenerateSpin(Astro::Star& StarData);
+    void ExpandMistData(double TargetMass, std::vector<double>& StarData);
 
     template <typename CsvType>
     static std::shared_ptr<CsvType> LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);

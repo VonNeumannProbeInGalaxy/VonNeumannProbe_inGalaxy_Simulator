@@ -59,10 +59,11 @@ private:
     std::size_t JudgeLargePlanets(std::size_t StarIndex, const std::vector<std::unique_ptr<Astro::Star>>& StarData, float BinarySemiMajorAxis, float InterHabitableZoneRadiusAu, float FrostLineAu, std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets);
     float CalculatePlanetMass(float CoreMass, float NewCoreMass, float SemiMajorAxisAu, const PlanetaryDisk& PlanetaryDiskTempData, const Astro::Star* Star, Astro::Planet* Planet);
     void CalculatePlanetRadius(float MassEarth, Astro::Planet* Planet);
-    void GenerateRings(std::size_t PlanetIndex, float FrostLineAu, const Astro::Star* Star, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets, std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters);
+    void GenerateRings(std::size_t PlanetIndex, float FrostLineAu, const Astro::Star* Star, const Astro::Planet* Planet, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters);
     void GenerateTerra(const Astro::Star* Star, float PoyntingVector, const std::pair<float, float>& HabitableZoneAu, const StellarSystem::OrbitalElements& Orbit, Astro::Planet* Planet);
     void GenerateSpin(float SemiMajorAxis, const Astro::Star* Star, Astro::Planet* Planet);
     void CalculateTemperature(float PoyntingVector, const Astro::Star* Star, Astro::Planet* Planet);
+    void GenerateCivilization(const Astro::Star* Star, float PoyntingVector, const std::pair<float, float>& HabitableZoneAu, const StellarSystem::OrbitalElements& Orbit, Astro::Planet* Planet);
 
 private:
     std::mt19937                           _RandomEngine;

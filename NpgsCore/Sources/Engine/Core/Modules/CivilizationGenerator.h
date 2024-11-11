@@ -17,7 +17,7 @@ public:
     explicit CivilizationGenerator(const std::seed_seq& SeedSequence, float LifeOccurrenceProbability, bool bEnableAsiFilter = false);
     ~CivilizationGenerator() = default;
 
-    void GenerateCivilization(double StarAge, float PoyntingVector, float PlanetRadius, float PlanetMass, std::unique_ptr<Astro::Planet>& Planet);
+    void GenerateCivilization(double StarAge, float PoyntingVector, Astro::Planet* Planet);
 
 private:
     std::mt19937              _RandomEngine;
