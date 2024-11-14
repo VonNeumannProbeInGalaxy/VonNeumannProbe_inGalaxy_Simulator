@@ -43,8 +43,8 @@ public:
         // float TrueAnomaly              = 0.0f; // 真近点角，单位度
         
         // pair 中存储每个天体及其对应的初始真近点角
-        std::vector<std::pair<Astro::Star*, float>>            Stars;
-        std::vector<std::pair<Astro::Planet*, float>>          Planets;
+        std::vector<std::pair<Astro::Star*,            float>> Stars;
+        std::vector<std::pair<Astro::Planet*,          float>> Planets;
         std::vector<std::pair<Astro::AsteroidCluster*, float>> AsteroidClusters;
     };
 
