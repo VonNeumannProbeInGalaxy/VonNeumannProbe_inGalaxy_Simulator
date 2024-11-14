@@ -5,8 +5,8 @@
 #include <random>
 
 #include "Engine/Base/NpgsObject/Astro/Planet.h"
+#include "Engine/Core/Utilities/Random.hpp"
 #include "Engine/Core/Base.h"
-#include "Engine/Core/Random.hpp"
 
 _NPGS_BEGIN
 _MODULE_BEGIN

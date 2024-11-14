@@ -16,9 +16,9 @@
 
 #define ENABLE_CONSOLE_LOGGER
 #include "Engine/Core/Modules/OrbitalGenerator.h"
+#include "Engine/Core/Utilities/Logger.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
-#include "Engine/Core/Logger.h"
 
 _NPGS_BEGIN
 

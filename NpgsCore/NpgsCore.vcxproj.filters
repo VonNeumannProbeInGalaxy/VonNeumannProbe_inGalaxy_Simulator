@@ -33,10 +33,10 @@
     <ClCompile Include="Sources\Engine\Core\Modules\StellarGenerator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Logger.cpp">
+    <ClCompile Include="Sources\Engine\Core\Utilities\Logger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp">
+    <ClCompile Include="Sources\Engine\Core\Utilities\ThreadPool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\main.cpp">
@@ -89,7 +89,7 @@
     <ClInclude Include="Sources\Engine\Base\NpgsObject\NpgsObject.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Base\Octree.hpp">
+    <ClInclude Include="Sources\Engine\Core\Utilities\Octree.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Base\StellarSystem.h">
@@ -101,7 +101,7 @@
     <ClInclude Include="Sources\Engine\Core\AssetLoader\Csv.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Logger.h">
+    <ClInclude Include="Sources\Engine\Core\Utilities\Logger.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\Modules\CivilizationGenerator.h">
@@ -116,10 +116,10 @@
     <ClInclude Include="Sources\Engine\Core\Modules\StellarGenerator.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Random.hpp">
+    <ClInclude Include="Sources\Engine\Core\Utilities\Random.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\ThreadPool.h">
+    <ClInclude Include="Sources\Engine\Core\Utilities\ThreadPool.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\Universe\Universe.h">

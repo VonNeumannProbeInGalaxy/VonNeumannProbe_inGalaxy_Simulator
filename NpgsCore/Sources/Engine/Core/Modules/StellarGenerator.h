@@ -14,8 +14,8 @@
 #include "Engine/Base/NpgsObject/Astro/Star.h"
 #include "Engine/Core/AssetLoader/Csv.hpp"
 #include "Engine/Core/Modules/StellarClass.h"
+#include "Engine/Core/Utilities/Random.hpp"
 #include "Engine/Core/Base.h"
-#include "Engine/Core/Random.hpp"
 
 _NPGS_BEGIN
 _MODULE_BEGIN

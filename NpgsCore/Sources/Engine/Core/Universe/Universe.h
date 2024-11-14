@@ -7,12 +7,12 @@
 #include <glm/glm.hpp>
 
 #include "Engine/Base/NpgsObject/Astro/Star.h"
-#include "Engine/Base/Octree.hpp"
 #include "Engine/Base/StellarSystem.h"
 #include "Engine/Core/Modules/StellarGenerator.h"
+#include "Engine/Core/Utilities/Octree.hpp"
+#include "Engine/Core/Utilities/Random.hpp"
+#include "Engine/Core/Utilities/ThreadPool.h"
 #include "Engine/Core/Base.h"
-#include "Engine/Core/Random.hpp"
-#include "Engine/Core/ThreadPool.h"
 
 _NPGS_BEGIN
 

@@ -11,7 +11,7 @@
 #include <glm/glm.hpp>
 
 #include "Engine/Core/Base.h"
-#include "Engine/Core/ThreadPool.h"
+#include "Engine/Core/Utilities/ThreadPool.h"
 
 _NPGS_BEGIN
 

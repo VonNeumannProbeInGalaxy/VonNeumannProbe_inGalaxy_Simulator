@@ -17,11 +17,11 @@
 #include <glm/glm.hpp>
 
 #define ENABLE_CONSOLE_LOGGER
+#include "Engine/Core/Utilities/Logger.h"
 #include <Engine/Core/Utilities/Utilities.h>
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
 #include "Engine/Core/AssetLoader/AssetManager.h"
-#include "Engine/Core/Logger.h"
 
 _NPGS_BEGIN
 _MODULE_BEGIN
