@@ -6,6 +6,7 @@
 
 int main() {
     using namespace Npgs;
+    using namespace Npgs::Astro;
     using namespace Npgs::Module;
 
     Logger::Init();

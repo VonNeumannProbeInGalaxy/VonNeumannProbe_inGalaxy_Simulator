@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "Engine/Base/NpgsObject/Astro/Star.h"
-#include "Engine/Base/StellarSystem.h"
+#include "Engine/Base/NpgsObject/Astro/StellarSystem.h"
 #include "Engine/Core/Modules/StellarGenerator.h"
 #include "Engine/Core/Utilities/Octree.hpp"
 #include "Engine/Core/Utilities/Random.hpp"
@@ -54,13 +54,13 @@ private:
     void GenerateBinaryStars(int MaxThread);
 
 private:
-    using NodeType = Octree<StellarSystem>::NodeType;
+    using NodeType = Octree<Astro::StellarSystem>::NodeType;
 
-    std::mt19937                           _RandomEngine;
-    UniformIntDistribution<std::uint32_t>  _SeedGenerator;
-    UniformRealDistribution<>              _CommonGenerator;
-    std::unique_ptr<Octree<StellarSystem>> _Octree;
-    ThreadPool*                            _ThreadPool;
+    std::mt19937                                  _RandomEngine;
+    UniformIntDistribution<std::uint32_t>         _SeedGenerator;
+    UniformRealDistribution<>                     _CommonGenerator;
+    std::unique_ptr<Octree<Astro::StellarSystem>> _Octree;
+    ThreadPool*                                   _ThreadPool;
 
     std::size_t _NumStars;
     std::size_t _NumExtraGiants;
@@ -70,7 +70,7 @@ private:
     std::size_t _NumExtraMergeStars;
     float       _UniverseAge;
 
-    std::vector<StellarSystem> _StellarSystems;
+    std::vector<Astro::StellarSystem> _StellarSystems;
 };
 
 _NPGS_END

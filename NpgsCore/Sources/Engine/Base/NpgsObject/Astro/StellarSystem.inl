@@ -3,6 +3,7 @@
 #include "StellarSystem.h"
 
 _NPGS_BEGIN
+_ASTRO_BEGIN
 
 inline StellarSystem& StellarSystem::SetBaryPosition(const glm::vec3& Position) {
     _SystemBary.Position = Position;
@@ -60,4 +61,5 @@ inline std::vector<StellarSystem::OrbitalElements>& StellarSystem::OrbitData() {
     return _Orbits;
 }
 
+_ASTRO_END
 _NPGS_END

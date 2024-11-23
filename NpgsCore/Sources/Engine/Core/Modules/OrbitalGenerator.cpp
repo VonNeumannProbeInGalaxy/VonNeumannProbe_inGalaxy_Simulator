@@ -67,7 +67,7 @@ OrbitalGenerator::OrbitalGenerator(
     _CivilizationGenerator = std::make_unique<CivilizationGenerator>(ShuffledSeeds, LifeOccurrenceProbability, bEnableAsiFilter);
 }
 
-void OrbitalGenerator::GenerateOrbitals(StellarSystem& System) {
+void OrbitalGenerator::GenerateOrbitals(Astro::StellarSystem& System) {
     if (System.StarData().size() == 2) {
         GenerateBinaryOrbit(System);
         Astro::Star* Star1 = System.StarData()[0].get();
@@ -121,8 +121,8 @@ void OrbitalGenerator::GenerateOrbitals(StellarSystem& System) {
     }
 }
 
-void OrbitalGenerator::GenerateBinaryOrbit(StellarSystem& System) {
-    std::pair<StellarSystem::OrbitalElements, StellarSystem::OrbitalElements> Elements;
+void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System) {
+    std::pair<Astro::StellarSystem::OrbitalElements, Astro::StellarSystem::OrbitalElements> Elements;
     Astro::AstroObject* SystemBaryCenter = System.GetBaryCenter();
 
     Elements.first.ParentBody = SystemBaryCenter;
@@ -247,7 +247,7 @@ void OrbitalGenerator::GenerateBinaryOrbit(StellarSystem& System) {
 #endif // DEBUG_OUTPUT
 }
 
-void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& System) {
+void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSystem& System) {
     // 变量名未标注单位均为国际单位制
     const Astro::Star* Star = System.StarData()[StarIndex].get();
     if (Star->GetFeH() < -2.0f) {
@@ -379,9 +379,9 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
 #endif // DEBUG_OUTPUT
 
     // 初始化轨道
-    std::vector<StellarSystem::OrbitalElements> Orbits;
+    std::vector<Astro::StellarSystem::OrbitalElements> Orbits;
     for (std::size_t i = 0; i != PlanetCount; ++i) {
-        Orbits.emplace_back(StellarSystem::OrbitalElements());
+        Orbits.emplace_back(Astro::StellarSystem::OrbitalElements());
     }
 
     for (auto& Orbit : Orbits) {
@@ -792,11 +792,11 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, StellarSystem& Sys
     std::move(Orbits.begin(), Orbits.end(), std::back_inserter(System.OrbitData()));
 }
 
-void OrbitalGenerator::GeneratePlanetOrbitElements(StellarSystem::OrbitalElements& Orbit) {
+void OrbitalGenerator::GeneratePlanetOrbitElements(Astro::StellarSystem::OrbitalElements& Orbit) {
     Orbit.Eccentricity = _CommonGenerator(_RandomEngine) * 0.05f;
 }
 
-std::size_t OrbitalGenerator::JudgeLargePlanets(std::size_t StarIndex, const std::vector<std::unique_ptr<Astro::Star>>& StarData, float BinarySemiMajorAxis, float InterHabitableZoneRadiusAu, float FrostLineAu, std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets) {
+std::size_t OrbitalGenerator::JudgeLargePlanets(std::size_t StarIndex, const std::vector<std::unique_ptr<Astro::Star>>& StarData, float BinarySemiMajorAxis, float InterHabitableZoneRadiusAu, float FrostLineAu, std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol, std::vector<Astro::StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::Planet>>& Planets) {
     const Astro::Star* Star = StarData[StarIndex].get();
     auto StarType = Star->GetStellarClass().GetStarType();
     std::size_t PlanetCount = CoreMassesSol.size();
@@ -1151,7 +1151,7 @@ void OrbitalGenerator::CalculatePlanetRadius(float MassEarth, Astro::Planet* Pla
     Planet->SetRadius(Radius);
 }
 
-void OrbitalGenerator::GenerateRings(std::size_t PlanetIndex, float FrostLineAu, const Astro::Star* Star, const Astro::Planet* Planet, std::vector<StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters) {
+void OrbitalGenerator::GenerateRings(std::size_t PlanetIndex, float FrostLineAu, const Astro::Star* Star, const Astro::Planet* Planet, std::vector<Astro::StellarSystem::OrbitalElements>& Orbits, std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters) {
     auto  PlanetType        = Planet->GetPlanetType();
     float PlanetMass        = Planet->GetMassFloat();
     float PlanetMassEarth   = PlanetMass / kEarthMass;
@@ -1188,7 +1188,7 @@ void OrbitalGenerator::GenerateRings(std::size_t PlanetIndex, float FrostLineAu,
                 AsteroidType = Astro::AsteroidCluster::AsteroidType::kRocky;
             }
 
-            StellarSystem::OrbitalElements RingsOrbit;
+            Astro::StellarSystem::OrbitalElements RingsOrbit;
             float Inaccuracy = -0.1f + _CommonGenerator(_RandomEngine) * 0.2f;
             RingsOrbit.SemiMajorAxis = 0.6f * LiquidRocheRadius * (1.0f + Inaccuracy);
             GeneratePlanetOrbitElements(RingsOrbit);
@@ -1206,7 +1206,7 @@ void OrbitalGenerator::GenerateRings(std::size_t PlanetIndex, float FrostLineAu,
     }
 }
 
-void OrbitalGenerator::GenerateTerra(const Astro::Star* Star, float PoyntingVector, const std::pair<float, float>& HabitableZoneAu, const StellarSystem::OrbitalElements& Orbit, Astro::Planet* Planet) {
+void OrbitalGenerator::GenerateTerra(const Astro::Star* Star, float PoyntingVector, const std::pair<float, float>& HabitableZoneAu, const Astro::StellarSystem::OrbitalElements& Orbit, Astro::Planet* Planet) {
     auto  PlanetType = Planet->GetPlanetType();
     float PlanetMass = Planet->GetMassFloat();
     float PlanetMassEarth = Planet->GetMassFloat() / kEarthMass;
@@ -1401,7 +1401,7 @@ void OrbitalGenerator::CalculateTemperature(float PoyntingVector, const Astro::S
     Planet->SetBalanceTemperature(BalanceTemperature);
 }
 
-void OrbitalGenerator::GenerateCivilization(const Astro::Star* Star, float PoyntingVector, const std::pair<float, float>& HabitableZoneAu, const StellarSystem::OrbitalElements& Orbit, Astro::Planet* Planet) {
+void OrbitalGenerator::GenerateCivilization(const Astro::Star* Star, float PoyntingVector, const std::pair<float, float>& HabitableZoneAu, const Astro::StellarSystem::OrbitalElements& Orbit, Astro::Planet* Planet) {
     bool bHasLife = false;
     if (Star->GetAge() > 5e8) {
         if (Orbit.SemiMajorAxis / kAuToMeter > HabitableZoneAu.first && Orbit.SemiMajorAxis / kAuToMeter < HabitableZoneAu.second) {

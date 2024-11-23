@@ -733,7 +733,7 @@ void Universe::GenerateStars(int MaxThread) {
         }
     });
 
-    auto* HomeSystem = HomeNode->GetLink([](StellarSystem* System) -> bool {
+    auto* HomeSystem = HomeNode->GetLink([](Astro::StellarSystem* System) -> bool {
         return System->GetBaryPosition() == glm::vec3(0.0f);
     });
     HomeNode->RemoveStorage();
@@ -800,7 +800,7 @@ void Universe::GenerateSlots(float MinDistance, std::size_t NumSamples, float De
     float LeafRadius = LeafSize * 0.5f;
     float RootRadius = LeafSize * static_cast<float>(std::pow(2, Exponent));
 
-    _Octree = std::make_unique<Octree<StellarSystem>>(glm::vec3(0.0), RootRadius);
+    _Octree = std::make_unique<Octree<Astro::StellarSystem>>(glm::vec3(0.0), RootRadius);
     _Octree->BuildEmptyTree(LeafRadius); // 快速构建一个空树，每个叶子节点作为一个格子，用于生成恒星
 
     // 遍历八叉树，将距离原点大于半径的叶子节点标记为无效，保证恒星只会在范围内生成
@@ -882,8 +882,8 @@ void Universe::OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::
     _Octree->Traverse([&](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
             for (const auto& Point : Node.GetPoints()) {
-                StellarSystem::BaryCenter NewBary(Point, glm::vec2(0.0f), 0, "");
-                StellarSystem NewSystem(NewBary);
+                Astro::StellarSystem::BaryCenter NewBary(Point, glm::vec2(0.0f), 0, "");
+                Astro::StellarSystem NewSystem(NewBary);
                 NewSystem.StarData().emplace_back(std::make_unique<Astro::Star>(Stars.back()));
                 NewSystem.SetBaryNormal(NewSystem.StarData().front()->GetNormal());
                 Stars.pop_back();
@@ -911,7 +911,7 @@ void Universe::GenerateBinaryStars(int MaxThread) {
         Generators.emplace_back(SeedSequence, Module::StellarGenerator::GenerateOption::kBinarySecondStar);
     }
 
-    std::vector<StellarSystem*> BinarySystems;
+    std::vector<Astro::StellarSystem*> BinarySystems;
     for (auto& System : _StellarSystems) {
         const auto& Star = System.StarData().front();
         if (!Star->GetIsSingleStar()) {

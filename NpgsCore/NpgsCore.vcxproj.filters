@@ -42,7 +42,7 @@
     <ClCompile Include="Sources\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Base\StellarSystem.cpp">
+    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\StellarSystem.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Core\Modules\OrbitalGenerator.cpp">
@@ -92,7 +92,7 @@
     <ClInclude Include="Sources\Engine\Core\Utilities\Octree.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Base\StellarSystem.h">
+    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\StellarSystem.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\AssetLoader\AssetManager.h">
@@ -145,7 +145,7 @@
     <None Include="Sources\Engine\Base\NpgsObject\Astro\Star.inl">
       <Filter>头文件</Filter>
     </None>
-    <None Include="Sources\Engine\Base\StellarSystem.inl">
+    <None Include="Sources\Engine\Base\NpgsObject\Astro\StellarSystem.inl">
       <Filter>头文件</Filter>
     </None>
     <None Include="Sources\Engine\Base\NpgsObject\Civilization.inl">

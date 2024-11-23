@@ -14,6 +14,7 @@
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
+_ASTRO_BEGIN
 
 class StellarSystem : public NpgsObject {
 public:
@@ -82,6 +83,7 @@ private:
     std::vector<OrbitalElements>                         _Orbits;
 };
 
+_ASTRO_END
 _NPGS_END
 
 #include "StellarSystem.inl"

@@ -3,9 +3,9 @@
 #include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
 #include "Engine/Base/NpgsObject/Astro/Planet.h"
 #include "Engine/Base/NpgsObject/Astro/Star.h"
+#include "Engine/Base/NpgsObject/Astro/StellarSystem.h"
 #include "Engine/Base/NpgsObject/Civilization.h"
 #include "Engine/Base/NpgsObject/NpgsObject.h"
-#include "Engine/Base/StellarSystem.h"
 
 #include "Engine/Core/AssetLoader/AssetManager.h"
 #include "Engine/Core/AssetLoader/Csv.hpp"
