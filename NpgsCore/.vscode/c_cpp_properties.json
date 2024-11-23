@@ -14,7 +14,10 @@
             "windowsSdkVersion": "10.0.26100.0",
             "cStandard": "c23",
             "cppStandard": "c++23",
-            "intelliSenseMode": "windows-msvc-x64"
+            "intelliSenseMode": "windows-msvc-x64",
+            "forcedInclude": [
+                "Sources/stdafx.h"
+            ]
         }
     ],
     "version": 4

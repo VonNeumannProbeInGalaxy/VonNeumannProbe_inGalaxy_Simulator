@@ -51,8 +51,6 @@ public:
     void GenerateOrbitals(StellarSystem& System);
 
 private:
-    // Processor functions, as member functions to access class members
-    // ----------------------------------------------------------------
     void GenerateBinaryOrbit(StellarSystem& System);
     void GeneratePlanets(std::size_t StarIndex, StellarSystem& System);
     void GeneratePlanetOrbitElements(StellarSystem::OrbitalElements& Orbit);
