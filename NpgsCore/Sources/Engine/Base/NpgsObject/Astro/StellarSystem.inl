@@ -57,7 +57,7 @@ inline std::vector<std::unique_ptr<Astro::AsteroidCluster>>& StellarSystem::Aste
     return _AsteroidClusters;
 }
 
-inline std::vector<StellarSystem::OrbitalElements>& StellarSystem::OrbitData() {
+inline std::vector<StellarSystem::Orbit>& StellarSystem::OrbitData() {
     return _Orbits;
 }
 

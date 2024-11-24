@@ -125,11 +125,13 @@ void OrbitalGenerator::GenerateOrbitals(Astro::StellarSystem& System) {
 }
 
 void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System) {
-    std::pair<Astro::StellarSystem::OrbitalElements, Astro::StellarSystem::OrbitalElements> Elements;
-    Astro::AstroObject* SystemBaryCenter = System.GetBaryCenter();
+    std::pair<Astro::StellarSystem::Orbit, Astro::StellarSystem::Orbit> Elements;
+    auto* SystemBaryCenter = System.GetBaryCenter();
 
-    Elements.first.ParentBody = SystemBaryCenter;
-    Elements.second.ParentBody = SystemBaryCenter;
+    Elements.first.ParentBody.SystemBary = SystemBaryCenter;
+    Elements.first.ParentBodyType = Astro::StellarSystem::Orbit::ObjectType::kBaryCenter;
+    Elements.second.ParentBody.SystemBary = SystemBaryCenter;
+    Elements.second.ParentBodyType = Astro::StellarSystem::Orbit::ObjectType::kBaryCenter;
     
     float MassSol1 = static_cast<float>(System.StarData().front()->GetMass() / kSolarMass);
     float MassSol2 = static_cast<float>(System.StarData().back()->GetMass()  / kSolarMass);
@@ -217,19 +219,26 @@ void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System) {
     }
 
     Random = _CommonGenerator(_RandomEngine) * 2.0f * kPi;
-    float InitTrueAnomaly1 = Random;
-    float InitTrueAnomaly2 = 0.0f;
-    if (InitTrueAnomaly1 >= kPi) {
-        InitTrueAnomaly2 = InitTrueAnomaly1 - kPi;
+    float InitialTrueAnomaly1 = Random;
+    float InitialTrueAnomaly2 = 0.0f;
+    if (InitialTrueAnomaly1 >= kPi) {
+        InitialTrueAnomaly2 = InitialTrueAnomaly1 - kPi;
     } else {
-        InitTrueAnomaly2 = InitTrueAnomaly1 + kPi;
+        InitialTrueAnomaly2 = InitialTrueAnomaly1 + kPi;
     }
 
-    std::pair<Astro::Star*, float> Star1{ System.StarData().front().get(), InitTrueAnomaly1 };
-    std::pair<Astro::Star*, float> Star2{ System.StarData().back().get(),  InitTrueAnomaly2 };
+    Astro::StellarSystem::Orbit::OrbitalObject Star1;
+    Star1.Object.Star = System.StarData().front().get();
+    Star1.Type = Astro::StellarSystem::Orbit::ObjectType::kStar;
+    Star1.InitialTrueAnomaly = InitialTrueAnomaly1;
 
-    Elements.first.Stars.emplace_back(Star1);
-    Elements.second.Stars.emplace_back(Star2);
+    Astro::StellarSystem::Orbit::OrbitalObject Star2;
+    Star2.Object.Star = System.StarData().back().get();
+    Star2.Type = Astro::StellarSystem::Orbit::ObjectType::kStar;
+    Star2.InitialTrueAnomaly = InitialTrueAnomaly2;
+
+    Elements.first.Objects.emplace_back(Star1);
+    Elements.second.Objects.emplace_back(Star2);
 
     System.OrbitData().emplace_back(Elements.first);
     System.OrbitData().emplace_back(Elements.second);
@@ -242,8 +251,8 @@ void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System) {
     std::println("Eccentricity of binary: {}",                      Eccentricity);
     std::println("Argument of periapsis of binary first star: {}",  ArgumentOfPeriapsis1);
     std::println("Argument of periapsis of binary second star: {}", ArgumentOfPeriapsis2);
-    std::println("Initial true anomaly of binary first star: {}",   InitTrueAnomaly1);
-    std::println("Initial true anomaly of binary second star: {}",  InitTrueAnomaly2);
+    std::println("Initial true anomaly of binary first star: {}",   InitialTrueAnomaly1);
+    std::println("Initial true anomaly of binary second star: {}",  InitialTrueAnomaly2);
     std::println("Normal of binary first star: ({}, {})",           StarNormal1.x, StarNormal1.y);
     std::println("Normal of binary second star: ({}, {})",          StarNormal2.x, StarNormal2.y);
     std::println("");
@@ -383,13 +392,14 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
 #endif // DEBUG_OUTPUT
 
     // 初始化轨道
-    std::vector<Astro::StellarSystem::OrbitalElements> Orbits;
+    std::vector<Astro::StellarSystem::Orbit> Orbits;
     for (std::size_t i = 0; i != PlanetCount; ++i) {
-        Orbits.emplace_back(Astro::StellarSystem::OrbitalElements());
+        Orbits.emplace_back(Astro::StellarSystem::Orbit());
     }
 
     for (auto& Orbit : Orbits) {
-        Orbit.ParentBody = Star; // 轨道上级天体，绑定为主恒星
+        Orbit.ParentBody.Star = Star; // 轨道上级天体，绑定为主恒星
+        Orbit.ParentBodyType = Astro::StellarSystem::Orbit::ObjectType::kStar;
     }
 
     // 生成初始轨道半长轴
@@ -816,12 +826,20 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
     }
 #endif // DEBUG_OUTPUT
 
+    for (std::size_t i = 0; i != PlanetCount; ++i) {
+        Astro::StellarSystem::Orbit::OrbitalObject Planet;
+        Planet.Object.Planet = Planets[i].get();
+        Planet.Type = Astro::StellarSystem::Orbit::ObjectType::kPlanet;
+        Planet.InitialTrueAnomaly = 0.0f;
+        Orbits[i].Objects.emplace_back(Planet);
+    }
+    
     std::move(Planets.begin(), Planets.end(), std::back_inserter(System.PlanetData()));
     std::move(AsteroidClusters.begin(), AsteroidClusters.end(), std::back_inserter(System.AsteroidClusterData()));
     std::move(Orbits.begin(), Orbits.end(), std::back_inserter(System.OrbitData()));
 }
 
-void OrbitalGenerator::GeneratePlanetOrbitElements(Astro::StellarSystem::OrbitalElements& Orbit) {
+void OrbitalGenerator::GeneratePlanetOrbitElements(Astro::StellarSystem::Orbit& Orbit) {
     Orbit.Eccentricity = _CommonGenerator(_RandomEngine) * 0.05f;
 }
 
@@ -833,7 +851,7 @@ std::size_t OrbitalGenerator::JudgeLargePlanets(
     float FrostLineAu,
     std::vector<float>& CoreMassesSol,
     std::vector<float>& NewCoreMassesSol,
-    std::vector<Astro::StellarSystem::OrbitalElements>& Orbits,
+    std::vector<Astro::StellarSystem::Orbit>& Orbits,
     std::vector<std::unique_ptr<Astro::Planet>>& Planets
 ) {
     const Astro::Star* Star = StarData[StarIndex].get();
@@ -1206,7 +1224,7 @@ void OrbitalGenerator::GenerateRings(
     float FrostLineAu,
     const Astro::Star* Star,
     const Astro::Planet* Planet,
-    std::vector<Astro::StellarSystem::OrbitalElements>& Orbits,
+    std::vector<Astro::StellarSystem::Orbit>& Orbits,
     std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters
 ) {
     auto  PlanetType        = Planet->GetPlanetType();
@@ -1245,7 +1263,7 @@ void OrbitalGenerator::GenerateRings(
                 AsteroidType = Astro::AsteroidCluster::AsteroidType::kRocky;
             }
 
-            Astro::StellarSystem::OrbitalElements RingsOrbit;
+            Astro::StellarSystem::Orbit RingsOrbit;
             float Inaccuracy = -0.1f + _CommonGenerator(_RandomEngine) * 0.2f;
             RingsOrbit.SemiMajorAxis = 0.6f * LiquidRocheRadius * (1.0f + Inaccuracy);
             GeneratePlanetOrbitElements(RingsOrbit);
@@ -1255,9 +1273,13 @@ void OrbitalGenerator::GenerateRings(
             RingsPtr->SetMassVolatiles(RingsMassVolatiles);
             RingsPtr->SetMassZ(RingsMassZ);
 
-            RingsOrbit.ParentBody = Planet;
-            std::pair<Astro::AsteroidCluster*, float> Rings{ RingsPtr, 0.0f };
-            RingsOrbit.AsteroidClusters.emplace_back(Rings);
+            RingsOrbit.ParentBody.Planet = Planet;
+            Astro::StellarSystem::Orbit::OrbitalObject Rings;
+            Rings.Object.AsteroidCluster = RingsPtr;
+            Rings.Type = Astro::StellarSystem::Orbit::ObjectType::kAsteroidCluster;
+            Rings.InitialTrueAnomaly = 0.0f;
+
+            RingsOrbit.Objects.emplace_back(Rings);
             Orbits.emplace_back(RingsOrbit);
         }
     }
@@ -1267,7 +1289,7 @@ void OrbitalGenerator::GenerateTerra(
     const Astro::Star* Star,
     float PoyntingVector,
     const std::pair<float, float>& HabitableZoneAu,
-    const Astro::StellarSystem::OrbitalElements& Orbit,
+    const Astro::StellarSystem::Orbit& Orbit,
     Astro::Planet* Planet
 ) {
     auto  PlanetType = Planet->GetPlanetType();
@@ -1468,7 +1490,7 @@ void OrbitalGenerator::GenerateCivilization(
     const Astro::Star* Star,
     float PoyntingVector,
     const std::pair<float, float>& HabitableZoneAu,
-    const Astro::StellarSystem::OrbitalElements& Orbit,
+    const Astro::StellarSystem::Orbit& Orbit,
     Astro::Planet* Planet
 ) {
     bool bHasLife = false;

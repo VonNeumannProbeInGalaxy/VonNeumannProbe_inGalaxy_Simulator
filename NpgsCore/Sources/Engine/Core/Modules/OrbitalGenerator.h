@@ -53,7 +53,7 @@ public:
 private:
     void GenerateBinaryOrbit(Astro::StellarSystem& System);
     void GeneratePlanets(std::size_t StarIndex, Astro::StellarSystem& System);
-    void GeneratePlanetOrbitElements(Astro::StellarSystem::OrbitalElements& Orbit);
+    void GeneratePlanetOrbitElements(Astro::StellarSystem::Orbit& Orbit);
 
     std::size_t JudgeLargePlanets(
         std::size_t StarIndex,
@@ -63,7 +63,7 @@ private:
         float FrostLineAu,
         std::vector<float>& CoreMassesSol,
         std::vector<float>& NewCoreMassesSol,
-        std::vector<Astro::StellarSystem::OrbitalElements>& Orbits,
+        std::vector<Astro::StellarSystem::Orbit>& Orbits,
         std::vector<std::unique_ptr<Astro::Planet>>& Planets
     );
     
@@ -83,7 +83,7 @@ private:
         float FrostLineAu,
         const Astro::Star* Star,
         const Astro::Planet* Planet,
-        std::vector<Astro::StellarSystem::OrbitalElements>& Orbits,
+        std::vector<Astro::StellarSystem::Orbit>& Orbits,
         std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters
     );
 
@@ -91,7 +91,7 @@ private:
         const Astro::Star* Star,
         float PoyntingVector,
         const std::pair<float, float>& HabitableZoneAu,
-        const Astro::StellarSystem::OrbitalElements& Orbit,
+        const Astro::StellarSystem::Orbit& Orbit,
         Astro::Planet* Planet
     );
 
@@ -102,7 +102,7 @@ private:
         const Astro::Star* Star,
         float PoyntingVector,
         const std::pair<float, float>& HabitableZoneAu,
-        const Astro::StellarSystem::OrbitalElements& Orbit,
+        const Astro::StellarSystem::Orbit& Orbit,
         Astro::Planet* Planet
     );
 

@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -30,23 +29,42 @@ public:
         {}
     };
 
-    struct OrbitalElements {
-        const Astro::AstroObject* ParentBody = nullptr; // 上级天体
-        glm::vec2                 Normal;               // 轨道法向量 (theta, phi)
+    struct Orbit {
+        enum class ObjectType {
+            kBaryCenter,
+            kStar,
+            kPlanet,
+            kAsteroidCluster
+        };
 
-        float Epoch                    = 0.0f;    // 历元，单位儒略日
-        float Period                   = 0.0f;    // 周期，单位 s
-        float SemiMajorAxis            = 0.0f;    // 半长轴，单位 AU
-        float Eccentricity             = 0.0f;    // 离心率
-        // float Inclination              = 0.0f; // 轨道倾角，单位度
-        // float LongitudeOfAscendingNode = 0.0f; // 升交点经度，单位度
-        // float ArgumentOfPeriapsis      = 0.0f; // 近心点幅角，单位度
-        // float TrueAnomaly              = 0.0f; // 真近点角，单位度
-        
-        // pair 中存储每个天体及其对应的初始真近点角
-        std::vector<std::pair<Astro::Star*,            float>> Stars;
-        std::vector<std::pair<Astro::Planet*,          float>> Planets;
-        std::vector<std::pair<Astro::AsteroidCluster*, float>> AsteroidClusters;
+        union ObjectPointer {
+            const BaryCenter* SystemBary;
+            const Astro::Star* Star;
+            const Astro::Planet* Planet;
+            const Astro::AsteroidCluster* AsteroidCluster;
+
+            ObjectPointer() : SystemBary(nullptr) {}
+        };
+
+        struct OrbitalObject {
+            ObjectPointer Object;
+            ObjectType    Type;
+            float         InitialTrueAnomaly;
+        };
+
+        std::vector<OrbitalObject> Objects; // 轨道上的天体
+        ObjectPointer ParentBody;           // 轨道环绕的上级天体
+        ObjectType    ParentBodyType;       // 上级天体类型
+        glm::vec2     Normal;               // 轨道法向量 (theta, phi)
+
+        // float Epoch{ 0.0f };                    // 历元，单位儒略日
+        float Period{ 0.0f };                      // 周期，单位 s
+        float SemiMajorAxis{ 0.0f };               // 半长轴，单位 AU
+        float Eccentricity{ 0.0f };                // 离心率
+        // float Inclination{ 0.0f };              // 轨道倾角，单位度
+        // float LongitudeOfAscendingNode{ 0.0f }; // 升交点经度，单位度
+        // float ArgumentOfPeriapsis{ 0.0f };      // 近心点幅角，单位度
+        // float TrueAnomaly{ 0.0f };              // 真近点角，单位度
     };
 
 public:
@@ -73,14 +91,14 @@ public:
     std::vector<std::unique_ptr<Astro::Star>>& StarData();
     std::vector<std::unique_ptr<Astro::Planet>>& PlanetData();
     std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusterData();
-    std::vector<OrbitalElements>& OrbitData();
+    std::vector<Orbit>& OrbitData();
 
 private:
     BaryCenter                                           _SystemBary;
     std::vector<std::unique_ptr<Astro::Star>>            _Stars;
     std::vector<std::unique_ptr<Astro::Planet>>          _Planets;
     std::vector<std::unique_ptr<Astro::AsteroidCluster>> _AsteroidClusters;
-    std::vector<OrbitalElements>                         _Orbits;
+    std::vector<Orbit>                                   _Orbits;
 };
 
 _ASTRO_END

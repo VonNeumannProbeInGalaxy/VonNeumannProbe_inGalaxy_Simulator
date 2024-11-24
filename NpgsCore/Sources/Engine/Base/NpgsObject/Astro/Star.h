@@ -49,27 +49,28 @@ public:
     struct ExtendedProperties {
         Module::StellarClass StellarClass;
 
-        double Mass                    = 0.0;  // 质量，单位 kg
-        double Luminosity              = 0.0;  // 辐射光度，单位 W
-        double Lifetime                = 0.0;  // 寿命，单位 yr
-        double EvolutionProgress       = 0.0;  // 演化进度
-        float  FeH                     = 0.0f; // 金属丰度
-        float  InitialMass             = 0.0f; // 恒星诞生时的质量，单位 kg
-        float  SurfaceH1               = 0.0f; // 表面氕质量分数
-        float  SurfaceZ                = 0.0f; // 表面金属丰度
-        float  SurfaceEnergeticNuclide = 0.0f; // 表面含能核素质量分数
-        float  SurfaceVolatiles        = 0.0f; // 表面挥发物质量分数
-        float  Teff                    = 0.0f; // 有效温度
-        float  CoreTemp                = 0.0f; // 核心温度
-        float  CoreDensity             = 0.0f; // 核心密度，单位 kg/m^3
-        float  StellarWindSpeed        = 0.0f; // 恒星风速度，单位 m/s
-        float  StellarWindMassLossRate = 0.0f; // 恒星风质量损失率，单位 kg/s
-        float  MinCoilMass             = 0.0f; // 最小举星器赤道偏转线圈质量，单位 kg
-        bool   bIsSingleStar           = true;
-        bool   bHasPlanets             = true;
+        double Mass{ 0.0 };                     // 质量，单位 kg
+        double Luminosity{ 0.0 };               // 辐射光度，单位 W
+        double Lifetime{ 0.0 };                 // 寿命，单位 yr
+        double EvolutionProgress{ 0.0 };        // 演化进度
+        float  FeH{ 0.0f };                     // 金属丰度
+        float  InitialMass{ 0.0f };             // 恒星诞生时的质量，单位 kg
+        float  SurfaceH1{ 0.0f };               // 表面氕质量分数
+        float  SurfaceZ{ 0.0f };                // 表面金属丰度
+        float  SurfaceEnergeticNuclide{ 0.0f }; // 表面含能核素质量分数
+        float  SurfaceVolatiles{ 0.0f };        // 表面挥发物质量分数
+        float  Teff{ 0.0f };                    // 有效温度
+        float  CoreTemp{ 0.0f };                // 核心温度
+        float  CoreDensity{ 0.0f };             // 核心密度，单位 kg/m^3
+        float  StellarWindSpeed{ 0.0f };        // 恒星风速度，单位 m/s
+        float  StellarWindMassLossRate{ 0.0f }; // 恒星风质量损失率，单位 kg/s
+        float  MinCoilMass{ 0.0f };             // 最小举星器赤道偏转线圈质量，单位 kg
 
-        EvolutionPhase Phase           = EvolutionPhase::kPrevMainSequence;
-        StarFrom       From            = StarFrom::kNormalFrom;
+        EvolutionPhase Phase{ EvolutionPhase::kPrevMainSequence }; // 演化阶段
+        StarFrom       From{ StarFrom::kNormalFrom };              // 恒星形成方式
+
+        bool bIsSingleStar{ true };
+        bool bHasPlanets{ true };
     };
 
 public:
