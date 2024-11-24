@@ -669,7 +669,7 @@ std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::s
     }
 
     {
-        std::shared_lock Lock(_kCacheMutex);
+        std::unique_lock Lock(_kCacheMutex);
         if (!_kPhaseChangesCache.contains(DataCsv)) {
             _kPhaseChangesCache.emplace(DataCsv, Result);
         } else {
