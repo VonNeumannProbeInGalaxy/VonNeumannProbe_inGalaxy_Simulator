@@ -20,14 +20,14 @@ class Universe {
 public:
     Universe() = delete;
     Universe(
-        unsigned    Seed,
-        std::size_t NumStars,
-        std::size_t NumExtraGiants       = 0,
-        std::size_t NumExtraMassiveStars = 0,
-        std::size_t NumExtraNeutronStars = 0,
-        std::size_t NumExtraBlackHoles   = 0,
-        std::size_t NumExtraMergeStars   = 0,
-        float       UniverseAge          = 1.38e10f
+        std::uint32_t Seed,
+        std::size_t   NumStars,
+        std::size_t   NumExtraGiants       = 0,
+        std::size_t   NumExtraMassiveStars = 0,
+        std::size_t   NumExtraNeutronStars = 0,
+        std::size_t   NumExtraBlackHoles   = 0,
+        std::size_t   NumExtraMergeStars   = 0,
+        float         UniverseAge          = 1.38e10f
     );
 
     ~Universe();
@@ -48,7 +48,13 @@ private:
 
     void GenerateStars(int MaxThread);
     void FillStellarSystem(int MaxThread);
-    std::vector<Astro::Star> InterpolateStars(int MaxThread, std::vector<Module::StellarGenerator>& Generators, std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties);
+
+    std::vector<Astro::Star> InterpolateStars(
+        int MaxThread,
+        std::vector<Module::StellarGenerator>& Generators,
+        std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties
+    );
+
     void GenerateSlots(float MinDistance, std::size_t NumSamples, float Density);
     void OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots);
     void GenerateBinaryStars(int MaxThread);
@@ -56,6 +62,7 @@ private:
 private:
     using NodeType = Octree<Astro::StellarSystem>::NodeType;
 
+private:
     std::mt19937                                  _RandomEngine;
     UniformIntDistribution<std::uint32_t>         _SeedGenerator;
     UniformRealDistribution<>                     _CommonGenerator;

@@ -202,7 +202,13 @@ private:
             );
             Node->GetNextMutable(i) = std::make_unique<NodeType>(Node->GetCenter() + Offset, NextRadius, Node);
             if (Depth == static_cast<int>(std::ceil(std::log2(_Root->GetRadius() / LeafRadius)))) {
-                Futures.emplace_back(_ThreadPool->Commit(&Octree::BuildEmptyTreeImpl, this, Node->GetNextMutable(i).get(), LeafRadius, Depth - 1));
+                Futures.emplace_back(_ThreadPool->Commit(
+                    &Octree::BuildEmptyTreeImpl,
+                    this,
+                    Node->GetNextMutable(i).get(),
+                    LeafRadius,
+                    Depth - 1
+                ));
             } else {
                 BuildEmptyTreeImpl(Node->GetNextMutable(i).get(), LeafRadius, Depth - 1);
             }

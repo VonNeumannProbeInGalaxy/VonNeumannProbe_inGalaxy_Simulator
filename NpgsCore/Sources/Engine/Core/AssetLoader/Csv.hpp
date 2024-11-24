@@ -77,9 +77,11 @@ public:
             });
         }
 
-        auto it = std::lower_bound(_Data.begin(), _Data.end(), TargetValue, [&](const RowArray& Row, const BasicType& Value) -> bool {
-            return Comparator(Row[DataIndex], Value);
-        });
+        auto it = std::lower_bound(_Data.begin(), _Data.end(), TargetValue,
+            [&](const RowArray& Row, const BasicType& Value) -> bool {
+                return Comparator(Row[DataIndex], Value);
+            }
+        );
 
         if (it == _Data.end()) {
             throw std::out_of_range("Target value is out of range of the data.");

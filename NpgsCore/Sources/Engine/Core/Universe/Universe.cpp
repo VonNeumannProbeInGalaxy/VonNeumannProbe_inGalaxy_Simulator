@@ -23,14 +23,14 @@
 _NPGS_BEGIN
 
 Universe::Universe(
-    unsigned Seed,
-    std::size_t NumStars,
-    std::size_t NumExtraGiants,
-    std::size_t NumExtraMassiveStars,
-    std::size_t NumExtraNeutronStars,
-    std::size_t NumExtraBlackHoles,
-    std::size_t NumExtraMergeStars,
-    float UniverseAge
+    std::uint32_t Seed,
+    std::size_t   NumStars,
+    std::size_t   NumExtraGiants,
+    std::size_t   NumExtraMassiveStars,
+    std::size_t   NumExtraNeutronStars,
+    std::size_t   NumExtraBlackHoles,
+    std::size_t   NumExtraMergeStars,
+    float         UniverseAge
 )   :
     _RandomEngine(Seed),
     _SeedGenerator(0ull, std::numeric_limits<std::uint32_t>::max()),
@@ -363,7 +363,7 @@ void Universe::CountStars() {
                 continue;
             }
 
-            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Ia ||
+            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Ia  ||
                 SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Iab ||
                 SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Ib) {
                 CountClass(SpectralType, Supergiants);
@@ -577,16 +577,18 @@ void Universe::GenerateStars(int MaxThread) {
     using enum Module::StellarGenerator::GenerateDistribution;
     using enum Module::StellarGenerator::GenerateOption;
     auto CreateGenerators =
-        [&, this](Module::StellarGenerator::GenerateOption Option = kNormal,
-            float MassLowerLimit =  0.1f,
-            float MassUpperLimit = 300.0f,
-            Module::StellarGenerator::GenerateDistribution MassDistribution = kFromPdf,
-            float AgeLowerLimit  =  0.0f,
-            float AgeUpperLimit  = 1.26e10f,
-            Module::StellarGenerator::GenerateDistribution AgeDistribution  = kFromPdf,
-            float FeHLowerLimit  = -4.0f,
-            float FeHUpperLimit  = 0.5f,
-            Module::StellarGenerator::GenerateDistribution FeHDistribution  = kFromPdf) -> void {
+    [&, this](
+        Module::StellarGenerator::GenerateOption Option = kNormal,
+        float MassLowerLimit = 0.1f,
+        float MassUpperLimit = 300.0f,
+        Module::StellarGenerator::GenerateDistribution MassDistribution = kFromPdf,
+        float AgeLowerLimit  = 0.0f,
+        float AgeUpperLimit  = 1.26e10f,
+        Module::StellarGenerator::GenerateDistribution AgeDistribution  = kFromPdf,
+        float FeHLowerLimit  = -4.0f,
+        float FeHUpperLimit  = 0.5f,
+        Module::StellarGenerator::GenerateDistribution FeHDistribution  = kFromPdf
+    ) -> void {
         for (int i = 0; i != MaxThread; ++i) {
             std::vector<std::uint32_t> Seeds(32);
             for (int i = 0; i != 32; ++i) {
@@ -660,7 +662,8 @@ void Universe::GenerateStars(int MaxThread) {
         GenerateBasicProperties(_NumExtraMergeStars);
     }
 
-    std::size_t NumCommonStars = _NumStars - _NumExtraGiants - _NumExtraMassiveStars - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
+    std::size_t NumCommonStars =
+        _NumStars - _NumExtraGiants - _NumExtraMassiveStars - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
 
     Generators.clear();
     CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal, 0.075f);
@@ -765,7 +768,11 @@ void Universe::FillStellarSystem(int MaxThread) {
     }
 }
 
-std::vector<Astro::Star> Universe::InterpolateStars(int MaxThread, std::vector<Module::StellarGenerator>& Generators, std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties) {
+std::vector<Astro::Star> Universe::InterpolateStars(
+    int MaxThread,
+    std::vector<Module::StellarGenerator>& Generators,
+    std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties
+) {
     std::vector<std::vector<Module::StellarGenerator::BasicProperties>> PropertyLists(MaxThread);
     std::vector<std::promise<std::vector<Astro::Star>>> Promises(MaxThread);
     std::vector<std::future<std::vector<Astro::Star>>> ChunkFutures;
