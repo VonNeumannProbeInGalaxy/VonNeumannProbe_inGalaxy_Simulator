@@ -17,7 +17,7 @@ _ASTRO_BEGIN
 
 class StellarSystem : public NpgsObject {
 public:
-    struct BaryCenter : public Astro::AstroObject {
+    struct BaryCenter : public NpgsObject {
         glm::vec3   Position;     // 位置，使用 3 个 float 分量的向量存储
         glm::vec2   Normal;       // 法向量，(theta, phi)
         std::size_t DistanceRank; // 距离 (0, 0, 0) 的排名
