@@ -101,12 +101,7 @@ ThreadPool::ThreadPool() : _Terminate(false) {
 void ThreadPool::SetThreadAffinity(std::thread& Thread, std::size_t CoreId) {
     HANDLE Handle = Thread.native_handle();
     DWORD_PTR Mask = 0;
-    if (_kHyperThreadIndex == 0) {
-        Mask = static_cast<DWORD_PTR>(Bit(CoreId * 2));
-    } else {
-        Mask = static_cast<DWORD_PTR>(Bit(CoreId * 2) + 1);
-    }
-
+    Mask = static_cast<DWORD_PTR>(Bit(CoreId * 2) + _kHyperThreadIndex);
     SetThreadAffinityMask(Handle, Mask);
 }
 
