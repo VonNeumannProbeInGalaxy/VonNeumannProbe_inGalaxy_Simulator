@@ -1036,7 +1036,8 @@ float OrbitalGenerator::CalculatePlanetMass(
 
         AtmosphereMassVolatiles = (NewCoreMass - CoreMass) / 9.0f + CoreMass * CommonCoefficient / 6.0f;
         AtmosphereMassEnergeticNuclide = 5e-5f * AtmosphereMassVolatiles;
-        AtmosphereMassZ = CoreMass * CommonCoefficient + (NewCoreMass - CoreMass) - AtmosphereMassVolatiles - AtmosphereMassEnergeticNuclide;
+        AtmosphereMassZ = CoreMass * CommonCoefficient + (NewCoreMass - CoreMass) -
+            AtmosphereMassVolatiles - AtmosphereMassEnergeticNuclide;
 
         CoreMassVolatiles = CoreMass * 1e-4f * Random2;
         CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;
@@ -1068,9 +1069,11 @@ float OrbitalGenerator::CalculatePlanetMass(
         float CommonCoefficient = (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDiskTempData.InterRadiusAu) /
             (PlanetaryDiskTempData.OuterRadiusAu - PlanetaryDiskTempData.InterRadiusAu)) * Random1;
 
-        AtmosphereMassZ = (0.0142f * std::pow(10.0f, Star->GetFeH())) * CoreMass * CommonCoefficient + (1.0f - (1.0f + 5e-5f) / 9.0f) * (NewCoreMass - CoreMass);
+        AtmosphereMassZ = (0.0142f * std::pow(10.0f, Star->GetFeH())) * CoreMass *
+            CommonCoefficient + (1.0f - (1.0f + 5e-5f) / 9.0f) * (NewCoreMass - CoreMass);
         AtmosphereMassEnergeticNuclide = 5e-5f * (CoreMass * CommonCoefficient + (NewCoreMass - CoreMass) / 9.0f);
-        AtmosphereMassVolatiles = CoreMass * CommonCoefficient + (NewCoreMass - CoreMass) - AtmosphereMassZ - AtmosphereMassEnergeticNuclide;
+        AtmosphereMassVolatiles = CoreMass * CommonCoefficient + (NewCoreMass - CoreMass) -
+            AtmosphereMassZ - AtmosphereMassEnergeticNuclide;
 
         CoreMassVolatiles = CoreMass * 1e-4f * Random2;
         CoreMassEnergeticNuclide = CoreMass * 5e-6f * Random3;

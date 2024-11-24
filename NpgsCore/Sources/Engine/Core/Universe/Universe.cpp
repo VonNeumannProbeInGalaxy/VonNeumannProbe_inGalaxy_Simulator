@@ -137,10 +137,8 @@ void Universe::CountStars() {
     };
 
     auto FormatTitle = []() -> std::string {
-        return std::format(
-            "{:>6} {:>6} {:>8} {:>8} {:7} {:>5} {:>13} {:>8} {:>8} {:>11} {:>8} {:>9} {:>5} {:>15} {:>9} {:>8}",
-            "InMass", "Mass", "Radius", "Age", "Class", "FeH", "Lum", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "Magnetic", "Lifetime", "Oblateness"
-        );
+        return std::format("{:>6} {:>6} {:>8} {:>8} {:7} {:>5} {:>13} {:>8} {:>8} {:>11} {:>8} {:>9} {:>5} {:>15} {:>9} {:>8}",
+                           "InMass", "Mass", "Radius", "Age", "Class", "FeH", "Lum", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "Magnetic", "Lifetime", "Oblateness");
     };
 
     auto FormatInfo = [](const Astro::Star* Star) -> std::string {
