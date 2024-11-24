@@ -530,17 +530,17 @@ void Universe::CountStars() {
     std::println("Total Wolf-Rayet / O main star rate: {}", static_cast<double>(WolfRayet) / static_cast<double>(MainSequence[kTypeOIndex]));
 
     std::println("O type main sequence: {}\nB type main sequence: {}\nA type main sequence: {}\nF type main sequence: {}\nG type main sequence: {}\nK type main sequence: {}\nM type main sequence: {}",
-        MainSequence[kTypeOIndex], MainSequence[kTypeBIndex], MainSequence[kTypeAIndex], MainSequence[kTypeFIndex], MainSequence[kTypeGIndex], MainSequence[kTypeKIndex], MainSequence[kTypeMIndex]);
+                 MainSequence[kTypeOIndex], MainSequence[kTypeBIndex], MainSequence[kTypeAIndex], MainSequence[kTypeFIndex], MainSequence[kTypeGIndex], MainSequence[kTypeKIndex], MainSequence[kTypeMIndex]);
     std::println("O type subgiants: {}\nB type subgiants: {}\nA type subgiants: {}\nF type subgiants: {}\nG type subgiants: {}\nK type subgiants: {}\nM type subgiants: {}",
-        Subgiants[kTypeOIndex], Subgiants[kTypeBIndex], Subgiants[kTypeAIndex], Subgiants[kTypeFIndex], Subgiants[kTypeGIndex], Subgiants[kTypeKIndex], Subgiants[kTypeMIndex]);
+                 Subgiants[kTypeOIndex], Subgiants[kTypeBIndex], Subgiants[kTypeAIndex], Subgiants[kTypeFIndex], Subgiants[kTypeGIndex], Subgiants[kTypeKIndex], Subgiants[kTypeMIndex]);
     std::println("O type giants: {}\nB type giants: {}\nA type giants: {}\nF type giants: {}\nG type giants: {}\nK type giants: {}\nM type giants: {}",
-        Giants[kTypeOIndex], Giants[kTypeBIndex], Giants[kTypeAIndex], Giants[kTypeFIndex], Giants[kTypeGIndex], Giants[kTypeKIndex], Giants[kTypeMIndex]);
+                 Giants[kTypeOIndex], Giants[kTypeBIndex], Giants[kTypeAIndex], Giants[kTypeFIndex], Giants[kTypeGIndex], Giants[kTypeKIndex], Giants[kTypeMIndex]);
     std::println("O type bright giants: {}\nB type bright giants: {}\nA type bright giants: {}\nF type bright giants: {}\nG type bright giants: {}\nK type bright giants: {}\nM type bright giants: {}",
-        BrightGiants[kTypeOIndex], BrightGiants[kTypeBIndex], BrightGiants[kTypeAIndex], BrightGiants[kTypeAIndex], BrightGiants[kTypeFIndex], BrightGiants[kTypeGIndex], BrightGiants[kTypeMIndex]);
+                 BrightGiants[kTypeOIndex], BrightGiants[kTypeBIndex], BrightGiants[kTypeAIndex], BrightGiants[kTypeAIndex], BrightGiants[kTypeFIndex], BrightGiants[kTypeGIndex], BrightGiants[kTypeMIndex]);
     std::println("O type supergiants: {}\nB type supergiants: {}\nA type supergiants: {}\nF type supergiants: {}\nG type supergiants: {}\nK type supergiants: {}\nM type supergiants: {}",
-        Supergiants[kTypeOIndex], Supergiants[kTypeBIndex], Supergiants[kTypeAIndex], Supergiants[kTypeFIndex], Supergiants[kTypeGIndex], Supergiants[kTypeKIndex], Supergiants[kTypeMIndex]);
+                 Supergiants[kTypeOIndex], Supergiants[kTypeBIndex], Supergiants[kTypeAIndex], Supergiants[kTypeFIndex], Supergiants[kTypeGIndex], Supergiants[kTypeKIndex], Supergiants[kTypeMIndex]);
     std::println("O type hypergiants: {}\nB type hypergiants: {}\nA type hypergiants: {}\nF type hypergiants: {}\nG type hypergiants: {}\nK type hypergiants: {}\nM type hypergiants: {}",
-        Hypergiants[kTypeOIndex], Hypergiants[kTypeBIndex], Hypergiants[kTypeAIndex], Hypergiants[kTypeFIndex], Hypergiants[kTypeGIndex], Hypergiants[kTypeKIndex], Hypergiants[kTypeMIndex]);
+                 Hypergiants[kTypeOIndex], Hypergiants[kTypeBIndex], Hypergiants[kTypeAIndex], Hypergiants[kTypeFIndex], Hypergiants[kTypeGIndex], Hypergiants[kTypeKIndex], Hypergiants[kTypeMIndex]);
     std::println("Wolf-Rayet stars: {}", WolfRayet);
     std::println("White dwarfs: {}\nNeutron stars: {}\nBlack holes: {}", WhiteDwarfs, NeutronStars, BlackHoles);
     std::println("");
@@ -623,42 +623,34 @@ void Universe::GenerateStars(int MaxThread) {
 
     if (_NumExtraMassiveStars != 0) {
         Generators.clear();
-        CreateGenerators(
-            Module::StellarGenerator::GenerateOption::kNormal,
-            20.0f, 300.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
-            0.0f,  3.5e6f, Module::StellarGenerator::GenerateDistribution::kUniform
-        );
+        CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal,
+                         20.0f, 300.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
+                         0.0f,  3.5e6f, Module::StellarGenerator::GenerateDistribution::kUniform);
         GenerateBasicProperties(_NumExtraMassiveStars);
     }
 
     if (_NumExtraNeutronStars != 0) {
         Generators.clear();
-        CreateGenerators(
-            Module::StellarGenerator::GenerateOption::kDeathStar,
-            10.0f, 20.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
-            1e7f,  1e8f,  Module::StellarGenerator::GenerateDistribution::kUniformByExponent
-        );
+        CreateGenerators(Module::StellarGenerator::GenerateOption::kDeathStar,
+                         10.0f, 20.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
+                         1e7f,  1e8f,  Module::StellarGenerator::GenerateDistribution::kUniformByExponent);
         GenerateBasicProperties(_NumExtraNeutronStars);
     }
 
     if (_NumExtraBlackHoles != 0) {
         Generators.clear();
-        CreateGenerators(
-            Module::StellarGenerator::GenerateOption::kNormal,
-            35.0f,  300.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
-            1e7f, 1.26e10f, Module::StellarGenerator::GenerateDistribution::kFromPdf,
-            -2.0, 0.5
-        );
+        CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal,
+                         35.0f, 300.0f,   Module::StellarGenerator::GenerateDistribution::kUniform,
+                         1e7f,  1.26e10f, Module::StellarGenerator::GenerateDistribution::kFromPdf,
+                         -2.0,  0.5);
         GenerateBasicProperties(_NumExtraBlackHoles);
     }
 
     if (_NumExtraMergeStars != 0) {
         Generators.clear();
-        CreateGenerators(
-            Module::StellarGenerator::GenerateOption::kMergeStar,
-            0.0f, 0.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
-            1e6f, 1e8f, Module::StellarGenerator::GenerateDistribution::kUniformByExponent
-        );
+        CreateGenerators(Module::StellarGenerator::GenerateOption::kMergeStar,
+                         0.0f, 0.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
+                         1e6f, 1e8f, Module::StellarGenerator::GenerateDistribution::kUniformByExponent);
         GenerateBasicProperties(_NumExtraMergeStars);
     }
 

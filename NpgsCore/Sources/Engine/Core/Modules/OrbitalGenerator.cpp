@@ -64,7 +64,8 @@ OrbitalGenerator::OrbitalGenerator(
     std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
     std::seed_seq ShuffledSeeds(Seeds.begin(), Seeds.end());
     
-    _CivilizationGenerator = std::make_unique<CivilizationGenerator>(ShuffledSeeds, LifeOccurrenceProbability, bEnableAsiFilter);
+    _CivilizationGenerator =
+        std::make_unique<CivilizationGenerator>(ShuffledSeeds, LifeOccurrenceProbability, bEnableAsiFilter);
 }
 
 void OrbitalGenerator::GenerateOrbitals(Astro::StellarSystem& System) {
@@ -234,17 +235,17 @@ void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System) {
     System.OrbitData().emplace_back(Elements.second);
 
 #ifdef DEBUG_OUTPUT
-    std::println("Semi-major axis of binary stars: {} AU", BinarySemiMajorAxis / kAuToMeter);
-    std::println("Semi-major axis of binary first star: {} AU", Elements.first.SemiMajorAxis / kAuToMeter);
-    std::println("Semi-major axis of binary second star: {} AU", Elements.second.SemiMajorAxis / kAuToMeter);
-    std::println("Period of binary: {} days", Period / kDayToSeconds);
-    std::println("Eccentricity of binary: {}", Eccentricity);
-    std::println("Argument of periapsis of binary first star: {}", ArgumentOfPeriapsis1);
+    std::println("Semi-major axis of binary stars: {} AU",          BinarySemiMajorAxis           / kAuToMeter);
+    std::println("Semi-major axis of binary first star: {} AU",     Elements.first.SemiMajorAxis  / kAuToMeter);
+    std::println("Semi-major axis of binary second star: {} AU",    Elements.second.SemiMajorAxis / kAuToMeter);
+    std::println("Period of binary: {} days",                       Period / kDayToSeconds);
+    std::println("Eccentricity of binary: {}",                      Eccentricity);
+    std::println("Argument of periapsis of binary first star: {}",  ArgumentOfPeriapsis1);
     std::println("Argument of periapsis of binary second star: {}", ArgumentOfPeriapsis2);
-    std::println("Initial true anomaly of binary first star: {}", InitTrueAnomaly1);
-    std::println("Initial true anomaly of binary second star: {}", InitTrueAnomaly2);
-    std::println("Normal of binary first star: ({}, {})", StarNormal1.x, StarNormal1.y);
-    std::println("Normal of binary second star: ({}, {})", StarNormal2.x, StarNormal2.y);
+    std::println("Initial true anomaly of binary first star: {}",   InitTrueAnomaly1);
+    std::println("Initial true anomaly of binary second star: {}",  InitTrueAnomaly2);
+    std::println("Normal of binary first star: ({}, {})",           StarNormal1.x, StarNormal1.y);
+    std::println("Normal of binary second star: ({}, {})",          StarNormal2.x, StarNormal2.y);
     std::println("");
 #endif // DEBUG_OUTPUT
 }
@@ -372,7 +373,8 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
 
         Planets[i]->SetCoreMass(CoreMass);
 #ifdef DEBUG_OUTPUT
-        std::println("Generate initial core mass: planet {} initial core mass: {} earth", i + 1, CoreMassesSol[i] * kSolarMassToEarth);
+        std::println("Generate initial core mass: planet {} initial core mass: {} earth",
+                     i + 1, CoreMassesSol[i] * kSolarMassToEarth);
 #endif // DEBUG_OUTPUT
     }
 
@@ -413,7 +415,8 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
         Orbits[i].SemiMajorAxis = SemiMajorAxis;
         GeneratePlanetOrbitElements(Orbits[i]); // 生成剩余的根数
 #ifdef DEBUG_OUTPUT
-        std::println("Generate initial semi-major axis: planet {} initial semi-major axis: {} AU", i + 1, Orbits[i].SemiMajorAxis / kAuToMeter);
+        std::println("Generate initial semi-major axis: planet {} initial semi-major axis: {} AU",
+                     i + 1, Orbits[i].SemiMajorAxis / kAuToMeter);
 #endif // DEBUG_OUTPUT
     }
 
@@ -524,11 +527,12 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
 
         // 判断大行星
         PlanetCount = JudgeLargePlanets(StarIndex, System.StarData(), BinarySemiMajorAxis, HabitableZoneAu.first,
-            FrostLineAu, CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
+                                        FrostLineAu, CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
 
 #ifdef DEBUG_OUTPUT
         for (std::size_t i = 0; i < PlanetCount; ++i) {
-            std::println("Before migration: planet {} semi-major axis: {} AU, initial core mass: {} earth, new core mass: {} earth, core radius: {} earth, type: {}", i + 1, Orbits[i].SemiMajorAxis / kAuToMeter, CoreMassesSol[i] * kSolarMassToEarth, NewCoreMassesSol[i] * kSolarMassToEarth, Planets[i]->GetRadius() / kEarthRadius, std::to_underlying(Planets[i]->GetPlanetType()));
+            std::println("Before migration: planet {} semi-major axis: {} AU, initial core mass: {} earth, new core mass: {} earth, core radius: {} earth, type: {}",
+                         i + 1, Orbits[i].SemiMajorAxis / kAuToMeter, CoreMassesSol[i] * kSolarMassToEarth, NewCoreMassesSol[i] * kSolarMassToEarth, Planets[i]->GetRadius() / kEarthRadius, std::to_underlying(Planets[i]->GetPlanetType()));
         }
 
         std::println("");
@@ -624,7 +628,8 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
 
 #ifdef DEBUG_OUTPUT
         for (std::size_t i = 0; i < PlanetCount; ++i) {
-            std::println("Final orbits: planet {} semi-major axis: {} AU, initial core mass: {} earth, new core mass: {} earth, core radius: {} earth, type: {}", i + 1, Orbits[i].SemiMajorAxis / kAuToMeter, CoreMassesSol[i] * kSolarMassToEarth, NewCoreMassesSol[i] * kSolarMassToEarth, Planets[i]->GetRadius() / kEarthRadius, std::to_underlying(Planets[i]->GetPlanetType()));
+            std::println("Final orbits: planet {} semi-major axis: {} AU, initial core mass: {} earth, new core mass: {} earth, core radius: {} earth, type: {}",
+                         i + 1, Orbits[i].SemiMajorAxis / kAuToMeter, CoreMassesSol[i] * kSolarMassToEarth, NewCoreMassesSol[i] * kSolarMassToEarth, Planets[i]->GetRadius() / kEarthRadius, std::to_underlying(Planets[i]->GetPlanetType()));
         }
 
         std::println("");
@@ -734,13 +739,15 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
         }
     } else {
         PlanetCount = JudgeLargePlanets(StarIndex, System.StarData(), BinarySemiMajorAxis,
-            std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
-            CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
+                                        std::numeric_limits<float>::infinity(),
+                                        std::numeric_limits<float>::infinity(),
+                                        CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
 
         for (std::size_t i = 0; i < PlanetCount; ++i) {
 #ifdef DEBUG_OUTPUT
             float PlanetMassEarth = Planets[i]->GetMassFloat() / kEarthMass;
-            std::println("Final system: planet {} semi-major axis: {} AU, mass: {} earth, radius: {} earth, type: {}", i + 1, Orbits[i].SemiMajorAxis / kAuToMeter, PlanetMassEarth, Planets[i]->GetRadius() / kEarthRadius, std::to_underlying(Planets[i]->GetPlanetType()));
+            std::println("Final system: planet {} semi-major axis: {} AU, mass: {} earth, radius: {} earth, type: {}",
+                         i + 1, Orbits[i].SemiMajorAxis / kAuToMeter, PlanetMassEarth, Planets[i]->GetRadius() / kEarthRadius, std::to_underlying(Planets[i]->GetPlanetType()));
 #endif // DEBUG_OUTPUT
             CalculatePlanetRadius(CoreMassesSol[i] * kSolarMassToEarth, Planets[i].get());
             GenerateRings(i, std::numeric_limits<float>::infinity(), Star, Planets[i].get(), Orbits, AsteroidClusters);
@@ -793,12 +800,18 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
         float Spin                           = Planet->GetSpin();
         float BalanceTemperature             = Planet->GetBalanceTemperature();
         std::println("Planet details:");
-        std::println("semi-major axis: {} AU, mass: {} earth, radius: {} earth, type: {}", Orbits[i].SemiMajorAxis / kAuToMeter, PlanetMassEarth, Planets[i]->GetRadius() / kEarthRadius, std::to_underlying(Planets[i]->GetPlanetType()));
-        std::println("rotation period: {} h, oblateness: {}, balance temperature: {} K", Spin / 3600, Oblateness, BalanceTemperature);
-        std::println("atmo  mass z: {:.2E} kg, atmo  mass vol: {:.2E} kg, atmo  mass nuc: {:.2E} kg", AtmosphereMassZ, AtmosphereMassVolatiles, AtmosphereMassEnergeticNuclide);
-        std::println("core  mass z: {:.2E} kg, core  mass vol: {:.2E} kg, core  mass nuc: {:.2E} kg", CoreMassZ, CoreMassVolatiles, CoreMassEnergeticNuclide);
-        std::println("ocean mass z: {:.2E} kg, ocean mass vol: {:.2E} kg, ocean mass nuc: {:.2E} kg", OceanMassZ, OceanMassVolatiles, OceanMassEnergeticNuclide);
-        std::println("crust mineral mass : {:.2E} kg, atmo pressure : {:.2f} atm", CrustMineralMass, AtmospherePressure / kPascalToAtm);
+        std::println("semi-major axis: {} AU, mass: {} earth, radius: {} earth, type: {}",
+                     Orbits[i].SemiMajorAxis / kAuToMeter, PlanetMassEarth, Planets[i]->GetRadius() / kEarthRadius, std::to_underlying(Planets[i]->GetPlanetType()));
+        std::println("rotation period: {} h, oblateness: {}, balance temperature: {} K",
+                     Spin / 3600, Oblateness, BalanceTemperature);
+        std::println("atmo  mass z: {:.2E} kg, atmo  mass vol: {:.2E} kg, atmo  mass nuc: {:.2E} kg",
+                     AtmosphereMassZ, AtmosphereMassVolatiles, AtmosphereMassEnergeticNuclide);
+        std::println("core  mass z: {:.2E} kg, core  mass vol: {:.2E} kg, core  mass nuc: {:.2E} kg",
+                     CoreMassZ, CoreMassVolatiles, CoreMassEnergeticNuclide);
+        std::println("ocean mass z: {:.2E} kg, ocean mass vol: {:.2E} kg, ocean mass nuc: {:.2E} kg",
+                     OceanMassZ, OceanMassVolatiles, OceanMassEnergeticNuclide);
+        std::println("crust mineral mass : {:.2E} kg, atmo pressure : {:.2f} atm",
+                     CrustMineralMass, AtmospherePressure / kPascalToAtm);
         std::println("");
     }
 #endif // DEBUG_OUTPUT

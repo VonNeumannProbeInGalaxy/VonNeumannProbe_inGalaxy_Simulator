@@ -71,8 +71,13 @@ void CivilizationGenerator::GenerateCivilization(double StarAge, float PoyntingV
     }
 }
 
-const std::array<float, 7> CivilizationGenerator::_kProbabilityListForCenoziocEra{ 0.02f, 0.005f, 1e-4f, 1e-6f, 5e-7f, 4e-7f, 1e-6f };
-const std::array<float, 7> CivilizationGenerator::_kProbabilityListForSatTeeTouyButAsi{ 0.2f, 0.05f, 0.001f, 1e-5f, 1e-4f, 1e-4f, 1e-4f };
+const std::array<float, 7> CivilizationGenerator::_kProbabilityListForCenoziocEra{
+    0.02f, 0.005f, 1e-4f, 1e-6f, 5e-7f, 4e-7f, 1e-6f
+};
+
+const std::array<float, 7> CivilizationGenerator::_kProbabilityListForSatTeeTouyButAsi{
+    0.2f, 0.05f, 0.001f, 1e-5f, 1e-4f, 1e-4f, 1e-4f
+};
 
 _MODULE_END
 _NPGS_END
