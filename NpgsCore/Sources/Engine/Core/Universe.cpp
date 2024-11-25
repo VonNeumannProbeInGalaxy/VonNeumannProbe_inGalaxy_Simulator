@@ -15,10 +15,10 @@
 #include <glm/glm.hpp>
 
 #define ENABLE_CONSOLE_LOGGER
-#include "Engine/Core/Modules/Generators/OrbitalGenerator.h"
-#include "Engine/Core/Utilities/Logger.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
+#include "Engine/Modules/Generators/OrbitalGenerator.h"
+#include "Engine/Utilities/Logger.h"
 
 _NPGS_BEGIN
 
@@ -35,7 +35,7 @@ Universe::Universe(
     _RandomEngine(Seed),
     _SeedGenerator(0ull, std::numeric_limits<std::uint32_t>::max()),
     _CommonGenerator(0.0f, 1.0f),
-    _ThreadPool(Util::ThreadPool::GetInstance()),
+    _ThreadPool(ThreadPool::GetInstance()),
 
     _StarCount(StarCount),
     _ExtraGiantCount(ExtraGiantCount),
@@ -797,7 +797,7 @@ void Universe::GenerateSlots(float MinDistance, std::size_t SampleCount, float D
     float LeafRadius = LeafSize * 0.5f;
     float RootRadius = LeafSize * static_cast<float>(std::pow(2, Exponent));
 
-    _Octree = std::make_unique<Util::Octree<Astro::StellarSystem>>(glm::vec3(0.0), RootRadius);
+    _Octree = std::make_unique<Octree<Astro::StellarSystem>>(glm::vec3(0.0), RootRadius);
     _Octree->BuildEmptyTree(LeafRadius); // 快速构建一个空树，每个叶子节点作为一个格子，用于生成恒星
 
     // 遍历八叉树，将距离原点大于半径的叶子节点标记为无效，保证恒星只会在范围内生成

@@ -14,7 +14,6 @@
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
-_UTIL_BEGIN
 
 class ThreadPool {
 public:
@@ -61,5 +60,4 @@ private:
     static int                        _kHyperThreadIndex;
 };
 
-_UTIL_END
 _NPGS_END

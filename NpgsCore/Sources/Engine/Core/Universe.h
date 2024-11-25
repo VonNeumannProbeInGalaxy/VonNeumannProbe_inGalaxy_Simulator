@@ -8,11 +8,11 @@
 
 #include "Engine/Base/NpgsObject/Astro/Star.h"
 #include "Engine/Base/NpgsObject/Astro/StellarSystem.h"
-#include "Engine/Core/Modules/Generators/StellarGenerator.h"
-#include "Engine/Core/Utilities/Octree.hpp"
-#include "Engine/Core/Utilities/Random.hpp"
-#include "Engine/Core/Utilities/ThreadPool.h"
 #include "Engine/Core/Base.h"
+#include "Engine/Core/Octree.hpp"
+#include "Engine/Core/ThreadPool.h"
+#include "Engine/Modules/Generators/StellarGenerator.h"
+#include "Engine/Utilities/Random.hpp"
 
 _NPGS_BEGIN
 
@@ -60,14 +60,14 @@ private:
     void GenerateBinaryStars(int MaxThread);
 
 private:
-    using NodeType = Util::Octree<Astro::StellarSystem>::NodeType;
+    using NodeType = Octree<Astro::StellarSystem>::NodeType;
 
 private:
-    std::mt19937                                        _RandomEngine;
-    Util::UniformIntDistribution<std::uint32_t>         _SeedGenerator;
-    Util::UniformRealDistribution<>                     _CommonGenerator;
-    std::unique_ptr<Util::Octree<Astro::StellarSystem>> _Octree;
-    Util::ThreadPool*                                   _ThreadPool;
+    std::mt19937                                  _RandomEngine;
+    Util::UniformIntDistribution<std::uint32_t>   _SeedGenerator;
+    Util::UniformRealDistribution<>               _CommonGenerator;
+    std::unique_ptr<Octree<Astro::StellarSystem>> _Octree;
+    ThreadPool*                                   _ThreadPool;
 
     std::size_t _StarCount;
     std::size_t _ExtraGiantCount;

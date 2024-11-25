@@ -11,11 +11,11 @@
 
 #include <glm/glm.hpp>
 
+#include "Engine/AssetLoader/Csv.hpp"
 #include "Engine/Base/NpgsObject/Astro/Star.h"
-#include "Engine/Core/AssetLoader/Csv.hpp"
-#include "Engine/Core/Utilities/Random.hpp"
-#include "Engine/Core/Utilities/StellarClass.h"
 #include "Engine/Core/Base.h"
+#include "Engine/Utilities/Random.hpp"
+#include "Engine/Utilities/StellarClass.h"
 
 _NPGS_BEGIN
 _MODULE_BEGIN

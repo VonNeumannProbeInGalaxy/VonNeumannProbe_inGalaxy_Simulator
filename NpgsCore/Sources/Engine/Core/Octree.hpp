@@ -11,10 +11,9 @@
 #include <glm/glm.hpp>
 
 #include "Engine/Core/Base.h"
-#include "Engine/Core/Utilities/ThreadPool.h"
+#include "Engine/Core/ThreadPool.h"
 
 _NPGS_BEGIN
-_UTIL_BEGIN
 
 template <typename LinkTarget>
 class OctreeNode {
@@ -355,5 +354,4 @@ private:
     int                       _MaxDepth;
 };
 
-_UTIL_END
 _NPGS_END

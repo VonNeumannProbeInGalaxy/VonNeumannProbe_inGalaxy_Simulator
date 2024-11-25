@@ -7,9 +7,9 @@
 #include <vector>
 
 #include "Engine/Base/NpgsObject/Astro/StellarSystem.h"
-#include "Engine/Core/Modules/Generators/CivilizationGenerator.h"
-#include "Engine/Core/Utilities/Random.hpp"
 #include "Engine/Core/Base.h"
+#include "Engine/Modules/Generators/CivilizationGenerator.h"
+#include "Engine/Utilities/Random.hpp"
 
 _NPGS_BEGIN
 _MODULE_BEGIN

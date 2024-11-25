@@ -11,10 +11,10 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <glm/glm.hpp>
 
-#include "Engine/Core/Utilities/Utilities.h"
 #include "Engine/Core/Assert.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"
+#include "Engine/Utilities/Utilities.h"
 
 #define DEBUG_OUTPUT
 
