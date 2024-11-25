@@ -24,12 +24,12 @@ _NPGS_BEGIN
 
 Universe::Universe(
     std::uint32_t Seed,
-    std::size_t   NumStars,
-    std::size_t   NumExtraGiants,
-    std::size_t   NumExtraMassiveStars,
-    std::size_t   NumExtraNeutronStars,
-    std::size_t   NumExtraBlackHoles,
-    std::size_t   NumExtraMergeStars,
+    std::size_t   StarCount,
+    std::size_t   ExtraGiantCount,
+    std::size_t   ExtraMassiveStarCount,
+    std::size_t   ExtraNeutronStarCount,
+    std::size_t   ExtraBlackHoleCount,
+    std::size_t   ExtraMergeStarCount,
     float         UniverseAge
 )   :
     _RandomEngine(Seed),
@@ -37,12 +37,12 @@ Universe::Universe(
     _CommonGenerator(0.0f, 1.0f),
     _ThreadPool(ThreadPool::GetInstance()),
 
-    _NumStars(NumStars),
-    _NumExtraGiants(NumExtraGiants),
-    _NumExtraMassiveStars(NumExtraMassiveStars),
-    _NumExtraNeutronStars(NumExtraNeutronStars),
-    _NumExtraBlackHoles(NumExtraBlackHoles),
-    _NumExtraMergeStars(NumExtraMergeStars),
+    _StarCount(StarCount),
+    _ExtraGiantCount(ExtraGiantCount),
+    _ExtraMassiveStarCount(ExtraMassiveStarCount),
+    _ExtraNeutronStarCount(ExtraNeutronStarCount),
+    _ExtraBlackHoleCount(ExtraBlackHoleCount),
+    _ExtraMergeStarCount(ExtraMergeStarCount),
     _UniverseAge(UniverseAge)
 {
     std::vector<std::uint32_t> Seeds(32);
@@ -613,47 +613,47 @@ void Universe::GenerateStars(int MaxThread) {
     };
 
     // 特殊星基础参数设置
-    if (_NumExtraGiants != 0) {
+    if (_ExtraGiantCount != 0) {
         Generators.clear();
         CreateGenerators(Module::StellarGenerator::GenerateOption::kGiant, 1.0f, 35.0f);
-        GenerateBasicProperties(_NumExtraGiants);
+        GenerateBasicProperties(_ExtraGiantCount);
     }
 
-    if (_NumExtraMassiveStars != 0) {
+    if (_ExtraMassiveStarCount != 0) {
         Generators.clear();
         CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal,
                          20.0f, 300.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
                          0.0f,  3.5e6f, Module::StellarGenerator::GenerateDistribution::kUniform);
-        GenerateBasicProperties(_NumExtraMassiveStars);
+        GenerateBasicProperties(_ExtraMassiveStarCount);
     }
 
-    if (_NumExtraNeutronStars != 0) {
+    if (_ExtraNeutronStarCount != 0) {
         Generators.clear();
         CreateGenerators(Module::StellarGenerator::GenerateOption::kDeathStar,
                          10.0f, 20.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
                          1e7f,  1e8f,  Module::StellarGenerator::GenerateDistribution::kUniformByExponent);
-        GenerateBasicProperties(_NumExtraNeutronStars);
+        GenerateBasicProperties(_ExtraNeutronStarCount);
     }
 
-    if (_NumExtraBlackHoles != 0) {
+    if (_ExtraBlackHoleCount != 0) {
         Generators.clear();
         CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal,
                          35.0f, 300.0f,   Module::StellarGenerator::GenerateDistribution::kUniform,
                          1e7f,  1.26e10f, Module::StellarGenerator::GenerateDistribution::kFromPdf,
                          -2.0,  0.5);
-        GenerateBasicProperties(_NumExtraBlackHoles);
+        GenerateBasicProperties(_ExtraBlackHoleCount);
     }
 
-    if (_NumExtraMergeStars != 0) {
+    if (_ExtraMergeStarCount != 0) {
         Generators.clear();
         CreateGenerators(Module::StellarGenerator::GenerateOption::kMergeStar,
                          0.0f, 0.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
                          1e6f, 1e8f, Module::StellarGenerator::GenerateDistribution::kUniformByExponent);
-        GenerateBasicProperties(_NumExtraMergeStars);
+        GenerateBasicProperties(_ExtraMergeStarCount);
     }
 
     std::size_t NumCommonStars =
-        _NumStars - _NumExtraGiants - _NumExtraMassiveStars - _NumExtraNeutronStars - _NumExtraBlackHoles - _NumExtraMergeStars;
+        _StarCount - _ExtraGiantCount - _ExtraMassiveStarCount - _ExtraNeutronStarCount - _ExtraBlackHoleCount - _ExtraMergeStarCount;
 
     Generators.clear();
     CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal, 0.075f);
@@ -664,10 +664,10 @@ void Universe::GenerateStars(int MaxThread) {
     std::vector<Astro::Star> Stars = InterpolateStars(MaxThread, Generators, BasicProperties);
 
     NpgsCoreInfo("Building stellar octree in 8 threads...");
-    GenerateSlots(0.1f, _NumStars, 0.004f);
+    GenerateSlots(0.1f, _StarCount, 0.004f);
 
     NpgsCoreInfo("Linking positions in octree to stellar systems...");
-    _StellarSystems.reserve(_NumStars);
+    _StellarSystems.reserve(_StarCount);
     std::shuffle(Stars.begin(), Stars.end(), _RandomEngine);
     std::vector<glm::vec3> Slots;
     OctreeLinkToStellarSystems(Stars, Slots);
@@ -790,8 +790,8 @@ std::vector<Astro::Star> Universe::InterpolateStars(
     return Stars;
 }
 
-void Universe::GenerateSlots(float MinDistance, std::size_t NumSamples, float Density) {
-    float Radius     = std::pow((3.0f * NumSamples / (4 * kPi * Density)), (1.0f / 3.0f));
+void Universe::GenerateSlots(float MinDistance, std::size_t SampleCount, float Density) {
+    float Radius     = std::pow((3.0f * SampleCount / (4 * kPi * Density)), (1.0f / 3.0f));
     float LeafSize   = std::pow((1.0f / Density), (1.0f / 3.0f));
     int   Exponent   = static_cast<int>(std::ceil(std::log2(Radius / LeafSize)));
     float LeafRadius = LeafSize * 0.5f;
@@ -817,19 +817,19 @@ void Universe::GenerateSlots(float MinDistance, std::size_t NumSamples, float De
     };
 
     // 使用栅格采样，八叉树的每个叶子节点作为一个格子，在这个格子中生成一个恒星
-    while (ValidLeafCount != NumSamples) {
+    while (ValidLeafCount != SampleCount) {
         LeafNodes.clear();
         _Octree->Traverse(CollectLeafNodes);
         std::shuffle(LeafNodes.begin(), LeafNodes.end(), _RandomEngine); // 打乱叶子节点，保证随机性
 
         // 删除或收回叶子节点，直到格子数量等于目标数量
-        if (ValidLeafCount < NumSamples) {
+        if (ValidLeafCount < SampleCount) {
             for (auto* Node : LeafNodes) {
                 glm::vec3 Center = Node->GetCenter();
                 float Distance = glm::length(Center);
                 if (!Node->GetValidation() && Distance >= Radius && Distance <= Radius + LeafRadius) {
                     Node->SetValidation(true);
-                    if (++ValidLeafCount == NumSamples) {
+                    if (++ValidLeafCount == SampleCount) {
                         break;
                     }
                 }
@@ -840,7 +840,7 @@ void Universe::GenerateSlots(float MinDistance, std::size_t NumSamples, float De
                 float Distance = glm::length(Center);
                 if (Node->GetValidation() && Distance >= Radius - LeafRadius && Distance <= Radius) {
                     Node->SetValidation(false);
-                    if (--ValidLeafCount == NumSamples) {
+                    if (--ValidLeafCount == SampleCount) {
                         break;
                     }
                 }

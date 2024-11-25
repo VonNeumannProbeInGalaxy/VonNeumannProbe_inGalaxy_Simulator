@@ -17,7 +17,7 @@ _ASTRO_BEGIN
 
 class StellarSystem : public NpgsObject {
 public:
-    struct BaryCenter {
+    struct BaryCenter : public AstroObject {
         glm::vec3   Position;     // 位置，使用 3 个 float 分量的向量存储
         glm::vec2   Normal;       // 法向量，(theta, phi)
         std::size_t DistanceRank; // 距离 (0, 0, 0) 的排名
@@ -47,24 +47,44 @@ public:
         };
 
         struct OrbitalObject {
-            ObjectPointer Object;
-            ObjectType    Type;
-            float         InitialTrueAnomaly;
+            ObjectPointer Object{};
+            ObjectType Type{ ObjectType::kBaryCenter };
+            float InitialTrueAnomaly{ 0.0f }; // 初始真近点角，单位 rad
+
+            OrbitalObject() = default;
+            OrbitalObject(const Astro::AstroObject* Object, ObjectType Type, float InitialTrueAnomaly = 0.0f) 
+                : Type(Type), InitialTrueAnomaly(InitialTrueAnomaly)
+            {
+                switch (Type) {
+                case ObjectType::kBaryCenter:
+                    this->Object.BaryCenterPtr = static_cast<const BaryCenter*>(Object);
+                    break;
+                case ObjectType::kStar:
+                    this->Object.StarPtr = static_cast<const Star*>(Object);
+                    break;
+                case ObjectType::kPlanet:
+                    this->Object.PlanetPtr = static_cast<const Planet*>(Object);
+                    break;
+                case ObjectType::kAsteroidCluster:
+                    this->Object.AsteroidClusterPtr = static_cast<const AsteroidCluster*>(Object);
+                    break;
+                }
+            }
         };
 
-        std::vector<OrbitalObject> Objects;        // 轨道上的天体
-        ObjectPointer              ParentBody;     // 轨道环绕的上级天体
-        ObjectType                 ParentBodyType; // 上级天体类型
-        glm::vec2                  Normal;         // 轨道法向量 (theta, phi)
+        std::vector<OrbitalObject> Objects;     // 轨道上的天体
+        ObjectPointer              Parent;      // 轨道环绕的上级天体
+        ObjectType                 ParentType;  // 上级天体类型
+        glm::vec2                  Normal;      // 轨道法向量 (theta, phi)
 
         float Epoch{ 0.0f };                    // 历元，单位儒略日
         float Period{ 0.0f };                   // 周期，单位 s
         float SemiMajorAxis{ 0.0f };            // 半长轴，单位 AU
         float Eccentricity{ 0.0f };             // 离心率
-        float Inclination{ 0.0f };              // 轨道倾角，单位度
-        float LongitudeOfAscendingNode{ 0.0f }; // 升交点经度，单位度
-        float ArgumentOfPeriapsis{ 0.0f };      // 近心点幅角，单位度
-        float TrueAnomaly{ 0.0f };              // 真近点角，单位度
+        float Inclination{ 0.0f };              // 轨道倾角，单位 rad
+        float LongitudeOfAscendingNode{ 0.0f }; // 升交点经度，单位 rad
+        float ArgumentOfPeriapsis{ 0.0f };      // 近心点幅角，单位 rad
+        float TrueAnomaly{ 0.0f };              // 真近点角，单位 rad
     };
 
 public:

@@ -21,13 +21,13 @@ public:
     Universe() = delete;
     Universe(
         std::uint32_t Seed,
-        std::size_t   NumStars,
-        std::size_t   NumExtraGiants       = 0,
-        std::size_t   NumExtraMassiveStars = 0,
-        std::size_t   NumExtraNeutronStars = 0,
-        std::size_t   NumExtraBlackHoles   = 0,
-        std::size_t   NumExtraMergeStars   = 0,
-        float         UniverseAge          = 1.38e10f
+        std::size_t   StarCount,
+        std::size_t   ExtraGiantCount       = 0,
+        std::size_t   ExtraMassiveStarCount = 0,
+        std::size_t   ExtraNeutronStarCount = 0,
+        std::size_t   ExtraBlackHoleCount   = 0,
+        std::size_t   ExtraMergeStarCount   = 0,
+        float         UniverseAge           = 1.38e10f
     );
 
     ~Universe();
@@ -55,7 +55,7 @@ private:
         std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties
     );
 
-    void GenerateSlots(float MinDistance, std::size_t NumSamples, float Density);
+    void GenerateSlots(float MinDistance, std::size_t SampleCount, float Density);
     void OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots);
     void GenerateBinaryStars(int MaxThread);
 
@@ -69,12 +69,12 @@ private:
     std::unique_ptr<Octree<Astro::StellarSystem>> _Octree;
     ThreadPool*                                   _ThreadPool;
 
-    std::size_t _NumStars;
-    std::size_t _NumExtraGiants;
-    std::size_t _NumExtraMassiveStars;
-    std::size_t _NumExtraNeutronStars;
-    std::size_t _NumExtraBlackHoles;
-    std::size_t _NumExtraMergeStars;
+    std::size_t _StarCount;
+    std::size_t _ExtraGiantCount;
+    std::size_t _ExtraMassiveStarCount;
+    std::size_t _ExtraNeutronStarCount;
+    std::size_t _ExtraBlackHoleCount;
+    std::size_t _ExtraMergeStarCount;
     float       _UniverseAge;
 
     std::vector<Astro::StellarSystem> _StellarSystems;

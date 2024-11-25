@@ -77,7 +77,7 @@ private:
     );
     
     void CalculatePlanetRadius(float MassEarth, Astro::Planet* Planet);
-    void GenerateSpin(float SemiMajorAxis, const Astro::Star* Star, Astro::Planet* Planet);
+    void GenerateSpin(float SemiMajorAxis, const Astro::StellarSystem::Orbit::OrbitalObject Parent, Astro::Planet* Planet);
     void CalculateTemperature(float PoyntingVector, const Astro::Star* Star, Astro::Planet* Planet);
 
     void GenerateMoons(
@@ -85,6 +85,7 @@ private:
         float FrostLineAu,
         const Astro::Star* Star,
         float PoyntingVector,
+        const std::pair<float, float>& HabitableZoneAu,
         const Astro::Planet* Planet,
         std::vector<Astro::StellarSystem::Orbit>& Orbits,
         std::vector<std::unique_ptr<Astro::Planet>>& Planets
