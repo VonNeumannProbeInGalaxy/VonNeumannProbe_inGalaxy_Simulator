@@ -5,7 +5,7 @@
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-inline StellarGenerator& StellarGenerator::SetLogMassSuggestDistribution(std::shared_ptr<Distribution<>> Distribution) {
+inline StellarGenerator& StellarGenerator::SetLogMassSuggestDistribution(std::shared_ptr<Util::Distribution<>> Distribution) {
     _LogMassGenerator = Distribution;
     return *this;
 }

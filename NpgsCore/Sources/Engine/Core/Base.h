@@ -24,16 +24,18 @@
 
 // Basic namespace defines
 // -----------------------
-#define _NPGS_BEGIN namespace Npgs {
-#define _NPGS_END }
+#define _ASSET_BEGIN namespace Asset {
+#define _ASSET_END }
 #define _ASTRO_BEGIN namespace Astro {
 #define _ASTRO_END }
 #define _MODULE_BEGIN namespace Module {
 #define _MODULE_END }
-#define _ASSET_BEGIN namespace Asset {
-#define _ASSET_END }
+#define _NPGS_BEGIN namespace Npgs {
+#define _NPGS_END }
 #define _THIRD_PARTY_BEGIN namespace ThirdParty {
 #define _THIRD_PARTY_END }
+#define _UTIL_BEGIN namespace Util {
+#define _UTIL_END }
 
 // Bit operator function
 // ---------------------

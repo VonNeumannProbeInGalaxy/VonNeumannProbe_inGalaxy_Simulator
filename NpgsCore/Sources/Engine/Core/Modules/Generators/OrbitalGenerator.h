@@ -117,14 +117,14 @@ private:
     );
 
 private:
-    std::mt19937                           _RandomEngine;
-    std::array<BernoulliDistribution<>, 2> _RingsProbabilities;
-    BernoulliDistribution<>                _AsteroidBeltProbability;
-    BernoulliDistribution<>                _MigrationProbability;
-    BernoulliDistribution<>                _ScatteringProbability;
-    BernoulliDistribution<>                _WalkInProbability;
-    NormalDistribution<>                   _BinaryPeriodDistribution;
-    UniformRealDistribution<>              _CommonGenerator;
+    std::mt19937                                 _RandomEngine;
+    std::array<Util::BernoulliDistribution<>, 2> _RingsProbabilities;
+    Util::BernoulliDistribution<>                _AsteroidBeltProbability;
+    Util::BernoulliDistribution<>                _MigrationProbability;
+    Util::BernoulliDistribution<>                _ScatteringProbability;
+    Util::BernoulliDistribution<>                _WalkInProbability;
+    Util::NormalDistribution<>                   _BinaryPeriodDistribution;
+    Util::UniformRealDistribution<>              _CommonGenerator;
 
     std::unique_ptr<CivilizationGenerator> _CivilizationGenerator;
 

@@ -5,6 +5,7 @@
 #include <Windows.h>
 
 _NPGS_BEGIN
+_UTIL_BEGIN
 
 static int CountPhysicalCore() {
     DWORD Length = 0;
@@ -111,4 +112,5 @@ int ThreadPool::_kMaxThreadCount    = 0;
 int ThreadPool::_kPhysicalCoreCount = 0;
 int ThreadPool::_kHyperThreadIndex  = 0;
 
+_UTIL_END
 _NPGS_END

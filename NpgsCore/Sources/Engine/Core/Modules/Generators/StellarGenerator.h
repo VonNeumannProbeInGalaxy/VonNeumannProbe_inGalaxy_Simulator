@@ -84,7 +84,7 @@ public:
     Astro::Star GenerateStar(BasicProperties&  Properties);
     Astro::Star GenerateStar(BasicProperties&& Properties);
 
-    StellarGenerator& SetLogMassSuggestDistribution(std::shared_ptr<Distribution<>> Distribution);
+    StellarGenerator& SetLogMassSuggestDistribution(std::shared_ptr<Util::Distribution<>> Distribution);
     StellarGenerator& SetUniverseAge(float Age);
     StellarGenerator& SetAgeLowerLimit(float Limit);
     StellarGenerator& SetAgeUpperLimit(float Limit);
@@ -123,7 +123,7 @@ private:
     std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient);
     std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient, bool bIsWhiteDwarf);
     void CalculateSpectralType(float FeH, Astro::Star& StarData);
-    StellarClass::LuminosityClass CalculateLuminosityClass(const Astro::Star& StarData);
+    Util::StellarClass::LuminosityClass CalculateLuminosityClass(const Astro::Star& StarData);
     void ProcessDeathStar(Astro::Star& DeathStar, GenerateOption Option = GenerateOption::kNormal);
     void GenerateMagnetic(Astro::Star& StarData);
     void GenerateSpin(Astro::Star& StarData);
@@ -154,13 +154,13 @@ public:
     static const int _kWdLogCenterRhoIndex;
 
 private:
-    std::mt19937                                   _RandomEngine;
-    std::array<UniformRealDistribution<>, 8>       _MagneticGenerators;
-    std::array<std::shared_ptr<Distribution<>>, 4> _FeHGenerators;
-    std::array<UniformRealDistribution<>, 2>       _SpinGenerators;
-    std::shared_ptr<Distribution<>>                _LogMassGenerator;
-    UniformRealDistribution<>                      _AgeGenerator;
-    UniformRealDistribution<>                      _CommonGenerator;
+    std::mt19937                                         _RandomEngine;
+    std::array<Util::UniformRealDistribution<>, 8>       _MagneticGenerators;
+    std::array<std::shared_ptr<Util::Distribution<>>, 4> _FeHGenerators;
+    std::array<Util::UniformRealDistribution<>, 2>       _SpinGenerators;
+    std::shared_ptr<Util::Distribution<>>                _LogMassGenerator;
+    Util::UniformRealDistribution<>                      _AgeGenerator;
+    Util::UniformRealDistribution<>                      _CommonGenerator;
 
     std::array<std::function<float(float)>, 2>     _MassPdfs;
     std::array<glm::vec2, 2>                       _MassMaxPdfs;

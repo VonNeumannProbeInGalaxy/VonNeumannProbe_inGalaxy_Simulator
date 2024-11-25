@@ -4,6 +4,7 @@
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
+_UTIL_BEGIN
 
 template <typename Ty = float, typename RandomEngine = std::mt19937>
 class Distribution {
@@ -103,4 +104,5 @@ private:
     std::bernoulli_distribution _Distribution;
 };
 
+_UTIL_END
 _NPGS_END

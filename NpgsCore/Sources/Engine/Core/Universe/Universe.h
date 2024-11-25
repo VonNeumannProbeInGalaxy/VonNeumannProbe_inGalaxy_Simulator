@@ -60,14 +60,14 @@ private:
     void GenerateBinaryStars(int MaxThread);
 
 private:
-    using NodeType = Octree<Astro::StellarSystem>::NodeType;
+    using NodeType = Util::Octree<Astro::StellarSystem>::NodeType;
 
 private:
-    std::mt19937                                  _RandomEngine;
-    UniformIntDistribution<std::uint32_t>         _SeedGenerator;
-    UniformRealDistribution<>                     _CommonGenerator;
-    std::unique_ptr<Octree<Astro::StellarSystem>> _Octree;
-    ThreadPool*                                   _ThreadPool;
+    std::mt19937                                        _RandomEngine;
+    Util::UniformIntDistribution<std::uint32_t>         _SeedGenerator;
+    Util::UniformRealDistribution<>                     _CommonGenerator;
+    std::unique_ptr<Util::Octree<Astro::StellarSystem>> _Octree;
+    Util::ThreadPool*                                   _ThreadPool;
 
     std::size_t _StarCount;
     std::size_t _ExtraGiantCount;

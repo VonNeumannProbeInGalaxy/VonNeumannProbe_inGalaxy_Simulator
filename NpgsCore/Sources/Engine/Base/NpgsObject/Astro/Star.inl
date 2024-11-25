@@ -114,7 +114,7 @@ inline Star& Star::SetEvolutionPhase(EvolutionPhase Phase) {
     return *this;
 }
 
-inline Star& Star::SetStellarClass(const Module::StellarClass& StellarClass) {
+inline Star& Star::SetStellarClass(const Util::StellarClass& StellarClass) {
     _StarExtraProperties.StellarClass = StellarClass;
     return *this;
 }
@@ -199,7 +199,7 @@ inline Star::EvolutionPhase Star::GetEvolutionPhase() const {
     return _StarExtraProperties.Phase;
 }
 
-inline const Module::StellarClass& Star::GetStellarClass() const {
+inline const Util::StellarClass& Star::GetStellarClass() const {
     return _StarExtraProperties.StellarClass;
 }
 

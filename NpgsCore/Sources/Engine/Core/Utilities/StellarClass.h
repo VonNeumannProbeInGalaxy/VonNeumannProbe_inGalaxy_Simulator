@@ -5,7 +5,7 @@
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
-_MODULE_BEGIN
+_UTIL_BEGIN
 
 class StellarClass {
 public:
@@ -180,7 +180,7 @@ private:
     StarType      _StarType;
 };
 
-_MODULE_END
+_UTIL_END
 _NPGS_END
 
 #include "StellarClass.inl"

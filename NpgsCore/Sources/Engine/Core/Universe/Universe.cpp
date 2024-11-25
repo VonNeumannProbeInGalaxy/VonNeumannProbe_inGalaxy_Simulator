@@ -35,7 +35,7 @@ Universe::Universe(
     _RandomEngine(Seed),
     _SeedGenerator(0ull, std::numeric_limits<std::uint32_t>::max()),
     _CommonGenerator(0.0f, 1.0f),
-    _ThreadPool(ThreadPool::GetInstance()),
+    _ThreadPool(Util::ThreadPool::GetInstance()),
 
     _StarCount(StarCount),
     _ExtraGiantCount(ExtraGiantCount),
@@ -170,27 +170,27 @@ void Universe::CountStars() {
         );
     };
 
-    auto CountClass = [](const Module::StellarClass::SpectralType& SpectralType, std::array<std::size_t, 7>& Type) {
+    auto CountClass = [](const Util::StellarClass::SpectralType& SpectralType, std::array<std::size_t, 7>& Type) {
         switch (SpectralType.HSpectralClass) {
-        case Module::StellarClass::SpectralClass::kSpectral_O:
+        case Util::StellarClass::SpectralClass::kSpectral_O:
             ++Type[kTypeOIndex];
             break;
-        case Module::StellarClass::SpectralClass::kSpectral_B:
+        case Util::StellarClass::SpectralClass::kSpectral_B:
             ++Type[kTypeBIndex];
             break;
-        case Module::StellarClass::SpectralClass::kSpectral_A:
+        case Util::StellarClass::SpectralClass::kSpectral_A:
             ++Type[kTypeAIndex];
             break;
-        case Module::StellarClass::SpectralClass::kSpectral_F:
+        case Util::StellarClass::SpectralClass::kSpectral_F:
             ++Type[kTypeFIndex];
             break;
-        case Module::StellarClass::SpectralClass::kSpectral_G:
+        case Util::StellarClass::SpectralClass::kSpectral_G:
             ++Type[kTypeGIndex];
             break;
-        case Module::StellarClass::SpectralClass::kSpectral_K:
+        case Util::StellarClass::SpectralClass::kSpectral_K:
             ++Type[kTypeKIndex];
             break;
-        case Module::StellarClass::SpectralClass::kSpectral_M:
+        case Util::StellarClass::SpectralClass::kSpectral_M:
             ++Type[kTypeMIndex];
             break;
         }
@@ -313,16 +313,16 @@ void Universe::CountStars() {
             }
 
             const auto& Class = Star->GetStellarClass();
-            Module::StellarClass::StarType StarType = Class.GetStarType();
-            if (StarType != Module::StellarClass::StarType::kNormalStar) {
+            Util::StellarClass::StarType StarType = Class.GetStarType();
+            if (StarType != Util::StellarClass::StarType::kNormalStar) {
                 switch (StarType) {
-                case Module::StellarClass::StarType::kBlackHole:
+                case Util::StellarClass::StarType::kBlackHole:
                     ++BlackHoles;
                     break;
-                case Module::StellarClass::StarType::kNeutronStar:
+                case Util::StellarClass::StarType::kNeutronStar:
                     ++NeutronStars;
                     break;
-                case Module::StellarClass::StarType::kWhiteDwarf:
+                case Util::StellarClass::StarType::kWhiteDwarf:
                     ++WhiteDwarfs;
                     break;
                 default:
@@ -332,12 +332,12 @@ void Universe::CountStars() {
                 continue;
             }
 
-            Module::StellarClass::SpectralType SpectralType = Class.Data();
+            Util::StellarClass::SpectralType SpectralType = Class.Data();
 
-            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Unknown) {
-                if (SpectralType.HSpectralClass == Module::StellarClass::SpectralClass::kSpectral_WC ||
-                    SpectralType.HSpectralClass == Module::StellarClass::SpectralClass::kSpectral_WN ||
-                    SpectralType.HSpectralClass == Module::StellarClass::SpectralClass::kSpectral_WO) {
+            if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_Unknown) {
+                if (SpectralType.HSpectralClass == Util::StellarClass::SpectralClass::kSpectral_WC ||
+                    SpectralType.HSpectralClass == Util::StellarClass::SpectralClass::kSpectral_WN ||
+                    SpectralType.HSpectralClass == Util::StellarClass::SpectralClass::kSpectral_WO) {
                     ++WolfRayet;
                     CountMostLuminous(Star, MostLuminousWolfRayet);
                     CountMostMassive(Star, MostMassiveWolfRayet);
@@ -349,8 +349,8 @@ void Universe::CountStars() {
                 }
             }
 
-            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_0 ||
-                SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_IaPlus) {
+            if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_0 ||
+                SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_IaPlus) {
                 CountClass(SpectralType, Hypergiants);
                 CountMostLuminous(Star, MostLuminousHypergiant);
                 CountMostMassive(Star, MostMassiveHypergiant);
@@ -361,9 +361,9 @@ void Universe::CountStars() {
                 continue;
             }
 
-            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Ia  ||
-                SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Iab ||
-                SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_Ib) {
+            if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_Ia  ||
+                SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_Iab ||
+                SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_Ib) {
                 CountClass(SpectralType, Supergiants);
                 CountMostLuminous(Star, MostLuminousSupergiant);
                 CountMostMassive(Star, MostMassiveSupergiant);
@@ -374,7 +374,7 @@ void Universe::CountStars() {
                 continue;
             }
 
-            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_II) {
+            if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_II) {
                 CountClass(SpectralType, BrightGiants);
                 CountMostLuminous(Star, MostLuminousBrightGiant);
                 CountMostMassive(Star, MostMassiveBrightGiant);
@@ -385,7 +385,7 @@ void Universe::CountStars() {
                 continue;
             }
 
-            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_III) {
+            if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_III) {
                 CountClass(SpectralType, Giants);
                 CountMostLuminous(Star, MostLuminousGiant);
                 CountMostMassive(Star, MostMassiveGiant);
@@ -396,7 +396,7 @@ void Universe::CountStars() {
                 continue;
             }
 
-            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_IV) {
+            if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_IV) {
                 CountClass(SpectralType, Subgiants);
                 CountMostLuminous(Star, MostLuminousSubgiant);
                 CountMostMassive(Star, MostMassiveSubgiant);
@@ -407,7 +407,7 @@ void Universe::CountStars() {
                 continue;
             }
 
-            if (SpectralType.LuminosityClass == Module::StellarClass::LuminosityClass::kLuminosity_V) {
+            if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_V) {
                 CountClass(SpectralType, MainSequence);
                 CountMostLuminous(Star, MostLuminousMainSequence);
                 CountMostMassive(Star, MostMassiveMainSequence);
@@ -797,7 +797,7 @@ void Universe::GenerateSlots(float MinDistance, std::size_t SampleCount, float D
     float LeafRadius = LeafSize * 0.5f;
     float RootRadius = LeafSize * static_cast<float>(std::pow(2, Exponent));
 
-    _Octree = std::make_unique<Octree<Astro::StellarSystem>>(glm::vec3(0.0), RootRadius);
+    _Octree = std::make_unique<Util::Octree<Astro::StellarSystem>>(glm::vec3(0.0), RootRadius);
     _Octree->BuildEmptyTree(LeafRadius); // 快速构建一个空树，每个叶子节点作为一个格子，用于生成恒星
 
     // 遍历八叉树，将距离原点大于半径的叶子节点标记为无效，保证恒星只会在范围内生成
@@ -848,7 +848,7 @@ void Universe::GenerateSlots(float MinDistance, std::size_t SampleCount, float D
         }
     }
 
-    UniformRealDistribution Offset(-LeafRadius, LeafRadius - MinDistance); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
+    Util::UniformRealDistribution Offset(-LeafRadius, LeafRadius - MinDistance); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
     // 遍历八叉树，为每个有效的叶子节点生成一个恒星
     _Octree->Traverse([&Offset, LeafRadius, MinDistance, this](NodeType& Node) -> void {
         if (Node.IsLeafNode() && Node.GetValidation()) {
@@ -929,7 +929,7 @@ void Universe::GenerateBinaryStars(int MaxThread) {
         SelectedGenerator.SetMassLowerLimit(MassLowerLimit);
         SelectedGenerator.SetMassUpperLimit(MassUpperLimit);
         SelectedGenerator.SetLogMassSuggestDistribution(
-            std::make_shared<NormalDistribution<>>(std::log10(FirstStarInitialMassSol), 0.25f));
+            std::make_shared<Util::NormalDistribution<>>(std::log10(FirstStarInitialMassSol), 0.25f));
 
         double Age = Star->GetAge();
         float  FeH = Star->GetFeH();

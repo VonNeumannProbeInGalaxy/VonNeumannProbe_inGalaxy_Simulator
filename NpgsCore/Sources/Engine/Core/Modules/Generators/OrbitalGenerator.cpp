@@ -45,7 +45,7 @@ OrbitalGenerator::OrbitalGenerator(
     bool  bEnableAsiFilter
 )   :
     _RandomEngine(SeedSequence),
-    _RingsProbabilities{ BernoulliDistribution<>(0.5), BernoulliDistribution<>(0.2) },
+    _RingsProbabilities{ Util::BernoulliDistribution<>(0.5), Util::BernoulliDistribution<>(0.2) },
     _AsteroidBeltProbability(0.4),
     _MigrationProbability(0.1),
     _ScatteringProbability(0.15),
@@ -81,13 +81,13 @@ void OrbitalGenerator::GenerateOrbitals(Astro::StellarSystem& System) {
             if (Current->GetMass() > 12 * kSolarMass) {
                 Current->SetHasPlanets(false);
             } else {
-                if ((Current->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kNeutronStar ||
-                     Current->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kBlackHole) &&
+                if ((Current->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kNeutronStar ||
+                     Current->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kBlackHole) &&
                      Current->GetStarFrom() != Astro::Star::StarFrom::kWhiteDwarfMerge) {
                      Current->SetHasPlanets(false);
                 } else {
-                    if (TheOther->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kNeutronStar ||
-                        TheOther->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kBlackHole) {
+                    if (TheOther->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kNeutronStar ||
+                        TheOther->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kBlackHole) {
                         if (TheOther->GetFeH() >= -2.0f) {
                             if (Current->GetAge() > TheOther->GetAge()) {
                                 Current->SetHasPlanets(false);
@@ -108,8 +108,8 @@ void OrbitalGenerator::GenerateOrbitals(Astro::StellarSystem& System) {
         if (Current->GetMass() > 12 * kSolarMass) {
             Current->SetHasPlanets(false);
         } else {
-            if (Current->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kNeutronStar ||
-                Current->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kBlackHole) {
+            if (Current->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kNeutronStar ||
+                Current->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kBlackHole) {
                 if (Current->GetStarFrom() != Astro::Star::StarFrom::kWhiteDwarfMerge) {
                     Current->SetHasPlanets(false);
                 }
@@ -259,7 +259,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
     float DiskBase = 1.0f + _CommonGenerator(_RandomEngine); // 基准随机数，1-2 之间
     float StarInitialMassSol = Star->GetInitialMass() / kSolarMass;
     auto  StarType = Star->GetStellarClass().GetStarType();
-    if (StarType != Module::StellarClass::StarType::kNeutronStar && StarType != Module::StellarClass::StarType::kBlackHole) {
+    if (StarType != Util::StellarClass::StarType::kNeutronStar && StarType != Util::StellarClass::StarType::kBlackHole) {
         float DiskMassSol = DiskBase * StarInitialMassSol *
             std::pow(10.0f, -2.05f + 0.1214f * StarInitialMassSol - 0.02669f *
             std::pow(StarInitialMassSol, 2.0f) - 0.2274f * std::log(StarInitialMassSol));
@@ -316,7 +316,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
 
     // 生成行星们
     std::size_t PlanetCount = 0;
-    if (StarType != Module::StellarClass::StarType::kNeutronStar && StarType != Module::StellarClass::StarType::kBlackHole) {
+    if (StarType != Util::StellarClass::StarType::kNeutronStar && StarType != Util::StellarClass::StarType::kBlackHole) {
         if (StarInitialMassSol < 0.6f) {
             PlanetCount = static_cast<std::size_t>(4.0f + _CommonGenerator(_RandomEngine) * 4.0f);
         } else if (StarInitialMassSol < 0.9f) {
@@ -465,7 +465,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
     };
 
     StarType = Star->GetStellarClass().GetStarType();
-    if (StarType != Module::StellarClass::StarType::kNeutronStar && StarType != Module::StellarClass::StarType::kBlackHole) {
+    if (StarType != Util::StellarClass::StarType::kNeutronStar && StarType != Util::StellarClass::StarType::kBlackHole) {
         // 宜居带半径，单位 AU
         std::pair<float, float> HabitableZoneAu;
 
@@ -597,7 +597,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
         for (std::size_t i = 0; i != PlanetCount; ++i) {
             if ((Planets[i]->GetPlanetType() == Astro::Planet::PlanetType::kGasGiant ||
                  Planets[i]->GetPlanetType() == Astro::Planet::PlanetType::kIceGiant) &&
-                Star->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kWhiteDwarf &&
+                Star->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kWhiteDwarf &&
                 Orbits[i].SemiMajorAxis < 2.0f * StarRadiusMaxSol * kSolarRadius) {
                 Planets[i]->SetPlanetType(Astro::Planet::PlanetType::kChthonian);
                 NewCoreMassesSol[i] = CoreMassesSol[i];
@@ -607,7 +607,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
 
         // 处理白矮星引力散射
         for (std::size_t i = 0; i != PlanetCount; ++i) {
-            if (Star->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kWhiteDwarf && Star->GetAge() > 1e6) {
+            if (Star->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kWhiteDwarf && Star->GetAge() > 1e6) {
                 if (Planets[i]->GetPlanetType() == Astro::Planet::PlanetType::kRocky) {
                     if (_ScatteringProbability(_RandomEngine)) {
                         float Random = 4.0f + _CommonGenerator(_RandomEngine) * 16.0f; // 4.0 Rsun 高于洛希极限
@@ -699,7 +699,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
             GenerateSpin(Orbits[i].SemiMajorAxis, Parent, Planets[i].get());
 
             // 计算类地行星、次生大气层和地壳矿脉
-            if (Star->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kNormalStar) {
+            if (Star->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kNormalStar) {
                 GenerateTerra(Star, PoyntingVector, HabitableZoneAu, Orbits[i], Planets[i].get());
             }
 
@@ -930,8 +930,8 @@ std::size_t OrbitalGenerator::JudgeLargePlanets(
                 }
 
                 CalculatePlanetRadius(NewCoreMassesSol[i] * kSolarMassToEarth, Planets[i].get());
-                if (Star->GetStellarClass().GetStarType() == StellarClass::StarType::kBlackHole ||
-                    Star->GetStellarClass().GetStarType() == StellarClass::StarType::kNeutronStar) {
+                if (Star->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kBlackHole ||
+                    Star->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kNeutronStar) {
                     continue;
                 }
 
@@ -1317,10 +1317,10 @@ void OrbitalGenerator::CalculateTemperature(float PoyntingVector, const Astro::S
         }
 
         Emissivity = 0.98f;
-    } else if (!Equal(Planet->GetAtmosphereMassFloat(), 0.0f)) {
+    } else if (!Util::Equal(Planet->GetAtmosphereMassFloat(), 0.0f)) {
         float AtmospherePressureAtm = (kGravityConstant * PlanetMass * Planet->GetAtmosphereMassFloat()) / (4 * kPi * std::pow(Planet->GetRadius(), 4.0f)) / kPascalToAtm;
         float Random = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
-        float TidalLockCoefficient = Equal(Spin, -1.0f) ? 2.0f : 1.0f;
+        float TidalLockCoefficient = Util::Equal(Spin, -1.0f) ? 2.0f : 1.0f;
         if (PlanetType == Astro::Planet::PlanetType::kRocky || PlanetType == Astro::Planet::PlanetType::kChthonian) {
             Albedo = Random * std::min(0.7f, 0.12f + 0.2f * std::sqrt(TidalLockCoefficient * AtmospherePressureAtm));
             Emissivity = std::max(0.012f, 0.95f - 0.35f * std::pow(AtmospherePressureAtm, 0.25f));
@@ -1331,7 +1331,7 @@ void OrbitalGenerator::CalculateTemperature(float PoyntingVector, const Astro::S
             Albedo = Random * std::max(0.2f, 0.4f - 0.1f * std::sqrt(AtmospherePressureAtm));
             Emissivity = std::max(0.1f, 0.98f - 0.35f * std::pow(AtmospherePressureAtm, 0.25f));
         }
-    } else if (Equal(Planet->GetAtmosphereMassFloat(), 0.0f)) {
+    } else if (Util::Equal(Planet->GetAtmosphereMassFloat(), 0.0f)) {
         if (PlanetType == Astro::Planet::PlanetType::kRocky || PlanetType == Astro::Planet::PlanetType::kChthonian) {
             Albedo = 0.12f * (0.9f + _CommonGenerator(_RandomEngine) * 0.2f);
             Emissivity = 0.95f;
@@ -1374,7 +1374,7 @@ void OrbitalGenerator::GenerateMoons(
         } else {
             if (Planet->GetMassFloat() > 100 * _AsteroidUpperLimit &&
                 HillSphereRadius / 3 - 2 * LiquidRocheRadius > 3e8f) {
-                BernoulliDistribution MoonProbability(
+                Util::BernoulliDistribution MoonProbability(
                     std::min(0.5f, 0.1f * (HillSphereRadius / 3 - 2 * LiquidRocheRadius) / 3e8f));
                 if (MoonProbability(_RandomEngine)) {
                     MoonCount = 1;
@@ -1503,7 +1503,7 @@ void OrbitalGenerator::GenerateMoons(
 
         CalculateTemperature(PoyntingVector, Star, Moons[i].get());
 
-        if (Star->GetStellarClass().GetStarType() == Module::StellarClass::StarType::kNormalStar) {
+        if (Star->GetStellarClass().GetStarType() == Util::StellarClass::StarType::kNormalStar) {
             GenerateTerra(Star, PoyntingVector, HabitableZoneAu, Orbits[i], Moons[i].get());
         }
 
@@ -1570,7 +1570,7 @@ void OrbitalGenerator::GenerateRings(
     float LiquidRocheRadius = 2.02373e7f * std::pow(PlanetMassEarth, 1.0f / 3.0f);
     float HillSphereRadius  = Orbits[PlanetIndex].SemiMajorAxis * std::pow(3.0f * PlanetMass / static_cast<float>(Star->GetMass()), 1.0f / 3.0f);
 
-    Distribution<double>* RingsProbability = nullptr;
+    Util::Distribution<double>* RingsProbability = nullptr;
     if (LiquidRocheRadius < HillSphereRadius / 3.0f && LiquidRocheRadius > Planet->GetRadius()) {
         if (PlanetType == Astro::Planet::PlanetType::kGasGiant ||
             PlanetType == Astro::Planet::PlanetType::kIceGiant) {

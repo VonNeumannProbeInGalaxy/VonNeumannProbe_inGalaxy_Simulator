@@ -3,6 +3,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 _NPGS_BEGIN
+_UTIL_BEGIN
 
 void Logger::Init() {
     spdlog::set_pattern("%^[%T] %n: %v%$");
@@ -17,4 +18,5 @@ void Logger::Init() {
 std::shared_ptr<spdlog::logger> Logger::_kCoreLogger   = nullptr;
 std::shared_ptr<spdlog::logger> Logger::_kClientLogger = nullptr;
 
+_UTIL_END
 _NPGS_END

@@ -9,7 +9,7 @@
 #include "Engine/Core/Assert.h"
 
 _NPGS_BEGIN
-_MODULE_BEGIN
+_UTIL_BEGIN
 
 // StellarClass implementations
 // ----------------------------
@@ -638,5 +638,5 @@ std::string StellarClass::SpecialMarkToString(StellarClass::SpecialPeculiarities
     }
 }
 
-_MODULE_END
+_UTIL_END
 _NPGS_END
