@@ -2,8 +2,8 @@
 
 #include <memory>
 #include <boost/multiprecision/cpp_int.hpp>
-#include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
-#include "Engine/Base/NpgsObject/Civilization.h"
+#include "Engine/Base/Astro/CelestialObject.h"
+#include "Engine/Base/Civilization.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN

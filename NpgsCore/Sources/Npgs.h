@@ -3,12 +3,12 @@
 #include "Engine/AssetLoader/AssetManager.h"
 #include "Engine/AssetLoader/Csv.hpp"
 
-#include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
-#include "Engine/Base/NpgsObject/Astro/Planet.h"
-#include "Engine/Base/NpgsObject/Astro/Star.h"
-#include "Engine/Base/NpgsObject/Astro/StellarSystem.h"
-#include "Engine/Base/NpgsObject/Civilization.h"
-#include "Engine/Base/NpgsObject/NpgsObject.h"
+#include "Engine/Base/Astro/CelestialObject.h"
+#include "Engine/Base/Astro/Planet.h"
+#include "Engine/Base/Astro/Star.h"
+#include "Engine/Base/Astro/StellarSystem.h"
+#include "Engine/Base/Civilization.h"
+#include "Engine/Base/NpgsObject.h"
 
 #include "Engine/Core/Assert.h"
 #include "Engine/Core/Base.h"

@@ -6,7 +6,7 @@
 #include <tuple>
 #include <vector>
 
-#include "Engine/Base/NpgsObject/Astro/StellarSystem.h"
+#include "Engine/Base/Astro/StellarSystem.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Modules/Generators/CivilizationGenerator.h"
 #include "Engine/Utilities/Random.hpp"

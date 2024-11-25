@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
+#include "Engine/Base/Astro/CelestialObject.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Utilities/StellarClass.h"
 

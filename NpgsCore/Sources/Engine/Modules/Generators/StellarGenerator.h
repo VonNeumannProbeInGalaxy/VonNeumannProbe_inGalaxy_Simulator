@@ -12,7 +12,7 @@
 #include <glm/glm.hpp>
 
 #include "Engine/AssetLoader/Csv.hpp"
-#include "Engine/Base/NpgsObject/Astro/Star.h"
+#include "Engine/Base/Astro/Star.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Utilities/Random.hpp"
 #include "Engine/Utilities/StellarClass.h"

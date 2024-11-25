@@ -141,11 +141,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.cpp" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Planet.cpp" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\Star.cpp" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Civilization.cpp" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject\Astro\StellarSystem.cpp" />
+    <ClCompile Include="Sources\Engine\Base\Astro\CelestialObject.cpp" />
+    <ClCompile Include="Sources\Engine\Base\Astro\Planet.cpp" />
+    <ClCompile Include="Sources\Engine\Base\Astro\Star.cpp" />
+    <ClCompile Include="Sources\Engine\Base\Civilization.cpp" />
+    <ClCompile Include="Sources\Engine\Base\Astro\StellarSystem.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\AssetManager.cpp" />
     <ClCompile Include="Sources\Engine\Utilities\Logger.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\CivilizationGenerator.cpp" />
@@ -162,13 +162,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.h" />
-    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Planet.h" />
-    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\Star.h" />
-    <ClInclude Include="Sources\Engine\Base\NpgsObject\Civilization.h" />
-    <ClInclude Include="Sources\Engine\Base\NpgsObject\NpgsObject.h" />
+    <ClInclude Include="Sources\Engine\Base\Astro\CelestialObject.h" />
+    <ClInclude Include="Sources\Engine\Base\Astro\Planet.h" />
+    <ClInclude Include="Sources\Engine\Base\Astro\Star.h" />
+    <ClInclude Include="Sources\Engine\Base\Civilization.h" />
+    <ClInclude Include="Sources\Engine\Base\NpgsObject.h" />
     <ClInclude Include="Sources\Engine\Core\Octree.hpp" />
-    <ClInclude Include="Sources\Engine\Base\NpgsObject\Astro\StellarSystem.h" />
+    <ClInclude Include="Sources\Engine\Base\Astro\StellarSystem.h" />
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
     <ClInclude Include="Sources\Engine\AssetLoader\AssetManager.h" />
     <ClInclude Include="Sources\Engine\AssetLoader\Csv.hpp" />
@@ -187,11 +187,11 @@
     <ClInclude Include="Sources\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Sources\Engine\Base\NpgsObject\Astro\CelestialObject.inl" />
-    <None Include="Sources\Engine\Base\NpgsObject\Astro\Planet.inl" />
-    <None Include="Sources\Engine\Base\NpgsObject\Astro\Star.inl" />
-    <None Include="Sources\Engine\Base\NpgsObject\Civilization.inl" />
-    <None Include="Sources\Engine\Base\NpgsObject\Astro\StellarSystem.inl" />
+    <None Include="Sources\Engine\Base\Astro\CelestialObject.inl" />
+    <None Include="Sources\Engine\Base\Astro\Planet.inl" />
+    <None Include="Sources\Engine\Base\Astro\Star.inl" />
+    <None Include="Sources\Engine\Base\Civilization.inl" />
+    <None Include="Sources\Engine\Base\Astro\StellarSystem.inl" />
     <None Include="Sources\Engine\Utilities\StellarClass.inl" />
     <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />
   </ItemGroup>

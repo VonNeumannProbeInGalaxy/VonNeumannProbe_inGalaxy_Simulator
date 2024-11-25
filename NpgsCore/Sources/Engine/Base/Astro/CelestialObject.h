@@ -2,7 +2,7 @@
 
 #include <string>
 #include <glm/glm.hpp>
-#include "Engine/Base/NpgsObject/NpgsObject.h"
+#include "Engine/Base/NpgsObject.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN

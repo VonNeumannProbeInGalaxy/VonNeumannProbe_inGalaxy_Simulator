@@ -4,7 +4,7 @@
 #include <memory>
 #include <random>
 
-#include "Engine/Base/NpgsObject/Astro/Planet.h"
+#include "Engine/Base/Astro/Planet.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Utilities/Random.hpp"
 

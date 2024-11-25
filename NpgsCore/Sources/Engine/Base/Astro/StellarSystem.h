@@ -6,10 +6,10 @@
 
 #include <glm/glm.hpp>
 
-#include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
-#include "Engine/Base/NpgsObject/Astro/Planet.h"
-#include "Engine/Base/NpgsObject/Astro/Star.h"
-#include "Engine/Base/NpgsObject/NpgsObject.h"
+#include "Engine/Base/Astro/CelestialObject.h"
+#include "Engine/Base/Astro/Planet.h"
+#include "Engine/Base/Astro/Star.h"
+#include "Engine/Base/NpgsObject.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN

@@ -6,8 +6,8 @@
 
 #include <glm/glm.hpp>
 
-#include "Engine/Base/NpgsObject/Astro/Star.h"
-#include "Engine/Base/NpgsObject/Astro/StellarSystem.h"
+#include "Engine/Base/Astro/Star.h"
+#include "Engine/Base/Astro/StellarSystem.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Octree.hpp"
 #include "Engine/Core/ThreadPool.h"
