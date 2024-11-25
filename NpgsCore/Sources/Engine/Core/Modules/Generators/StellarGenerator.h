@@ -13,8 +13,8 @@
 
 #include "Engine/Base/NpgsObject/Astro/Star.h"
 #include "Engine/Core/AssetLoader/Csv.hpp"
-#include "Engine/Core/Modules/StellarClass.h"
 #include "Engine/Core/Utilities/Random.hpp"
+#include "Engine/Core/Utilities/StellarClass.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
@@ -42,10 +42,10 @@ public:
     };
 
     struct BasicProperties {
-        float Age = 0.0f;
-        float FeH = 0.0f;
-        float InitialMassSol = 0.0f;
-        bool  bIsSingleStar  = true;
+        float Age{ 0.0f };
+        float FeH{ 0.0f };
+        float InitialMassSol{ 0.0f };
+        bool  bIsSingleStar{ true };
 
         // 用于保存生成选项，类的生成选项仅影响该属性。生成的恒星完整信息也将根据该属性决定。该选项用于防止多线程生成恒星时属性和生成器胡乱匹配
         GenerateOption MultiOption;

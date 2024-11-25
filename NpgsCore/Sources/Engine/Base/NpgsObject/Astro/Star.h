@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "Engine/Base/NpgsObject/Astro/CelestialObject.h"
-#include "Engine/Core/Modules/StellarClass.h"
+#include "Engine/Core/Utilities/StellarClass.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN

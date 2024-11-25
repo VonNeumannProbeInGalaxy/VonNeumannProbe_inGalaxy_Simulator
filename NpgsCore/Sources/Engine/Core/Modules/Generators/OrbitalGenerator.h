@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "Engine/Base/NpgsObject/Astro/StellarSystem.h"
-#include "Engine/Core/Modules/CivilizationGenerator.h"
+#include "Engine/Core/Modules/Generators/CivilizationGenerator.h"
 #include "Engine/Core/Utilities/Random.hpp"
 #include "Engine/Core/Base.h"
 
@@ -22,10 +22,10 @@ public:
     };
 
     struct PlanetaryDisk {
-        float InterRadiusAu = 0.0f;
-        float OuterRadiusAu = 0.0f;
-        float DiskMassSol   = 0.0f;
-        float DustMassSol   = 0.0f;
+        float InterRadiusAu{ 0.0f };
+        float OuterRadiusAu{ 0.0f };
+        float DiskMassSol{ 0.0f };
+        float DustMassSol{ 0.0f };
     };
 
 public:
@@ -53,7 +53,7 @@ public:
 private:
     void GenerateBinaryOrbit(Astro::StellarSystem& System);
     void GeneratePlanets(std::size_t StarIndex, Astro::StellarSystem& System);
-    void GeneratePlanetOrbitElements(Astro::StellarSystem::Orbit& Orbit);
+    void GenerateOrbitElements(Astro::StellarSystem::Orbit& Orbit);
 
     std::size_t JudgeLargePlanets(
         std::size_t StarIndex,
@@ -77,6 +77,18 @@ private:
     );
     
     void CalculatePlanetRadius(float MassEarth, Astro::Planet* Planet);
+    void GenerateSpin(float SemiMajorAxis, const Astro::Star* Star, Astro::Planet* Planet);
+    void CalculateTemperature(float PoyntingVector, const Astro::Star* Star, Astro::Planet* Planet);
+
+    void GenerateMoons(
+        std::size_t PlanetIndex,
+        float FrostLineAu,
+        const Astro::Star* Star,
+        float PoyntingVector,
+        const Astro::Planet* Planet,
+        std::vector<Astro::StellarSystem::Orbit>& Orbits,
+        std::vector<std::unique_ptr<Astro::Planet>>& Planets
+    );
 
     void GenerateRings(
         std::size_t PlanetIndex,
@@ -94,9 +106,6 @@ private:
         const Astro::StellarSystem::Orbit& Orbit,
         Astro::Planet* Planet
     );
-
-    void GenerateSpin(float SemiMajorAxis, const Astro::Star* Star, Astro::Planet* Planet);
-    void CalculateTemperature(float PoyntingVector, const Astro::Star* Star, Astro::Planet* Planet);
 
     void GenerateCivilization(
         const Astro::Star* Star,

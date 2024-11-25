@@ -114,13 +114,13 @@ public:
     };
 
     struct SpectralType {
-        SpectralClass      HSpectralClass;
-        SpectralClass      MSpectralClass;
-        LuminosityClass    LuminosityClass;
+        SpectralClass      HSpectralClass{ SpectralClass::kSpectral_Unknown };
+        SpectralClass      MSpectralClass{ SpectralClass::kSpectral_Unknown };
+        LuminosityClass    LuminosityClass{ LuminosityClass::kLuminosity_Unknown };
         SpecialPeculiarity SpecialMark;
-        float              Subclass;
-        float              AmSubclass;
-        bool               bIsAmStar;
+        float              Subclass{ 0.0f };
+        float              AmSubclass{ 0.0f };
+        bool               bIsAmStar{ false };
     };
 
 public:
@@ -171,9 +171,9 @@ private:
     static ParseState ParseLuminosityClassII(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass);
     static ParseState ParseLuminosityClassV(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass);
     static ParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, StellarClass::SpecialPeculiarity& SpecialMark, std::size_t& Index);
-    static std::string SpectralToStr(StellarClass::SpectralClass Spectral, float Subclass);
-    static std::string LuminosityClassToStr(StellarClass::LuminosityClass Luminosity);
-    static std::string SpecialMarkToStr(StellarClass::SpecialPeculiarities SpecialMark);
+    static std::string SpectralToString(StellarClass::SpectralClass Spectral, float Subclass);
+    static std::string LuminosityClassToString(StellarClass::LuminosityClass Luminosity);
+    static std::string SpecialMarkToString(StellarClass::SpecialPeculiarities SpecialMark);
 
 private:
     std::uint64_t _SpectralType;

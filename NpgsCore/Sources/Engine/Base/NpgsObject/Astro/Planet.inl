@@ -260,7 +260,7 @@ inline float Planet::GetMassFloat() const {
 }
 
 inline const boost::multiprecision::uint128_t Planet::GetMass() const {
-    return GetAtmosphereMass() + GetOceanMass() + GetCoreMass();
+    return GetAtmosphereMass() + GetOceanMass() + GetCoreMass() + GetCrustMineralMass();
 }
 
 inline float Planet::GetCrustMineralMassFloat() const {

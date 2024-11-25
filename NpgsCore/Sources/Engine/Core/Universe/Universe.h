@@ -8,7 +8,7 @@
 
 #include "Engine/Base/NpgsObject/Astro/Star.h"
 #include "Engine/Base/NpgsObject/Astro/StellarSystem.h"
-#include "Engine/Core/Modules/StellarGenerator.h"
+#include "Engine/Core/Modules/Generators/StellarGenerator.h"
 #include "Engine/Core/Utilities/Octree.hpp"
 #include "Engine/Core/Utilities/Random.hpp"
 #include "Engine/Core/Utilities/ThreadPool.h"

@@ -15,7 +15,7 @@
 #include <glm/glm.hpp>
 
 #define ENABLE_CONSOLE_LOGGER
-#include "Engine/Core/Modules/OrbitalGenerator.h"
+#include "Engine/Core/Modules/Generators/OrbitalGenerator.h"
 #include "Engine/Core/Utilities/Logger.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Constants.h"

@@ -86,14 +86,14 @@ std::string StellarClass::ToString() const {
         return "Unknown";
     }
 
-    std::string SpectralTypeStr = SpectralToStr(StructSpectralType.HSpectralClass, StructSpectralType.Subclass);
+    std::string SpectralTypeStr = SpectralToString(StructSpectralType.HSpectralClass, StructSpectralType.Subclass);
 
     if (StructSpectralType.bIsAmStar) {
-        SpectralTypeStr += "m" + SpectralToStr(StructSpectralType.MSpectralClass, StructSpectralType.AmSubclass);
+        SpectralTypeStr += "m" + SpectralToString(StructSpectralType.MSpectralClass, StructSpectralType.AmSubclass);
     }
 
-    SpectralTypeStr += LuminosityClassToStr(StructSpectralType.LuminosityClass);
-    SpectralTypeStr += SpecialMarkToStr(static_cast<SpecialPeculiarities>(StructSpectralType.SpecialMark));
+    SpectralTypeStr += LuminosityClassToString(StructSpectralType.LuminosityClass);
+    SpectralTypeStr += SpecialMarkToString(static_cast<SpecialPeculiarities>(StructSpectralType.SpecialMark));
 
     return SpectralTypeStr;
 }
@@ -524,7 +524,7 @@ StellarClass::ParseState StellarClass::ParseSpecialMark(unsigned char Char, unsi
     }
 }
 
-std::string StellarClass::SpectralToStr(StellarClass::SpectralClass Spectral, float Subclass) {
+std::string StellarClass::SpectralToString(StellarClass::SpectralClass Spectral, float Subclass) {
     std::ostringstream Stream;
 
     if (Subclass == std::floor(Subclass)) {
@@ -594,7 +594,7 @@ std::string StellarClass::SpectralToStr(StellarClass::SpectralClass Spectral, fl
     }
 }
 
-std::string StellarClass::LuminosityClassToStr(StellarClass::LuminosityClass Luminosity) {
+std::string StellarClass::LuminosityClassToString(StellarClass::LuminosityClass Luminosity) {
     switch (Luminosity) {
     case StellarClass::LuminosityClass::kLuminosity_0:
         return std::string("0");
@@ -623,7 +623,7 @@ std::string StellarClass::LuminosityClassToStr(StellarClass::LuminosityClass Lum
     }
 }
 
-std::string StellarClass::SpecialMarkToStr(StellarClass::SpecialPeculiarities SpecialMark) {
+std::string StellarClass::SpecialMarkToString(StellarClass::SpecialPeculiarities SpecialMark) {
     switch (SpecialMark) {
     case StellarClass::SpecialPeculiarities::kCode_Null:
         return std::string("");
