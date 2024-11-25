@@ -128,9 +128,9 @@ void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System) {
     std::pair<Astro::StellarSystem::Orbit, Astro::StellarSystem::Orbit> Elements;
     auto* SystemBaryCenter = System.GetBaryCenter();
 
-    Elements.first.ParentBody.SystemBary = SystemBaryCenter;
+    Elements.first.ParentBody.BaryCenterPtr = SystemBaryCenter;
     Elements.first.ParentBodyType = Astro::StellarSystem::Orbit::ObjectType::kBaryCenter;
-    Elements.second.ParentBody.SystemBary = SystemBaryCenter;
+    Elements.second.ParentBody.BaryCenterPtr = SystemBaryCenter;
     Elements.second.ParentBodyType = Astro::StellarSystem::Orbit::ObjectType::kBaryCenter;
     
     float MassSol1 = static_cast<float>(System.StarData().front()->GetMass() / kSolarMass);
@@ -228,12 +228,12 @@ void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System) {
     }
 
     Astro::StellarSystem::Orbit::OrbitalObject Star1;
-    Star1.Object.Star = System.StarData().front().get();
+    Star1.Object.StarPtr = System.StarData().front().get();
     Star1.Type = Astro::StellarSystem::Orbit::ObjectType::kStar;
     Star1.InitialTrueAnomaly = InitialTrueAnomaly1;
 
     Astro::StellarSystem::Orbit::OrbitalObject Star2;
-    Star2.Object.Star = System.StarData().back().get();
+    Star2.Object.StarPtr = System.StarData().back().get();
     Star2.Type = Astro::StellarSystem::Orbit::ObjectType::kStar;
     Star2.InitialTrueAnomaly = InitialTrueAnomaly2;
 
@@ -398,7 +398,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
     }
 
     for (auto& Orbit : Orbits) {
-        Orbit.ParentBody.Star = Star; // 轨道上级天体，绑定为主恒星
+        Orbit.ParentBody.StarPtr = Star; // 轨道上级天体，绑定为主恒星
         Orbit.ParentBodyType = Astro::StellarSystem::Orbit::ObjectType::kStar;
     }
 
@@ -828,7 +828,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::StellarSyst
 
     for (std::size_t i = 0; i != PlanetCount; ++i) {
         Astro::StellarSystem::Orbit::OrbitalObject Planet;
-        Planet.Object.Planet = Planets[i].get();
+        Planet.Object.PlanetPtr = Planets[i].get();
         Planet.Type = Astro::StellarSystem::Orbit::ObjectType::kPlanet;
         Planet.InitialTrueAnomaly = 0.0f;
         Orbits[i].Objects.emplace_back(Planet);
@@ -1273,9 +1273,9 @@ void OrbitalGenerator::GenerateRings(
             RingsPtr->SetMassVolatiles(RingsMassVolatiles);
             RingsPtr->SetMassZ(RingsMassZ);
 
-            RingsOrbit.ParentBody.Planet = Planet;
+            RingsOrbit.ParentBody.PlanetPtr = Planet;
             Astro::StellarSystem::Orbit::OrbitalObject Rings;
-            Rings.Object.AsteroidCluster = RingsPtr;
+            Rings.Object.AsteroidClusterPtr = RingsPtr;
             Rings.Type = Astro::StellarSystem::Orbit::ObjectType::kAsteroidCluster;
             Rings.InitialTrueAnomaly = 0.0f;
 

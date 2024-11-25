@@ -38,12 +38,12 @@ public:
         };
 
         union ObjectPointer {
-            const BaryCenter* SystemBary;
-            const Astro::Star* Star;
-            const Astro::Planet* Planet;
-            const Astro::AsteroidCluster* AsteroidCluster;
+            const BaryCenter* BaryCenterPtr;
+            const Star* StarPtr;
+            const Planet* PlanetPtr;
+            const AsteroidCluster* AsteroidClusterPtr;
 
-            ObjectPointer() : SystemBary(nullptr) {}
+            ObjectPointer() : BaryCenterPtr(nullptr) {}
         };
 
         struct OrbitalObject {
@@ -52,19 +52,19 @@ public:
             float         InitialTrueAnomaly;
         };
 
-        std::vector<OrbitalObject> Objects; // 轨道上的天体
-        ObjectPointer ParentBody;           // 轨道环绕的上级天体
-        ObjectType    ParentBodyType;       // 上级天体类型
-        glm::vec2     Normal;               // 轨道法向量 (theta, phi)
+        std::vector<OrbitalObject> Objects;        // 轨道上的天体
+        ObjectPointer              ParentBody;     // 轨道环绕的上级天体
+        ObjectType                 ParentBodyType; // 上级天体类型
+        glm::vec2                  Normal;         // 轨道法向量 (theta, phi)
 
-        // float Epoch{ 0.0f };                    // 历元，单位儒略日
-        float Period{ 0.0f };                      // 周期，单位 s
-        float SemiMajorAxis{ 0.0f };               // 半长轴，单位 AU
-        float Eccentricity{ 0.0f };                // 离心率
-        // float Inclination{ 0.0f };              // 轨道倾角，单位度
-        // float LongitudeOfAscendingNode{ 0.0f }; // 升交点经度，单位度
-        // float ArgumentOfPeriapsis{ 0.0f };      // 近心点幅角，单位度
-        // float TrueAnomaly{ 0.0f };              // 真近点角，单位度
+        float Epoch{ 0.0f };                    // 历元，单位儒略日
+        float Period{ 0.0f };                   // 周期，单位 s
+        float SemiMajorAxis{ 0.0f };            // 半长轴，单位 AU
+        float Eccentricity{ 0.0f };             // 离心率
+        float Inclination{ 0.0f };              // 轨道倾角，单位度
+        float LongitudeOfAscendingNode{ 0.0f }; // 升交点经度，单位度
+        float ArgumentOfPeriapsis{ 0.0f };      // 近心点幅角，单位度
+        float TrueAnomaly{ 0.0f };              // 真近点角，单位度
     };
 
 public:

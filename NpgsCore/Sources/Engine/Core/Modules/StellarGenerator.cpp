@@ -980,18 +980,18 @@ void StellarGenerator::CalculateSpectralType(float FeH, Astro::Star& StarData) {
     float SurfaceH1 = StarData.GetSurfaceH1();
     float MinSurfaceH1 = Astro::Star::_kFeHSurfaceH1Map.at(FeH) - 0.01f;
 
-    std::function<void(Astro::Star::EvolutionPhase, float)> CalculateSpectralSubclass =
-    [&](Astro::Star::EvolutionPhase CurrentPhase, float SurfaceH1) -> void {
-        std::uint32_t SpectralClass = CurrentPhase == Astro::Star::EvolutionPhase::kWolfRayet ? 11 : 0;
+    std::function<void(Astro::Star::EvolutionPhase)> CalculateSpectralSubclass =
+    [&](Astro::Star::EvolutionPhase BasePhase) -> void {
+        std::uint32_t SpectralClass = BasePhase == Astro::Star::EvolutionPhase::kWolfRayet ? 11 : 0;
 
-        if (CurrentPhase != Astro::Star::EvolutionPhase::kWolfRayet) {
-            if (CurrentPhase == Astro::Star::EvolutionPhase::kMainSequence) {
+        if (BasePhase != Astro::Star::EvolutionPhase::kWolfRayet) {
+            if (BasePhase == Astro::Star::EvolutionPhase::kMainSequence) {
                 // 如果表面氢质量分数低于 0.5 并且还是主序星阶段，转为 WR 星
                 // 该情况只有 O 型星会出现
                 if (SurfaceH1 < 0.5f) {
                     EvolutionPhase = Astro::Star::EvolutionPhase::kWolfRayet;
                     StarData.SetEvolutionPhase(EvolutionPhase);
-                    CalculateSpectralSubclass(EvolutionPhase, SurfaceH1);
+                    CalculateSpectralSubclass(EvolutionPhase);
                     return;
                 }
             }
@@ -1061,7 +1061,7 @@ void StellarGenerator::CalculateSpectralType(float FeH, Astro::Star& StarData) {
         switch (StarType) {
         case StellarClass::StarType::kNormalStar: {
             if (Teff < 54000) {
-                CalculateSpectralSubclass(EvolutionPhase, SurfaceH1);
+                CalculateSpectralSubclass(EvolutionPhase);
 
                 if (EvolutionPhase != Astro::Star::EvolutionPhase::kWolfRayet) {
                     if (EvolutionPhase == Astro::Star::EvolutionPhase::kPrevMainSequence) {
@@ -1088,7 +1088,7 @@ void StellarGenerator::CalculateSpectralType(float FeH, Astro::Star& StarData) {
                     SpectralType.Subclass = 2.0f;
                     SpectralType.LuminosityClass = CalculateLuminosityClass(StarData);
                 } else {
-                    CalculateSpectralSubclass(Astro::Star::EvolutionPhase::kWolfRayet, SurfaceH1);
+                    CalculateSpectralSubclass(Astro::Star::EvolutionPhase::kWolfRayet);
                 }
             }
 
@@ -1138,7 +1138,7 @@ void StellarGenerator::CalculateSpectralType(float FeH, Astro::Star& StarData) {
         }
         }
     } else {
-        CalculateSpectralSubclass(Astro::Star::EvolutionPhase::kWolfRayet, SurfaceH1);
+        CalculateSpectralSubclass(Astro::Star::EvolutionPhase::kWolfRayet);
         SpectralType.LuminosityClass = StellarClass::LuminosityClass::kLuminosity_Unknown;
     }
 
