@@ -78,7 +78,12 @@ private:
     
     void CalculatePlanetRadius(float MassEarth, Astro::Planet* Planet);
     void GenerateSpin(float SemiMajorAxis, const Astro::StellarSystem::Orbit::OrbitalObject Parent, Astro::Planet* Planet);
-    void CalculateTemperature(float PoyntingVector, const Astro::Star* Star, Astro::Planet* Planet);
+
+    void CalculateTemperature(
+        const Astro::StellarSystem::Orbit::ObjectType ParentType,
+        float PoyntingVector,
+        Astro::Planet* Planet
+    );
 
     void GenerateMoons(
         std::size_t PlanetIndex,

@@ -24,7 +24,7 @@ def count_lines(file_path):
     return total, logical
 
 def main():
-    source_dir = os.path.join(os.getcwd(), 'Sources')
+    source_dir = os.path.join(os.getcwd(), '../Sources')
     extensions = ('.cpp', '.h', '.hpp', '.inl')
     total_all = 0
     total_logical = 0

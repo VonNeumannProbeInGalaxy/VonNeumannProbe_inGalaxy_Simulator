@@ -2,15 +2,17 @@
 // #include "Npgs.h"
 
 #include <xstdafx.h>
+#define ENABLE_CONSOLE_LOGGER
 #include "Npgs.h"
 
 int main() {
     using namespace Npgs;
     using namespace Npgs::Astro;
     using namespace Npgs::Module;
+    using namespace Npgs::Util;
 
-    //Logger::Init();
-    //ThreadPool::Init();
+    Logger::Init();
+    ThreadPool::Init();
 
     //std::println("Enter the system count:");
     //std::size_t StarCount = 0;
@@ -63,10 +65,10 @@ int main() {
     // ---------------------------------------
 
     std::random_device rd;
-    unsigned seed = rd();//3731860369;//3141777642;//800323521;//472035744;//2442947453;
+    unsigned seed = 2240717154;//4011621040;//3731860369;//3141777642;//800323521;//472035744;//2442947453;
     std::println("Seed: {}", seed);
     StellarGenerator sg({ seed });
-    StellarGenerator::BasicProperties b1{ 5e8f, 0.0f, 1.5f };
+    StellarGenerator::BasicProperties b1{ 5e9f, 0.0f, 1.0f };
     StellarGenerator::BasicProperties b2{ 5e9f, 0.0f, 0.3f };
     auto s1 = sg.GenerateStar(b1);
     auto s2 = sg.GenerateStar(b2);
@@ -74,10 +76,25 @@ int main() {
     s1.SetIsSingleStar(false);
     s2.SetIsSingleStar(false);
 
-    OrbitalGenerator og({ seed });
     StellarSystem ss;
     ss.StarData().push_back(std::make_unique<Astro::Star>(s1));
     //ss.StarData().push_back(std::make_unique<Astro::Star>(s2));
+
+    //try {
+    //    while (true) {
+    //        //p->Commit([&og, &ss] { og.GenerateOrbitals(ss); });
+    //        seed = rd();
+    //        OrbitalGenerator og({ seed });
+    //        og.GenerateOrbitals(ss);
+    //    }
+    //} catch (std::exception& e) {
+    //    NpgsCoreError(std::string(e.what()) + " seed: " + std::to_string(seed));
+    //}
+
+    OrbitalGenerator og({ seed });
+
+    //auto* p = ThreadPool::GetInstance();
+
     og.GenerateOrbitals(ss);
 
     // -------------------------------------------

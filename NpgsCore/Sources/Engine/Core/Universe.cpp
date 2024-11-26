@@ -862,13 +862,13 @@ void Universe::GenerateSlots(float MinDistance, std::size_t SampleCount, float D
         }
     });
 
-    // 为了保证恒星系统的唯一性，将原点附近所在的叶子节点作为存储家园恒星系统的结点
+    // 为了保证恒星系统的唯一性，将原点附近所在的叶子节点作为存储初始恒星系统的结点
     // 寻找包含了 (LeafRadius, LeafRadius, LeafRadius) 的叶子节点，将这个格子存储的位置修改为原点
     NodeType* HomeNode = _Octree->Find(glm::vec3(LeafRadius), [](const NodeType& Node) -> bool {
         return Node.IsLeafNode();
     });
 
-    // 把最靠近原点的格子存储旧的位置点删除，加入家园恒星系统
+    // 把最靠近原点的格子存储旧的位置点删除，加入初始恒星系统
     HomeNode->RemoveStorage();
     HomeNode->AddPoint(glm::vec3(0.0f));
 }

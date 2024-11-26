@@ -17,11 +17,11 @@ _ASTRO_BEGIN
 
 class StellarSystem : public NpgsObject {
 public:
-    struct BaryCenter : public AstroObject {
-        glm::vec3   Position;     // 位置，使用 3 个 float 分量的向量存储
-        glm::vec2   Normal;       // 法向量，(theta, phi)
-        std::size_t DistanceRank; // 距离 (0, 0, 0) 的排名
-        std::string Name;         // 质心名字
+    struct BaryCenter : public NpgsObject {
+        glm::vec3   Position;          // 位置，使用 3 个 float 分量的向量存储
+        glm::vec2   Normal;            // 法向量，(theta, phi)
+        std::size_t DistanceRank{ 0 }; // 距离 (0, 0, 0) 的排名
+        std::string Name;              // 质心名字
 
         BaryCenter() = default;
         BaryCenter(const glm::vec3& Position, const glm::vec2& Normal, std::size_t DistanceRank, const std::string& Name)
@@ -52,7 +52,7 @@ public:
             float InitialTrueAnomaly{ 0.0f }; // 初始真近点角，单位 rad
 
             OrbitalObject() = default;
-            OrbitalObject(const Astro::AstroObject* Object, ObjectType Type, float InitialTrueAnomaly = 0.0f) 
+            OrbitalObject(const NpgsObject* Object, ObjectType Type, float InitialTrueAnomaly = 0.0f) 
                 : Type(Type), InitialTrueAnomaly(InitialTrueAnomaly)
             {
                 switch (Type) {

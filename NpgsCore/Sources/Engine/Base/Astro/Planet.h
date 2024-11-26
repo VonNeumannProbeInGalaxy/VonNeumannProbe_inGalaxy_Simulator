@@ -139,12 +139,12 @@ class AsteroidCluster : public AstroObject {
 public:
     enum class AsteroidType {
         kRocky,
-        kIce
+        kRockyIce
     };
 
     struct BasicProperties {
         ComplexMass Mass;
-        AsteroidType Type = AsteroidType::kRocky;
+        AsteroidType Type{ AsteroidType::kRocky };
     };
 
 public:
