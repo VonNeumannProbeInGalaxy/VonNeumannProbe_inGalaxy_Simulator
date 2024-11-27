@@ -120,6 +120,14 @@ private:
         Astro::Planet* Planet
     );
 
+    void GenerateTrojan(
+        const Astro::Star* Star,
+        float FrostLineAu,
+        Astro::StellarSystem::Orbit* Orbit,
+        Astro::StellarSystem::Orbit::OrbitalObject& ParentPlanet,
+        std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters
+    );
+
     void GenerateCivilization(
         const Astro::Star* Star,
         float PoyntingVector,

@@ -743,7 +743,12 @@ void OrbitalGenerator::GeneratePlanets(
             Astro::StellarSystem::Orbit::OrbitalObject MyPlanet(Planets[i].get(),
                                                                 Astro::StellarSystem::Orbit::ObjectType::kPlanet);
             GenerateMoons(i, FrostLineAu, Star, PoyntingVector, HabitableZoneAu, MyPlanet, Orbits, Planets);
-            GenerateRings(i, FrostLineAu, Star, MyPlanet, Orbits, AsteroidClusters);
+
+            if (PlanetType != Astro::Planet::PlanetType::kRockyAsteroidCluster    &&
+                PlanetType != Astro::Planet::PlanetType::kRockyIceAsteroidCluster &&
+                Planets[i]->GetMassFloat() > _RingsParentLowerLimit) {
+                GenerateRings(i, std::numeric_limits<float>::infinity(), Star, MyPlanet, Orbits, AsteroidClusters);
+            }
 
             // 生成生命和文明
             PlanetType = Planets[i]->GetPlanetType();
@@ -752,6 +757,9 @@ void OrbitalGenerator::GeneratePlanets(
             }
 
             Orbits[i]->Objects.emplace_back(MyPlanet);
+
+            // 生成特洛伊带
+            GenerateTrojan(Star, FrostLineAu, Orbits[i].get(), MyPlanet, AsteroidClusters);
         }
 
         // 生成柯伊伯带
@@ -828,9 +836,17 @@ void OrbitalGenerator::GeneratePlanets(
             Astro::StellarSystem::Orbit::OrbitalObject MyPlanet(Planets[i].get(),
                                                                 Astro::StellarSystem::Orbit::ObjectType::kPlanet);
             GenerateMoons(i, std::numeric_limits<float>::infinity(), Star, PoyntingVector, {}, MyPlanet, Orbits, Planets);
-            GenerateRings(i, std::numeric_limits<float>::infinity(), Star, MyPlanet, Orbits, AsteroidClusters);
+
+            if (PlanetType != Astro::Planet::PlanetType::kRockyAsteroidCluster    &&
+                PlanetType != Astro::Planet::PlanetType::kRockyIceAsteroidCluster &&
+                Planets[i]->GetMassFloat() > _RingsParentLowerLimit) {
+                GenerateRings(i, std::numeric_limits<float>::infinity(), Star, MyPlanet, Orbits, AsteroidClusters);
+            }
 
             Orbits[i]->Objects.emplace_back(MyPlanet);
+
+            // 生成特洛伊带
+            GenerateTrojan(Star, std::numeric_limits<float>::infinity(), Orbits[i].get(), MyPlanet, AsteroidClusters);
         }
     }
 
@@ -892,6 +908,7 @@ void OrbitalGenerator::GeneratePlanets(
             std::println("mass z: {:.2E} kg, mass vol: {:.2E} kg, mass nuc: {:.2E} kg",
                          CoreMassZ, CoreMassVolatiles, CoreMassEnergeticNuclide);
         }
+
         std::println("");
     }
 #endif // DEBUG_OUTPUT
@@ -1697,13 +1714,6 @@ void OrbitalGenerator::GenerateRings(
     auto* Planet            = ParentPlanet.Object.PlanetPtr;
     auto  PlanetType        = Planet->GetPlanetType();
     float PlanetMass        = Planet->GetMassFloat();
-
-    if (PlanetType == Astro::Planet::PlanetType::kRockyAsteroidCluster ||
-        PlanetType == Astro::Planet::PlanetType::kRockyIceAsteroidCluster ||
-        PlanetMass < _RingsParentLowerLimit) {
-        return;
-    }
-
     float PlanetMassEarth   = PlanetMass / kEarthMass;
     float LiquidRocheRadius = 2.02373e7f * std::pow(PlanetMassEarth, 1.0f / 3.0f);
     float HillSphereRadius  = Orbits[PlanetIndex]->SemiMajorAxis * std::pow(3.0f * PlanetMass / static_cast<float>(Star->GetMass()), 1.0f / 3.0f);
@@ -1858,6 +1868,87 @@ void OrbitalGenerator::GenerateTerra(
             }
         }
     }
+}
+
+void OrbitalGenerator::GenerateTrojan(
+    const Astro::Star* Star,
+    float FrostLineAu,
+    Astro::StellarSystem::Orbit* Orbit,
+    Astro::StellarSystem::Orbit::OrbitalObject& ParentPlanet,
+    std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters
+) {
+    auto* Planet            = ParentPlanet.Object.PlanetPtr;
+    auto  PlanetType        = Planet->GetPlanetType();
+    float PlanetMass        = Planet->GetMassFloat();
+    float PlanetMassEarth   = PlanetMass / kEarthMass;
+    float LiquidRocheRadius = 2.02373e7f * std::pow(PlanetMassEarth, 1.0f / 3.0f);
+    float HillSphereRadius  = Orbit->SemiMajorAxis * std::pow(3.0f * PlanetMass / static_cast<float>(Star->GetMass()), 1.0f / 3.0f);
+
+    float Random     = 1.0f + _CommonGenerator(_RandomEngine);
+    float Term1      = 1e-9f * PlanetMassEarth * (HillSphereRadius / 3.11e9f);
+    float Term2      = PlanetMassEarth * 1e-3f / 2.0f;
+    float TrojanMass = Random * std::max(Term1, Term1) * kEarthMass;
+
+    if (TrojanMass < 1e14f) {
+        return;
+    }
+
+    bool bGenerated = false;
+    auto TrojanBelt = std::make_unique<Astro::AsteroidCluster>();
+
+    for (auto* NextOrbit : ParentPlanet.DirectOrbits) {
+        if (NextOrbit->Objects.front().Type == Astro::StellarSystem::Orbit::ObjectType::kAsteroidCluster) {
+            auto* Rings = NextOrbit->Objects.front().Object.AsteroidClusterPtr;
+            float TotalMass = Rings->GetMassFloat();
+            float RingsVolatiles = Rings->GetMassVolatilesFloat();
+            float RingsEnergeticNuclide = Rings->GetMassEnergeticNuclideFloat();
+            float RingsZ = Rings->GetMassZFloat();
+
+            TrojanBelt->SetMassVolatiles(RingsVolatiles / TotalMass * TrojanMass);
+            TrojanBelt->SetMassEnergeticNuclide(RingsEnergeticNuclide / TotalMass * TrojanMass);
+            TrojanBelt->SetMassZ(RingsZ / TotalMass * TrojanMass);
+            TrojanBelt->SetAsteroidType(NextOrbit->Objects.front().Object.AsteroidClusterPtr->GetAsteroidType());
+            bGenerated = true;
+        }
+    }
+
+    if (!bGenerated) {
+        float TrojanMassEnergeticNuclide = 0.0f;
+        float TrojanMassVolatiles = 0.0f;
+        float TrojanMassZ = 0.0f;
+        Astro::AsteroidCluster::AsteroidType AsteroidType;
+
+        if (Orbit->SemiMajorAxis / kAuToMeter >= FrostLineAu && std::to_underlying(Star->GetEvolutionPhase()) < 1) {
+            TrojanMassEnergeticNuclide = TrojanMass * 5e-6f * 0.064f;
+            TrojanMassVolatiles = TrojanMass * 0.064f;
+            TrojanMassZ = TrojanMass - TrojanMassVolatiles - TrojanMassEnergeticNuclide;
+            AsteroidType = Astro::AsteroidCluster::AsteroidType::kRockyIce;
+        } else {
+            TrojanMassEnergeticNuclide = TrojanMass * 5e-6f;
+            TrojanMassZ = TrojanMass - TrojanMassEnergeticNuclide;
+            AsteroidType = Astro::AsteroidCluster::AsteroidType::kRocky;
+        }
+
+        TrojanBelt->SetAsteroidType(AsteroidType);
+        TrojanBelt->SetMassEnergeticNuclide(TrojanMassEnergeticNuclide);
+        TrojanBelt->SetMassVolatiles(TrojanMassVolatiles);
+        TrojanBelt->SetMassZ(TrojanMassZ);
+    }
+
+#ifdef DEBUG_OUTPUT
+    std::println("");
+    std::println("Trojan belt details:");
+    std::println("semi-major axis: {} AU, mass: {} moon, type: {}",
+                 Orbit->SemiMajorAxis / kAuToMeter, TrojanMass / kMoonMass, std::to_underlying(TrojanBelt->GetAsteroidType()));
+    std::println("mass z: {:.2E} kg, mass vol: {:.2E} kg, mass nuc: {:.2E} kg",
+                 TrojanBelt->GetMassZFloat(), TrojanBelt->GetMassVolatilesFloat(), TrojanBelt->GetMassEnergeticNuclideFloat());
+    std::println("");
+#endif // DEBUG_OUTPUT
+
+    Astro::StellarSystem::Orbit::OrbitalObject MyBelt(TrojanBelt.get(), Astro::StellarSystem::Orbit::ObjectType::kAsteroidCluster);
+    Orbit->Objects.emplace_back(MyBelt);
+
+    AsteroidClusters.emplace_back(std::move(TrojanBelt));
 }
 
 void OrbitalGenerator::GenerateCivilization(
