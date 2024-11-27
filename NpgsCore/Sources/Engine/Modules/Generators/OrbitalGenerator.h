@@ -36,6 +36,7 @@ public:
         float BinaryPeriodMean                 = 5.03f,
         float BinaryPeriodSigma                = 2.28f,
         float AsteroidUpperLimit               = 1e21f,
+        float RingsParentLowerLimit            = 1e23f,
         float LifeOccurrenceProbability        = 0.0114514f,
         bool  bContainUltravioletHabitableZone = false,
         bool  bEnableAsiFilter                 = true
@@ -52,7 +53,13 @@ public:
 
 private:
     void GenerateBinaryOrbit(Astro::StellarSystem& System);
-    void GeneratePlanets(std::size_t StarIndex, Astro::StellarSystem& System);
+
+    void GeneratePlanets(
+        std::size_t StarIndex,
+        Astro::StellarSystem::Orbit::OrbitalObject& ParentStar,
+        Astro::StellarSystem& System
+    );
+    
     void GenerateOrbitElements(Astro::StellarSystem::Orbit& Orbit);
 
     std::size_t JudgeLargePlanets(
@@ -63,7 +70,7 @@ private:
         float FrostLineAu,
         std::vector<float>& CoreMassesSol,
         std::vector<float>& NewCoreMassesSol,
-        std::vector<Astro::StellarSystem::Orbit>& Orbits,
+        std::vector<std::unique_ptr<Astro::StellarSystem::Orbit>>& Orbits,
         std::vector<std::unique_ptr<Astro::Planet>>& Planets
     );
     
@@ -91,8 +98,8 @@ private:
         const Astro::Star* Star,
         float PoyntingVector,
         const std::pair<float, float>& HabitableZoneAu,
-        const Astro::Planet* Planet,
-        std::vector<Astro::StellarSystem::Orbit>& Orbits,
+        Astro::StellarSystem::Orbit::OrbitalObject& ParentPlanet,
+        std::vector<std::unique_ptr<Astro::StellarSystem::Orbit>>& Orbits,
         std::vector<std::unique_ptr<Astro::Planet>>& Planets
     );
 
@@ -100,8 +107,8 @@ private:
         std::size_t PlanetIndex,
         float FrostLineAu,
         const Astro::Star* Star,
-        const Astro::Planet* Planet,
-        std::vector<Astro::StellarSystem::Orbit>& Orbits,
+        Astro::StellarSystem::Orbit::OrbitalObject& ParentPlanet,
+        std::vector<std::unique_ptr<Astro::StellarSystem::Orbit>>& Orbits,
         std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters
     );
 
@@ -109,7 +116,7 @@ private:
         const Astro::Star* Star,
         float PoyntingVector,
         const std::pair<float, float>& HabitableZoneAu,
-        const Astro::StellarSystem::Orbit& Orbit,
+        const Astro::StellarSystem::Orbit* Orbit,
         Astro::Planet* Planet
     );
 
@@ -117,7 +124,7 @@ private:
         const Astro::Star* Star,
         float PoyntingVector,
         const std::pair<float, float>& HabitableZoneAu,
-        const Astro::StellarSystem::Orbit& Orbit,
+        const Astro::StellarSystem::Orbit* Orbit,
         Astro::Planet* Planet
     );
 
@@ -134,6 +141,7 @@ private:
     std::unique_ptr<CivilizationGenerator> _CivilizationGenerator;
 
     float _AsteroidUpperLimit;
+    float _RingsParentLowerLimit;
     float _UniverseAge;
     bool  _bContainUltravioletHabitableZone;
 };

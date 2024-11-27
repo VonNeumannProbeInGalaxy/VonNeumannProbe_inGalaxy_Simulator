@@ -22,6 +22,9 @@ inline constexpr int   kJupiterRadius          = 69911000;
 inline constexpr float kEarthMass              = 5.972168e24f;
 inline constexpr int   kEarthRadius            = 6371000;
 
+inline constexpr float kMoonMass               = 7.346e22f;
+inline constexpr int   kMoonRadius             = 1737400;
+
 inline constexpr float kSolarMassToEarth       = static_cast<float>(kSolarMass   / kEarthMass);
 inline constexpr float kSolarRadiusToEarth     = static_cast<float>(kSolarRadius / kEarthRadius);
 inline constexpr float kEarthMassToSolar       = static_cast<float>(kEarthMass   / kSolarMass);
