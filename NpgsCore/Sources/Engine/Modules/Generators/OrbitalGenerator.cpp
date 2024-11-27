@@ -16,7 +16,7 @@
 #include "Engine/Core/Constants.h"
 #include "Engine/Utilities/Utilities.h"
 
-#define DEBUG_OUTPUT
+// #define DEBUG_OUTPUT
 
 _NPGS_BEGIN
 _MODULE_BEGIN
@@ -793,6 +793,17 @@ void OrbitalGenerator::GeneratePlanets(
         
         GenerateOrbitElements(KuiperBeltOrbit);
 
+#ifdef DEBUG_OUTPUT
+        std::println("");
+        std::println("Kuiper belt details:");
+        std::println("semi-major axis: {} AU, mass: {} moon, type: {}",
+                     KuiperBeltOrbit.SemiMajorAxis / kAuToMeter, KuiperBeltMass / kMoonMass, std::to_underlying(AsteroidClusters.back()->GetAsteroidType()));
+        std::println("mass z: {:.2E} kg, mass vol: {:.2E} kg, mass nuc: {:.2E} kg",
+                     KuiperBeltMassZ, KuiperBeltMassVolatiles, KuiperBeltMassEnergeticNuclide);
+        std::println("");
+#endif // DEBUG_OUTPUT
+
+
         Orbits.emplace_back(std::make_unique<Astro::StellarSystem::Orbit>(KuiperBeltOrbit));
     } else {
         PlanetCount = JudgeLargePlanets(StarIndex, System.StarData(), BinarySemiMajorAxis,
@@ -851,13 +862,15 @@ void OrbitalGenerator::GeneratePlanets(
     }
 
     for (auto& Orbit : Orbits) {
-        if (Orbit->Objects.front().Object.PlanetPtr->GetPlanetType() == Astro::Planet::PlanetType::kRockyAsteroidCluster ||
-            Orbit->Objects.front().Object.PlanetPtr->GetPlanetType() == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) {
-            auto& Object = Orbit->Objects.front();
-            auto AsteroidCluster = PlanetToAsteroidCluster(Orbit->Objects.front().Object.PlanetPtr);
-            Object.Object.AsteroidClusterPtr = AsteroidCluster.get();
-            Object.Type = Astro::StellarSystem::Orbit::ObjectType::kAsteroidCluster;
-            AsteroidClusters.emplace_back(std::move(AsteroidCluster));
+        if (Orbit->Objects.front().Type == Astro::StellarSystem::Orbit::ObjectType::kPlanet) {
+            if (Orbit->Objects.front().Object.PlanetPtr->GetPlanetType() == Astro::Planet::PlanetType::kRockyAsteroidCluster ||
+                Orbit->Objects.front().Object.PlanetPtr->GetPlanetType() == Astro::Planet::PlanetType::kRockyIceAsteroidCluster) {
+                auto& Object = Orbit->Objects.front();
+                auto AsteroidCluster = PlanetToAsteroidCluster(Orbit->Objects.front().Object.PlanetPtr);
+                Object.Object.AsteroidClusterPtr = AsteroidCluster.get();
+                Object.Type = Astro::StellarSystem::Orbit::ObjectType::kAsteroidCluster;
+                AsteroidClusters.emplace_back(std::move(AsteroidCluster));
+            }
         }
     }
 

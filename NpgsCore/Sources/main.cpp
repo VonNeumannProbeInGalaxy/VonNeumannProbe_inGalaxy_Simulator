@@ -93,26 +93,26 @@ int main() {
 
     OrbitalGenerator og({ seed });
 
-    //auto* p = ThreadPool::GetInstance();
+    ////auto* p = ThreadPool::GetInstance();
 
-    og.GenerateOrbitals(ss);
+    //og.GenerateOrbitals(ss);
 
     // -------------------------------------------
 
-    //std::vector<StellarSystem> sss(200000);
+    std::vector<StellarSystem> sss(200000);
 
-    //auto start = std::chrono::high_resolution_clock::now();
-    //for (int i = 0; i != 20000; ++i) {
-    //    try {
-    //        sss[i].StarData().emplace_back(std::make_unique<Astro::Star>(s));
-    //        og.GenerateOrbitals(sss[i]);
-    //    } catch (std::exception& e) {
-    //        NpgsCoreError(e.what());
-    //    }
-    //}
-    //auto end = std::chrono::high_resolution_clock::now();
-    //std::chrono::duration<double> elapsed = end - start;
-    //std::println("Elapsed time: {}s", elapsed.count());
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i != 200000; ++i) {
+        try {
+            sss[i].StarData().emplace_back(std::make_unique<Astro::Star>(s1));
+            og.GenerateOrbitals(sss[i]);
+        } catch (std::exception& e) {
+            NpgsCoreError(e.what());
+        }
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    std::println("Elapsed time: {}s", elapsed.count());
 
     //std::system("pause");
 
