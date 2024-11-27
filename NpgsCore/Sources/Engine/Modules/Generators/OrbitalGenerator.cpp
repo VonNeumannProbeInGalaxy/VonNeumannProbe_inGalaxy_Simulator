@@ -1653,7 +1653,7 @@ void OrbitalGenerator::GenerateMoons(
         }
     }
 
-    #ifdef DEBUG_OUTPUT
+#ifdef DEBUG_OUTPUT
     std::println("");
 
     for (std::size_t i = 0; i != MoonCount; ++i) {
