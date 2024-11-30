@@ -46,7 +46,7 @@ inline StellarGenerator& StellarGenerator::SetMassUpperLimit(float Limit) {
 }
 
 inline StellarGenerator& StellarGenerator::SetCoilTempLimit(float Limit) {
-    _CoilTempLimit = Limit;
+    _CoilTemperatureLimit = Limit;
     return *this;
 }
 

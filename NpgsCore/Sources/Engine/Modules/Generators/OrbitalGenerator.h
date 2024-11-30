@@ -35,6 +35,7 @@ public:
         float UniverseAge                      = 1.38e10f,
         float BinaryPeriodMean                 = 5.03f,
         float BinaryPeriodSigma                = 2.28f,
+        float CoilTemperatureLimit             = 1514.114f,
         float AsteroidUpperLimit               = 1e21f,
         float RingsParentLowerLimit            = 1e23f,
         float LifeOccurrenceProbability        = 0.0114514f,
@@ -149,6 +150,7 @@ private:
     std::unique_ptr<CivilizationGenerator> _CivilizationGenerator;
 
     float _AsteroidUpperLimit;
+    float _CoilTemperatureLimit;
     float _RingsParentLowerLimit;
     float _UniverseAge;
     bool  _bContainUltravioletHabitableZone;

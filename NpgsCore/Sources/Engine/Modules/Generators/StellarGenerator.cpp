@@ -55,7 +55,7 @@ StellarGenerator::StellarGenerator(
     float MassLowerLimit, float MassUpperLimit, GenerateDistribution MassDistribution,
     float AgeLowerLimit,  float AgeUpperLimit,  GenerateDistribution AgeDistribution,
     float FeHLowerLimit,  float FeHUpperLimit,  GenerateDistribution FeHDistribution,
-    float CoilTempLimit,  float dEpdM,
+    float CoilTemperatureLimit, float dEpdM,
     const std::function<float(const glm::vec3&, float, float)>& AgePdf,
     const glm::vec2& AgeMaxPdf,
     const std::array<std::function<float(float)>, 2>& MassPdfs,
@@ -101,7 +101,7 @@ StellarGenerator::StellarGenerator(
     _AgeLowerLimit(AgeLowerLimit), _AgeUpperLimit(AgeUpperLimit),
     _FeHLowerLimit(FeHLowerLimit), _FeHUpperLimit(FeHUpperLimit),
     _MassLowerLimit(MassLowerLimit), _MassUpperLimit(MassUpperLimit),
-    _CoilTempLimit(CoilTempLimit), _dEpdM(dEpdM),
+    _CoilTemperatureLimit(CoilTemperatureLimit), _dEpdM(dEpdM),
 
     _AgeDistribution(AgeDistribution), _FeHDistribution(FeHDistribution), _MassDistribution(MassDistribution), _Option(Option)
 {
@@ -372,8 +372,8 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties) {
     float  MagneticField = Star.GetMagneticField();
 
     float MinCoilMass = static_cast<float>(std::max(
-        6.6156e14  * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 1.5) * std::pow(_CoilTempLimit, -6.0f) * std::pow(_dEpdM, -1.0f),
-        2.34865e29 * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 2.0) * std::pow(_CoilTempLimit, -8.0f) * std::pow(Mass,   -1.0)
+        6.6156e14  * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 1.5) * std::pow(_CoilTemperatureLimit, -6.0f) * std::pow(_dEpdM, -1.0f),
+        2.34865e29 * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 2.0) * std::pow(_CoilTemperatureLimit, -8.0f) * std::pow(Mass,   -1.0)
     ));
 
     Star.SetMinCoilMass(MinCoilMass);

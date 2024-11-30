@@ -16,7 +16,7 @@
 #include "Engine/Core/Constants.h"
 #include "Engine/Utilities/Utilities.h"
 
-// #define DEBUG_OUTPUT
+#define DEBUG_OUTPUT
 
 _NPGS_BEGIN
 _MODULE_BEGIN
@@ -40,6 +40,7 @@ OrbitalGenerator::OrbitalGenerator(
     float UniverseAge,
     float BinaryPeriodMean,
     float BinaryPeriodSigma,
+    float CoilTemperatureLimit,
     float AsteroidUpperLimit,
     float RingsParentLowerLimit,
     float LifeOccurrenceProbability,
@@ -49,6 +50,7 @@ OrbitalGenerator::OrbitalGenerator(
     _RandomEngine(SeedSequence),
     _RingsProbabilities{ Util::BernoulliDistribution<>(0.5), Util::BernoulliDistribution<>(0.2) },
     _AsteroidBeltProbability(0.4),
+    _CoilTemperatureLimit(CoilTemperatureLimit),
     _RingsParentLowerLimit(RingsParentLowerLimit),
     _MigrationProbability(0.1),
     _ScatteringProbability(0.15),
@@ -114,6 +116,21 @@ void OrbitalGenerator::GenerateOrbitals(Astro::StellarSystem& System) {
         PointOrbit.Parent.BaryCenterPtr = System.GetBaryCenter();
         PointOrbit.ParentType = Astro::StellarSystem::Orbit::ObjectType::kBaryCenter;
         System.OrbitData().emplace_back(std::make_unique<Astro::StellarSystem::Orbit>(PointOrbit));
+
+        Astro::StellarSystem::Orbit NearStarOrbit;
+		NearStarOrbit.Parent.BaryCenterPtr = System.GetBaryCenter();
+		NearStarOrbit.ParentType = Astro::StellarSystem::Orbit::ObjectType::kBaryCenter;
+        NearStarOrbit.Normal = System.GetBaryNormal();
+        NearStarOrbit.SemiMajorAxis =
+            static_cast<float>(std::sqrt(Star->GetLuminosity() / (4 * kPi * kStefanBoltzmann * std::pow(_CoilTemperatureLimit, 4))));
+        System.OrbitData().emplace_back(std::make_unique<Astro::StellarSystem::Orbit>(NearStarOrbit));
+
+#ifdef DEBUG_OUTPUT
+        std::println("");
+		std::println("Near star orbit: {} AU", NearStarOrbit.SemiMajorAxis / kAuToMeter);
+        std::println("");
+#endif // DEBUG_OUTPUT
+
 
         if (Star->GetMass() > 12 * kSolarMass) {
             Star->SetHasPlanets(false);
@@ -240,6 +257,27 @@ void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System) {
     System.OrbitData().emplace_back(std::make_unique<Astro::StellarSystem::Orbit>(Orbits[0]));
     System.OrbitData().emplace_back(std::make_unique<Astro::StellarSystem::Orbit>(Orbits[1]));
 
+    std::array<Astro::StellarSystem::Orbit, 2> NearStarOrbits;
+
+    for (std::size_t i = 0; i != 2; ++i) {
+		Astro::Star* Current  = System.StarData()[i].get();
+		Astro::Star* TheOther = System.StarData()[1 - i].get();
+
+        float NearStarSemiMajorAxis = static_cast<float>(
+            std::sqrt(Current->GetLuminosity()  / (4 * kPi * ((kStefanBoltzmann * std::pow(_CoilTemperatureLimit, 4)) -
+                      TheOther->GetLuminosity() / (4 * kPi * std::pow(BinarySemiMajorAxis, 2))))));
+
+        Astro::StellarSystem::Orbit NearStarOrbit;
+        NearStarOrbit.Parent.StarPtr = Current;
+		NearStarOrbit.ParentType = Astro::StellarSystem::Orbit::ObjectType::kStar;
+        NearStarOrbit.Normal = Current->GetNormal();
+        NearStarOrbit.SemiMajorAxis = NearStarSemiMajorAxis;
+
+        NearStarOrbits[i] = NearStarOrbit;
+
+        System.OrbitData().emplace_back(std::make_unique<Astro::StellarSystem::Orbit>(NearStarOrbit));
+    }
+
 #ifdef DEBUG_OUTPUT
     std::println("Semi-major axis of binary stars: {} AU",          BinarySemiMajorAxis     / kAuToMeter);
     std::println("Semi-major axis of binary first star: {} AU",     Orbits[0].SemiMajorAxis / kAuToMeter);
@@ -252,6 +290,8 @@ void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System) {
     std::println("Initial true anomaly of binary second star: {}",  InitialTrueAnomaly2);
     std::println("Normal of binary first star: ({}, {})",           StarNormals[0].x, StarNormals[1].y);
     std::println("Normal of binary second star: ({}, {})",          StarNormals[0].x, StarNormals[1].y);
+	std::println("Near star semi-major axis of first star: {} AU",  NearStarOrbits[0].SemiMajorAxis / kAuToMeter);
+	std::println("Near star semi-major axis of second star: {} AU", NearStarOrbits[1].SemiMajorAxis / kAuToMeter);
     std::println("");
 #endif // DEBUG_OUTPUT
 }

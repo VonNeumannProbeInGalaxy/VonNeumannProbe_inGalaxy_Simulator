@@ -69,7 +69,7 @@ public:
         float MassLowerLimit =  0.1f,      float MassUpperLimit = 300.0f,   GenerateDistribution MassDistribution = GenerateDistribution::kFromPdf,
         float AgeLowerLimit  =  0.0f,      float AgeUpperLimit  = 1.26e10f, GenerateDistribution AgeDistribution  = GenerateDistribution::kFromPdf,
         float FeHLowerLimit  = -4.0f,      float FeHUpperLimit  = 0.5f,     GenerateDistribution FeHDistribution  = GenerateDistribution::kFromPdf,
-        float CoilTempLimit  =  1514.114f, float dEpdM          = 2e6f,
+        float CoilTemperatureLimit = 1514.114f, float dEpdM = 2e6f,
         const std::function<float(const glm::vec3&, float, float)>& AgePdf = nullptr,
         const glm::vec2& AgeMaxPdf = glm::vec2(),
         const std::array<std::function<float(float)>, 2>& MassPdfs = { nullptr, nullptr },
@@ -175,7 +175,7 @@ private:
     float _FeHUpperLimit;
     float _MassLowerLimit;
     float _MassUpperLimit;
-    float _CoilTempLimit;
+    float _CoilTemperatureLimit;
     float _dEpdM;
 
     GenerateDistribution _AgeDistribution;
