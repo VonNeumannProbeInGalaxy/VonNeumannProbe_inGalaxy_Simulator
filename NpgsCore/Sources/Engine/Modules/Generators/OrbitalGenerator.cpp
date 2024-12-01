@@ -131,7 +131,6 @@ void OrbitalGenerator::GenerateOrbitals(Astro::StellarSystem& System) {
         std::println("");
 #endif // DEBUG_OUTPUT
 
-
         if (Star->GetMass() > 12 * kSolarMass) {
             Star->SetHasPlanets(false);
         } else {

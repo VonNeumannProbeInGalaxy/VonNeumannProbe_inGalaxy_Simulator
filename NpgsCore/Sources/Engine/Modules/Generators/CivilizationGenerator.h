@@ -14,14 +14,25 @@ _MODULE_BEGIN
 class CivilizationGenerator {
 public:
     CivilizationGenerator() = delete;
-    explicit CivilizationGenerator(const std::seed_seq& SeedSequence, float LifeOccurrenceProbability, bool bEnableAsiFilter = false);
+    explicit CivilizationGenerator(
+        const std::seed_seq& SeedSequence,
+        float LifeOccurrenceProbability,
+        bool  bEnableAsiFilter = false,
+		float DestroyedByDisasterProbability = 0.001f
+    );
+
     ~CivilizationGenerator() = default;
 
     void GenerateCivilization(double StarAge, float PoyntingVector, Astro::Planet* Planet);
 
 private:
+    void GenerateLife(float PoyntingVector, Astro::Planet* Planet);
+    void GenerateCivilization(float PoyntingVector, Astro::Planet* Planet);
+
+private:
     std::mt19937                    _RandomEngine;
     Util::BernoulliDistribution<>   _AsiFiltedProbability;
+    Util::BernoulliDistribution<>   _DestroyedByDisasterProbability;
     Util::BernoulliDistribution<>   _LifeOccurrenceProbability;
     Util::UniformRealDistribution<> _CommonGenerator;
 
