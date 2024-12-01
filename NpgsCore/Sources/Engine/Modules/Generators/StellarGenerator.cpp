@@ -144,7 +144,8 @@ StellarGenerator::BasicProperties StellarGenerator::GenerateBasicProperties(floa
 	{
 		switch (_AgeDistribution)
 		{
-		case GenerateDistribution::kFromPdf: {
+		case GenerateDistribution::kFromPdf:
+		{
 			glm::vec2 MaxPdf = _AgeMaxPdf;
 			if (!(_AgeLowerLimit < _UniverseAge - 1.38e10f + _AgeMaxPdf.x &&
 				  _AgeUpperLimit > _UniverseAge - 1.38e10f + _AgeMaxPdf.x))
@@ -161,11 +162,13 @@ StellarGenerator::BasicProperties StellarGenerator::GenerateBasicProperties(floa
 			Properties.Age = GenerateAge(MaxPdf.y);
 			break;
 		}
-		case GenerateDistribution::kUniform: {
+		case GenerateDistribution::kUniform:
+		{
 			Properties.Age = _AgeLowerLimit + _CommonGenerator(_RandomEngine) * (_AgeUpperLimit - _AgeLowerLimit);
 			break;
 		}
-		case GenerateDistribution::kUniformByExponent: {
+		case GenerateDistribution::kUniformByExponent:
+		{
 			float Random = _CommonGenerator(_RandomEngine);
 			float LogAgeLower = std::log10(_AgeLowerLimit);
 			float LogAgeUpper = std::log10(_AgeUpperLimit);
@@ -317,7 +320,8 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties)
 
 	switch (Properties.TypeOption)
 	{
-	case GenerateOption::kNormal: {
+	case GenerateOption::kNormal:
+	{
 		try
 		{
 			StarData = GetActuallyMistData(Properties, false, true);
@@ -341,12 +345,14 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties)
 
 		break;
 	}
-	case GenerateOption::kGiant: {
+	case GenerateOption::kGiant:
+	{
 		Properties.Age = -1.0f; // 使用 -1.0，在计算年龄的时候根据寿命赋值一个濒死年龄
 		StarData = GetActuallyMistData(Properties, false, true);
 		break;
 	}
-	case GenerateOption::kDeathStar: {
+	case GenerateOption::kDeathStar:
+	{
 		ProcessDeathStar(Star, GenerateOption::kDeathStar);
 		Properties.Age = static_cast<float>(Star.GetAge());
 		Properties.FeH = Star.GetFeH();
@@ -362,7 +368,8 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties)
 
 		break;
 	}
-	case GenerateOption::kMergeStar: {
+	case GenerateOption::kMergeStar:
+	{
 		ProcessDeathStar(Star, GenerateOption::kMergeStar);
 		return Star;
 
@@ -745,7 +752,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 	{
 		if (Files.first != Files.second) [[likely]]
 		{
-			std::shared_ptr<WdMistData> LowerData = LoadCsvAsset<WdMistData>(Files.first, _kWdMistHeaders);
+			std::shared_ptr<WdMistData> LowerData = LoadCsvAsset<WdMistData>(Files.first,  _kWdMistHeaders);
 			std::shared_ptr<WdMistData> UpperData = LoadCsvAsset<WdMistData>(Files.second, _kWdMistHeaders);
 
 			std::vector<double> LowerRows = InterpolateStarData(LowerData, TargetAge);
@@ -1090,7 +1097,7 @@ std::vector<double> StellarGenerator::InterpolateStarData(const auto& Data, doub
 		}
 		else
 		{
-			SurroundingRows.first = Data->Data()->back();
+			SurroundingRows.first  = Data->Data()->back();
 			SurroundingRows.second = Data->Data()->back();
 		}
 	}
@@ -1841,9 +1848,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, GenerateOption O
 		break;
 	}
 	default:
-	{
 		break;
-	}
 	}
 
 	double EvolutionProgress = static_cast<double>(EvolutionPhase);
@@ -1965,9 +1970,7 @@ void StellarGenerator::GenerateMagnetic(Astro::Star& StarData)
 		break;
 	}
 	default:
-	{
 		break;
-	}
 	}
 
 	StarData.SetMagneticField(MagneticField);
@@ -2033,9 +2036,7 @@ void StellarGenerator::GenerateSpin(Astro::Star& StarData)
 		break;
 	}
 	default:
-	{
 		break;
-	}
 	}
 
 	if (StarType != Util::StellarClass::StarType::kBlackHole)
@@ -2067,7 +2068,7 @@ void StellarGenerator::ExpandMistData(double TargetMass, std::vector<double>& St
 	RadiusSol = std::pow(10.0, LogR) * std::pow(TargetMass / 0.1, 2.3);
 	LuminositySol = std::pow(10.0, LogL) * std::pow(TargetMass / 0.1, 2.3);
 
-	Teff = kSolarTeff * std::pow((LuminositySol / std::pow(RadiusSol, 2.0)), 0.25);
+	Teff    = kSolarTeff * std::pow((LuminositySol / std::pow(RadiusSol, 2.0)), 0.25);
 	LogTeff = std::log10(Teff);
 
 	LogR = std::log10(RadiusSol);
