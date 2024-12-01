@@ -7,24 +7,27 @@
 _NPGS_BEGIN
 _UTIL_BEGIN
 
-class Logger {
+class Logger
+{
 public:
-    static void Init();
+	static void Init();
 
-    static std::shared_ptr<spdlog::logger>& GetCoreLogger() {
-        return _kCoreLogger;
-    }
+	static std::shared_ptr<spdlog::logger>& GetCoreLogger()
+	{
+		return _kCoreLogger;
+	}
 
-    static std::shared_ptr<spdlog::logger>& GetClientLogger() {
-        return _kClientLogger;
-    }
+	static std::shared_ptr<spdlog::logger>& GetClientLogger()
+	{
+		return _kClientLogger;
+	}
 
 private:
-    Logger() {};
-    ~Logger() = default;
+	Logger() {};
+	~Logger() = default;
 
-    static std::shared_ptr<spdlog::logger> _kCoreLogger;
-    static std::shared_ptr<spdlog::logger> _kClientLogger;
+	static std::shared_ptr<spdlog::logger> _kCoreLogger;
+	static std::shared_ptr<spdlog::logger> _kClientLogger;
 };
 
 _UTIL_END

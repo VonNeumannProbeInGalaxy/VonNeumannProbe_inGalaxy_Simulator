@@ -3,8 +3,9 @@
 _NPGS_BEGIN
 
 Civilization::Civilization(const LifeProperties& LifeProperties, const CivilizationProperties& CivilizationProperties)
-    : _LifeProperties(LifeProperties), _CivilizationProperties(CivilizationProperties)
-{}
+	: _LifeProperties(LifeProperties), _CivilizationProperties(CivilizationProperties)
+{
+}
 
 const float Civilization::_kNull                           = 0.0f;
 const float Civilization::_kCarbonBasedGeneralIntelligence = 1.0f;

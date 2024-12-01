@@ -16,7 +16,8 @@
 #endif // _WIN64
 
 #define NpgsAssert(Expr, ...)                                                                                 \
-if (!(Expr)) {                                                                                                \
+if (!(Expr))                                                                                                  \
+{                                                                                                             \
     std::cerr << "Assertion failed: " << #Expr << " in " << __FILE__ << " at line " << __LINE__ << std::endl; \
     std::cerr << "Message: " << __VA_ARGS__ << std::endl;                                                     \
     DebugBreak();                                                                                             \

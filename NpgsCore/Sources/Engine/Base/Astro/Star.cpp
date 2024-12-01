@@ -4,8 +4,9 @@ _NPGS_BEGIN
 _ASTRO_BEGIN
 
 Star::Star(const CelestialBody::BasicProperties& StarBasicProperties, const ExtendedProperties& StarExtraProperties)
-    : CelestialBody(StarBasicProperties), _StarExtraProperties(StarExtraProperties)
-{}
+	: CelestialBody(StarBasicProperties), _StarExtraProperties(StarExtraProperties)
+{
+}
 
 const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_O{ { 54000, 2 }, { 44900, 3 }, { 42900, 4 }, { 41400, 5 }, { 39500, 6 }, { 38500, 7 }, { 35100, 8 }, { 34500, 9 }, { 33400, 10 } };
 const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_B{ { 33400, 0 }, { 26000, 1 }, { 20600, 2 }, { 17200, 3 }, { 16400, 4 }, { 15700, 5 }, { 14500, 6 }, { 14000, 7 }, { 12300, 8 }, { 10910, 9 }, { 9900,  10 } };
@@ -23,44 +24,44 @@ const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_WO{ { 200000,
 const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_WNxh{ { 50000, 5 }, { 45000, 6 }, { 43000, 7 }, { 40000, 8 }, { 35000, 9 }, { 30000, 10 } };
 
 const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> Star::_kInitialCommonMap{
-    { 54000,  Star::_kSpectralSubclassMap_O },
-    { 33400,  Star::_kSpectralSubclassMap_B },
-    { 9900,   Star::_kSpectralSubclassMap_A },
-    { 7200,   Star::_kSpectralSubclassMap_F },
-    { 6100,   Star::_kSpectralSubclassMap_G },
-    { 5260,   Star::_kSpectralSubclassMap_K },
-    { 3850,   Star::_kSpectralSubclassMap_M },
-    { 2270,   Star::_kSpectralSubclassMap_L },
-    { 1255,   Star::_kSpectralSubclassMap_T },
-    { 450,    Star::_kSpectralSubclassMap_Y },
-    { 0, {} }
+	{ 54000,  Star::_kSpectralSubclassMap_O },
+	{ 33400,  Star::_kSpectralSubclassMap_B },
+	{ 9900,   Star::_kSpectralSubclassMap_A },
+	{ 7200,   Star::_kSpectralSubclassMap_F },
+	{ 6100,   Star::_kSpectralSubclassMap_G },
+	{ 5260,   Star::_kSpectralSubclassMap_K },
+	{ 3850,   Star::_kSpectralSubclassMap_M },
+	{ 2270,   Star::_kSpectralSubclassMap_L },
+	{ 1255,   Star::_kSpectralSubclassMap_T },
+	{ 450,    Star::_kSpectralSubclassMap_Y },
+	{ 0, {} }
 };
 
 const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> Star::_kInitialWolfRayetMap{
-    { 200000, Star::_kSpectralSubclassMap_WO },
-    { 141000, Star::_kSpectralSubclassMap_WN },
-    { 117000, Star::_kSpectralSubclassMap_WC },
-    { 0, {} }
+	{ 200000, Star::_kSpectralSubclassMap_WO },
+	{ 141000, Star::_kSpectralSubclassMap_WN },
+	{ 117000, Star::_kSpectralSubclassMap_WC },
+	{ 0, {} }
 };
 
 const std::unordered_map<Star::EvolutionPhase, ::Npgs::Util::StellarClass::LuminosityClass> Star::_kLuminosityMap{
-    { Star::EvolutionPhase::kMainSequence,     ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_V   },
-    { Star::EvolutionPhase::kRedGiant,         ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_III },
-    { Star::EvolutionPhase::kCoreHeBurn,       ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_IV  },
-    { Star::EvolutionPhase::kEarlyAgb,         ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_II  },
-    { Star::EvolutionPhase::kThermalPulseAgb,  ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_I   },
-    { Star::EvolutionPhase::kPostAgb,          ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_I   }
+	{ Star::EvolutionPhase::kMainSequence,     ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_V   },
+	{ Star::EvolutionPhase::kRedGiant,         ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_III },
+	{ Star::EvolutionPhase::kCoreHeBurn,       ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_IV  },
+	{ Star::EvolutionPhase::kEarlyAgb,         ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_II  },
+	{ Star::EvolutionPhase::kThermalPulseAgb,  ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_I   },
+	{ Star::EvolutionPhase::kPostAgb,          ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_I   }
 };
 
 const std::unordered_map<float, float> Star::_kFeHSurfaceH1Map{
-    { -4.0f, 0.75098f },
-    { -3.0f, 0.75095f },
-    { -2.0f, 0.75063f },
-    { -1.5f, 0.74986f },
-    { -1.0f, 0.74743f },
-    { -0.5f, 0.73973f },
-    {  0.0f, 0.7154f  },
-    {  0.5f, 0.63846f }
+	{ -4.0f, 0.75098f },
+	{ -3.0f, 0.75095f },
+	{ -2.0f, 0.75063f },
+	{ -1.5f, 0.74986f },
+	{ -1.0f, 0.74743f },
+	{ -0.5f, 0.73973f },
+	{  0.0f, 0.7154f  },
+	{  0.5f, 0.63846f }
 };
 
 _ASTRO_END

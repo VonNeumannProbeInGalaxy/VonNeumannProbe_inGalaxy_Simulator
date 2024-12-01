@@ -11,33 +11,32 @@
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-class CivilizationGenerator {
+class CivilizationGenerator
+{
 public:
-    CivilizationGenerator() = delete;
-    explicit CivilizationGenerator(
-        const std::seed_seq& SeedSequence,
-        float LifeOccurrenceProbability,
-        bool  bEnableAsiFilter = false,
-		float DestroyedByDisasterProbability = 0.001f
-    );
+	CivilizationGenerator() = delete;
+	explicit CivilizationGenerator(const std::seed_seq& SeedSequence,
+								   float LifeOccurrenceProbability,
+								   bool  bEnableAsiFilter = false,
+								   float DestroyedByDisasterProbability = 0.001f);
 
-    ~CivilizationGenerator() = default;
+	~CivilizationGenerator() = default;
 
-    void GenerateCivilization(double StarAge, float PoyntingVector, Astro::Planet* Planet);
+	void GenerateCivilization(double StarAge, float PoyntingVector, Astro::Planet* Planet);
 
 private:
-    void GenerateLife(float PoyntingVector, Astro::Planet* Planet);
-    void GenerateCivilization(float PoyntingVector, Astro::Planet* Planet);
+	void GenerateLife(float PoyntingVector, Astro::Planet* Planet);
+	void GenerateCivilization(float PoyntingVector, Astro::Planet* Planet);
 
 private:
-    std::mt19937                    _RandomEngine;
-    Util::BernoulliDistribution<>   _AsiFiltedProbability;
-    Util::BernoulliDistribution<>   _DestroyedByDisasterProbability;
-    Util::BernoulliDistribution<>   _LifeOccurrenceProbability;
-    Util::UniformRealDistribution<> _CommonGenerator;
+	std::mt19937                    _RandomEngine;
+	Util::BernoulliDistribution<>   _AsiFiltedProbability;
+	Util::BernoulliDistribution<>   _DestroyedByDisasterProbability;
+	Util::BernoulliDistribution<>   _LifeOccurrenceProbability;
+	Util::UniformRealDistribution<> _CommonGenerator;
 
-    static const std::array<float, 7> _kProbabilityListForCenoziocEra;
-    static const std::array<float, 7> _kProbabilityListForSatTeeTouyButAsi;
+	static const std::array<float, 7> _kProbabilityListForCenoziocEra;
+	static const std::array<float, 7> _kProbabilityListForSatTeeTouyButAsi;
 };
 
 _MODULE_END

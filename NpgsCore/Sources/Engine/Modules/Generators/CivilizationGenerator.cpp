@@ -5,22 +5,23 @@
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-CivilizationGenerator::CivilizationGenerator(
-	const std::seed_seq& SeedSequence,
-	float LifeOccurrenceProbability,
-	bool  bEnableAsiFilter,
-	float DestroyedByDisasterProbability
-)
+CivilizationGenerator::CivilizationGenerator(const std::seed_seq& SeedSequence,
+											 float LifeOccurrenceProbability,
+											 bool  bEnableAsiFilter,
+											 float DestroyedByDisasterProbability)
 	:
 	_RandomEngine(SeedSequence),
 	_AsiFiltedProbability(static_cast<double>(bEnableAsiFilter) * 0.2),
 	_DestroyedByDisasterProbability(DestroyedByDisasterProbability),
 	_LifeOccurrenceProbability(LifeOccurrenceProbability),
 	_CommonGenerator(0.0f, 1.0f)
-{}
+{
+}
 
-void CivilizationGenerator::GenerateCivilization(double StarAge, float PoyntingVector, Astro::Planet* Planet) {
-	if (StarAge < 2.4e9 || !_LifeOccurrenceProbability(_RandomEngine)) {
+void CivilizationGenerator::GenerateCivilization(double StarAge, float PoyntingVector, Astro::Planet* Planet)
+{
+	if (StarAge < 2.4e9 || !_LifeOccurrenceProbability(_RandomEngine))
+	{
 		return;
 	}
 
@@ -29,15 +30,22 @@ void CivilizationGenerator::GenerateCivilization(double StarAge, float PoyntingV
 	auto LifePhase = static_cast<Civilization::LifePhase>(std::min(4, std::max(1, static_cast<int>(Random1 * StarAge / (5e8)))));
 
 	// 处理生命成矿机制以及 ASI 大过滤器
-	if (LifePhase == Civilization::LifePhase::kCenoziocEra) {
+	if (LifePhase == Civilization::LifePhase::kCenoziocEra)
+	{
 		float Random2 = 1.0f + _CommonGenerator(_RandomEngine) * 999.0f;
-		if (_AsiFiltedProbability(_RandomEngine)) {
+		if (_AsiFiltedProbability(_RandomEngine))
+		{
 			LifePhase = Civilization::LifePhase::kSatTeeTouyButByAsi; // 被 ASI 去城市化了
 			Planet->SetCrustMineralMass(Random2 * 1e16f + Planet->GetCrustMineralMassFloat());
-		} else {
-			if (_DestroyedByDisasterProbability(_RandomEngine)) {
+		}
+		else
+		{
+			if (_DestroyedByDisasterProbability(_RandomEngine))
+			{
 				LifePhase = Civilization::LifePhase::kSatTeeTouyButByAsi; // 被小行星城市化或者自己玩死了
-			} else {
+			}
+			else
+			{
 				Planet->SetCrustMineralMass(Random2 * 1e15f + Planet->GetCrustMineralMassFloat());
 			}
 		}
@@ -50,30 +58,42 @@ void CivilizationGenerator::GenerateCivilization(double StarAge, float PoyntingV
 	int IntegerPart = 0;
 	if (LifePhase != Civilization::LifePhase::kCenoziocEra &&
 		LifePhase != Civilization::LifePhase::kSatTeeTouy  &&
-		LifePhase != Civilization::LifePhase::kSatTeeTouyButByAsi) {
+		LifePhase != Civilization::LifePhase::kSatTeeTouyButByAsi)
+	{
 		CivilizationData->SetCivilizationProgress(0.0f);
-	} else if (LifePhase == Civilization::LifePhase::kCenoziocEra) {
+	}
+	else if (LifePhase == Civilization::LifePhase::kCenoziocEra)
+	{
 		ProbabilityListPtr = &_kProbabilityListForCenoziocEra;
-	} else if (LifePhase == Civilization::LifePhase::kSatTeeTouyButByAsi) {
+	}
+	else if (LifePhase == Civilization::LifePhase::kSatTeeTouyButByAsi)
+	{
 		ProbabilityListPtr = &_kProbabilityListForSatTeeTouyButAsi;
 	}
 
-	if (ProbabilityListPtr != nullptr) {
+	if (ProbabilityListPtr != nullptr)
+	{
 		float Random = _CommonGenerator(_RandomEngine);
 		float CumulativeProbability = 0.0f;
 
-		for (int i = 0; i < 7; ++i) {
+		for (int i = 0; i < 7; ++i)
+		{
 			CumulativeProbability += (*ProbabilityListPtr)[i];
-			if (Random < CumulativeProbability) {
+			if (Random < CumulativeProbability)
+			{
 				IntegerPart = i + 1;
 				break;
 			}
 		}
 
-		if (IntegerPart >= 7) {
-			if (LifePhase == Civilization::LifePhase::kCenoziocEra) {
+		if (IntegerPart >= 7)
+		{
+			if (LifePhase == Civilization::LifePhase::kCenoziocEra)
+			{
 				LifePhase = Civilization::LifePhase::kSatTeeTouy;
-			} else if (LifePhase == Civilization::LifePhase::kSatTeeTouyButByAsi) {
+			}
+			else if (LifePhase == Civilization::LifePhase::kSatTeeTouyButByAsi)
+			{
 				LifePhase = Civilization::LifePhase::kNewCivilization;
 			}
 		}

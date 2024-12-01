@@ -5,8 +5,9 @@ _NPGS_BEGIN
 _ASTRO_BEGIN
 
 StellarSystem::StellarSystem(const BaryCenter& SystemBary)
-    : _SystemBary(SystemBary)
-{}
+	: _SystemBary(SystemBary)
+{
+}
 
 _ASTRO_END
 _NPGS_END

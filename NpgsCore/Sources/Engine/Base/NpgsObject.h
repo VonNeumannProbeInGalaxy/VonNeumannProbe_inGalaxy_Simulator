@@ -4,10 +4,11 @@
 
 _NPGS_BEGIN
 
-class NpgsObject {
+class NpgsObject
+{
 public:
-    NpgsObject() = default;
-    virtual ~NpgsObject() = default;
+	NpgsObject() = default;
+	virtual ~NpgsObject() = default;
 };
 
 _NPGS_END

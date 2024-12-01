@@ -5,8 +5,9 @@
 _NPGS_BEGIN
 _UTIL_BEGIN
 
-inline StellarClass::StarType StellarClass::GetStarType() const {
-    return _StarType;
+inline StellarClass::StarType StellarClass::GetStarType() const
+{
+	return _StarType;
 }
 
 _UTIL_END
