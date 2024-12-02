@@ -98,40 +98,68 @@ public:
 	// Getters
 	// Getters for ExtendedProperties
 	// ------------------------------
-	float GetAtmosphereMassFloat() const;
 	const ComplexMass& GetAtmosphereMassStruct() const;
-	const boost::multiprecision::uint128_t GetAtmosphereMass() const;
-	float GetAtmosphereMassZFloat() const;
+	const boost::multiprecision::uint128_t  GetAtmosphereMass() const;
 	const boost::multiprecision::uint128_t& GetAtmosphereMassZ() const;
-	float GetAtmosphereMassVolatilesFloat() const;
 	const boost::multiprecision::uint128_t& GetAtmosphereMassVolatiles() const;
-	float GetAtmosphereMassEnergeticNuclideFloat() const;
 	const boost::multiprecision::uint128_t& GetAtmosphereMassEnergeticNuclide() const;
-	float GetCoreMassFloat() const;
 	const ComplexMass& GetCoreMassStruct() const;
-	const boost::multiprecision::uint128_t GetCoreMass() const;
-	float GetCoreMassZFloat() const;
+	const boost::multiprecision::uint128_t  GetCoreMass() const;
 	const boost::multiprecision::uint128_t& GetCoreMassZ() const;
-	float GetCoreMassVolatilesFloat() const;
 	const boost::multiprecision::uint128_t& GetCoreMassVolatiles() const;
-	float GetCoreMassEnergeticNuclideFloat() const;
 	const boost::multiprecision::uint128_t& GetCoreMassEnergeticNuclide() const;
-	float GetOceanMassFloat() const;
 	const ComplexMass& GetOceanMassStruct() const;
-	const boost::multiprecision::uint128_t GetOceanMass() const;
-	float GetOceanMassZFloat() const;
+	const boost::multiprecision::uint128_t  GetOceanMass() const;
 	const boost::multiprecision::uint128_t& GetOceanMassZ() const;
-	float GetOceanMassVolatilesFloat() const;
 	const boost::multiprecision::uint128_t& GetOceanMassVolatiles() const;
-	float GetOceanMassEnergeticNuclideFloat() const;
 	const boost::multiprecision::uint128_t& GetOceanMassEnergeticNuclide() const;
-	float GetMassFloat() const;
-	const boost::multiprecision::uint128_t GetMass() const;
-	float GetCrustMineralMassFloat() const;
+	const boost::multiprecision::uint128_t  GetMass() const;
 	const boost::multiprecision::uint128_t& GetCrustMineralMass() const;
 	float GetBalanceTemperature() const;
 	bool  GetMigration() const;
 	PlanetType GetPlanetType() const;
+
+	template <typename T>
+	T GetAtmosphereMassDigital() const;
+
+	template <typename T>
+	T GetAtmosphereMassZDigital() const;
+	
+	template <typename T>
+	T GetAtmosphereMassVolatilesDigital() const;
+	
+	template <typename T>
+	T GetAtmosphereMassEnergeticNuclideDigital() const;
+	
+	template <typename T>
+	T GetCoreMassDigital() const;
+	
+	template <typename T>
+	T GetCoreMassZDigital() const;
+	
+	template <typename T>
+	T GetCoreMassVolatilesDigital() const;
+	
+	template <typename T>
+	T GetCoreMassEnergeticNuclideDigital() const;
+	
+	template <typename T>
+	T GetOceanMassDigital() const;
+	
+	template <typename T>
+	T GetOceanMassZDigital() const;
+	
+	template <typename T>
+	T GetOceanMassVolatilesDigital() const;
+	
+	template <typename T>
+	T GetOceanMassEnergeticNuclideDigital() const;
+	
+	template <typename T>
+	T GetMassDigital() const;
+	
+	template <typename T>
+	T GetCrustMineralMassDigital() const;
 
 	std::unique_ptr<Civilization>& CivilizationData();
 
@@ -177,15 +205,23 @@ public:
 	// Getters
 	// Getters for BasicProperties
 	// ---------------------------
-	float GetMassFloat() const;
-	const boost::multiprecision::uint128_t GetMass() const;
-	float GetMassZFloat() const;
+	const boost::multiprecision::uint128_t  GetMass() const;
 	const boost::multiprecision::uint128_t& GetMassZ() const;
-	float GetMassVolatilesFloat() const;
 	const boost::multiprecision::uint128_t& GetMassVolatiles() const;
-	float GetMassEnergeticNuclideFloat() const;
 	const boost::multiprecision::uint128_t& GetMassEnergeticNuclide() const;
 	AsteroidType GetAsteroidType() const;
+
+	template <typename T>
+	T GetMassDigital() const;
+
+	template <typename T>
+	T GetMassZDigital() const;
+	
+	template <typename T>
+	T GetMassVolatilesDigital() const;
+	
+	template <typename T>
+	T GetMassEnergeticNuclideDigital() const;
 
 private:
 	BasicProperties _Properties{};

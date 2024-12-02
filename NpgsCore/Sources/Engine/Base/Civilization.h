@@ -23,25 +23,25 @@ public:
 
 	struct LifeProperties
 	{
-		boost::multiprecision::uint128_t TotalOrganismBiomass; // 生物量，单位 kg
-		float TotalOrganismUsedPower{};                        // 生物圈使用的总功率，单位 W
-		LifePhase Phase{ LifePhase::kNull };                   // 生命阶段
+		boost::multiprecision::uint128_t OrganismBiomass; // 生物量，单位 kg
+		float OrganismUsedPower{};                        // 生物圈使用的总功率，单位 W
+		LifePhase Phase{ LifePhase::kNull };              // 生命阶段
 	};
 
 	struct CivilizationProperties
 	{
-		boost::multiprecision::uint128_t TotalAtrificalStructureMass;   // 文明造物总质量，单位 kg
-		boost::multiprecision::uint128_t TotalCitizenBiomass;           // 文明生物生物量，单位 kg
-		boost::multiprecision::uint128_t TotalUseableEnergeticNuclide;  // 可用含能核素总质量，单位 kg
-		float TotalCitizenUsedPower{};                                  // 文明使用的总功率，单位 W
-		float CivilizationProgress{};                                   // 文明演化进度
-		float GeneralIntelligenceAverageSynapseActivationCount{};       // 通用智能个体的智力活动，单位 o/s
-		float GeneralIntelligenceSynapseCount{};                        // 通用智能个体的突触数
-		float GeneralIntelligenceAverageLifetime{};                     // 通用智能个体的平均寿命，单位 s
-		float GeneralintelligenceCount{};                               // 通用智能个体的数量
-		float TotalStoragedHistoryDataSize{};                           // 存储的历史数据总大小，单位 bit
-		float TeamworkCoefficient{};                                    // 合作系数
-		bool  bIsIndependentIndividual{ false };                        // 是否为独立个体
+		boost::multiprecision::uint128_t AtrificalStructureMass;   // 文明造物总质量，单位 kg
+		boost::multiprecision::uint128_t CitizenBiomass;           // 文明生物生物量，单位 kg
+		boost::multiprecision::uint128_t UseableEnergeticNuclide;  // 可用含能核素总质量，单位 kg
+		float CitizenUsedPower{};                                  // 文明使用的总功率，单位 W
+		float CivilizationProgress{};                              // 文明演化进度
+		float GeneralIntelligenceAverageSynapseActivationCount{};  // 通用智能个体的智力活动，单位 o/s
+		float GeneralIntelligenceSynapseCount{};                   // 通用智能个体的突触数
+		float GeneralIntelligenceAverageLifetime{};                // 通用智能个体的平均寿命，单位 s
+		float GeneralintelligenceCount{};                          // 通用智能个体的数量
+		float StoragedHistoryDataSize{};                           // 存储的历史数据总大小，单位 bit
+		float TeamworkCoefficient{};                               // 合作系数
+		bool  bIsIndependentIndividual{ false };                   // 是否为独立个体
 	};
 
 public:
@@ -52,54 +52,62 @@ public:
 	// Setters
 	// Setters for LifeProperties
 	// --------------------------
-	Civilization& SetTotalOrganismBiomass(float TotalOrganismBiomass);
-	Civilization& SetTotalOrganismBiomass(const boost::multiprecision::uint128_t& TotalOrganismBiomass);
-	Civilization& SetTotalOrganismUsedPower(float TotalOrganismUsedPower);
+	Civilization& SetOrganismBiomass(float OrganismBiomass);
+	Civilization& SetOrganismBiomass(const boost::multiprecision::uint128_t& OrganismBiomass);
+	Civilization& SetOrganismUsedPower(float OrganismUsedPower);
 	Civilization& SetLifePhase(LifePhase Phase);
 
 	// Setters for CivilizationProperties
 	// ----------------------------------
-	Civilization& SetTotalAtrificalStructureMass(float TotalAtrificalStructureMass);
-	Civilization& SetTotalAtrificalStructureMass(const boost::multiprecision::uint128_t& TotalAtrificalStructureMass);
-	Civilization& SetTotalCitizenBiomass(float TotalCitizenBiomass);
-	Civilization& SetTotalCitizenBiomass(const boost::multiprecision::uint128_t& TotalCitizenBiomass);
-	Civilization& SetTotalUseableEnergeticNuclide(float TotalUseableEnergeticNuclide);
-	Civilization& SetTotalUseableEnergeticNuclide(const boost::multiprecision::uint128_t& TotalUseableEnergeticNuclide);
-	Civilization& SetTotalCitizenUsedPower(float TotalCitizenUsedPower);
+	Civilization& SetAtrificalStructureMass(float AtrificalStructureMass);
+	Civilization& SetAtrificalStructureMass(const boost::multiprecision::uint128_t& AtrificalStructureMass);
+	Civilization& SetCitizenBiomass(float CitizenBiomass);
+	Civilization& SetCitizenBiomass(const boost::multiprecision::uint128_t& CitizenBiomass);
+	Civilization& SetUseableEnergeticNuclide(float UseableEnergeticNuclide);
+	Civilization& SetUseableEnergeticNuclide(const boost::multiprecision::uint128_t& UseableEnergeticNuclide);
+	Civilization& SetCitizenUsedPower(float CitizenUsedPower);
 	Civilization& SetCivilizationProgress(float CivilizationProgress);
 	Civilization& SetGeneralIntelligenceAverageSynapseActivationCount(float GeneralIntelligenceAverageSynapseActivationCount);
 	Civilization& SetGeneralIntelligenceSynapseCount(float GeneralIntelligenceSynapseCount);
 	Civilization& SetGeneralIntelligenceAverageLifetime(float GeneralIntelligenceAverageLifetime);
 	Civilization& SetGeneralintelligenceCount(float GeneralintelligenceCount);
-	Civilization& SetTotalStoragedHistoryDataSize(float TotalStoragedHistoryDataSize);
+	Civilization& SetStoragedHistoryDataSize(float StoragedHistoryDataSize);
 	Civilization& SetTeamworkCoefficient(float TeamworkCoefficient);
 	Civilization& SetIsIndependentIndividual(bool bIsIndependentIndividual);
 
 	// Getters
 	// Getters for LifeProperties
 	// --------------------------
-	float GetTotalOrganismBiomassFloat() const;
-	const boost::multiprecision::uint128_t& GetTotalOrganismBiomass() const;
-	float GetTotalOrganismUsedPower() const;
+	const boost::multiprecision::uint128_t& GetOrganismBiomass() const;
+	float GetOrganismUsedPower() const;
 	LifePhase GetLifePhase() const;
+
+	template <typename T>
+	T GetOrganismBiomassDigital() const;
 
 	// Getters for CivilizationProperties
 	// ----------------------------------
-	float GetTotalAtrificalStructureMassFloat() const;
-	const boost::multiprecision::uint128_t& GetTotalAtrificalStructureMass() const;
-	float GetTotalCitizenBiomassFloat() const;
-	const boost::multiprecision::uint128_t& GetTotalCitizenBiomass() const;
-	float GetTotalUseableEnergeticNuclideFloat() const;
-	const boost::multiprecision::uint128_t& GetTotalUseableEnergeticNuclide() const;
-	float GetTotalCitizenUsedPower() const;
+	const boost::multiprecision::uint128_t& GetAtrificalStructureMass() const;
+	const boost::multiprecision::uint128_t& GetCitizenBiomass() const;
+	const boost::multiprecision::uint128_t& GetUseableEnergeticNuclide() const;
+	float GetCitizenUsedPower() const;
 	float GetCivilizationProgress() const;
 	float GetGeneralIntelligenceAverageSynapseActivationCount() const;
 	float GetGeneralIntelligenceSynapseCount() const;
 	float GetGeneralIntelligenceAverageLifetime() const;
 	float GetGeneralintelligenceCount() const;
-	float GetTotalStoragedHistoryDataSize() const;
+	float GetStoragedHistoryDataSize() const;
 	float GetTeamworkCoefficient() const;
 	bool  IsIndependentIndividual() const;
+
+	template <typename T>
+	T GetAtrificalStructureMassDigital() const;
+
+	template <typename T>
+	T GetCitizenBiomassDigital() const;
+
+	template <typename T>
+	T GetUseableEnergeticNuclideDigital() const;
 
 public:
 	static const float _kNull;

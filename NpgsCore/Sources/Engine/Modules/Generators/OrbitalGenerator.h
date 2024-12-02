@@ -120,6 +120,8 @@ private:
 							  const Astro::StellarSystem::Orbit* Orbit,
 							  Astro::Planet* Planet);
 
+	void CalculateOrbitalPeriods(std::vector<std::unique_ptr<Astro::StellarSystem::Orbit>>& Orbits);
+
 private:
 	std::mt19937                                 _RandomEngine;
 	std::array<Util::BernoulliDistribution<>, 2> _RingsProbabilities;

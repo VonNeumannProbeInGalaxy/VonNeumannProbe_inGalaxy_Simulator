@@ -428,7 +428,7 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties)
 	Star.SetCoreTemp(CoreTemp);
 	Star.SetCoreDensity(CoreDensity * 1000);
 	Star.SetStellarWindSpeed(StellarWindSpeed);
-	Star.SetStellarWindMassLossRate(-(MassLossRate * kSolarMass / kYearToSeconds));
+	Star.SetStellarWindMassLossRate(-(MassLossRate * kSolarMass / kYearToSecond));
 	Star.SetEvolutionProgress(EvolutionProgress);
 	Star.SetEvolutionPhase(EvolutionPhase);
 	Star.SetNormal(glm::vec2(Theta, Phi));
@@ -1408,7 +1408,7 @@ void StellarGenerator::CalculateSpectralType(float FeH, Astro::Star& StarData)
 
 Util::StellarClass::LuminosityClass StellarGenerator::CalculateLuminosityClass(const Astro::Star& StarData)
 {
-	float MassLossRateSolPerYear = StarData.GetStellarWindMassLossRate() * kYearToSeconds / kSolarMass;
+	float MassLossRateSolPerYear = StarData.GetStellarWindMassLossRate() * kYearToSecond / kSolarMass;
 	double MassSol = StarData.GetMass() / kSolarMass;
 	Util::StellarClass::LuminosityClass LuminosityClass = Util::StellarClass::LuminosityClass::kLuminosity_Unknown;
 

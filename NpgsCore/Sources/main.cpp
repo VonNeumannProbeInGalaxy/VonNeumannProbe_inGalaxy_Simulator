@@ -92,7 +92,7 @@ int main() {
 
     //auto* p = ThreadPool::GetInstance();
 
-    //og.GenerateOrbitals(ss);
+    og.GenerateOrbitals(ss);
 
     // -------------------------------------------
 

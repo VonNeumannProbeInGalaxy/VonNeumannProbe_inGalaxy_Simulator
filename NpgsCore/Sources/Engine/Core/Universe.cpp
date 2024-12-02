@@ -174,7 +174,7 @@ void Universe::CountStars()
 						   Star->GetTeff(),
 						   Star->GetCoreTemp(),
 						   Star->GetCoreDensity(),
-						   Star->GetStellarWindMassLossRate() * kYearToSeconds / kSolarMass,
+						   Star->GetStellarWindMassLossRate() * kYearToSecond / kSolarMass,
 						   static_cast<int>(std::round(Star->GetStellarWindSpeed())),
 						   static_cast<int>(Star->GetEvolutionPhase()),
 						   Star->GetSurfaceZ(),

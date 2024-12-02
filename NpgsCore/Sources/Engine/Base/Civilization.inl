@@ -4,26 +4,21 @@
 
 _NPGS_BEGIN
 
-inline static float ConvertToFloat(const boost::multiprecision::uint128_t& MultiPrecision)
+inline Civilization& Civilization::SetOrganismBiomass(float OrganismBiomass)
 {
-	return MultiPrecision.convert_to<float>();
-}
-
-inline Civilization& Civilization::SetTotalOrganismBiomass(float TotalOrganismBiomass)
-{
-	_LifeProperties.TotalOrganismBiomass = boost::multiprecision::uint128_t(TotalOrganismBiomass);
+	_LifeProperties.OrganismBiomass = boost::multiprecision::uint128_t(OrganismBiomass);
 	return *this;
 }
 
-inline Civilization& Civilization::SetTotalOrganismBiomass(const boost::multiprecision::uint128_t& TotalOrganismBiomass)
+inline Civilization& Civilization::SetOrganismBiomass(const boost::multiprecision::uint128_t& OrganismBiomass)
 {
-	_LifeProperties.TotalOrganismBiomass = TotalOrganismBiomass;
+	_LifeProperties.OrganismBiomass = OrganismBiomass;
 	return *this;
 }
 
-inline Civilization& Civilization::SetTotalOrganismUsedPower(float TotalOrganismUsedPower)
+inline Civilization& Civilization::SetOrganismUsedPower(float OrganismUsedPower)
 {
-	_LifeProperties.TotalOrganismUsedPower = TotalOrganismUsedPower;
+	_LifeProperties.OrganismUsedPower = OrganismUsedPower;
 	return *this;
 }
 
@@ -33,45 +28,45 @@ inline Civilization& Civilization::SetLifePhase(LifePhase Phase)
 	return *this;
 }
 
-inline Civilization& Civilization::SetTotalAtrificalStructureMass(float TotalAtrificalStructureMass)
+inline Civilization& Civilization::SetAtrificalStructureMass(float AtrificalStructureMass)
 {
-	_CivilizationProperties.TotalAtrificalStructureMass = boost::multiprecision::uint128_t(TotalAtrificalStructureMass);
+	_CivilizationProperties.AtrificalStructureMass = boost::multiprecision::uint128_t(AtrificalStructureMass);
 	return *this;
 }
 
-inline Civilization& Civilization::SetTotalAtrificalStructureMass(const boost::multiprecision::uint128_t& TotalAtrificalStructureMass)
+inline Civilization& Civilization::SetAtrificalStructureMass(const boost::multiprecision::uint128_t& AtrificalStructureMass)
 {
-	_CivilizationProperties.TotalAtrificalStructureMass = TotalAtrificalStructureMass;
+	_CivilizationProperties.AtrificalStructureMass = AtrificalStructureMass;
 	return *this;
 }
 
-inline Civilization& Civilization::SetTotalCitizenBiomass(float TotalCitizenBiomass)
+inline Civilization& Civilization::SetCitizenBiomass(float CitizenBiomass)
 {
-	_CivilizationProperties.TotalAtrificalStructureMass = boost::multiprecision::uint128_t(TotalCitizenBiomass);
+	_CivilizationProperties.AtrificalStructureMass = boost::multiprecision::uint128_t(CitizenBiomass);
 	return *this;
 }
 
-inline Civilization& Civilization::SetTotalCitizenBiomass(const boost::multiprecision::uint128_t& TotalCitizenBiomass)
+inline Civilization& Civilization::SetCitizenBiomass(const boost::multiprecision::uint128_t& CitizenBiomass)
 {
-	_CivilizationProperties.TotalAtrificalStructureMass = TotalCitizenBiomass;
+	_CivilizationProperties.AtrificalStructureMass = CitizenBiomass;
 	return *this;
 }
 
-inline Civilization& Civilization::SetTotalUseableEnergeticNuclide(float TotalUseableEnergeticNuclide)
+inline Civilization& Civilization::SetUseableEnergeticNuclide(float UseableEnergeticNuclide)
 {
-	_CivilizationProperties.TotalAtrificalStructureMass = boost::multiprecision::uint128_t(TotalUseableEnergeticNuclide);
+	_CivilizationProperties.AtrificalStructureMass = boost::multiprecision::uint128_t(UseableEnergeticNuclide);
 	return *this;
 }
 
-inline Civilization& Civilization::SetTotalUseableEnergeticNuclide(const boost::multiprecision::uint128_t& TotalUseableEnergeticNuclide)
+inline Civilization& Civilization::SetUseableEnergeticNuclide(const boost::multiprecision::uint128_t& UseableEnergeticNuclide)
 {
-	_CivilizationProperties.TotalAtrificalStructureMass = TotalUseableEnergeticNuclide;
+	_CivilizationProperties.AtrificalStructureMass = UseableEnergeticNuclide;
 	return *this;
 }
 
-inline Civilization& Civilization::SetTotalCitizenUsedPower(float TotalCitizenUsedPower)
+inline Civilization& Civilization::SetCitizenUsedPower(float CitizenUsedPower)
 {
-	_CivilizationProperties.TotalCitizenUsedPower = TotalCitizenUsedPower;
+	_CivilizationProperties.CitizenUsedPower = CitizenUsedPower;
 	return *this;
 }
 
@@ -105,9 +100,9 @@ inline Civilization& Civilization::SetGeneralintelligenceCount(float Generalinte
 	return *this;
 }
 
-inline Civilization& Civilization::SetTotalStoragedHistoryDataSize(float TotalStoragedHistoryDataSize)
+inline Civilization& Civilization::SetStoragedHistoryDataSize(float StoragedHistoryDataSize)
 {
-	_CivilizationProperties.TotalStoragedHistoryDataSize = TotalStoragedHistoryDataSize;
+	_CivilizationProperties.StoragedHistoryDataSize = StoragedHistoryDataSize;
 	return *this;
 }
 
@@ -123,19 +118,14 @@ inline Civilization& Civilization::SetIsIndependentIndividual(bool bIsIndependen
 	return *this;
 }
 
-inline float Civilization::GetTotalOrganismBiomassFloat() const
+inline const boost::multiprecision::uint128_t& Civilization::GetOrganismBiomass() const
 {
-	return ConvertToFloat(GetTotalOrganismBiomass());
+	return _LifeProperties.OrganismBiomass;
 }
 
-inline const boost::multiprecision::uint128_t& Civilization::GetTotalOrganismBiomass() const
+inline float Civilization::GetOrganismUsedPower() const
 {
-	return _LifeProperties.TotalOrganismBiomass;
-}
-
-inline float Civilization::GetTotalOrganismUsedPower() const
-{
-	return _LifeProperties.TotalOrganismUsedPower;
+	return _LifeProperties.OrganismUsedPower;
 }
 
 inline Civilization::LifePhase Civilization::GetLifePhase() const
@@ -143,39 +133,30 @@ inline Civilization::LifePhase Civilization::GetLifePhase() const
 	return _LifeProperties.Phase;
 }
 
-inline float Civilization::GetTotalAtrificalStructureMassFloat() const
+template <typename T>
+T Civilization::GetOrganismBiomassDigital() const
 {
-	return ConvertToFloat(GetTotalAtrificalStructureMass());
+	return _LifeProperties.OrganismBiomass.convert_to<T>();
 }
 
-inline const boost::multiprecision::uint128_t& Civilization::GetTotalAtrificalStructureMass() const
+inline const boost::multiprecision::uint128_t& Civilization::GetAtrificalStructureMass() const
 {
-	return _CivilizationProperties.TotalAtrificalStructureMass;
+	return _CivilizationProperties.AtrificalStructureMass;
 }
 
-inline float Civilization::GetTotalCitizenBiomassFloat() const
+inline const boost::multiprecision::uint128_t& Civilization::GetCitizenBiomass() const
 {
-	return ConvertToFloat(GetTotalCitizenBiomass());
+	return _CivilizationProperties.CitizenBiomass;
 }
 
-inline const boost::multiprecision::uint128_t& Civilization::GetTotalCitizenBiomass() const
+inline const boost::multiprecision::uint128_t& Civilization::GetUseableEnergeticNuclide() const
 {
-	return _CivilizationProperties.TotalCitizenBiomass;
+	return _CivilizationProperties.UseableEnergeticNuclide;
 }
 
-inline float Civilization::GetTotalUseableEnergeticNuclideFloat() const
+inline float Civilization::GetCitizenUsedPower() const
 {
-	return ConvertToFloat(GetTotalUseableEnergeticNuclide());
-}
-
-inline const boost::multiprecision::uint128_t& Civilization::GetTotalUseableEnergeticNuclide() const
-{
-	return _CivilizationProperties.TotalUseableEnergeticNuclide;
-}
-
-inline float Civilization::GetTotalCitizenUsedPower() const
-{
-	return _CivilizationProperties.TotalCitizenUsedPower;
+	return _CivilizationProperties.CitizenUsedPower;
 }
 
 inline float Civilization::GetCivilizationProgress() const
@@ -203,9 +184,9 @@ inline float Civilization::GetGeneralintelligenceCount() const
 	return _CivilizationProperties.GeneralintelligenceCount;
 }
 
-inline float Civilization::GetTotalStoragedHistoryDataSize() const
+inline float Civilization::GetStoragedHistoryDataSize() const
 {
-	return _CivilizationProperties.TotalStoragedHistoryDataSize;
+	return _CivilizationProperties.StoragedHistoryDataSize;
 }
 
 inline float Civilization::GetTeamworkCoefficient() const
@@ -216,6 +197,24 @@ inline float Civilization::GetTeamworkCoefficient() const
 inline bool Civilization::IsIndependentIndividual() const
 {
 	return _CivilizationProperties.bIsIndependentIndividual;
+}
+
+template <typename T>
+T Civilization::GetAtrificalStructureMassDigital() const
+{
+	return _CivilizationProperties.AtrificalStructureMass.convert_to<T>();
+}
+
+template <typename T>
+T Civilization::GetCitizenBiomassDigital() const
+{
+	return _CivilizationProperties.CitizenBiomass.convert_to<T>();
+}
+
+template <typename T>
+T Civilization::GetUseableEnergeticNuclideDigital() const
+{
+	return _CivilizationProperties.UseableEnergeticNuclide.convert_to<T>();
 }
 
 _NPGS_END

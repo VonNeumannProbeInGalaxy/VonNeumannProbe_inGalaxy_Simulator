@@ -5,6 +5,7 @@
 #include <random>
 
 #include "Engine/Base/Astro/Planet.h"
+#include "Engine/Base/Astro/Star.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Utilities/Random.hpp"
 
@@ -22,11 +23,11 @@ public:
 
 	~CivilizationGenerator() = default;
 
-	void GenerateCivilization(double StarAge, float PoyntingVector, Astro::Planet* Planet);
+	void GenerateCivilization(const Astro::Star* Star, float PoyntingVector, Astro::Planet* Planet);
 
 private:
 	void GenerateLife(double StarAge, float PoyntingVector, Astro::Planet* Planet);
-	void GenerateCivilization(float PoyntingVector, Astro::Planet* Planet);
+	void GenerateCivilizationDetails(const Astro::Star* Star, float PoyntingVector, Astro::Planet* Planet);
 
 private:
 	std::mt19937                    _RandomEngine;

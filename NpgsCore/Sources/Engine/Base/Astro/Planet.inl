@@ -5,11 +5,6 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-inline static float ConvertToFloat(const boost::multiprecision::uint128_t& MultiPrecision)
-{
-	return MultiPrecision.convert_to<float>();
-}
-
 inline Planet& Planet::SetExtendedProperties(ExtendedProperties&& PlanetExtraProperties)
 {
 	_PlanetExtraProperties = std::move(PlanetExtraProperties);
@@ -176,11 +171,6 @@ inline Planet& Planet::SetOceanMassEnergeticNuclide(const boost::multiprecision:
 	return *this;
 }
 
-inline float Planet::GetAtmosphereMassFloat() const
-{
-	return ConvertToFloat(GetAtmosphereMass());
-}
-
 inline const ComplexMass& Planet::GetAtmosphereMassStruct() const
 {
 	return _PlanetExtraProperties.AtmosphereMass;
@@ -191,19 +181,9 @@ inline const boost::multiprecision::uint128_t Planet::GetAtmosphereMass() const
 	return GetAtmosphereMassZ() + GetAtmosphereMassVolatiles() + GetAtmosphereMassEnergeticNuclide();
 }
 
-inline float Planet::GetAtmosphereMassZFloat() const
-{
-	return ConvertToFloat(GetAtmosphereMassZ());
-}
-
 inline const boost::multiprecision::uint128_t& Planet::GetAtmosphereMassZ() const
 {
 	return _PlanetExtraProperties.AtmosphereMass.Z;
-}
-
-inline float Planet::GetAtmosphereMassVolatilesFloat() const
-{
-	return ConvertToFloat(GetAtmosphereMassVolatiles());
 }
 
 inline const boost::multiprecision::uint128_t& Planet::GetAtmosphereMassVolatiles() const
@@ -211,19 +191,9 @@ inline const boost::multiprecision::uint128_t& Planet::GetAtmosphereMassVolatile
 	return _PlanetExtraProperties.AtmosphereMass.Volatiles;
 }
 
-inline float Planet::GetAtmosphereMassEnergeticNuclideFloat() const
-{
-	return ConvertToFloat(GetAtmosphereMassEnergeticNuclide());
-}
-
 inline const boost::multiprecision::uint128_t& Planet::GetAtmosphereMassEnergeticNuclide() const
 {
 	return _PlanetExtraProperties.AtmosphereMass.EnergeticNuclide;
-}
-
-inline float Planet::GetCoreMassFloat() const
-{
-	return ConvertToFloat(GetCoreMass());
 }
 
 inline const ComplexMass& Planet::GetCoreMassStruct() const
@@ -236,19 +206,9 @@ inline const boost::multiprecision::uint128_t Planet::GetCoreMass() const
 	return GetCoreMassZ() + GetCoreMassVolatiles() + GetCoreMassEnergeticNuclide();
 }
 
-inline float Planet::GetCoreMassZFloat() const
-{
-	return ConvertToFloat(GetCoreMassZ());
-}
-
 inline const boost::multiprecision::uint128_t& Planet::GetCoreMassZ() const
 {
 	return _PlanetExtraProperties.CoreMass.Z;
-}
-
-inline float Planet::GetCoreMassVolatilesFloat() const
-{
-	return ConvertToFloat(GetCoreMassVolatiles());
 }
 
 inline const boost::multiprecision::uint128_t& Planet::GetCoreMassVolatiles() const
@@ -256,19 +216,9 @@ inline const boost::multiprecision::uint128_t& Planet::GetCoreMassVolatiles() co
 	return _PlanetExtraProperties.CoreMass.Volatiles;
 }
 
-inline float Planet::GetCoreMassEnergeticNuclideFloat() const
-{
-	return ConvertToFloat(GetCoreMassEnergeticNuclide());
-}
-
 inline const boost::multiprecision::uint128_t& Planet::GetCoreMassEnergeticNuclide() const
 {
 	return _PlanetExtraProperties.CoreMass.EnergeticNuclide;
-}
-
-inline float Planet::GetOceanMassFloat() const
-{
-	return ConvertToFloat(GetOceanMass());
 }
 
 inline const ComplexMass& Planet::GetOceanMassStruct() const
@@ -281,19 +231,9 @@ inline const boost::multiprecision::uint128_t Planet::GetOceanMass() const
 	return GetOceanMassZ() + GetOceanMassVolatiles() + GetOceanMassEnergeticNuclide();
 }
 
-inline float Planet::GetOceanMassZFloat() const
-{
-	return ConvertToFloat(GetOceanMassZ());
-}
-
 inline const boost::multiprecision::uint128_t& Planet::GetOceanMassZ() const
 {
 	return _PlanetExtraProperties.OceanMass.Z;
-}
-
-inline float Planet::GetOceanMassVolatilesFloat() const
-{
-	return ConvertToFloat(GetOceanMassVolatiles());
 }
 
 inline const boost::multiprecision::uint128_t& Planet::GetOceanMassVolatiles() const
@@ -301,29 +241,14 @@ inline const boost::multiprecision::uint128_t& Planet::GetOceanMassVolatiles() c
 	return _PlanetExtraProperties.OceanMass.Volatiles;
 }
 
-inline float Planet::GetOceanMassEnergeticNuclideFloat() const
-{
-	return ConvertToFloat(GetOceanMassEnergeticNuclide());
-}
-
 inline const boost::multiprecision::uint128_t& Planet::GetOceanMassEnergeticNuclide() const
 {
 	return _PlanetExtraProperties.OceanMass.EnergeticNuclide;
 }
 
-inline float Planet::GetMassFloat() const
-{
-	return ConvertToFloat(GetMass());
-}
-
 inline const boost::multiprecision::uint128_t Planet::GetMass() const
 {
 	return GetAtmosphereMass() + GetOceanMass() + GetCoreMass() + GetCrustMineralMass();
-}
-
-inline float Planet::GetCrustMineralMassFloat() const
-{
-	return ConvertToFloat(GetCrustMineralMass());
 }
 
 inline const boost::multiprecision::uint128_t& Planet::GetCrustMineralMass() const
@@ -344,6 +269,90 @@ inline bool Planet::GetMigration() const
 inline Planet::PlanetType Planet::GetPlanetType() const
 {
 	return _PlanetExtraProperties.Type;
+}
+
+template <typename T>
+inline T Planet::GetAtmosphereMassDigital() const
+{
+	return GetAtmosphereMass().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetAtmosphereMassZDigital() const
+{
+	return GetAtmosphereMassZ().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetAtmosphereMassVolatilesDigital() const
+{
+	return GetAtmosphereMassVolatiles().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetAtmosphereMassEnergeticNuclideDigital() const
+{
+	return GetAtmosphereMassEnergeticNuclide().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetCoreMassDigital() const
+{
+	return GetCoreMass().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetCoreMassZDigital() const
+{
+	return GetCoreMassZ().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetCoreMassVolatilesDigital() const
+{
+	return GetCoreMassVolatiles().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetCoreMassEnergeticNuclideDigital() const
+{
+	return GetCoreMassEnergeticNuclide().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetOceanMassDigital() const
+{
+	return GetOceanMass().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetOceanMassZDigital() const
+{
+	return GetOceanMassZ().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetOceanMassVolatilesDigital() const
+{
+	return GetOceanMassVolatiles().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetOceanMassEnergeticNuclideDigital() const
+{
+	return GetOceanMassEnergeticNuclide().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetMassDigital() const
+{
+	return GetMass().convert_to<T>();
+}
+
+template <typename T>
+inline T Planet::GetCrustMineralMassDigital() const
+{
+	return GetCrustMineralMass().convert_to<T>();
 }
 
 inline std::unique_ptr<Civilization>& Planet::CivilizationData()
@@ -399,19 +408,9 @@ inline AsteroidCluster& AsteroidCluster::SetAsteroidType(AsteroidType Type)
 	return *this;
 }
 
-inline float AsteroidCluster::GetMassFloat() const
-{
-	return ConvertToFloat(GetMass());
-}
-
 inline const boost::multiprecision::uint128_t AsteroidCluster::GetMass() const
 {
 	return GetMassZ() + GetMassVolatiles() + GetMassEnergeticNuclide();
-}
-
-inline float AsteroidCluster::GetMassZFloat() const
-{
-	return ConvertToFloat(GetMassZ());
 }
 
 inline const boost::multiprecision::uint128_t& AsteroidCluster::GetMassZ() const
@@ -419,19 +418,9 @@ inline const boost::multiprecision::uint128_t& AsteroidCluster::GetMassZ() const
 	return _Properties.Mass.Z;
 }
 
-inline float AsteroidCluster::GetMassVolatilesFloat() const
-{
-	return ConvertToFloat(GetMassVolatiles());
-}
-
 inline const boost::multiprecision::uint128_t& AsteroidCluster::GetMassVolatiles() const
 {
 	return _Properties.Mass.Volatiles;
-}
-
-inline float AsteroidCluster::GetMassEnergeticNuclideFloat() const
-{
-	return ConvertToFloat(GetMassEnergeticNuclide());
 }
 
 inline const boost::multiprecision::uint128_t& AsteroidCluster::GetMassEnergeticNuclide() const
@@ -442,6 +431,30 @@ inline const boost::multiprecision::uint128_t& AsteroidCluster::GetMassEnergetic
 inline AsteroidCluster::AsteroidType AsteroidCluster::GetAsteroidType() const
 {
 	return _Properties.Type;
+}
+
+template <typename T>
+inline T AsteroidCluster::GetMassDigital() const
+{
+	return GetMass().convert_to<T>();
+}
+
+template <typename T>
+inline T AsteroidCluster::GetMassZDigital() const
+{
+	return GetMassZ().convert_to<T>();
+}
+
+template <typename T>
+inline T AsteroidCluster::GetMassVolatilesDigital() const
+{
+	return GetMassVolatiles().convert_to<T>();
+}
+
+template <typename T>
+inline T AsteroidCluster::GetMassEnergeticNuclideDigital() const
+{
+	return GetMassEnergeticNuclide().convert_to<T>();
 }
 
 _ASTRO_END
