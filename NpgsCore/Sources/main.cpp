@@ -62,7 +62,7 @@ int main() {
     // ---------------------------------------
 
     std::random_device rd;
-    unsigned seed = 2240717154;//4011621040;//3731860369;//3141777642;//800323521;//472035744;//2442947453;
+    unsigned seed = 702828540;//4011621040;//3731860369;//3141777642;//800323521;//472035744;//2442947453;
     std::println("Seed: {}", seed);
     StellarGenerator sg({ seed });
     StellarGenerator::BasicProperties b1{ 5e9f, 0.0f, 1.0f };
@@ -88,7 +88,7 @@ int main() {
     //    NpgsCoreError(std::string(e.what()) + " seed: " + std::to_string(seed));
     //}
 
-    OrbitalGenerator og({ seed });
+    OrbitalGenerator og({ 1681068171 });
 
     //auto* p = ThreadPool::GetInstance();
 

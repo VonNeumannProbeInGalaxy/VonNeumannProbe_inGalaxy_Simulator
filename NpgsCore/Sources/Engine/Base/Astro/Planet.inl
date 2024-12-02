@@ -355,7 +355,7 @@ inline T Planet::GetCrustMineralMassDigital() const
 	return GetCrustMineralMass().convert_to<T>();
 }
 
-inline std::unique_ptr<Civilization>& Planet::CivilizationData()
+inline std::unique_ptr<Intelli::Standard>& Planet::CivilizationData()
 {
 	return _PlanetExtraProperties.CivilizationData;
 }

@@ -28,6 +28,8 @@
 #define _ASSET_END }
 #define _ASTRO_BEGIN namespace Astro {
 #define _ASTRO_END }
+#define _INTELLI_BEGIN namespace Intelli {
+#define _INTELLI_END }
 #define _MODULE_BEGIN namespace Module {
 #define _MODULE_END }
 #define _NPGS_BEGIN namespace Npgs {

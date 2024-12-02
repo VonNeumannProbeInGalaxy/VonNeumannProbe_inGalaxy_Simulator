@@ -23,7 +23,8 @@ const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_WN{ { 141000,
 const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_WO{ { 200000, 2 }, { 180000, 3 }, { 150000, 4 }, { 100000, 5 } };
 const std::vector<std::pair<int, int>> Star::_kSpectralSubclassMap_WNxh{ { 50000, 5 }, { 45000, 6 }, { 43000, 7 }, { 40000, 8 }, { 35000, 9 }, { 30000, 10 } };
 
-const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> Star::_kInitialCommonMap{
+const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> Star::_kInitialCommonMap
+{
 	{ 54000,  Star::_kSpectralSubclassMap_O },
 	{ 33400,  Star::_kSpectralSubclassMap_B },
 	{ 9900,   Star::_kSpectralSubclassMap_A },
@@ -37,14 +38,16 @@ const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> Star::_kInit
 	{ 0, {} }
 };
 
-const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> Star::_kInitialWolfRayetMap{
+const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> Star::_kInitialWolfRayetMap
+{
 	{ 200000, Star::_kSpectralSubclassMap_WO },
 	{ 141000, Star::_kSpectralSubclassMap_WN },
 	{ 117000, Star::_kSpectralSubclassMap_WC },
 	{ 0, {} }
 };
 
-const std::unordered_map<Star::EvolutionPhase, ::Npgs::Util::StellarClass::LuminosityClass> Star::_kLuminosityMap{
+const std::unordered_map<Star::EvolutionPhase, ::Npgs::Util::StellarClass::LuminosityClass> Star::_kLuminosityMap
+{
 	{ Star::EvolutionPhase::kMainSequence,     ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_V   },
 	{ Star::EvolutionPhase::kRedGiant,         ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_III },
 	{ Star::EvolutionPhase::kCoreHeBurn,       ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_IV  },
@@ -53,7 +56,8 @@ const std::unordered_map<Star::EvolutionPhase, ::Npgs::Util::StellarClass::Lumin
 	{ Star::EvolutionPhase::kPostAgb,          ::Npgs::Util::StellarClass::LuminosityClass::kLuminosity_I   }
 };
 
-const std::unordered_map<float, float> Star::_kFeHSurfaceH1Map{
+const std::unordered_map<float, float> Star::_kFeHSurfaceH1Map
+{
 	{ -4.0f, 0.75098f },
 	{ -3.0f, 0.75095f },
 	{ -2.0f, 0.75063f },

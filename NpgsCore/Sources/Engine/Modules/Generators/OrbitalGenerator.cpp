@@ -130,7 +130,7 @@ void OrbitalGenerator::GenerateOrbitals(Astro::StellarSystem& System)
 		auto ZeroOrbit = std::make_unique<Astro::StellarSystem::Orbit>();
 		Astro::StellarSystem::Orbit::OrbitalObject MainStar(Star, Astro::StellarSystem::Orbit::ObjectType::kStar, ZeroOrbit.get());
 		ZeroOrbit->Objects.emplace_back(MainStar);
-		ZeroOrbit->Parent.BaryCenterPtr = System.GetBaryCenter();
+		ZeroOrbit->Parent.SystemBary = System.GetBaryCenter();
 		ZeroOrbit->ParentType = Astro::StellarSystem::Orbit::ObjectType::kBaryCenter;
 		System.OrbitData().emplace_back(std::move(ZeroOrbit));
 
@@ -138,10 +138,10 @@ void OrbitalGenerator::GenerateOrbitals(Astro::StellarSystem& System)
 			std::sqrt(Star->GetLuminosity() / (4 * kPi * kStefanBoltzmann * std::pow(_CoilTemperatureLimit, 4))));
 		auto NearStarOrbit = std::make_unique<Astro::StellarSystem::Orbit>();
 
-		NearStarOrbit->Parent.BaryCenterPtr = System.GetBaryCenter();
-		NearStarOrbit->ParentType           = Astro::StellarSystem::Orbit::ObjectType::kBaryCenter;
-		NearStarOrbit->Normal               = System.GetBaryNormal();
-		NearStarOrbit->SemiMajorAxis        = NearStarSemiMajorAxis;
+		NearStarOrbit->Parent.SystemBary = System.GetBaryCenter();
+		NearStarOrbit->ParentType        = Astro::StellarSystem::Orbit::ObjectType::kBaryCenter;
+		NearStarOrbit->Normal            = System.GetBaryNormal();
+		NearStarOrbit->SemiMajorAxis     = NearStarSemiMajorAxis;
 		System.OrbitData().emplace_back(std::move(NearStarOrbit));
 
 #ifdef DEBUG_OUTPUT
@@ -184,7 +184,7 @@ void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System)
 
 	for (int i = 0; i != 2; ++i)
 	{
-		OrbitData[i].Parent.BaryCenterPtr = SystemBaryCenter;
+		OrbitData[i].Parent.SystemBary = SystemBaryCenter;
 		OrbitData[i].ParentType = Astro::StellarSystem::Orbit::ObjectType::kBaryCenter;
 		GenerateOrbitElements(OrbitData[i]);
 	}
@@ -317,10 +317,10 @@ void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System)
 					  TheOther->GetLuminosity() / (4 * kPi * std::pow(BinarySemiMajorAxis, 2))))));
 
 		std::unique_ptr<Astro::StellarSystem::Orbit> NearStarOrbit = std::make_unique<Astro::StellarSystem::Orbit>();
-		NearStarOrbit->Normal         = Current->GetNormal();
-		NearStarOrbit->Parent.StarPtr = Current;
-		NearStarOrbit->ParentType     = Astro::StellarSystem::Orbit::ObjectType::kStar;
-		NearStarOrbit->SemiMajorAxis  = NearStarSemiMajorAxis;
+		NearStarOrbit->Normal        = Current->GetNormal();
+		NearStarOrbit->Parent.Star   = Current;
+		NearStarOrbit->ParentType    = Astro::StellarSystem::Orbit::ObjectType::kStar;
+		NearStarOrbit->SemiMajorAxis = NearStarSemiMajorAxis;
 
 		NearStarOrbits[i] = *NearStarOrbit;
 
@@ -519,8 +519,8 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex,
 
 	for (auto& Orbit : Orbits)
 	{
-		Orbit->Parent.StarPtr = Star; // 轨道上级天体
-		Orbit->ParentType = Astro::StellarSystem::Orbit::ObjectType::kStar;
+		Orbit->Parent.Star = Star; // 轨道上级天体
+		Orbit->ParentType  = Astro::StellarSystem::Orbit::ObjectType::kStar;
 		ParentStar.DirectOrbits.emplace_back(Orbit.get());
 	}
 
@@ -976,9 +976,9 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex,
 			AsteroidClusters.back().get(), Astro::StellarSystem::Orbit::ObjectType::kAsteroidCluster, KuiperBeltOrbit.get());
 
 		KuiperBeltOrbit->Objects.emplace_back(KuiperBelt);
-		KuiperBeltOrbit->Parent.StarPtr = Star;
-		KuiperBeltOrbit->ParentType     = Astro::StellarSystem::Orbit::ObjectType::kStar;
-		KuiperBeltOrbit->SemiMajorAxis  = KuiperBeltRadiusAu * kAuToMeter;
+		KuiperBeltOrbit->Parent.Star   = Star;
+		KuiperBeltOrbit->ParentType    = Astro::StellarSystem::Orbit::ObjectType::kStar;
+		KuiperBeltOrbit->SemiMajorAxis = KuiperBeltRadiusAu * kAuToMeter;
 
 		GenerateOrbitElements(*KuiperBeltOrbit);
 
@@ -1060,12 +1060,12 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex,
 	{
 		if (Orbit->Objects.front().Type == Astro::StellarSystem::Orbit::ObjectType::kPlanet)
 		{
-			if (Orbit->Objects.front().Object.PlanetPtr->GetPlanetType() == Astro::Planet::PlanetType::kRockyAsteroidCluster ||
-				Orbit->Objects.front().Object.PlanetPtr->GetPlanetType() == Astro::Planet::PlanetType::kRockyIceAsteroidCluster)
+			if (Orbit->Objects.front().Object.Planet->GetPlanetType() == Astro::Planet::PlanetType::kRockyAsteroidCluster ||
+				Orbit->Objects.front().Object.Planet->GetPlanetType() == Astro::Planet::PlanetType::kRockyIceAsteroidCluster)
 			{
 				auto& Object = Orbit->Objects.front();
-				auto AsteroidCluster = PlanetToAsteroidCluster(Orbit->Objects.front().Object.PlanetPtr);
-				Object.Object.AsteroidClusterPtr = AsteroidCluster.get();
+				auto AsteroidCluster = PlanetToAsteroidCluster(Orbit->Objects.front().Object.Planet);
+				Object.Object.Asteroids = AsteroidCluster.get();
 				Object.Type = Astro::StellarSystem::Orbit::ObjectType::kAsteroidCluster;
 				AsteroidClusters.emplace_back(std::move(AsteroidCluster));
 			}
@@ -1645,12 +1645,12 @@ void OrbitalGenerator::GenerateSpin(float SemiMajorAxis, const Astro::StellarSys
 	switch (ParentType)
 	{
 	case Astro::StellarSystem::Orbit::ObjectType::kStar:
-		ParentAge  = static_cast<float>(ParentBody.StarPtr->GetAge());
-		ParentMass = static_cast<float>(ParentBody.StarPtr->GetMass());
+		ParentAge  = static_cast<float>(ParentBody.Star->GetAge());
+		ParentMass = static_cast<float>(ParentBody.Star->GetMass());
 		break;
 	case Astro::StellarSystem::Orbit::ObjectType::kPlanet:
-		ParentAge  = static_cast<float>(ParentBody.PlanetPtr->GetAge());
-		ParentMass = static_cast<float>(ParentBody.PlanetPtr->GetMass());
+		ParentAge  = static_cast<float>(ParentBody.Planet->GetAge());
+		ParentMass = static_cast<float>(ParentBody.Planet->GetMass());
 		break;
 	}
 
@@ -1812,7 +1812,7 @@ void OrbitalGenerator::GenerateMoons(std::size_t PlanetIndex,
 									 std::vector<std::unique_ptr<Astro::StellarSystem::Orbit>>& Orbits,
 									 std::vector<std::unique_ptr<Astro::Planet>>& Planets)
 {
-	auto* Planet            = ParentPlanet.Object.PlanetPtr;
+	auto* Planet            = ParentPlanet.Object.Planet;
 	auto  PlanetType        = Planet->GetPlanetType();
 	float PlanetMass        = Planet->GetMassDigital<float>();
 	float PlanetMassEarth   = PlanetMass / kEarthMass;
@@ -1850,7 +1850,7 @@ void OrbitalGenerator::GenerateMoons(std::size_t PlanetIndex,
 	else if (MoonCount == 1)
 	{
 		Astro::StellarSystem::Orbit MoonOrbitData;
-		MoonOrbitData.Parent.PlanetPtr = Planet;
+		MoonOrbitData.Parent.Planet = Planet;
 		MoonOrbitData.ParentType    = Astro::StellarSystem::Orbit::ObjectType::kPlanet;
 		MoonOrbitData.SemiMajorAxis = 2 * LiquidRocheRadius + _CommonGenerator(_RandomEngine) *
 			(std::min(1e9f, HillSphereRadius / 3 - 1e8f) - 2 * LiquidRocheRadius);
@@ -1911,8 +1911,8 @@ void OrbitalGenerator::GenerateMoons(std::size_t PlanetIndex,
 
 		for (int i = 0; i != 2; ++i)
 		{
-			MoonOrbitData[i].Parent.PlanetPtr = Planet;
-			MoonOrbitData[i].ParentType = Astro::StellarSystem::Orbit::ObjectType::kPlanet;
+			MoonOrbitData[i].Parent.Planet = Planet;
+			MoonOrbitData[i].ParentType    = Astro::StellarSystem::Orbit::ObjectType::kPlanet;
 
 			MoonNormals[i] = glm::vec2(Planet->GetNormal() + glm::vec2(
 				-0.09f + _CommonGenerator(_RandomEngine) * 0.18f,
@@ -2061,7 +2061,7 @@ void OrbitalGenerator::GenerateMoons(std::size_t PlanetIndex,
 	for (std::size_t i = 0; i != MoonCount; ++i)
 	{
 		Astro::StellarSystem::Orbit::OrbitalObject Moon;
-		Moon.Object.PlanetPtr   = Moons[i].get();
+		Moon.Object.Planet      = Moons[i].get();
 		Moon.Type               = Astro::StellarSystem::Orbit::ObjectType::kPlanet;
 		Moon.InitialTrueAnomaly = _CommonGenerator(_RandomEngine) * 2 * kPi;
 		MoonOrbits[i]->Objects.emplace_back(Moon);
@@ -2085,7 +2085,7 @@ void OrbitalGenerator::GenerateRings(std::size_t PlanetIndex,
 									 std::vector<std::unique_ptr<Astro::StellarSystem::Orbit>>& Orbits,
 									 std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters)
 {
-	auto* Planet            = ParentPlanet.Object.PlanetPtr;
+	auto* Planet            = ParentPlanet.Object.Planet;
 	auto  PlanetType        = Planet->GetPlanetType();
 	float PlanetMass        = Planet->GetMassDigital<float>();
 	float PlanetMassEarth   = PlanetMass / kEarthMass;
@@ -2147,9 +2147,9 @@ void OrbitalGenerator::GenerateRings(std::size_t PlanetIndex,
 	float Inaccuracy    = -0.1f + _CommonGenerator(_RandomEngine) * 0.2f;
 	float SemiMajorAxis = 0.6f * LiquidRocheRadius * (1.0f + Inaccuracy);
 
-	RingsOrbit->SemiMajorAxis    = SemiMajorAxis;
-	RingsOrbit->Parent.PlanetPtr = Planet;
-	RingsOrbit->ParentType       = Astro::StellarSystem::Orbit::ObjectType::kPlanet;
+	RingsOrbit->SemiMajorAxis = SemiMajorAxis;
+	RingsOrbit->Parent.Planet = Planet;
+	RingsOrbit->ParentType    = Astro::StellarSystem::Orbit::ObjectType::kPlanet;
 	RingsOrbit->Objects.emplace_back(Rings);
 
 	ParentPlanet.DirectOrbits.emplace_back(RingsOrbit.get());
@@ -2189,12 +2189,12 @@ void OrbitalGenerator::GenerateTerra(const Astro::Star* Star,
 	{ // 判断类地行星
 		Planet->SetPlanetType(Astro::Planet::PlanetType::kTerra);
 		// 计算新的海洋质量
-		float Exponent = -0.5f + _CommonGenerator(_RandomEngine) * 1.5f;
-		float Random = std::pow(10.0f, Exponent);
-		float NewOceanMass = CoreMass * Random * 1e-4f;
-		float NewOceanMassVolatiles = NewOceanMass / 9.0f;
+		float Exponent                     = -0.5f + _CommonGenerator(_RandomEngine) * 1.5f;
+		float Random                       = std::pow(10.0f, Exponent);
+		float NewOceanMass                 = CoreMass * Random * 1e-4f;
+		float NewOceanMassVolatiles        = NewOceanMass / 9.0f;
 		float NewOceanMassEnergeticNuclide = NewOceanMass * 5e-5f / 9.0f;
-		float NewOceanMassZ = NewOceanMass - NewOceanMassVolatiles - NewOceanMassEnergeticNuclide;
+		float NewOceanMassZ                = NewOceanMass - NewOceanMassVolatiles - NewOceanMassEnergeticNuclide;
 
 		Planet->SetOceanMass({
 			boost::multiprecision::uint128_t(NewOceanMassZ),
@@ -2276,7 +2276,7 @@ void OrbitalGenerator::GenerateTrojan(const Astro::Star* Star,
 									  Astro::StellarSystem::Orbit::OrbitalObject& ParentPlanet,
 									  std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters)
 {
-	auto* Planet            = ParentPlanet.Object.PlanetPtr;
+	auto* Planet            = ParentPlanet.Object.Planet;
 	auto  PlanetType        = Planet->GetPlanetType();
 	float PlanetMass        = Planet->GetMassDigital<float>();
 	float PlanetMassEarth   = PlanetMass / kEarthMass;
@@ -2300,7 +2300,7 @@ void OrbitalGenerator::GenerateTrojan(const Astro::Star* Star,
 	{
 		if (NextOrbit->Objects.front().Type == Astro::StellarSystem::Orbit::ObjectType::kAsteroidCluster)
 		{
-			auto* PlanetRings           = NextOrbit->Objects.front().Object.AsteroidClusterPtr;
+			auto* PlanetRings           = NextOrbit->Objects.front().Object.Asteroids;
 			auto  PlanetRingsType       = PlanetRings->GetAsteroidType();
 			float RingsMass             = PlanetRings->GetMassDigital<float>();
 			float RingsVolatiles        = PlanetRings->GetMassVolatilesDigital<float>();
@@ -2405,11 +2405,11 @@ void OrbitalGenerator::CalculateOrbitalPeriods(std::vector<std::unique_ptr<Astro
 		float CenterMass = 0.0f;
 		if (Orbit->ParentType == Astro::StellarSystem::Orbit::ObjectType::kStar)
 		{
-			CenterMass = static_cast<float>(Orbit->Parent.StarPtr->GetMass());
+			CenterMass = static_cast<float>(Orbit->Parent.Star->GetMass());
 		}
 		else if (Orbit->ParentType == Astro::StellarSystem::Orbit::ObjectType::kPlanet)
 		{
-			CenterMass = Orbit->Parent.PlanetPtr->GetMassDigital<float>();
+			CenterMass = Orbit->Parent.Planet->GetMassDigital<float>();
 		}
 
 		Orbit->Period = std::sqrt(4.0f * std::pow(kPi, 2.0f) * std::pow(SemiMajorAxis, 3.0f) / (kGravityConstant * CenterMass));
@@ -2418,9 +2418,9 @@ void OrbitalGenerator::CalculateOrbitalPeriods(std::vector<std::unique_ptr<Astro
 		{
 			if (Object.Type == Astro::StellarSystem::Orbit::ObjectType::kPlanet)
 			{
-				if (Object.Object.PlanetPtr->GetSpin() <= 0)
+				if (Object.Object.Planet->GetSpin() <= 0)
 				{
-					Object.Object.PlanetPtr->SetSpin(Orbit->Period);
+					Object.Object.Planet->SetSpin(Orbit->Period);
 				}
 			}
 		}

@@ -9,6 +9,7 @@
 #include "Engine/Base/Astro/CelestialObject.h"
 #include "Engine/Base/Astro/Planet.h"
 #include "Engine/Base/Astro/Star.h"
+#include "Engine/Base/Intelli/Artifact.h"
 #include "Engine/Base/NpgsObject.h"
 #include "Engine/Core/Base.h"
 
@@ -39,17 +40,19 @@ public:
 			kBaryCenter,
 			kStar,
 			kPlanet,
-			kAsteroidCluster
+			kAsteroidCluster,
+			kArtifactCluster
 		};
 
 		union ObjectPointer
 		{
-			BaryCenter*      BaryCenterPtr;
-			Star*            StarPtr;
-			Planet*          PlanetPtr;
-			AsteroidCluster* AsteroidClusterPtr;
+			BaryCenter*        SystemBary;
+			Star*              Star;
+			Planet*            Planet;
+			AsteroidCluster*   Asteroids;
+			Intelli::Artifact* Artifacts;
 
-			ObjectPointer() : BaryCenterPtr(nullptr) {}
+			ObjectPointer() : SystemBary(nullptr) {}
 		};
 
 		struct OrbitalObject
@@ -67,17 +70,19 @@ public:
 				switch (Type)
 				{
 				case ObjectType::kBaryCenter:
-					this->Object.BaryCenterPtr = static_cast<BaryCenter*>(Object);
+					this->Object.SystemBary = static_cast<BaryCenter*>(Object);
 					break;
 				case ObjectType::kStar:
-					this->Object.StarPtr = static_cast<Star*>(Object);
+					this->Object.Star = static_cast<Star*>(Object);
 					break;
 				case ObjectType::kPlanet:
-					this->Object.PlanetPtr = static_cast<Planet*>(Object);
+					this->Object.Planet = static_cast<Planet*>(Object);
 					break;
 				case ObjectType::kAsteroidCluster:
-					this->Object.AsteroidClusterPtr = static_cast<AsteroidCluster*>(Object);
+					this->Object.Asteroids = static_cast<AsteroidCluster*>(Object);
 					break;
+				case ObjectType::kArtifactCluster:
+					this->Object.Artifacts = static_cast<Intelli::Artifact*>(Object);
 				}
 			}
 		};

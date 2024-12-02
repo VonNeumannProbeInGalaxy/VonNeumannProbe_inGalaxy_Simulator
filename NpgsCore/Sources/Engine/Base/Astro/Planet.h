@@ -3,7 +3,7 @@
 #include <memory>
 #include <boost/multiprecision/cpp_int.hpp>
 #include "Engine/Base/Astro/CelestialObject.h"
-#include "Engine/Base/Civilization.h"
+#include "Engine/Base/Intelli/Civilization.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
@@ -39,14 +39,14 @@ public:
 
 	struct ExtendedProperties
 	{
-		ComplexMass AtmosphereMass;                        // 大气层质量，单位 kg
-		ComplexMass CoreMass;                              // 核心质量，单位 kg
-		ComplexMass OceanMass;                             // 海洋质量，单位 kg
-		boost::multiprecision::uint128_t CrustMineralMass; // 地壳矿脉质量，单位 kg
-		std::unique_ptr<Civilization>    CivilizationData; // 文明数据
-		PlanetType Type{ PlanetType::kRocky };             // 行星类型
-		float BalanceTemperature{};                        // 平衡温度，单位 K
-		bool  bIsMigrated{ false };                        // 是否为迁移行星
+		ComplexMass AtmosphereMass;                          // 大气层质量，单位 kg
+		ComplexMass CoreMass;                                // 核心质量，单位 kg
+		ComplexMass OceanMass;                               // 海洋质量，单位 kg
+		boost::multiprecision::uint128_t CrustMineralMass;   // 地壳矿脉质量，单位 kg
+		std::unique_ptr<Intelli::Standard> CivilizationData; // 文明数据
+		PlanetType Type{ PlanetType::kRocky };               // 行星类型
+		float BalanceTemperature{};                          // 平衡温度，单位 K
+		bool  bIsMigrated{ false };                          // 是否为迁移行星
 	};
 
 public:
@@ -161,7 +161,7 @@ public:
 	template <typename T>
 	T GetCrustMineralMassDigital() const;
 
-	std::unique_ptr<Civilization>& CivilizationData();
+	std::unique_ptr<Intelli::Standard>& CivilizationData();
 
 private:
 	ExtendedProperties _PlanetExtraProperties{};
@@ -170,10 +170,11 @@ private:
 class AsteroidCluster : public AstroObject
 {
 public:
-	enum class AsteroidType
+	enum class AsteroidType : int
 	{
-		kRocky,
-		kRockyIce
+		kRocky                     = 0,
+		kRockyIce                  = 1,
+		kArtificalOrbitalStructure = 2
 	};
 
 	struct BasicProperties

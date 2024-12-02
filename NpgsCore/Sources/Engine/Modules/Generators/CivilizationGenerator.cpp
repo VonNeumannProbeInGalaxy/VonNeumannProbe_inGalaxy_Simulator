@@ -1,7 +1,12 @@
 #include "CivilizationGenerator.h"
 
-#include "Engine/Base/Civilization.h"
+#include <cmath>
+#include <print>
+#include <utility>
+#include "Engine/Base/Intelli/Civilization.h"
 #include "Engine/Core/Constants.h"
+
+#define DEBUG_OUTPUT
 
 _NPGS_BEGIN
 _MODULE_BEGIN
@@ -26,33 +31,56 @@ void CivilizationGenerator::GenerateCivilization(const Astro::Star* Star, float 
 		return;
 	}
 
-	Planet->CivilizationData() = std::make_unique<Civilization>();
+	Planet->CivilizationData() = std::make_unique<Intelli::Standard>();
 
 	GenerateLife(Star->GetAge(), PoyntingVector, Planet);
 	GenerateCivilizationDetails(Star, PoyntingVector, Planet);
+
+#ifdef DEBUG_OUTPUT
+    std::println("");
+    std::println("Life details:");
+	std::println("Life phase: {}", std::to_underlying(Planet->CivilizationData()->GetLifePhase()));
+	std::println("Organism biomass: {:.2E} kg", Planet->CivilizationData()->GetOrganismBiomassDigital<float>());
+	std::println("Organism used power: {:.2E} W", Planet->CivilizationData()->GetOrganismUsedPower());
+    std::println("Standard civilization details:");
+	std::println("Civilization progress: {}", Planet->CivilizationData()->GetCivilizationProgress());
+	std::println("Atrifical structure mass: {:.2E} kg", Planet->CivilizationData()->GetAtrificalStructureMassDigital<float>());
+	std::println("Citizen biomass: {:.2E} kg", Planet->CivilizationData()->GetCitizenBiomassDigital<float>());
+	std::println("Useable energetic nuclide: {:.2E} kg", Planet->CivilizationData()->GetUseableEnergeticNuclideDigital<float>());
+	std::println("Orbit assets mass: {:.2E} kg", Planet->CivilizationData()->GetOrbitAssetsMassDigital<float>());
+    std::println("General intelligence count: {}", Planet->CivilizationData()->GetGeneralintelligenceCount());
+	std::println("General intelligence average synapse activation count: {} o/s", Planet->CivilizationData()->GetGeneralIntelligenceAverageSynapseActivationCount());
+	std::println("General intelligence synapse count: {}", Planet->CivilizationData()->GetGeneralIntelligenceSynapseCount());
+	std::println("General intelligence average lifetime: {} yr", Planet->CivilizationData()->GetGeneralIntelligenceAverageLifetime());
+	std::println("Storaged history data size: {:.2E} bit", Planet->CivilizationData()->GetStoragedHistoryDataSize());
+	std::println("Citizen used power: {:.2E} W", Planet->CivilizationData()->GetCitizenUsedPower());
+	std::println("Teamwork coefficient: {}", Planet->CivilizationData()->GetTeamworkCoefficient());
+	std::println("Is independent individual: {}", Planet->CivilizationData()->IsIndependentIndividual());
+    std::println("");
+#endif // DEBUG_OUTPUT
 }
 
 void CivilizationGenerator::GenerateLife(double StarAge, float PoyntingVector, Astro::Planet* Planet)
 {
 	// 计算生命演化阶段
 	float Random = 0.5f + _CommonGenerator(_RandomEngine) + 1.5f;
-	auto  LifePhase = static_cast<Civilization::LifePhase>(std::min(4, std::max(1, static_cast<int>(Random * StarAge / (5e8)))));
+	auto  LifePhase = static_cast<Intelli::Standard::LifePhase>(std::min(4, std::max(1, static_cast<int>(Random * StarAge / (5e8)))));
 	auto* CivilizationData = Planet->CivilizationData().get();
 
 	// 处理生命成矿机制以及 ASI 大过滤器
-	if (LifePhase == Civilization::LifePhase::kCenoziocEra)
+	if (LifePhase == Intelli::Standard::LifePhase::kCenoziocEra)
 	{
 		Random = 1.0f + _CommonGenerator(_RandomEngine) * 999.0f;
 		if (_AsiFiltedProbability(_RandomEngine))
 		{
-			LifePhase = Civilization::LifePhase::kSatTeeTouyButByAsi; // 被 ASI 去城市化了
+			LifePhase = Intelli::Standard::LifePhase::kSatTeeTouyButByAsi; // 被 ASI 去城市化了
 			Planet->SetCrustMineralMass(Random * 1e16f + Planet->GetCrustMineralMassDigital<float>());
 		}
 		else
 		{
 			if (_DestroyedByDisasterProbability(_RandomEngine))
 			{
-				LifePhase = Civilization::LifePhase::kSatTeeTouyButByAsi; // 被天灾去城市化或者自己玩死了
+				LifePhase = Intelli::Standard::LifePhase::kSatTeeTouyButByAsi; // 被天灾去城市化或者自己玩死了
 			}
 			else
 			{
@@ -72,35 +100,35 @@ void CivilizationGenerator::GenerateLife(double StarAge, float PoyntingVector, A
 
 	switch (LifePhase)
 	{
-	case Civilization::LifePhase::kLuca:
+	case Intelli::Standard::LifePhase::kLuca:
 		Random            = _CommonGenerator(_RandomEngine);
 		OrganismBiomass   = Random * 1e11 * Scale;
 		OrganismUsedPower = CommonRandom * 0.1 * OrganismBiomass;
 		break;
-	case Civilization::LifePhase::kGreatOxygenationEvent:
+	case Intelli::Standard::LifePhase::kGreatOxygenationEvent:
 		Exponent          = -1.0f + _CommonGenerator(_RandomEngine) * 2.0f;
 		Random            = std::pow(10.0f, Exponent);
 		OrganismBiomass   = Random * 1e12 * Scale;
 		OrganismUsedPower = CommonRandom * 0.1 * OrganismBiomass;
 		break;
-	case Civilization::LifePhase::kMultiCellularLife:
+	case Intelli::Standard::LifePhase::kMultiCellularLife:
 		Exponent          = _CommonGenerator(_RandomEngine) * 2.0f;
 		Random            = std::pow(10.0f, Exponent);
 		OrganismBiomass   = Random * 1e13 * Scale;
 		OrganismUsedPower = CommonRandom * 0.01 * OrganismBiomass;
 		break;
-	case Civilization::LifePhase::kCenoziocEra:
-	case Civilization::LifePhase::kSatTeeTouyButByAsi:
+	case Intelli::Standard::LifePhase::kCenoziocEra:
+	case Intelli::Standard::LifePhase::kSatTeeTouyButByAsi:
 		Exponent          = -1.0f + _CommonGenerator(_RandomEngine) * 2.0f;
 		Random            = std::pow(10.0f, Exponent);
 		OrganismBiomass   = Random * 1e16 * Scale;
-		OrganismUsedPower = CommonRandom * 0.001 * OrganismBiomass;
+		OrganismUsedPower = CommonRandom * OrganismBiomass;
 		break;
-	case Civilization::LifePhase::kSatTeeTouy:
-	case Civilization::LifePhase::kNewCivilization:
+	case Intelli::Standard::LifePhase::kSatTeeTouy:
+	case Intelli::Standard::LifePhase::kNewCivilization:
 		Random            = _CommonGenerator(_RandomEngine);
 		OrganismBiomass   = Random * 1e15 * Scale;
-		OrganismUsedPower = CommonRandom * 0.001 * OrganismBiomass;
+		OrganismUsedPower = CommonRandom * OrganismBiomass;
 		break;
 	default:
 		break;
@@ -120,22 +148,21 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
 {
     const std::array<float, 7>* ProbabilityListPtr = nullptr;
     auto& CivilizationData = Planet->CivilizationData();
-    CivilizationData = std::make_unique<Civilization>();
 
     auto LifePhase = Planet->CivilizationData()->GetLifePhase();
     int IntegerPart = 0;
     float FractionalPart = 0.0f;
-    if (LifePhase != Civilization::LifePhase::kCenoziocEra &&
-        LifePhase != Civilization::LifePhase::kSatTeeTouy &&
-        LifePhase != Civilization::LifePhase::kSatTeeTouyButByAsi)
+    if (LifePhase != Intelli::Standard::LifePhase::kCenoziocEra &&
+        LifePhase != Intelli::Standard::LifePhase::kSatTeeTouy  &&
+        LifePhase != Intelli::Standard::LifePhase::kSatTeeTouyButByAsi)
     {
         CivilizationData->SetCivilizationProgress(0.0f);
     }
-    else if (LifePhase == Civilization::LifePhase::kCenoziocEra)
+    else if (LifePhase == Intelli::Standard::LifePhase::kCenoziocEra)
     {
         ProbabilityListPtr = &_kProbabilityListForCenoziocEra;
     }
-    else if (LifePhase == Civilization::LifePhase::kSatTeeTouyButByAsi)
+    else if (LifePhase == Intelli::Standard::LifePhase::kSatTeeTouyButByAsi)
     {
         ProbabilityListPtr = &_kProbabilityListForSatTeeTouyButAsi;
     }
@@ -157,13 +184,13 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
 
         if (IntegerPart >= 7)
         {
-            if (LifePhase == Civilization::LifePhase::kCenoziocEra)
+            if (LifePhase == Intelli::Standard::LifePhase::kCenoziocEra)
             {
-                LifePhase = Civilization::LifePhase::kSatTeeTouy;
+                LifePhase = Intelli::Standard::LifePhase::kSatTeeTouy;
             }
-            else if (LifePhase == Civilization::LifePhase::kSatTeeTouyButByAsi)
+            else if (LifePhase == Intelli::Standard::LifePhase::kSatTeeTouyButByAsi)
             {
-                LifePhase = Civilization::LifePhase::kNewCivilization;
+                LifePhase = Intelli::Standard::LifePhase::kNewCivilization;
             }
         }
 
@@ -183,7 +210,7 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
 
 	auto GenerateRandom2 = [this]() -> float
 	{
-		float Random2 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
+		float Random2 = 0.01f + _CommonGenerator(_RandomEngine) * 0.04f;
 		return Random2;
 	};
 
@@ -377,7 +404,7 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
     {
         CitizenUsedPower    = 0.0;
     }
-    CivilizationData->SetCitizenUsedPower(static_cast<float>(CitizenUsedPower));
+    CivilizationData->SetCitizenUsedPower(CitizenUsedPower);
 
     // 存储的历史总信息量（StoragedHistoryDataSize）
     float StoragedHistoryDataSize = 0.0;
@@ -441,21 +468,26 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
     {
         StoragedHistoryDataSize = 0.0;
     }
-    CivilizationData->SetStoragedHistoryDataSize(static_cast<float>(StoragedHistoryDataSize));
+    CivilizationData->SetStoragedHistoryDataSize(StoragedHistoryDataSize);
 
     // 通用智能个体平均体重（AverageWeight）
     float AverageWeight = Random1 * Random2 * 1e4f;
 
+	// 通用智能个体的数量（GeneralIntelligenceCount）
+    std::uint64_t TotalCount = static_cast<std::uint64_t>(CitizenBiomass.convert_to<float>() / AverageWeight);
+    CivilizationData->SetGeneralintelligenceCount(TotalCount);
+
     // 通用智能个体平均突触数量（GeneralIntelligenceSynapseCount）
-    float AverageSynapses = AverageWeight * std::sqrt(GenerateRandom1()) * 2e13f;
+    float AverageSynapses = std::sqrt(AverageWeight / 50) * std::sqrt(GenerateRandom1()) * 5e14f;
     CivilizationData->SetGeneralIntelligenceSynapseCount(AverageSynapses);
 
     // 通用智能个体平均算力（GeneralIntelligenceAverageSynapseActivationCount）
-    float AverageCompute = AverageSynapses * 50.0f * GenerateRandom1();
+    float AverageCompute = AverageSynapses * 12 * std::sqrt(GenerateRandom2());
     CivilizationData->SetGeneralIntelligenceAverageSynapseActivationCount(AverageCompute);
 
     // 个体平均寿命（GeneralIntelligenceAverageLifetime）
-    float AverageLifetime = std::sqrt(GenerateRandom1()) * 1.6e-13f * (AverageSynapses * AverageSynapses) / AverageCompute;
+    float AverageLifetime = AverageSynapses * (7 + CivilizationData->GetCivilizationProgress()) *
+        std::sqrt(GenerateRandom2() * 2e-13f / AverageCompute);
     CivilizationData->SetGeneralIntelligenceAverageLifetime(AverageLifetime);
 
     // 合作系数（TeamworkCoefficient）
@@ -484,7 +516,7 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
 
     // 最大入轨能力（LaunchCapability）
     double LaunchCapability = 0.0;
-    if (IntegerPart >= 7.0f && IntegerPart <= 8.0f)
+    if (IntegerPart >= 6.0f && IntegerPart <= 8.0f)
     {
         double PlanetMass   = Planet->GetMassDigital<double>();
         double PlanetRadius = Planet->GetRadius();
@@ -498,15 +530,23 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
     double OrbitAssetsMass = 0.0;
     if (LaunchCapability > 0.0)
     {
-        OrbitAssetsMass = GenerateRandom1() * LaunchCapability * (IntegerPart - 6.0f) / TeamworkCoefficient;
+        OrbitAssetsMass = std::sqrt(GenerateRandom1()) * LaunchCapability * (IntegerPart - 6.0f) / TeamworkCoefficient;
     }
+    CivilizationData->SetOrbitAssetsMass(boost::multiprecision::uint128_t(OrbitAssetsMass));
+
+#ifdef DEBUG_OUTPUT
+    std::println("");
+    std::println("");
+#endif // DEBUG_OUTPUT
 }
 
-const std::array<float, 7> CivilizationGenerator::_kProbabilityListForCenoziocEra{
+const std::array<float, 7> CivilizationGenerator::_kProbabilityListForCenoziocEra
+{
 	0.02f, 0.005f, 1e-4f, 1e-6f, 5e-7f, 4e-7f, 1e-6f
 };
 
-const std::array<float, 7> CivilizationGenerator::_kProbabilityListForSatTeeTouyButAsi{
+const std::array<float, 7> CivilizationGenerator::_kProbabilityListForSatTeeTouyButAsi
+{
 	0.2f, 0.05f, 0.001f, 1e-5f, 1e-4f, 1e-4f, 1e-4f
 };
 
