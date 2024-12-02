@@ -148,10 +148,11 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
 {
     const std::array<float, 7>* ProbabilityListPtr = nullptr;
     auto& CivilizationData = Planet->CivilizationData();
-
     auto LifePhase = Planet->CivilizationData()->GetLifePhase();
-    int CivilizationLevel = 0;
-    float LevelProgress = 0.0f;
+
+    int   PrimaryLevel      = 0;
+    float LevelProgress     = 0.0f;
+    float CivilizationLevel = 0.0f;
     if (LifePhase != Intelli::Standard::LifePhase::kCenoziocEra &&
         LifePhase != Intelli::Standard::LifePhase::kSatTeeTouy  &&
         LifePhase != Intelli::Standard::LifePhase::kSatTeeTouyButByAsi)
@@ -177,12 +178,12 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
             CumulativeProbability += (*ProbabilityListPtr)[i];
             if (Random < CumulativeProbability)
             {
-                CivilizationLevel = i + 1;
+                PrimaryLevel = i + 1;
                 break;
             }
         }
 
-        if (CivilizationLevel >= Intelli::Standard::_kDigitalAge)
+        if (PrimaryLevel >= Intelli::Standard::_kDigitalAge)
         {
             if (LifePhase == Intelli::Standard::LifePhase::kCenoziocEra)
             {
@@ -195,7 +196,8 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
         }
 
         LevelProgress = _CommonGenerator(_RandomEngine);
-        CivilizationData->SetCivilizationProgress(static_cast<float>(CivilizationLevel) + LevelProgress);
+        CivilizationLevel = static_cast<float>(PrimaryLevel) + LevelProgress;
+        CivilizationData->SetCivilizationProgress(CivilizationLevel);
     }
 
     CivilizationData->SetLifePhase(LifePhase);
@@ -355,7 +357,7 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
     else if (CivilizationLevel >= Intelli::Standard::_kAtomicAge && CivilizationLevel < Intelli::Standard::_kDigitalAge)
     {
         float Base          = Random1 * 4e12f;
-        float Coefficient   = std::pow(Intelli::Standard::_kElectricAge, LevelProgress);
+        float Coefficient   = std::pow(5.0f, LevelProgress);
         float Result        = Base * Coefficient;
         float Random        = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         CitizenUsedPower    = Result * Random;
@@ -387,7 +389,7 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
     else if (CivilizationLevel >= Intelli::Standard::_kUrgesellschaft && CivilizationLevel < Intelli::Standard::_kEarlyIndustrielle)
     {
         float Base          = Random1 * 1e8f;
-        float Coefficient   = std::pow(Intelli::Standard::_kAtomicAge, LevelProgress);
+        float Coefficient   = std::pow(6.0f, LevelProgress);
         float Result        = Base * Coefficient;
         float Random        = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         CitizenUsedPower    = Result * Random;
