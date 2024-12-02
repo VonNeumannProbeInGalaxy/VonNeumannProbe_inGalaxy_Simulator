@@ -150,8 +150,8 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
     auto& CivilizationData = Planet->CivilizationData();
 
     auto LifePhase = Planet->CivilizationData()->GetLifePhase();
-    int IntegerPart = 0;
-    float FractionalPart = 0.0f;
+    int CivilizationLevel = 0;
+    float LevelProgress = 0.0f;
     if (LifePhase != Intelli::Standard::LifePhase::kCenoziocEra &&
         LifePhase != Intelli::Standard::LifePhase::kSatTeeTouy  &&
         LifePhase != Intelli::Standard::LifePhase::kSatTeeTouyButByAsi)
@@ -177,12 +177,12 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
             CumulativeProbability += (*ProbabilityListPtr)[i];
             if (Random < CumulativeProbability)
             {
-                IntegerPart = i + 1;
+                CivilizationLevel = i + 1;
                 break;
             }
         }
 
-        if (IntegerPart >= 7)
+        if (CivilizationLevel >= Intelli::Standard::_kDigitalAge)
         {
             if (LifePhase == Intelli::Standard::LifePhase::kCenoziocEra)
             {
@@ -194,8 +194,8 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
             }
         }
 
-        FractionalPart = _CommonGenerator(_RandomEngine);
-        CivilizationData->SetCivilizationProgress(static_cast<float>(IntegerPart) + FractionalPart);
+        LevelProgress = _CommonGenerator(_RandomEngine);
+        CivilizationData->SetCivilizationProgress(static_cast<float>(CivilizationLevel) + LevelProgress);
     }
 
     CivilizationData->SetLifePhase(LifePhase);
@@ -219,64 +219,64 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
 
     // 文明生物的总生物量（CitizenBiomass）
     boost::multiprecision::uint128_t CitizenBiomass;
-    if (IntegerPart >= 7.0f && IntegerPart <= 8.0f)
+    if (CivilizationLevel >= Intelli::Standard::_kDigitalAge && CivilizationLevel <= Intelli::Standard::_kEarlyAsiAge)
     {
         double Base        = Random1 * 4e11;
-        double Coefficient = std::pow(100.0, FractionalPart);
+        double Coefficient = std::pow(100.0, LevelProgress);
         double Result      = Base * Coefficient;
         float  Random      = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result            *= Random;
         CitizenBiomass     = boost::multiprecision::uint128_t(Result);
     }
-    else if (IntegerPart >= 6.0f && IntegerPart < 7.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kAtomicAge && CivilizationLevel < Intelli::Standard::_kDigitalAge)
     {
         double Base        = Random1 * 1.15e11;
-        double Coefficient = std::pow(3.47826, FractionalPart);
+        double Coefficient = std::pow(3.47826, LevelProgress);
         double Result      = Base * Coefficient;
         float  Random      = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result            *= Random;
         CitizenBiomass     = boost::multiprecision::uint128_t(Result);
     }
-    else if (IntegerPart >= 5.0f && IntegerPart < 6.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kElectricAge && CivilizationLevel < Intelli::Standard::_kAtomicAge)
     {
         double Base        = Random1 * 5e10;
-        double Coefficient = std::pow(2.3, FractionalPart);
+        double Coefficient = std::pow(2.3, LevelProgress);
         double Result      = Base * Coefficient;
         float  Random      = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result            *= Random;
         CitizenBiomass     = boost::multiprecision::uint128_t(Result);
     }
-    else if (IntegerPart >= 4.0f && IntegerPart < 5.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kSteamAge && CivilizationLevel < Intelli::Standard::_kElectricAge)
     {
         double Base        = Random1 * 3e10;
-        double Coefficient = std::pow(1.66666, FractionalPart);
+        double Coefficient = std::pow(1.66666, LevelProgress);
         double Result      = Base * Coefficient;
         float  Random      = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result            *= Random;
         CitizenBiomass     = boost::multiprecision::uint128_t(Result);
     }
-    else if (IntegerPart >= 3.0f && IntegerPart < 4.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kEarlyIndustrielle && CivilizationLevel < Intelli::Standard::_kSteamAge)
     {
         double Base        = Random1 * 3e8;
-        double Coefficient = std::pow(100.0, FractionalPart);
+        double Coefficient = std::pow(100.0, LevelProgress);
         double Result      = Base * Coefficient;
         float  Random      = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result            *= Random;
         CitizenBiomass     = boost::multiprecision::uint128_t(Result);
     }
-    else if (IntegerPart >= 2.0f && IntegerPart < 3.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kUrgesellschaft && CivilizationLevel < Intelli::Standard::_kEarlyIndustrielle)
     {
         double Base        = Random1 * 5e7;
-        double Coefficient = std::pow(6.0, FractionalPart);
+        double Coefficient = std::pow(6.0, LevelProgress);
         double Result      = Base * Coefficient;
         float  Random      = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result            *= Random;
         CitizenBiomass     = boost::multiprecision::uint128_t(Result);
     }
-    else if (IntegerPart >= 1.0f && IntegerPart < 2.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kInitialGeneralIntelligence && CivilizationLevel < Intelli::Standard::_kUrgesellschaft)
     {
         double Base        = Random1 * 5e6;
-        double Coefficient = std::pow(10.0, FractionalPart);
+        double Coefficient = std::pow(10.0, LevelProgress);
         double Result      = Base * Coefficient;
         float  Random      = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result            *= Random;
@@ -290,46 +290,46 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
 
     // 文明造物总质量（AtrificalStructureMass）
     boost::multiprecision::uint128_t AtrificalStructureMass;
-    if (IntegerPart >= 7.0f && IntegerPart <= 8.0f)
+    if (CivilizationLevel >= Intelli::Standard::_kDigitalAge && CivilizationLevel <= Intelli::Standard::_kEarlyAsiAge)
     {
         double Base            = Random1 * 1e15;
-        double Coefficient     = std::pow(1000.0, FractionalPart);
+        double Coefficient     = std::pow(1000.0, LevelProgress);
         double Result          = Base * Coefficient;
         float  Random          = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result                *= Random;
         AtrificalStructureMass = boost::multiprecision::uint128_t(Result);
     }
-    else if (IntegerPart >= 6.0f && IntegerPart < 7.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kAtomicAge && CivilizationLevel < Intelli::Standard::_kDigitalAge)
     {
         double Base            = Random1 * 6.25e13;
-        double Coefficient     = std::pow(16.0, FractionalPart);
+        double Coefficient     = std::pow(16.0, LevelProgress);
         double Result          = Base * Coefficient;
         float  Random          = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result                *= Random;
         AtrificalStructureMass = boost::multiprecision::uint128_t(Result);
     }
-    else if (IntegerPart >= 5.0f && IntegerPart < 6.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kElectricAge && CivilizationLevel < Intelli::Standard::_kAtomicAge)
     {
         double Base            = Random1 * 1.5e13;
-        double Coefficient     = std::pow(4.16666, FractionalPart);
+        double Coefficient     = std::pow(4.16666, LevelProgress);
         double Result          = Base * Coefficient;
         float  Random          = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result                *= Random;
         AtrificalStructureMass = boost::multiprecision::uint128_t(Result);
     }
-    else if (IntegerPart >= 4.0f && IntegerPart < 5.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kSteamAge && CivilizationLevel < Intelli::Standard::_kElectricAge)
     {
         double Base            = Random1 * 6e12;
-        double Coefficient     = std::pow(2.5, FractionalPart);
+        double Coefficient     = std::pow(2.5, LevelProgress);
         double Result          = Base * Coefficient;
         float  Random          = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result                *= Random;
         AtrificalStructureMass = boost::multiprecision::uint128_t(Result);
     }
-    else if (IntegerPart >= 3.0f && IntegerPart < 4.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kEarlyIndustrielle && CivilizationLevel < Intelli::Standard::_kSteamAge)
     {
         double Base            = Random1 * 6e9;
-        double Coefficient     = std::pow(1000.0, FractionalPart);
+        double Coefficient     = std::pow(1000.0, LevelProgress);
         double Result          = Base * Coefficient;
         float  Random          = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         Result                *= Random;
@@ -343,59 +343,59 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
 
     // 文明总功率（CitizenUsedPower）
     float CitizenUsedPower = 0.0;
-    if (IntegerPart >= 7.0f && IntegerPart <= 8.0f)
+    if (CivilizationLevel >= Intelli::Standard::_kDigitalAge && CivilizationLevel <= Intelli::Standard::_kEarlyAsiAge)
     {
         float Base          = Random1 * 1e13f;
-        float Coefficient   = std::pow(1000.0f, FractionalPart);
+        float Coefficient   = std::pow(1000.0f, LevelProgress);
         float Result        = Base * Coefficient;
         float Pcivilization = std::max(Result, 0.1f * PoyntingVector * kPi * std::pow(Planet->GetRadius(), 2.0f));
         float Random        = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         CitizenUsedPower    = Pcivilization * Random;
     }
-    else if (IntegerPart >= 6.0f && IntegerPart < 7.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kAtomicAge && CivilizationLevel < Intelli::Standard::_kDigitalAge)
     {
         float Base          = Random1 * 4e12f;
-        float Coefficient   = std::pow(5.0f, FractionalPart);
+        float Coefficient   = std::pow(Intelli::Standard::_kElectricAge, LevelProgress);
         float Result        = Base * Coefficient;
         float Random        = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         CitizenUsedPower    = Result * Random;
     }
-    else if (IntegerPart >= 5.0f && IntegerPart < 6.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kElectricAge && CivilizationLevel < Intelli::Standard::_kAtomicAge)
     {
         float Base          = Random1 * 2.5e11f;
-        float Coefficient   = std::pow(16.0f, FractionalPart);
+        float Coefficient   = std::pow(16.0f, LevelProgress);
         float Result        = Base * Coefficient;
         float Random        = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         CitizenUsedPower    = Result * Random;
     }
-    else if (IntegerPart >= 4.0f && IntegerPart < 5.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kSteamAge && CivilizationLevel < Intelli::Standard::_kElectricAge)
     {
         float Base          = Random1 * 6e10f;
-        float Coefficient   = std::pow(4.16666f, FractionalPart);
+        float Coefficient   = std::pow(4.16666f, LevelProgress);
         float Result        = Base * Coefficient;
         float Random        = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         CitizenUsedPower    = Result * Random;
     }
-    else if (IntegerPart >= 3.0f && IntegerPart < 4.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kEarlyIndustrielle && CivilizationLevel < Intelli::Standard::_kSteamAge)
     {
         float Base          = Random1 * 6e8f;
-        float Coefficient   = std::pow(100.0f, FractionalPart);
+        float Coefficient   = std::pow(100.0f, LevelProgress);
         float Result        = Base * Coefficient;
         float Random        = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         CitizenUsedPower    = Result * Random;
     }
-    else if (IntegerPart >= 2.0f && IntegerPart < 3.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kUrgesellschaft && CivilizationLevel < Intelli::Standard::_kEarlyIndustrielle)
     {
         float Base          = Random1 * 1e8f;
-        float Coefficient   = std::pow(6.0f, FractionalPart);
+        float Coefficient   = std::pow(Intelli::Standard::_kAtomicAge, LevelProgress);
         float Result        = Base * Coefficient;
         float Random        = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         CitizenUsedPower    = Result * Random;
     }
-    else if (IntegerPart >= 1.0f && IntegerPart < 2.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kInitialGeneralIntelligence && CivilizationLevel < Intelli::Standard::_kUrgesellschaft)
     {
         float Base          = Random1 * 1e7f;
-        float Coefficient   = std::pow(10.0f, FractionalPart);
+        float Coefficient   = std::pow(10.0f, LevelProgress);
         float Result        = Base * Coefficient;
         float Random        = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         CitizenUsedPower    = Result * Random;
@@ -408,58 +408,58 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
 
     // 存储的历史总信息量（StoragedHistoryDataSize）
     float StoragedHistoryDataSize = 0.0;
-    if (IntegerPart >= 7.2f && IntegerPart <= 8.0f)
+    if (CivilizationLevel >= 7.2f && CivilizationLevel <= Intelli::Standard::_kEarlyAsiAge)
     {
         float Base              = Random1 * 2.5e25f;
-        float Coefficient       = std::pow(10.0f, FractionalPart / 0.2f);
+        float Coefficient       = std::pow(10.0f, LevelProgress / 0.2f);
         float Result            = Base * Coefficient;
         float Random            = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         StoragedHistoryDataSize = Result * Random;
     }
-    else if (IntegerPart >= 7.0f && IntegerPart < 7.2f)
+    else if (CivilizationLevel >= Intelli::Standard::_kDigitalAge && CivilizationLevel < 7.2f)
     {
         float Base              = Random1 * 1e22f;
-        float Coefficient       = std::pow(50.0f, FractionalPart / 0.1f);
+        float Coefficient       = std::pow(50.0f, LevelProgress / 0.1f);
         float Result            = Base * Coefficient;
         float Random            = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         StoragedHistoryDataSize = Result * Random;
     }
-    else if (IntegerPart >= 6.0f && IntegerPart < 7.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kAtomicAge && CivilizationLevel < Intelli::Standard::_kDigitalAge)
     {
         float Base              = Random1 * 1e20f;
-        float Coefficient       = std::pow(100.0f, FractionalPart);
+        float Coefficient       = std::pow(100.0f, LevelProgress);
         float Result            = Base * Coefficient;
         float Random            = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         StoragedHistoryDataSize = Result * Random;
     }
-    else if (IntegerPart >= 5.0f && IntegerPart < 6.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kElectricAge && CivilizationLevel < Intelli::Standard::_kAtomicAge)
     {
         float Base              = Random1 * 5e17f;
-        float Coefficient       = std::pow(200.0f, FractionalPart);
+        float Coefficient       = std::pow(200.0f, LevelProgress);
         float Result            = Base * Coefficient;
         float Random            = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         StoragedHistoryDataSize = Result * Random;
     }
-    else if (IntegerPart >= 4.0f && IntegerPart < 5.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kSteamAge && CivilizationLevel < Intelli::Standard::_kElectricAge)
     {
         float Base              = Random1 * 1e15f;
-        float Coefficient       = std::pow(500.0f, FractionalPart);
+        float Coefficient       = std::pow(500.0f, LevelProgress);
         float Result            = Base * Coefficient;
         float Random            = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         StoragedHistoryDataSize = Result * Random;
     }
-    else if (IntegerPart >= 3.0f && IntegerPart < 4.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kEarlyIndustrielle && CivilizationLevel < Intelli::Standard::_kSteamAge)
     {
         float Base              = Random1 * 1e12f;
-        float Coefficient       = std::pow(1000.0f, FractionalPart);
+        float Coefficient       = std::pow(1000.0f, LevelProgress);
         float Result            = Base * Coefficient;
         float Random            = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         StoragedHistoryDataSize = Result * Random;
     }
-    else if (IntegerPart >= 2.0f && IntegerPart < 3.0f)
+    else if (CivilizationLevel >= Intelli::Standard::_kUrgesellschaft && CivilizationLevel < Intelli::Standard::_kEarlyIndustrielle)
     {
         float Base              = Random1 * 1e10f;
-        float Coefficient       = std::pow(100.0f, FractionalPart);
+        float Coefficient       = std::pow(100.0f, LevelProgress);
         float Result            = Base * Coefficient;
         float Random            = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
         StoragedHistoryDataSize = Result * Random;
@@ -496,14 +496,14 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
 
     // 可用含能核素（UseableEnergeticNuclide）
     boost::multiprecision::uint128_t UseableEnergeticNuclide;
-    if (IntegerPart >= 6.0f && IntegerPart <= 8.0f)
+    if (CivilizationLevel >= Intelli::Standard::_kAtomicAge && CivilizationLevel <= Intelli::Standard::_kEarlyAsiAge)
     {
         double StarAge = Star->GetAge();
-        double Base = Random1 * FractionalPart * 1e9 * 0.63 * std::pow(0.5, StarAge / (8e8));
+        double Base = Random1 * LevelProgress * 1e9 * 0.63 * std::pow(0.5, StarAge / (8e8));
 
-        if (IntegerPart >= 7.0f)
+        if (CivilizationLevel >= Intelli::Standard::_kDigitalAge)
         {
-            double Coefficient = std::pow(1e4, FractionalPart);
+            double Coefficient = std::pow(1e4, LevelProgress);
             Base *= Coefficient;
         }
 
@@ -516,7 +516,7 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
 
     // 最大入轨能力（LaunchCapability）
     double LaunchCapability = 0.0;
-    if (IntegerPart >= 6.0f && IntegerPart <= 8.0f)
+    if (CivilizationLevel >= Intelli::Standard::_kAtomicAge && CivilizationLevel <= Intelli::Standard::_kEarlyAsiAge)
     {
         double PlanetMass   = Planet->GetMassDigital<double>();
         double PlanetRadius = Planet->GetRadius();
@@ -530,7 +530,7 @@ void CivilizationGenerator::GenerateCivilizationDetails(const Astro::Star* Star,
     double OrbitAssetsMass = 0.0;
     if (LaunchCapability > 0.0)
     {
-        OrbitAssetsMass = std::sqrt(GenerateRandom1()) * LaunchCapability * (IntegerPart - 6.0f) / TeamworkCoefficient;
+        OrbitAssetsMass = std::sqrt(GenerateRandom1()) * LaunchCapability * (CivilizationLevel - 6) / TeamworkCoefficient;
     }
     CivilizationData->SetOrbitAssetsMass(boost::multiprecision::uint128_t(OrbitAssetsMass));
 

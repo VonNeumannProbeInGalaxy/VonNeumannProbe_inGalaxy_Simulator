@@ -120,14 +120,14 @@ public:
 
 public:
 	static const float _kNull;
-	static const float _kCarbonBasedGeneralIntelligence;
+	static const float _kInitialGeneralIntelligence;
 	static const float _kUrgesellschaft;
-	static const float _kPrevIndustrielle;
+	static const float _kEarlyIndustrielle;
 	static const float _kSteamAge;
 	static const float _kElectricAge;
 	static const float _kAtomicAge;
 	static const float _kDigitalAge;
-	static const float _kPrevAsiAge;
+	static const float _kEarlyAsiAge;
 
 private:
 	CivilizationProperties _CivilizationProperties;
