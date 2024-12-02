@@ -25,7 +25,7 @@ public:
 	void GenerateCivilization(double StarAge, float PoyntingVector, Astro::Planet* Planet);
 
 private:
-	void GenerateLife(float PoyntingVector, Astro::Planet* Planet);
+	void GenerateLife(double StarAge, float PoyntingVector, Astro::Planet* Planet);
 	void GenerateCivilization(float PoyntingVector, Astro::Planet* Planet);
 
 private:

@@ -1,6 +1,7 @@
 #include "CivilizationGenerator.h"
 
 #include "Engine/Base/Civilization.h"
+#include "Engine/Core/Constants.h"
 
 _NPGS_BEGIN
 _MODULE_BEGIN
@@ -25,36 +26,90 @@ void CivilizationGenerator::GenerateCivilization(double StarAge, float PoyntingV
 		return;
 	}
 
+	Planet->CivilizationData() = std::make_unique<Civilization>();
+
+	GenerateLife(StarAge, PoyntingVector, Planet);
+	GenerateCivilization(PoyntingVector, Planet);
+}
+
+void CivilizationGenerator::GenerateLife(double StarAge, float PoyntingVector, Astro::Planet* Planet)
+{
 	// 计算生命演化阶段
-	float Random1 = 0.5f + _CommonGenerator(_RandomEngine) + 1.5f;
-	auto LifePhase = static_cast<Civilization::LifePhase>(std::min(4, std::max(1, static_cast<int>(Random1 * StarAge / (5e8)))));
+	float Random = 0.5f + _CommonGenerator(_RandomEngine) + 1.5f;
+	auto  LifePhase = static_cast<Civilization::LifePhase>(std::min(4, std::max(1, static_cast<int>(Random * StarAge / (5e8)))));
+	auto* CivilizationData = Planet->CivilizationData().get();
 
 	// 处理生命成矿机制以及 ASI 大过滤器
 	if (LifePhase == Civilization::LifePhase::kCenoziocEra)
 	{
-		float Random2 = 1.0f + _CommonGenerator(_RandomEngine) * 999.0f;
+		Random = 1.0f + _CommonGenerator(_RandomEngine) * 999.0f;
 		if (_AsiFiltedProbability(_RandomEngine))
 		{
 			LifePhase = Civilization::LifePhase::kSatTeeTouyButByAsi; // 被 ASI 去城市化了
-			Planet->SetCrustMineralMass(Random2 * 1e16f + Planet->GetCrustMineralMassFloat());
+			Planet->SetCrustMineralMass(Random * 1e16f + Planet->GetCrustMineralMassFloat());
 		}
 		else
 		{
 			if (_DestroyedByDisasterProbability(_RandomEngine))
 			{
-				LifePhase = Civilization::LifePhase::kSatTeeTouyButByAsi; // 被小行星城市化或者自己玩死了
+				LifePhase = Civilization::LifePhase::kSatTeeTouyButByAsi; // 被天灾去城市化或者自己玩死了
 			}
 			else
 			{
-				Planet->SetCrustMineralMass(Random2 * 1e15f + Planet->GetCrustMineralMassFloat());
+				Planet->SetCrustMineralMass(Random * 1e15f + Planet->GetCrustMineralMassFloat());
 			}
 		}
 	}
 
+	CivilizationData->SetLifePhase(LifePhase);
+
+	// 计算生物量
+	float Scale    = (PoyntingVector / kSolarConstantOfEarth) * (Planet->GetRadius() / kEarthRadius);
+	float Exponent = 0.0f;
+
+	if (LifePhase == Civilization::LifePhase::kLuca)
+	{
+		Random = _CommonGenerator(_RandomEngine);
+		CivilizationData->SetTotalOrganismBiomass(Random * 1e11f * Scale);
+	}
+	else if (LifePhase == Civilization::LifePhase::kGreatOxygenationEvent)
+	{
+		Exponent = -1.0f + _CommonGenerator(_RandomEngine) * 2.0f;
+		Random   = std::pow(10.0f, Exponent);
+		CivilizationData->SetTotalOrganismBiomass(Random * 1e12f * Scale);
+	}
+	else if (LifePhase == Civilization::LifePhase::kMultiCellularLife)
+	{
+		Exponent = _CommonGenerator(_RandomEngine) * 2.0f;
+		Random   = std::pow(10.0f, Exponent);
+		CivilizationData->SetTotalOrganismBiomass(Random * 1e13f * Scale);
+	}
+	else if (LifePhase == Civilization::LifePhase::kCenoziocEra || LifePhase == Civilization::LifePhase::kSatTeeTouyButByAsi)
+	{
+		Exponent = -1.0f + _CommonGenerator(_RandomEngine) * 2.0f;
+		Random   = std::pow(10.0f, Exponent);
+		CivilizationData->SetTotalOrganismBiomass(Random * 1e16f * Scale);
+	}
+	else if (LifePhase == Civilization::LifePhase::kSatTeeTouy || LifePhase == Civilization::LifePhase::kNewCivilization)
+	{
+		Random = _CommonGenerator(_RandomEngine);
+		CivilizationData->SetTotalOrganismBiomass(Random * 1e15f * Scale);
+	}
+
+	if (Planet->GetSpin() < 0) {
+		Random = 0.01f + _CommonGenerator(_RandomEngine) * 0.04f;
+		CivilizationData->SetTotalOrganismBiomass(
+			CivilizationData->GetTotalOrganismBiomass() * boost::multiprecision::uint128_t(Random));
+	}
+}
+
+void CivilizationGenerator::GenerateCivilization(float PoyntingVector, Astro::Planet* Planet)
+{
 	const std::array<float, 7>* ProbabilityListPtr = nullptr;
 	auto& CivilizationData = Planet->CivilizationData();
 	CivilizationData = std::make_unique<Civilization>();
 
+	auto LifePhase = Planet->CivilizationData()->GetLifePhase();
 	int IntegerPart = 0;
 	if (LifePhase != Civilization::LifePhase::kCenoziocEra &&
 		LifePhase != Civilization::LifePhase::kSatTeeTouy  &&
@@ -115,4 +170,3 @@ const std::array<float, 7> CivilizationGenerator::_kProbabilityListForSatTeeTouy
 
 _MODULE_END
 _NPGS_END
-

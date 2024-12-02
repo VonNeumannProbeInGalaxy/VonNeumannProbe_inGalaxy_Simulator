@@ -1,6 +1,3 @@
-#define ENABLE_LOGGER
-// #include "Npgs.h"
-
 #include <xstdafx.h>
 #define ENABLE_CONSOLE_LOGGER
 #include "Npgs.h"
@@ -95,14 +92,14 @@ int main() {
 
     //auto* p = ThreadPool::GetInstance();
 
-    og.GenerateOrbitals(ss);
+    //og.GenerateOrbitals(ss);
 
     // -------------------------------------------
 
     //std::vector<StellarSystem> sss(200000);
 
     //auto start = std::chrono::high_resolution_clock::now();
-    //for (int i = 0; i != 200000; ++i) {
+    //for (int i = 0; i != 2000; ++i) {
     //    try {
     //        sss[i].StarData().emplace_back(std::make_unique<Astro::Star>(s1));
     //        og.GenerateOrbitals(sss[i]);

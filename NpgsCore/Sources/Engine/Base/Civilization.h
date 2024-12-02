@@ -17,7 +17,7 @@ public:
 		kMultiCellularLife     = 3,
 		kCenoziocEra           = 4,
 		kSatTeeTouy            = 5, // 被土著去城市化了
-		kSatTeeTouyButByAsi    = 6, // 土著被 ASI (Artifical Stupid Idiot) 图图了
+		kSatTeeTouyButByAsi    = 6, // 土著被 Artifical Stupid Idiot 图图了
 		kNewCivilization       = 7,
 	};
 

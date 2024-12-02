@@ -16,6 +16,8 @@ inline constexpr int   kSolarTeff              = 5772;
 inline constexpr int   kSolarCoreTemp          = 15700000;
 inline constexpr float kSolarAbsoluteMagnitude = 4.83f;
 
+inline constexpr int   kSolarConstantOfEarth   = 1361;
+
 inline constexpr float kJupiterMass            = 1.8982e27f;
 inline constexpr int   kJupiterRadius          = 69911000;
 

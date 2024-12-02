@@ -675,15 +675,16 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 			auto LowerPhaseChanges = FindPhaseChanges(LowerData);
 			auto UpperPhaseChanges = FindPhaseChanges(UpperData);
 
-			if (Util::Equal(TargetAge, -1.0))
-			{ // 年龄为 -1.0 代表要生成濒死恒星
+			if (Util::Equal(TargetAge, -1.0)) // 年龄为 -1.0 代表要生成濒死恒星
+			{
 				double LowerLifetime = LowerPhaseChanges.back()[_kStarAgeIndex];
 				double UpperLifetime = UpperPhaseChanges.back()[_kStarAgeIndex];
 				double Lifetime = LowerLifetime + (UpperLifetime - LowerLifetime) * MassCoefficient;
 				TargetAge = Lifetime - 500000;
 			}
 
-			std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair{
+			std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>> PhaseChangePair
+			{
 				LowerPhaseChanges,
 				UpperPhaseChanges
 			};
