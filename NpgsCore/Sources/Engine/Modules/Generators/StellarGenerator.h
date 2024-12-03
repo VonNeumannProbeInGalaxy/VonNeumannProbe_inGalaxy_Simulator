@@ -20,7 +20,7 @@
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-class StellarGenerator
+class NPGS_API StellarGenerator
 {
 public:
 	using MistData   = Asset::Csv<double, 12>;

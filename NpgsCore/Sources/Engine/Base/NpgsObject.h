@@ -4,7 +4,7 @@
 
 _NPGS_BEGIN
 
-class NpgsObject
+class NPGS_API NpgsObject
 {
 public:
 	NpgsObject() = default;

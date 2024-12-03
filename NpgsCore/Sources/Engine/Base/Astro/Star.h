@@ -13,7 +13,7 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-class Star : public CelestialBody
+class NPGS_API Star : public CelestialBody
 {
 public:
 	enum class EvolutionPhase : int

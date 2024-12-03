@@ -97,6 +97,7 @@ inline Planet& Planet::SetAtmosphereMassEnergeticNuclide(float AtmosphereMassEne
 inline Planet& Planet::SetAtmosphereMassEnergeticNuclide(const boost::multiprecision::uint128_t& AtmosphereMassEnergeticNuclide)
 {
 	_PlanetExtraProperties.AtmosphereMass.EnergeticNuclide = AtmosphereMassEnergeticNuclide;
+	return *this;
 }
 
 inline Planet& Planet::SetCoreMassZ(float CoreMassZ)

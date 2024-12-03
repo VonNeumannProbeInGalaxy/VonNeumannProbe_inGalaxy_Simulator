@@ -16,7 +16,7 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-class StellarSystem : public NpgsObject
+class NPGS_API StellarSystem : public NpgsObject
 {
 public:
 	struct BaryCenter : public NpgsObject

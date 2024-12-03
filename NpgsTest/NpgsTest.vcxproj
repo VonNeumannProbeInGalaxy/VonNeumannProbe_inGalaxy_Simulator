@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{A3A96004-FD3B-4D24-B61A-26DFFCE12120}</ProjectGuid>
-    <RootNamespace>BlankProject</RootNamespace>
+    <ProjectGuid>{9714c287-47e9-4c88-b209-b0ca9c414bab}</ProjectGuid>
+    <RootNamespace>NpgsTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -40,13 +40,13 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -102,14 +102,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NPGS_DLL_EXPORT;NPGS_DLL_EXPORT_BUILD;NPGS_DLL_EXPORT_BUILD_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NPGS_DLL_EXPORT;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\$(ProjectName)\Sources</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\$(ProjectName)\Sources;$(SolutionDir)\NpgsCore\Sources</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,80 +121,29 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NPGS_DLL_EXPORT;NPGS_DLL_EXPORT_BUILD;NPGS_DLL_EXPORT_BUILDNDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NPGS_DLL_EXPORT;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\$(ProjectName)\Sources</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\$(ProjectName)\Sources;$(SolutionDir)\NpgsCore\Sources</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\Engine\Base\Intelli\Artifact.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Astro\CelestialObject.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Astro\Planet.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Astro\Star.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Intelli\Civilization.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Astro\StellarSystem.cpp" />
-    <ClCompile Include="Sources\Engine\AssetLoader\AssetManager.cpp" />
-    <ClCompile Include="Sources\Engine\Utilities\Logger.cpp" />
-    <ClCompile Include="Sources\Engine\Modules\Generators\CivilizationGenerator.cpp" />
-    <ClCompile Include="Sources\Engine\Modules\Generators\OrbitalGenerator.cpp" />
-    <ClCompile Include="Sources\Engine\Utilities\StellarClass.cpp" />
-    <ClCompile Include="Sources\Engine\Modules\Generators\StellarGenerator.cpp" />
-    <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Universe.cpp" />
-    <ClCompile Include="Sources\Engine\Utilities\Utilities.cpp" />
+    <ProjectReference Include="..\NpgsCore\NpgsCore.vcxproj">
+      <Project>{a3a96004-fd3b-4d24-b61a-26dffce12120}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="Sources\main.cpp" />
-    <ClCompile Include="Sources\stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Sources\Engine\Base\Intelli\Artifact.h" />
-    <ClInclude Include="Sources\Engine\Base\Astro\CelestialObject.h" />
-    <ClInclude Include="Sources\Engine\Base\Astro\Planet.h" />
-    <ClInclude Include="Sources\Engine\Base\Astro\Star.h" />
-    <ClInclude Include="Sources\Engine\Base\Intelli\Civilization.h" />
-    <ClInclude Include="Sources\Engine\Base\NpgsObject.h" />
-    <ClInclude Include="Sources\Engine\Core\Octree.hpp" />
-    <ClInclude Include="Sources\Engine\Base\Astro\StellarSystem.h" />
-    <ClInclude Include="Sources\Engine\Core\Assert.h" />
-    <ClInclude Include="Sources\Engine\AssetLoader\AssetManager.h" />
-    <ClInclude Include="Sources\Engine\AssetLoader\Csv.hpp" />
-    <ClInclude Include="Sources\Engine\Core\Base.h" />
-    <ClInclude Include="Sources\Engine\Core\Constants.h" />
-    <ClInclude Include="Sources\Engine\Utilities\Logger.h" />
-    <ClInclude Include="Sources\Engine\Modules\Generators\CivilizationGenerator.h" />
-    <ClInclude Include="Sources\Engine\Modules\Generators\OrbitalGenerator.h" />
-    <ClInclude Include="Sources\Engine\Utilities\StellarClass.h" />
-    <ClInclude Include="Sources\Engine\Modules\Generators\StellarGenerator.h" />
-    <ClInclude Include="Sources\Engine\Utilities\Random.hpp" />
-    <ClInclude Include="Sources\Engine\Core\ThreadPool.h" />
-    <ClInclude Include="Sources\Engine\Core\Universe.h" />
-    <ClInclude Include="Sources\Engine\Utilities\Utilities.h" />
-    <ClInclude Include="Sources\Npgs.h" />
-    <ClInclude Include="Sources\stdafx.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Sources\Engine\Base\Astro\CelestialObject.inl" />
-    <None Include="Sources\Engine\Base\Astro\Planet.inl" />
-    <None Include="Sources\Engine\Base\Astro\Star.inl" />
-    <None Include="Sources\Engine\Base\Intelli\Civilization.inl" />
-    <None Include="Sources\Engine\Base\Astro\StellarSystem.inl" />
-    <None Include="Sources\Engine\Utilities\StellarClass.inl" />
-    <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

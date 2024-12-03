@@ -15,7 +15,7 @@
 
 _NPGS_BEGIN
 
-class ThreadPool
+class NPGS_API ThreadPool
 {
 public:
 	template <typename Func, typename... Args>

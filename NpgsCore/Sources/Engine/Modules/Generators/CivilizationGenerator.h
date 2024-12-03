@@ -12,7 +12,7 @@
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-class CivilizationGenerator
+class NPGS_API CivilizationGenerator
 {
 public:
 	CivilizationGenerator() = delete;

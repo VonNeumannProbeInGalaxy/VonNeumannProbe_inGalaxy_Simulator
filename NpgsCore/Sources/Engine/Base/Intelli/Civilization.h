@@ -8,7 +8,7 @@
 _NPGS_BEGIN
 _INTELLI_BEGIN
 
-class Standard : public NpgsObject
+class NPGS_API Standard : public NpgsObject
 {
 public:
 	enum class LifePhase : int

@@ -21,12 +21,12 @@ enum class AssetType
 	kTexture
 };
 
-std::string GetAssetFilepath(AssetType Type, const std::string& Filename);
+NPGS_API std::string GetAssetFilepath(AssetType Type, const std::string& Filename);
 
 template <typename AssetType>
 concept Copyable = std::copyable<AssetType>;
 
-class AssetManager
+class NPGS_API AssetManager
 {
 public:
 	AssetManager() = default;
