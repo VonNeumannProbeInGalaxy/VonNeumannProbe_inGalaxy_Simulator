@@ -39,9 +39,6 @@
     <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Sources\Engine\Base\Astro\StellarSystem.cpp">
       <Filter>源文件</Filter>
     </ClCompile>

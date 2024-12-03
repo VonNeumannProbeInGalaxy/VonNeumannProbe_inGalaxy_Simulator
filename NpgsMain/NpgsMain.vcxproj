@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{9714c287-47e9-4c88-b209-b0ca9c414bab}</ProjectGuid>
-    <RootNamespace>NpgsTest</RootNamespace>
+    <ProjectGuid>{45a88e34-c69a-472a-86d1-463918407c05}</ProjectGuid>
+    <RootNamespace>NpgsMain</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -102,13 +102,14 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NPGS_DLL_EXPORT;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_NPGS_DLL_EXPORT_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\$(ProjectName)\Sources;$(SolutionDir)\NpgsCore\Sources</AdditionalIncludeDirectories>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,20 +122,22 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NPGS_DLL_EXPORT;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_NPGS_DLL_EXPORTNDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\$(ProjectName)\Sources;$(SolutionDir)\NpgsCore\Sources</AdditionalIncludeDirectories>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -143,7 +146,33 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\Engine\AssetLoader\GetAssetFilepath.cpp" />
+    <ClCompile Include="Sources\Engine\AssetLoader\Mesh.cpp" />
+    <ClCompile Include="Sources\Engine\AssetLoader\Model.cpp" />
+    <ClCompile Include="Sources\Engine\AssetLoader\Shader.cpp" />
+    <ClCompile Include="Sources\Engine\AssetLoader\Texture.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Camera.cpp" />
     <ClCompile Include="Sources\main.cpp" />
+    <ClCompile Include="Sources\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Sources\Engine\AssetLoader\GetAssetFilepath.h" />
+    <ClInclude Include="Sources\Engine\AssetLoader\Mesh.h" />
+    <ClInclude Include="Sources\Engine\AssetLoader\Model.h" />
+    <ClInclude Include="Sources\Engine\AssetLoader\Shader.h" />
+    <ClInclude Include="Sources\Engine\AssetLoader\Texture.h" />
+    <ClInclude Include="Sources\Engine\Core\Camera.h" />
+    <ClInclude Include="Sources\stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Sources\Engine\AssetLoader\Mesh.inl" />
+    <None Include="Sources\Engine\AssetLoader\Model.inl" />
+    <None Include="Sources\Engine\AssetLoader\Shader.inl" />
+    <None Include="Sources\Engine\AssetLoader\Texture.inl" />
+    <None Include="Sources\Engine\Core\Camera.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
