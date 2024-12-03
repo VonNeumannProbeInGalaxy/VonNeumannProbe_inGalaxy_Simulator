@@ -11,6 +11,7 @@ _ASSET_BEGIN
 enum class AssetType
 {
 	kBinaryShader, // 二进制着色器程序
+	kDataTable,    // 数据表
 	kFont,         // 字体
 	kModel,        // 模型
 	kShader,       // 着色器

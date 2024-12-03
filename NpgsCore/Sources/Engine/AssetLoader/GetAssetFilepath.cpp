@@ -21,6 +21,8 @@ std::string GetAssetFilepath(AssetType Type, const std::string& Filename)
 		{
 		case AssetType::kBinaryShader:
 			return "Cache/Shaders/";
+		case AssetType::kDataTable:
+			return "DataTables/";
 		case AssetType::kFont:
 			return "Fonts/";
 		case AssetType::kModel:
