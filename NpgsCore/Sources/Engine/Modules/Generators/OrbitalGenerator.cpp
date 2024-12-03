@@ -628,7 +628,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex,
 			float CurrentLuminosity  = static_cast<float>(Current->GetLuminosity());
 			float TheOtherLuminoisty = static_cast<float>(TheOther->GetLuminosity());
 
-			HabitableZoneAu.first = std::sqrt(CurrentLuminosity  / 
+			HabitableZoneAu.first  = std::sqrt(CurrentLuminosity / 
 				(4 * kPi * (3000 - TheOtherLuminoisty / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
 			HabitableZoneAu.second = std::sqrt(CurrentLuminosity /
 				(4 * kPi * (600  - TheOtherLuminoisty / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
