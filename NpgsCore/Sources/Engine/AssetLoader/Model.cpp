@@ -9,13 +9,16 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
-#include "GetAssetFilepath.h"
-#include "Texture.h"
+#include "Engine/AssetLoader/GetAssetFilepath.h"
+#include "Engine/AssetLoader/Texture.h"
+
+_NPGS_BEGIN
+_ASSET_BEGIN
 
 Model::Model(const std::string& Filename)
 {
 	Assimp::Importer Loader;
-	std::string Filepath = GetAssetFilepath(AssetType::kModel, Filename);
+	std::string Filepath = GetAssetFilepath(Asset::AssetType::kModel, Filename);
 	const aiScene* Scene = Loader.ReadFile(Filepath, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
 										   aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	if (!Scene || Scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode)
@@ -119,7 +122,7 @@ std::unique_ptr<Mesh> Model::ProcessMesh(const aiMesh* Mesh, const aiScene* Scen
 	std::vector<Mesh::Texture> HeightMaps = LoadMaterialTextures(Material, aiTextureType_AMBIENT, "iHeightTex");
 	Textures.insert(Textures.end(), HeightMaps.begin(), HeightMaps.end());
 
-	return std::make_unique<::Mesh>(Vertices, Indices, Textures);
+	return std::make_unique<Asset::Mesh>(Vertices, Indices, Textures);
 }
 
 std::vector<Mesh::Texture> Model::LoadMaterialTextures(const aiMaterial* Material, const aiTextureType& TextureType, const std::string& TypeName)
@@ -146,7 +149,7 @@ std::vector<Mesh::Texture> Model::LoadMaterialTextures(const aiMaterial* Materia
 		if (!bSkipLoading)
 		{
 			std::string ImageFilepath = _Directory + '/' + ImageFilename.C_Str();
-			MaterialTexture.Data = std::make_shared<::Texture>(::Texture::Type::k2D, ImageFilepath, GL_TRUE, GL_TRUE, GL_FALSE);
+			MaterialTexture.Data = std::make_shared<Asset::Texture>(Asset::Texture::Type::k2D, ImageFilepath, GL_TRUE, GL_TRUE, GL_FALSE);
 			MaterialTexture.TypeName = TypeName;
 			MaterialTexture.ImageFilename = ImageFilename.C_Str();
 			Textures.emplace_back(MaterialTexture);
@@ -156,3 +159,6 @@ std::vector<Mesh::Texture> Model::LoadMaterialTextures(const aiMaterial* Materia
 
 	return Textures;
 }
+
+_ASSET_END
+_NPGS_END

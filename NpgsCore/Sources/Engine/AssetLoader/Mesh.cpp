@@ -2,6 +2,9 @@
 
 #include <cstddef>
 
+_NPGS_BEGIN
+_ASSET_BEGIN
+
 Mesh::Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices, const std::vector<Texture>& Textures)
 	: _Indices(Indices), _Textures(Textures), _VertexArray(0)
 {
@@ -81,3 +84,6 @@ GLvoid Mesh::Draw(const Shader& ModelShader) const
 	glDrawElements(GL_TRIANGLES, static_cast<GLuint>(_Indices.size()), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
+
+_ASSET_END
+_NPGS_END

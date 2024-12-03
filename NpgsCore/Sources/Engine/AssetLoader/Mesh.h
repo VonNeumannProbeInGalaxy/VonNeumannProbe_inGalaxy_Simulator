@@ -8,19 +8,23 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "Shader.h"
-#include "Texture.h"
+#include "Engine/AssetLoader/Shader.h"
+#include "Engine/AssetLoader/Texture.h"
+#include "Engine/Core/Base.h"
+
+_NPGS_BEGIN
+_ASSET_BEGIN
 
 const GLint kMaxBoneInfluence = 4;
 
 // @brief Mesh 网格类，用于加载和绘制网格模型。
 //        该类不会手动调用，故省略注释。
-class Mesh
+class NPGS_API Mesh
 {
 public:
 	struct Texture
 	{
-		std::shared_ptr<const ::Texture> Data;
+		std::shared_ptr<const Asset::Texture> Data;
 		std::string TypeName;
 		std::string ImageFilename;
 	};
@@ -53,5 +57,8 @@ private:
 	std::vector<Texture> _Textures;
 	GLuint               _VertexArray;
 };
+
+_ASSET_END
+_NPGS_END
 
 #include "Mesh.inl"

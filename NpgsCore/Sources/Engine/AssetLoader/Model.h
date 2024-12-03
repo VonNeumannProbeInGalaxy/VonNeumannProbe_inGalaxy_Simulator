@@ -8,8 +8,12 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "Mesh.h"
-#include "Shader.h"
+#include "Engine/AssetLoader/Mesh.h"
+#include "Engine/AssetLoader/Shader.h"
+#include "Engine/Core/Base.h"
+
+_NPGS_BEGIN
+_ASSET_BEGIN
 
 // @brief 模型类，用于加载和渲染模型。
 class Model
@@ -36,5 +40,8 @@ private:
 	std::vector<std::unique_ptr<Mesh>> _Meshes;
 	std::string                        _Directory;
 };
+
+_ASSET_END
+_NPGS_END
 
 #include "Model.inl"

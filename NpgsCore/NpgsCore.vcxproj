@@ -141,6 +141,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\Engine\AssetLoader\GetAssetFilepath.cpp" />
+    <ClCompile Include="Sources\Engine\AssetLoader\Mesh.cpp" />
+    <ClCompile Include="Sources\Engine\AssetLoader\Model.cpp" />
+    <ClCompile Include="Sources\Engine\AssetLoader\Shader.cpp" />
+    <ClCompile Include="Sources\Engine\AssetLoader\Texture.cpp" />
     <ClCompile Include="Sources\Engine\Base\Intelli\Artifact.cpp" />
     <ClCompile Include="Sources\Engine\Base\Astro\CelestialObject.cpp" />
     <ClCompile Include="Sources\Engine\Base\Astro\Planet.cpp" />
@@ -162,6 +167,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\Engine\AssetLoader\GetAssetFilepath.h" />
+    <ClInclude Include="Sources\Engine\AssetLoader\Mesh.h" />
+    <ClInclude Include="Sources\Engine\AssetLoader\Model.h" />
+    <ClInclude Include="Sources\Engine\AssetLoader\Shader.h" />
+    <ClInclude Include="Sources\Engine\AssetLoader\Texture.h" />
     <ClInclude Include="Sources\Engine\Base\Intelli\Artifact.h" />
     <ClInclude Include="Sources\Engine\Base\Astro\CelestialObject.h" />
     <ClInclude Include="Sources\Engine\Base\Astro\Planet.h" />
@@ -188,6 +198,10 @@
     <ClInclude Include="Sources\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Sources\Engine\AssetLoader\Mesh.inl" />
+    <None Include="Sources\Engine\AssetLoader\Model.inl" />
+    <None Include="Sources\Engine\AssetLoader\Shader.inl" />
+    <None Include="Sources\Engine\AssetLoader\Texture.inl" />
     <None Include="Sources\Engine\Base\Astro\CelestialObject.inl" />
     <None Include="Sources\Engine\Base\Astro\Planet.inl" />
     <None Include="Sources\Engine\Base\Astro\Star.inl" />

@@ -7,14 +7,17 @@
 #include <iterator>
 #include <print>
 
-#include "GetAssetFilepath.h"
+#include "Engine/AssetLoader/GetAssetFilepath.h"
+
+_NPGS_BEGIN
+_ASSET_BEGIN
 
 Shader::Shader() : _ShaderTypes{ GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER }, _Program(0) {}
 
 Shader::Shader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros)
 	: _ShaderTypes{ GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER }, _Program(0)
 {
-	std::string ProgramCache = GetAssetFilepath(AssetType::kBinaryShader, ProgramName + ".bin");
+	std::string ProgramCache = GetAssetFilepath(Asset::AssetType::kBinaryShader, ProgramName + ".bin");
 	if (ProgramName != "")
 	{
 		std::filesystem::path ProgramCachePath(ProgramCache);
@@ -29,7 +32,7 @@ Shader::Shader(const std::vector<std::string>& SourceFiles, const std::string& P
 	std::vector<Source> ShaderSources;
 	for (const auto& kSourceFile : SourceFiles)
 	{
-		ShaderSources.emplace_back(LoadShaderSource(GetAssetFilepath(AssetType::kShader, kSourceFile)));
+		ShaderSources.emplace_back(LoadShaderSource(GetAssetFilepath(Asset::AssetType::kShader, kSourceFile)));
 	}
 
 	if (Macros.front() != "NULL")
@@ -267,3 +270,6 @@ GLvoid Shader::CheckLinkError() const
 		std::exit(EXIT_FAILURE);
 	}
 }
+
+_ASSET_END
+_NPGS_END

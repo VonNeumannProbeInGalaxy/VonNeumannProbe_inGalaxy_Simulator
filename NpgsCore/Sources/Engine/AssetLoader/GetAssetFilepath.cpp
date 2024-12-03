@@ -1,8 +1,13 @@
 #pragma warning(disable : 4715)
 
 #include "GetAssetFilepath.h"
-#include <cassert>
+#include "Engine/Core/Assert.h"
 
+_NPGS_BEGIN
+_ASSET_BEGIN
+
+#pragma warning(push)
+#pragma warning(disable : 4715)
 std::string GetAssetFilepath(AssetType Type, const std::string& Filename)
 {
 	std::string RootFolderName = Type == AssetType::kBinaryShader ? "" : "Assets/";
@@ -25,9 +30,13 @@ std::string GetAssetFilepath(AssetType Type, const std::string& Filename)
 		case AssetType::kTexture:
 			return "Textures/";
 		default:
-			assert(GL_FALSE);
+			NpgsAssert(false, "Invalid asset type");
 		}
 	}();
 
 	return RootFolderName + AssetFolderName + Filename;
 }
+#pragma warning(pop)
+
+_ASSET_END
+_NPGS_END

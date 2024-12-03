@@ -1,6 +1,10 @@
 #pragma once
 
 #include <string>
+#include "Engine/Core/Base.h"
+
+_NPGS_BEGIN
+_ASSET_BEGIN
 
 // @enum AssetType 资产类型
 // @brief 枚举不同类型的资产。
@@ -18,3 +22,6 @@ enum class AssetType
 // @param Filename 文件名。
 // @return 资产文件的路径。
 std::string GetAssetFilepath(AssetType Type, const std::string& Filename);
+
+_ASSET_END
+_NPGS_END

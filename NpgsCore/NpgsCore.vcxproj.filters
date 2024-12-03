@@ -63,6 +63,21 @@
     <ClCompile Include="Sources\Engine\Base\Intelli\Artifact.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\AssetLoader\Mesh.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\AssetLoader\Model.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\AssetLoader\Shader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\AssetLoader\Texture.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\AssetLoader\GetAssetFilepath.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Core\Assert.h">
@@ -137,6 +152,21 @@
     <ClInclude Include="Sources\Engine\Base\Intelli\Artifact.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Engine\AssetLoader\Mesh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\AssetLoader\Model.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\AssetLoader\Shader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\AssetLoader\Texture.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\AssetLoader\GetAssetFilepath.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\Astro\CelestialObject.inl">
@@ -158,6 +188,18 @@
       <Filter>头文件</Filter>
     </None>
     <None Include="Sources\Engine\Utilities\StellarClass.inl">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Sources\Engine\AssetLoader\Mesh.inl">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Sources\Engine\AssetLoader\Model.inl">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Sources\Engine\AssetLoader\Shader.inl">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Sources\Engine\AssetLoader\Texture.inl">
       <Filter>头文件</Filter>
     </None>
   </ItemGroup>

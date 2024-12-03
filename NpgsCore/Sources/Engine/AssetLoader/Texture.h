@@ -6,7 +6,10 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "Shader.h"
+#include "Engine/AssetLoader/Shader.h"
+
+_NPGS_BEGIN
+_ASSET_BEGIN
 
 // @brief 纹理类，用于创建各种不同的纹理。
 class Texture
@@ -93,5 +96,8 @@ private:
 	GLuint _Texture;
 	Type   _TextureType;
 };
+
+_ASSET_END
+_NPGS_END
 
 #include "Texture.inl"

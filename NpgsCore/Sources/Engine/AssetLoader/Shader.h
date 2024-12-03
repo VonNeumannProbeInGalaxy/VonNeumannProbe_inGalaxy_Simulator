@@ -7,6 +7,11 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "Engine/Core/Base.h"
+
+_NPGS_BEGIN
+_ASSET_BEGIN
+
 // @brief 着色器类，用于从 GLSL 代码文件或二进制着色器程序文件加载并创建着色器程序。
 //        支持 #include 指令，支持在加载的同时插入宏。
 class Shader
@@ -68,5 +73,8 @@ private:
 	std::vector<GLenum>   _ShaderTypes;
 	GLuint                _Program;
 };
+
+_ASSET_END
+_NPGS_END
 
 #include "Shader.inl"

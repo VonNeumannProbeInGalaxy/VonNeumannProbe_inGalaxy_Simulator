@@ -7,21 +7,11 @@
 #include <vector>
 
 #include "Engine/AssetLoader/Csv.hpp"
+#include "Engine/AssetLoader/GetAssetFilepath.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
 _ASSET_BEGIN
-
-enum class AssetType
-{
-	kBinaryShader,
-	kFont,
-	kModel,
-	kShader,
-	kTexture
-};
-
-NPGS_API std::string GetAssetFilepath(AssetType Type, const std::string& Filename);
 
 template <typename AssetType>
 concept Copyable = std::copyable<AssetType>;
