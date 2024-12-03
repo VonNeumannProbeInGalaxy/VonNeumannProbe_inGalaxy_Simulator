@@ -8,6 +8,10 @@
 
 #include "Engine/AssetLoader/Csv.hpp"
 #include "Engine/AssetLoader/GetAssetFilepath.h"
+#include "Engine/AssetLoader/Mesh.h"
+#include "Engine/AssetLoader/Model.h"
+#include "Engine/AssetLoader/Shader.h"
+#include "Engine/AssetLoader/Texture.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN

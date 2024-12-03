@@ -153,6 +153,7 @@
     <ClCompile Include="Sources\Engine\Base\Intelli\Civilization.cpp" />
     <ClCompile Include="Sources\Engine\Base\Astro\StellarSystem.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\AssetManager.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Camera.cpp" />
     <ClCompile Include="Sources\Engine\Utilities\Logger.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\CivilizationGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\OrbitalGenerator.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="Sources\Engine\Base\Astro\Star.h" />
     <ClInclude Include="Sources\Engine\Base\Intelli\Civilization.h" />
     <ClInclude Include="Sources\Engine\Base\NpgsObject.h" />
+    <ClInclude Include="Sources\Engine\Core\Camera.h" />
     <ClInclude Include="Sources\Engine\Core\Octree.hpp" />
     <ClInclude Include="Sources\Engine\Base\Astro\StellarSystem.h" />
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
@@ -207,6 +209,7 @@
     <None Include="Sources\Engine\Base\Astro\Star.inl" />
     <None Include="Sources\Engine\Base\Intelli\Civilization.inl" />
     <None Include="Sources\Engine\Base\Astro\StellarSystem.inl" />
+    <None Include="Sources\Engine\Core\Camera.inl" />
     <None Include="Sources\Engine\Utilities\StellarClass.inl" />
     <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />
   </ItemGroup>
