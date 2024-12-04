@@ -1,13 +1,17 @@
 #version 460 core
 
 layout(location = 0) in vec3 Position;
-layout(location = 1) in vec3 Color;
-layout(location = 2) in vec2 InTexCoord;
+layout(location = 1) in vec2 InTexCoord;
 
 out vec2 TexCoord;
+
+uniform mat4x4 iModel;
+uniform mat4x4 iView;
+uniform mat4x4 iProjection;
 
 void main()
 {
 	TexCoord = InTexCoord;
-	gl_Position = vec4(Position, 1.0);
+	mat4x4 MvpMatrix = iProjection * iView * iModel;
+	gl_Position = MvpMatrix * vec4(Position, 1.0);
 }

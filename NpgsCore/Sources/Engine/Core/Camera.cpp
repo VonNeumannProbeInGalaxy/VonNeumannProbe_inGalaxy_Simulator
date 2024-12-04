@@ -1,14 +1,15 @@
 #pragma warning(disable : 4715)
 
 #include "Camera.h"
-#include <cassert>
+#include "Engine/Core/Assert.h"
 
-Camera::Camera(const glm::vec3& Position, const glm::vec3& WorldUp, GLfloat Pitch, GLfloat Yaw) :
+_NPGS_BEGIN
+
+Camera::Camera(const glm::vec3& Position, const glm::vec3& WorldUp) :
+	_Orientation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f)),
 	_Position(Position),
 	_Front(kFront),
 	_WorldUp(WorldUp),
-	_Pitch(Pitch),
-	_Yaw(Yaw),
 	_Sensitivity(kSensitivity),
 	_Speed(kSpeed),
 	_Zoom(kZoom)
@@ -29,61 +30,69 @@ const glm::vec3& Camera::GetCameraVector(VectorType Type) const
 	case VectorType::kRight:
 		return _Right;
 	default:
-		assert(GL_FALSE);
+		NpgsAssert(false, "Invalid vector type");
 	}
 }
 
-GLvoid Camera::ProcessKeyboard(Movement Direction, GLdouble DeltaTime)
+void Camera::ProcessKeyboard(Movement Direction, double DeltaTime)
 {
-	GLfloat Velocity = static_cast<GLfloat>(_Speed * DeltaTime);
+    float Velocity = static_cast<float>(_Speed * DeltaTime);
 
-	switch (Direction)
-	{
-	case Movement::kForward:
-		_Position += _Front * Velocity;
-		break;
-	case Movement::kBack:
-		_Position -= _Front * Velocity;
-		break;
-	case Movement::kLeft:
-		_Position -= _Right * Velocity;
-		break;
-	case Movement::kRight:
-		_Position += _Right * Velocity;
-		break;
-	case Movement::kUp:
-		_Position += _Up    * Velocity;
-		break;
-	case Movement::kDown:
-		_Position -= _Up    * Velocity;
-		break;
-	}
+    switch (Direction)
+    {
+    case Movement::kForward:
+        _Position += _Front * Velocity;
+        break;
+    case Movement::kBack:
+        _Position -= _Front * Velocity;
+        break;
+    case Movement::kLeft:
+        _Position -= _Right * Velocity;
+        break;
+    case Movement::kRight:
+        _Position += _Right * Velocity;
+        break;
+    case Movement::kUp:
+        _Position += _Up * Velocity;
+        break;
+    case Movement::kDown:
+        _Position -= _Up * Velocity;
+        break;
+    case Movement::kRollLeft:
+    {
+        float RollAngle = glm::radians(10.0f * Velocity);
+        glm::quat RollQuat = glm::angleAxis(RollAngle, _Front);
+        // 预先乘以 RollQuat 以确保一致的旋转顺序
+        _Orientation = glm::normalize(RollQuat * _Orientation);
+        break;
+    }
+    case Movement::kRollRight:
+    {
+        float RollAngle = glm::radians(-10.0f * Velocity);
+        glm::quat RollQuat = glm::angleAxis(RollAngle, _Front);
+        // 预先乘以 RollQuat 以确保一致的旋转顺序
+        _Orientation = glm::normalize(RollQuat * _Orientation);
+        break;
+    }
+    }
 
-	UpdateVectors();
+    UpdateVectors();
 }
 
-GLvoid Camera::ProcessMouseMovement(GLdouble OffsetX, GLdouble OffsetY, GLboolean ConstrainPitch)
+void Camera::ProcessMouseMovement(double OffsetX, double OffsetY, bool)
 {
-	_Pitch += static_cast<GLfloat>(OffsetY * _Sensitivity);
-	_Yaw   += static_cast<GLfloat>(OffsetX * _Sensitivity);
+    float PitchDelta = static_cast<float>(_Sensitivity * -OffsetY);
+    float YawDelta   = static_cast<float>(_Sensitivity *  OffsetX);
 
-	if (ConstrainPitch)
-	{
-		if (_Pitch < -90.0f)
-		{
-			_Pitch = -89.9f;
-		}
+    glm::quat PitchQuat = glm::angleAxis(glm::radians(PitchDelta), _Right);
+    glm::quat YawQuat   = glm::angleAxis(glm::radians(YawDelta),   _Up);
 
-		if (_Pitch > 90.0f)
-		{
-			_Pitch = 89.9f;
-		}
-	}
+    _Orientation = glm::normalize(YawQuat * PitchQuat * _Orientation);
 
-	UpdateVectors();
+    UpdateVectors();
 }
 
-GLvoid Camera::ProcessMouseScroll(GLdouble OffsetY)
+void Camera::ProcessMouseScroll(double OffsetY)
 {
 	_Speed += OffsetY * 0.1;
 
@@ -93,13 +102,13 @@ GLvoid Camera::ProcessMouseScroll(GLdouble OffsetY)
 	}
 }
 
-GLvoid Camera::UpdateVectors()
+void Camera::UpdateVectors()
 {
-	glm::vec3 Front = glm::vec3(glm::cos(glm::radians(_Yaw)) * glm::cos(glm::radians(_Pitch)),
-								glm::sin(glm::radians(_Pitch)),
-								glm::sin(glm::radians(_Yaw)) * glm::cos(glm::radians(_Pitch)));
+    _Orientation = glm::normalize(_Orientation);
 
-	_Front = glm::normalize(Front);
-	_Right = glm::normalize(glm::cross(_Front, _WorldUp));
-	_Up    = glm::normalize(glm::cross(_Right, _Front));
+    _Front = glm::normalize(_Orientation * glm::vec3(0.0f, 0.0f, -1.0f));
+    _Right = glm::normalize(_Orientation * glm::vec3(1.0f, 0.0f,  0.0f));
+    _Up    = glm::normalize(_Orientation * glm::vec3(0.0f, 1.0f,  0.0f));
 }
+
+_NPGS_END

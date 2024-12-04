@@ -23,11 +23,17 @@ int         kMultiSamples = 4;
 
 static void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height);
 static GLvoid MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, const GLvoid* UserParam);
+static void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY);
 static void ProcessInput(GLFWwindow* Window, double DeltaTime);
 static void Terminate(GLFWwindow* Window);
 
 using namespace Npgs;
 using namespace Npgs::Asset;
+
+Camera* kFreeCamera  = nullptr;
+bool    kbFirstMouse = true;
+double  kLastX       = 0.0;
+double  kLastY       = 0.0;
 
 int main()
 {
@@ -53,6 +59,7 @@ int main()
 
 	glfwMakeContextCurrent(Window);
 	glfwSetFramebufferSizeCallback(Window, FramebufferSizeCallback);
+	glfwSetCursorPosCallback(Window, nullptr);
 	// glfwSwapInterval(0);
 
 	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
@@ -63,38 +70,42 @@ int main()
 		return EXIT_FAILURE;
 	}
 
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(MessageCallback, nullptr);
+
+	kFreeCamera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
 #include "Vertices.inc"
 
 	std::vector<std::string> TriangleShaderFiles{ "Triangle.vert", "Triangle.frag" };
 	AssetManager::AddAsset<Shader>("Triangle", std::make_shared<Shader>(TriangleShaderFiles));
-	AssetManager::AddAsset<Texture>("TexNpgs", std::make_shared<Texture>(Texture::Type::k2D, "NPGS.png"));
+	AssetManager::AddAsset<Texture>("TexNpgs", std::make_shared<Texture>(Texture::Type::k2D, "Wood.png"));
 	AssetManager::AddAsset<Texture>("TexFace", std::make_shared<Texture>(Texture::Type::k2D, "AwesomeFace.png"));
 
-	GLuint VertexArray   = 0;
-	GLuint VertexBuffer  = 0;
-	GLuint ElementBuffer = 1;
+	GLuint VertexArray  = 0;
+	GLuint VertexBuffer = 0;
 	glCreateBuffers(1, &VertexBuffer);
-	glNamedBufferData(VertexBuffer, ColoredTriangle.size() * sizeof(GLfloat), ColoredTriangle.data(), GL_STATIC_DRAW);
-	glCreateBuffers(1, &ElementBuffer);
-	glNamedBufferData(ElementBuffer, TriangleIndices.size() * sizeof(GLuint), TriangleIndices.data(), GL_STATIC_DRAW);
+	glNamedBufferData(VertexBuffer, CubeVertices.size() * sizeof(GLfloat), CubeVertices.data(), GL_STATIC_DRAW);
 	glCreateVertexArrays(1, &VertexArray);
-	glVertexArrayVertexBuffer(VertexArray, 0, VertexBuffer, 0, 8 * sizeof(GLfloat));
-	glVertexArrayElementBuffer(VertexArray, ElementBuffer);
+	glVertexArrayVertexBuffer(VertexArray, 0, VertexBuffer, 0, 5 * sizeof(GLfloat));
 	glEnableVertexArrayAttrib(VertexArray, 0);
 	glEnableVertexArrayAttrib(VertexArray, 1);
-	glEnableVertexArrayAttrib(VertexArray, 2);
 	glVertexArrayAttribFormat(VertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexArrayAttribFormat(VertexArray, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat));
-	glVertexArrayAttribFormat(VertexArray, 2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat));
 	glVertexArrayAttribBinding(VertexArray, 0, 0);
 	glVertexArrayAttribBinding(VertexArray, 1, 0);
-	glVertexArrayAttribBinding(VertexArray, 2, 0);
+	
+	glEnable(GL_DEPTH_TEST);
 
 	double        CurrentTime   = 0.0;
 	double        PreviousTime  = glfwGetTime();
 	double        LastFrameTime = 0.0;
 	double        DeltaTime     = 0.0;
 	std::uint32_t FrameCount    = 0;
+
+	glm::mat4x4 Model(1.0f);
+	glm::mat4x4 View(1.0f);
+	glm::mat4x4 Projection(1.0f);
 
 	auto TriangleShader = AssetManager::GetAsset<Shader>("Triangle");
 	auto TexNpgs = AssetManager::GetAsset<Texture>("TexNpgs");
@@ -108,11 +119,32 @@ int main()
 	{
 		ProcessInput(Window, DeltaTime);
 
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		View = kFreeCamera->GetViewMatrix();
+		Projection = glm::perspective(glm::radians(45.0f), kWindowAspect, 0.1f, 100.0f);
+
 		TriangleShader->UseProgram();
-		TriangleShader->SetUniform1f("iTime", static_cast<GLfloat>(glfwGetTime()));
+		TriangleShader->SetUniformMatrix4fv("iModel", Model);
+		TriangleShader->SetUniformMatrix4fv("iView", View);
+		TriangleShader->SetUniformMatrix4fv("iProjection", Projection);
+
 		glBindVertexArray(VertexArray);
-		// glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+		for (int i = 0; i != 10; ++i)
+		{
+			Model = glm::mat4(1.0f);
+			Model = glm::translate(Model, CubePositions[i]);
+
+			float Angle = 20.0f * i;
+			Model = glm::rotate(Model, glm::radians(Angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+			TriangleShader->SetUniformMatrix4fv("iModel", Model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+		glBindVertexArray(VertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
@@ -211,16 +243,70 @@ GLvoid MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, G
 	std::println("Source: {}, Type: {}, Severity: {}\n{}: {}", SourceStr, TypeStr, SeverityStr, Id, Message);
 }
 
+void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY)
+{
+	if (kbFirstMouse)
+	{
+		kLastX = PosX;
+		kLastY = PosY;
+		kbFirstMouse = false;
+	}
+
+	double OffsetX = PosX - kLastX;
+	double OffsetY = kLastY - PosY;
+	kLastX = PosX;
+	kLastY = PosY;
+
+	kFreeCamera->ProcessMouseMovement(OffsetX, OffsetY);
+}
+
 void ProcessInput(GLFWwindow* Window, double DeltaTime)
 {
 	if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(Window, GL_TRUE);
 	}
+
+	if (glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{
+		glfwSetCursorPosCallback(Window, CursorPosCallback);
+		glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+
+	if (glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+	{
+		glfwSetCursorPosCallback(Window, nullptr);
+		glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		kbFirstMouse = true;
+	}
+
+	// 相机移动控制
+	if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
+		kFreeCamera->ProcessKeyboard(Movement::kForward, DeltaTime);
+	if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)
+		kFreeCamera->ProcessKeyboard(Movement::kBack, DeltaTime);
+	if (glfwGetKey(Window, GLFW_KEY_A) == GLFW_PRESS)
+		kFreeCamera->ProcessKeyboard(Movement::kLeft, DeltaTime);
+	if (glfwGetKey(Window, GLFW_KEY_D) == GLFW_PRESS)
+		kFreeCamera->ProcessKeyboard(Movement::kRight, DeltaTime);
+	if (glfwGetKey(Window, GLFW_KEY_R) == GLFW_PRESS)
+		kFreeCamera->ProcessKeyboard(Movement::kUp, DeltaTime);
+	if (glfwGetKey(Window, GLFW_KEY_F) == GLFW_PRESS)
+		kFreeCamera->ProcessKeyboard(Movement::kDown, DeltaTime);
+	if (glfwGetKey(Window, GLFW_KEY_Q) == GLFW_PRESS)
+		kFreeCamera->ProcessKeyboard(Movement::kRollLeft, DeltaTime);
+	if (glfwGetKey(Window, GLFW_KEY_E) == GLFW_PRESS)
+		kFreeCamera->ProcessKeyboard(Movement::kRollRight, DeltaTime);
 }
 
 void Terminate(GLFWwindow* Window)
 {
+	if (kFreeCamera)
+	{
+		delete kFreeCamera;
+		kFreeCamera = nullptr;
+	}
+
 	glfwDestroyWindow(Window);
 	glfwTerminate();
 }
