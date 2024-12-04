@@ -50,7 +50,11 @@ Shader::Shader(const std::vector<std::string>& SourceFiles, const std::string& P
 	}
 
 	LinkProgram(Shaders);
-	SaveProgramBinary(ProgramCache);
+
+	if (ProgramName != "")
+	{
+		SaveProgramBinary(ProgramCache);
+	}
 
 	for (GLuint Shader : Shaders)
 	{

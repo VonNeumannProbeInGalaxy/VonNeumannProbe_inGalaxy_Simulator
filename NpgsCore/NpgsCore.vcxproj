@@ -201,6 +201,8 @@
     <ClInclude Include="Sources\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Shaders\Triangle.frag" />
+    <None Include="Assets\Shaders\Triangle.vert" />
     <None Include="Sources\Engine\AssetLoader\Mesh.inl" />
     <None Include="Sources\Engine\AssetLoader\Model.inl" />
     <None Include="Sources\Engine\AssetLoader\Shader.inl" />

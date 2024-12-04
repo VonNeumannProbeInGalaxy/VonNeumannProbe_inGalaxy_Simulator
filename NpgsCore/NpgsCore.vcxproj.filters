@@ -214,5 +214,7 @@
     <None Include="Sources\Engine\Core\Camera.inl">
       <Filter>头文件</Filter>
     </None>
+    <None Include="Assets\Shaders\Triangle.vert" />
+    <None Include="Assets\Shaders\Triangle.frag" />
   </ItemGroup>
 </Project>
