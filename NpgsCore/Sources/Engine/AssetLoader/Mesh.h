@@ -15,7 +15,7 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-const GLint kMaxBoneInfluence = 4;
+const int kMaxBoneInfluence = 4;
 
 // @brief Mesh 网格类，用于加载和绘制网格模型。
 //        该类不会手动调用，故省略注释。
@@ -46,7 +46,7 @@ public:
 	Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices, const std::vector<Texture>& Textures);
 	~Mesh();
 
-	GLvoid Draw(const Shader& ModelShader) const;
+	void Draw(const Shader& ModelShader) const;
 
 public:
 	GLuint GetVertexArray() const;

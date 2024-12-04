@@ -1,6 +1,6 @@
 #include "Shader.h"
 
-#include <cassert>
+#include <cstdint>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -8,6 +8,7 @@
 #include <print>
 
 #include "Engine/AssetLoader/GetAssetFilepath.h"
+#include "Engine/Core/Assert.h"
 
 _NPGS_BEGIN
 _ASSET_BEGIN
@@ -37,14 +38,14 @@ Shader::Shader(const std::vector<std::string>& SourceFiles, const std::string& P
 
 	if (Macros.front() != "NULL")
 	{
-		for (GLuint i = 0; i != SourceFiles.size(); ++i)
+		for (std::size_t i = 0; i != SourceFiles.size(); ++i)
 		{
 			InsertMacros(Macros, _ShaderTypes[i], ShaderSources[i]);
 		}
 	}
 
 	std::vector<GLuint> Shaders;
-	for (GLuint i = 0; i != ShaderSources.size(); ++i)
+	for (std::size_t i = 0; i != ShaderSources.size(); ++i)
 	{
 		Shaders.emplace_back(CompileShader(ShaderSources[i], _ShaderTypes[i]));
 	}
@@ -87,7 +88,7 @@ Shader::Source Shader::LoadShaderSource(const std::string& Filepath)
 	std::string   SourceCode;
 	std::string   Statement;
 
-	GLboolean bHasInclude = GL_FALSE;
+	bool bHasInclude = false;
 
 	if (!SourceFile.is_open())
 	{
@@ -96,12 +97,12 @@ Shader::Source Shader::LoadShaderSource(const std::string& Filepath)
 		std::exit(EXIT_FAILURE);
 	}
 
-	GLint LineNumber = 1;
+	int LineNumber = 1;
 	while (std::getline(SourceFile, Statement))
 	{
 		if (Statement.find("#include") != std::string::npos)
 		{
-			bHasInclude = GL_TRUE;
+			bHasInclude = true;
 			std::string IncludedFile = GetIncludeDirectory(Filepath) + GetIncludeFilename(Statement);
 			if (_IncludedFiles.find(IncludedFile) == _IncludedFiles.end())
 			{
@@ -122,10 +123,10 @@ Shader::Source Shader::LoadShaderSource(const std::string& Filepath)
 
 	SourceFile.close();
 
-	return { SourceCode, Filepath, bHasInclude, GL_FALSE };
+	return { SourceCode, Filepath, bHasInclude, false };
 }
 
-GLvoid Shader::InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderType, Source& ShaderSource) const
+void Shader::InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderType, Source& ShaderSource) const
 {
 	auto TypePrefix = [ShaderType]() -> std::string
 	{
@@ -138,19 +139,19 @@ GLvoid Shader::InsertMacros(const std::vector<std::string>& Macros, GLenum Shade
 		case GL_GEOMETRY_SHADER:
 			return "__GEOM";
 		default:
-			assert(GL_FALSE);
+			NpgsAssert(false, "Invalid shader type");
 			return "";
 		}
 	}();
 
-	GLuint                 InsertedMacroCount = 0;
+	std::uint32_t          InsertedMacroCount = 0;
 	std::string::size_type InsertedCharLength = 0;
 
 	for (const std::string& kMacro : Macros)
 	{
 		if (kMacro.find(TypePrefix) != std::string::npos)
 		{
-			ShaderSource.bHasMacros = GL_TRUE;
+			ShaderSource.bHasMacros = true;
 			ShaderSource.Data.insert(19ULL + InsertedCharLength, "#define " + kMacro.substr(7) + '\n');
 			InsertedCharLength += kMacro.size() + 2;
 			++InsertedMacroCount;
@@ -167,7 +168,7 @@ GLvoid Shader::InsertMacros(const std::vector<std::string>& Macros, GLenum Shade
 GLuint Shader::CompileShader(const Source& ShaderSource, GLenum ShaderType) const
 {
 	GLuint Shader = glCreateShader(ShaderType);
-	const GLchar* SourceCodePointer = ShaderSource.Data.c_str();
+	const GLchar* SourceCodePointer = static_cast<const GLchar*>(ShaderSource.Data.c_str());
 
 	glShaderSource(Shader, 1, &SourceCodePointer, nullptr);
 	glCompileShader(Shader);
@@ -196,7 +197,7 @@ GLuint Shader::CompileShader(const Source& ShaderSource, GLenum ShaderType) cons
 	return Shader;
 }
 
-GLvoid Shader::LinkProgram(const std::vector<GLuint>& Shaders)
+void Shader::LinkProgram(const std::vector<GLuint>& Shaders)
 {
 	_Program = glCreateProgram();
 
@@ -209,7 +210,7 @@ GLvoid Shader::LinkProgram(const std::vector<GLuint>& Shaders)
 	CheckLinkError();
 }
 
-GLvoid Shader::SaveProgramBinary(const std::string& Filename) const
+void Shader::SaveProgramBinary(const std::string& Filename) const
 {
 	std::filesystem::path Filepath(Filename);
 	std::filesystem::path Directory(Filepath.parent_path());
@@ -237,7 +238,7 @@ GLvoid Shader::SaveProgramBinary(const std::string& Filename) const
 	BinaryFile.close();
 }
 
-GLvoid Shader::LoadProgramBinary(const std::string& Filename)
+void Shader::LoadProgramBinary(const std::string& Filename)
 {
 	std::ifstream BinaryFile(Filename, std::ios::binary);
 	if (!BinaryFile.is_open())
@@ -257,7 +258,7 @@ GLvoid Shader::LoadProgramBinary(const std::string& Filename)
 	CheckLinkError();
 }
 
-GLvoid Shader::CheckLinkError() const
+void Shader::CheckLinkError() const
 {
 	GLint LinkStatus = 0;
 

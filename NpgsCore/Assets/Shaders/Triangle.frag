@@ -4,9 +4,11 @@ layout(location = 0) out vec4 FragColor;
 
 in vec2 TexCoord;
 
-uniform sampler2D iTex;
+uniform float     iTime;
+uniform sampler2D iFace;
+uniform sampler2D iNpgs;
 
 void main()
 {
-	FragColor = texture(iTex, TexCoord);
+	FragColor = mix(texture(iNpgs, TexCoord), texture(iFace, TexCoord), sin(iTime));
 }

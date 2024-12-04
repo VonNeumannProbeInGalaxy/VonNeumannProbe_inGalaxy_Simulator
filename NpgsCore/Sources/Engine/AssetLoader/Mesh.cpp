@@ -21,7 +21,7 @@ Mesh::Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indic
 	glVertexArrayVertexBuffer(_VertexArray, 0, VertexBuffer, 0, sizeof(Vertex));
 	glVertexArrayElementBuffer(_VertexArray, ElementBuffer);
 
-	for (GLint i = 0; i <= 6; ++i)
+	for (GLuint i = 0; i <= 6; ++i)
 	{
 		glEnableVertexArrayAttrib(_VertexArray, i);
 	}
@@ -34,7 +34,7 @@ Mesh::Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indic
 	glVertexArrayAttribFormat(_VertexArray, 5, 4, GL_INT,   GL_FALSE, offsetof(Vertex, BoneIds));
 	glVertexArrayAttribFormat(_VertexArray, 6, 4, GL_FLOAT, GL_FALSE, offsetof(Vertex, Weigths));
 
-	for (GLint i = 0; i <= 6; ++i)
+	for (GLuint i = 0; i <= 6; ++i)
 	{
 		glVertexArrayAttribBinding(_VertexArray, i, 0);
 	}
@@ -48,14 +48,14 @@ Mesh::~Mesh()
 	glDeleteVertexArrays(1, &_VertexArray);
 }
 
-GLvoid Mesh::Draw(const Shader& ModelShader) const
+void Mesh::Draw(const Shader& ModelShader) const
 {
 	GLuint DiffuseIndex  = 0;
 	GLuint SpecularIndex = 0;
 	GLuint NormalIndex   = 0;
 	GLuint HeightIndex   = 0;
 
-	for (GLuint i = 0; i != _Textures.size(); ++i)
+	for (std::size_t i = 0; i != _Textures.size(); ++i)
 	{
 		std::string Index;
 		std::string UniformName = _Textures[i].TypeName;
@@ -77,7 +77,7 @@ GLvoid Mesh::Draw(const Shader& ModelShader) const
 			Index = std::to_string(HeightIndex++);
 		}
 
-		_Textures[i].Data->BindTextureUnit(ModelShader, UniformName + Index, i);
+		_Textures[i].Data->BindTextureUnit(ModelShader, UniformName + Index, static_cast<GLuint>(i));
 	}
 
 	glBindVertexArray(_VertexArray);

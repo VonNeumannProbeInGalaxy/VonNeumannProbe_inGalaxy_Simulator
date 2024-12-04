@@ -22,8 +22,8 @@ private:
 	{
 		std::string Data;        // 着色器字符串数据
 		std::string Filepath;    // 着色器源代码文件路径
-		GLboolean   bHasInclude; // 是否有 #include 指令
-		GLboolean   bHasMacros;  // 是否包含插入宏
+		bool        bHasInclude; // 是否有 #include 指令
+		bool        bHasMacros;  // 是否包含插入宏
 	};
 
 public:
@@ -42,31 +42,31 @@ public:
 	~Shader();
 
 	GLuint GetProgram() const;
-	GLvoid UseProgram() const;
-	GLvoid SetUniform1i(const std::string& Name, GLboolean Value) const;
-	GLvoid SetUniform1i(const std::string& Name, GLint     Value) const;
-	GLvoid SetUniform1f(const std::string& Name, GLfloat   Value) const;
-	GLvoid SetUniform2f(const std::string& Name, GLfloat VectorX, GLfloat VectorY) const;
-	GLvoid SetUniform3f(const std::string& Name, GLfloat VectorX, GLfloat VectorY, GLfloat VectorZ) const;
-	GLvoid SetUniform4f(const std::string& Name, GLfloat VectorX, GLfloat VectorY, GLfloat VectorZ, GLfloat VectorW) const;
-	GLvoid SetUniform1fv(const std::string& Name, const std::vector<GLfloat>& Array) const;
-	GLvoid SetUniform2fv(const std::string& Name, const glm::vec2& Vector) const;
-	GLvoid SetUniform3fv(const std::string& Name, const glm::vec3& Vector) const;
-	GLvoid SetUniform4fv(const std::string& Name, const glm::vec4& Vector) const;
-	GLvoid SetUniformMatrix2fv(const std::string& Name, const glm::mat2x2& Matrix) const;
-	GLvoid SetUniformMatrix3fv(const std::string& Name, const glm::mat3x3& Matrix) const;
-	GLvoid SetUniformMatrix4fv(const std::string& Name, const glm::mat4x4& Matrix) const;
+	void UseProgram() const;
+	void SetUniform1i(const std::string& Name, GLboolean Value) const;
+	void SetUniform1i(const std::string& Name, GLint     Value) const;
+	void SetUniform1f(const std::string& Name, GLfloat   Value) const;
+	void SetUniform2f(const std::string& Name, GLfloat VectorX, GLfloat VectorY) const;
+	void SetUniform3f(const std::string& Name, GLfloat VectorX, GLfloat VectorY, GLfloat VectorZ) const;
+	void SetUniform4f(const std::string& Name, GLfloat VectorX, GLfloat VectorY, GLfloat VectorZ, GLfloat VectorW) const;
+	void SetUniform1fv(const std::string& Name, const std::vector<GLfloat>& Array) const;
+	void SetUniform2fv(const std::string& Name, const glm::vec2& Vector) const;
+	void SetUniform3fv(const std::string& Name, const glm::vec3& Vector) const;
+	void SetUniform4fv(const std::string& Name, const glm::vec4& Vector) const;
+	void SetUniformMatrix2fv(const std::string& Name, const glm::mat2x2& Matrix) const;
+	void SetUniformMatrix3fv(const std::string& Name, const glm::mat3x3& Matrix) const;
+	void SetUniformMatrix4fv(const std::string& Name, const glm::mat4x4& Matrix) const;
 
 private:
 	std::string GetIncludeDirectory(const std::string& Filepath) const;
 	std::string GetIncludeFilename(const std::string& Statement) const;
 	Source LoadShaderSource(const std::string& Filepath);
-	GLvoid InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderType, Source& ShaderSource) const;
+	void InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderType, Source& ShaderSource) const;
 	GLuint CompileShader(const Source& ShaderSource, GLenum ShaderType) const;
-	GLvoid LinkProgram(const std::vector<GLuint>& Shaders);
-	GLvoid SaveProgramBinary(const std::string& Filename) const;
-	GLvoid LoadProgramBinary(const std::string& Filename);
-	GLvoid CheckLinkError() const;
+	void LinkProgram(const std::vector<GLuint>& Shaders);
+	void SaveProgramBinary(const std::string& Filename) const;
+	void LoadProgramBinary(const std::string& Filename);
+	void CheckLinkError() const;
 
 private:
 	std::set<std::string> _IncludedFiles;

@@ -27,10 +27,10 @@ public:
 	Model(const std::string& Filename);
 	~Model() = default;
 
-	GLvoid Draw(const Shader& ModelShader) const;
+	void Draw(const Shader& ModelShader) const;
 
 private:
-	GLvoid ProcessNode(const aiNode* Node, const aiScene* Scene);
+	void ProcessNode(const aiNode* Node, const aiScene* Scene);
 	std::unique_ptr<Mesh> ProcessMesh(const aiMesh* Mesh, const aiScene* Scene);
 	std::vector<Mesh::Texture> LoadMaterialTextures(const aiMaterial* Material, const aiTextureType& TextureType, const std::string& TypeName);
 	const std::vector<std::unique_ptr<Mesh>>& GetMeshes() const;

@@ -39,7 +39,7 @@ public:
 	// @param bSrgb 是否使用 sRGB 纹理。
 	// @param bFlipVertically 是否垂直翻转图片。
 	// @param bAutoFillFilepath 是否自动填充文件路径。在加载模型的时候自动传递参数，不需要手动调整。
-	Texture(Type CreateType, const std::string& Filepath, GLboolean bSrgb = GL_FALSE, GLboolean bFlipVertically = GL_TRUE, GLboolean bAutoFillFilepath = GL_TRUE);
+	Texture(Type CreateType, const std::string& Filepath, bool bSrgb = false, bool bFlipVertically = true, bool bAutoFillFilepath = true);
 
 	// @brief 纹理类用于创建字符纹理的构造函数。
 	// @param CreateType 纹理类型。
@@ -65,7 +65,7 @@ public:
 	// @param bFixedSampleLocations 是否固定采样位置。
 	// @param Framebuffer 帧缓冲对象。
 	Texture(Type CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLsizei Samples,
-			GLenum Attachment, GLboolean bFixedSampleLocations, GLuint Framebuffer);
+			GLenum Attachment, bool bFixedSampleLocations, GLuint Framebuffer);
 
 	// @brief 纹理类用于创建深度纹理的构造函数。
 	// @param CreateType 纹理类型。
@@ -79,7 +79,7 @@ public:
 	// @param ActivatedShader 激活的着色器。
 	// @param UniformName 纹理采样器 uniform 名称。
 	// @param Unit 纹理单元。
-	GLvoid BindTextureUnit(const Shader& ActivatedShader, const std::string& UniformName, GLuint Unit) const;
+	void BindTextureUnit(const Shader& ActivatedShader, const std::string& UniformName, GLuint Unit) const;
 
 	// @brief 获取纹理 ID。
 	// @return 纹理 ID。
@@ -90,7 +90,7 @@ public:
 	Type GetTextureType() const;
 
 private:
-	ImageData LoadImage(const std::string& ImageFilename, GLboolean bSrgb, GLboolean bFlipVertically, GLboolean bAutoFillFilepath) const;
+	ImageData LoadImage(const std::string& ImageFilename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath) const;
 
 private:
 	GLuint _Texture;

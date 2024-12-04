@@ -1,5 +1,6 @@
 #pragma warning(disable : 4715)
 
+#include <cstdint>
 #include <cstdlib>
 #include <memory>
 #include <print>
@@ -14,16 +15,16 @@
 #include "Engine/AssetLoader/AssetManager.h"
 #include "Engine/Core/Camera.h"
 
-GLint         kWindowWidth  = 1280;
-GLint         kWindowHeight = 960;
-const GLchar* kWindowTitle  = "Von-Neumann Probe in Galaxy Simulator FPS:";
-GLfloat       kWindowAspect = static_cast<GLfloat>(kWindowWidth) / static_cast<GLfloat>(kWindowHeight);
-GLint         kMultiSamples = 4;
+int         kWindowWidth  = 1280;
+int         kWindowHeight = 960;
+const char* kWindowTitle  = "Von-Neumann Probe in Galaxy Simulator FPS:";
+float       kWindowAspect = static_cast<float>(kWindowWidth) / static_cast<float>(kWindowHeight);
+int         kMultiSamples = 4;
 
-static GLvoid FramebufferSizeCallback(GLFWwindow* Window, GLint Width, GLint Height);
+static void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height);
 static GLvoid MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, const GLvoid* UserParam);
-static GLvoid ProcessInput(GLFWwindow* Window, GLdouble DeltaTime);
-static GLvoid Terminate(GLFWwindow* Window);
+static void ProcessInput(GLFWwindow* Window, double DeltaTime);
+static void Terminate(GLFWwindow* Window);
 
 using namespace Npgs;
 using namespace Npgs::Asset;
@@ -51,6 +52,7 @@ int main()
 	}
 
 	glfwMakeContextCurrent(Window);
+	glfwSetFramebufferSizeCallback(Window, FramebufferSizeCallback);
 	// glfwSwapInterval(0);
 
 	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
@@ -61,11 +63,12 @@ int main()
 		return EXIT_FAILURE;
 	}
 
+#include "Vertices.inc"
+
 	std::vector<std::string> TriangleShaderFiles{ "Triangle.vert", "Triangle.frag" };
 	AssetManager::AddAsset<Shader>("Triangle", std::make_shared<Shader>(TriangleShaderFiles));
-	AssetManager::AddAsset<Texture>("Tex", std::make_shared<Texture>(Texture::Type::k2D, "RedWindow.png"));
-
-#include "Vertices.inc"
+	AssetManager::AddAsset<Texture>("TexNpgs", std::make_shared<Texture>(Texture::Type::k2D, "NPGS.png"));
+	AssetManager::AddAsset<Texture>("TexFace", std::make_shared<Texture>(Texture::Type::k2D, "AwesomeFace.png"));
 
 	GLuint VertexArray   = 0;
 	GLuint VertexBuffer  = 0;
@@ -82,19 +85,24 @@ int main()
 	glEnableVertexArrayAttrib(VertexArray, 2);
 	glVertexArrayAttribFormat(VertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexArrayAttribFormat(VertexArray, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat));
-	glVertexArrayAttribFormat(VertexArray, 3, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat));
+	glVertexArrayAttribFormat(VertexArray, 2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat));
 	glVertexArrayAttribBinding(VertexArray, 0, 0);
 	glVertexArrayAttribBinding(VertexArray, 1, 0);
 	glVertexArrayAttribBinding(VertexArray, 2, 0);
 
-	GLdouble CurrentTime   = 0.0;
-	GLdouble PreviousTime  = glfwGetTime();
-	GLdouble LastFrameTime = 0.0;
-	GLdouble DeltaTime     = 0.0;
-	GLuint   FrameCount    = 0;
+	double        CurrentTime   = 0.0;
+	double        PreviousTime  = glfwGetTime();
+	double        LastFrameTime = 0.0;
+	double        DeltaTime     = 0.0;
+	std::uint32_t FrameCount    = 0;
 
 	auto TriangleShader = AssetManager::GetAsset<Shader>("Triangle");
-	auto Tex = AssetManager::GetAsset<Texture>("Tex");
+	auto TexNpgs = AssetManager::GetAsset<Texture>("TexNpgs");
+	auto TexFace = AssetManager::GetAsset<Texture>("TexFace");
+
+	TriangleShader->UseProgram();
+	TexNpgs->BindTextureUnit(*TriangleShader, "iNpgs", 1);
+	TexFace->BindTextureUnit(*TriangleShader, "iFace", 0);
 
 	while (!glfwWindowShouldClose(Window))
 	{
@@ -102,7 +110,6 @@ int main()
 
 		TriangleShader->UseProgram();
 		TriangleShader->SetUniform1f("iTime", static_cast<GLfloat>(glfwGetTime()));
-		Tex->BindTextureUnit(*TriangleShader, "iTex", GL_TEXTURE0);
 		glBindVertexArray(VertexArray);
 		// glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
@@ -127,14 +134,14 @@ int main()
 	return EXIT_SUCCESS;
 }
 
-GLvoid FramebufferSizeCallback(GLFWwindow* Window, GLint Width, GLint Height)
+void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height)
 {
 	glViewport(0, 0, Width, Height);
 	if (Width != 0 && Height != 0)
 	{
 		kWindowWidth  = Width;
 		kWindowHeight = Height;
-		kWindowAspect = static_cast<GLfloat>(Width) / static_cast<GLfloat>(Height);
+		kWindowAspect = static_cast<float>(Width) / static_cast<float>(Height);
 	}
 }
 
@@ -157,7 +164,7 @@ GLvoid MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, G
 		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
 			return "WINDOW_SYSTEM";
 		default:
-			assert(GL_FALSE);
+			assert(false);
 		}
 	}();
 
@@ -180,7 +187,7 @@ GLvoid MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, G
 		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
 			return "UNDEFINED_BEHAVIOR";
 		default:
-			assert(GL_FALSE);
+			assert(false);
 		}
 	}();
 
@@ -197,14 +204,14 @@ GLvoid MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, G
 		case GL_DEBUG_SEVERITY_NOTIFICATION:
 			return "NOTIFICATION";
 		default:
-			assert(GL_FALSE);
+			assert(false);
 		}
 	}();
 
 	std::println("Source: {}, Type: {}, Severity: {}\n{}: {}", SourceStr, TypeStr, SeverityStr, Id, Message);
 }
 
-GLvoid ProcessInput(GLFWwindow* Window, GLdouble DeltaTime)
+void ProcessInput(GLFWwindow* Window, double DeltaTime)
 {
 	if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
@@ -212,7 +219,7 @@ GLvoid ProcessInput(GLFWwindow* Window, GLdouble DeltaTime)
 	}
 }
 
-GLvoid Terminate(GLFWwindow* Window)
+void Terminate(GLFWwindow* Window)
 {
 	glfwDestroyWindow(Window);
 	glfwTerminate();

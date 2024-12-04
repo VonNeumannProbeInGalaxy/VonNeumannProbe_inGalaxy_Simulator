@@ -13,7 +13,7 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-Texture::Texture(Type CreateType, const std::string& Filepath, GLboolean bSrgb, GLboolean bFlipVertically, GLboolean bAutoFillFilepath)
+Texture::Texture(Type CreateType, const std::string& Filepath, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
 	: _Texture(0), _TextureType(CreateType)
 {
 	ImageData Data{};
@@ -34,8 +34,6 @@ Texture::Texture(Type CreateType, const std::string& Filepath, GLboolean bSrgb, 
 		glTextureParameteri(_Texture, GL_TEXTURE_WRAP_T, Data.TexWrapT);
 		glTextureParameteri(_Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(Data.Data);
 
 		break;
 	}
@@ -82,13 +80,15 @@ Texture::Texture(Type CreateType, const std::string& Filepath, GLboolean bSrgb, 
 			glTextureParameteri(_Texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTextureParameteri(_Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-			stbi_image_free(Data.Data);
 		}
 
 		break;
 	}
+	default:
+		break;
 	}
+
+	stbi_image_free(Data.Data);
 }
 
 Texture::Texture(Type CreateType, const FT_Face& Face) : _Texture(0), _TextureType(CreateType)
@@ -113,7 +113,7 @@ Texture::Texture(Type CreateType, GLsizei Width, GLsizei Height, GLenum Internal
 	glNamedFramebufferTexture(Framebuffer, Attachment, _Texture, 0);
 }
 
-Texture::Texture(Type CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLsizei Samples, GLenum Attachment, GLboolean bFixedSampleLocations, GLuint Framebuffer)
+Texture::Texture(Type CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLsizei Samples, GLenum Attachment, bool bFixedSampleLocations, GLuint Framebuffer)
 	: _Texture(0), _TextureType(CreateType)
 {
 	glCreateTextures(GL_TEXTURE_2D_MULTISAMPLE, 1, &_Texture);
@@ -145,7 +145,7 @@ GLvoid Texture::BindTextureUnit(const Shader& ActivatedShader, const std::string
 	ActivatedShader.SetUniform1i(UniformName, static_cast<GLint>(Unit));
 }
 
-Texture::ImageData Texture::LoadImage(const std::string& ImageFilename, GLboolean bSrgb, GLboolean bFlipVertically, GLboolean bAutoFillFilepath) const
+Texture::ImageData Texture::LoadImage(const std::string& ImageFilename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath) const
 {
 	GLint ImageWidth    = 0;
 	GLint ImageHeight   = 0;

@@ -1,5 +1,6 @@
 #include "Model.h"
 
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
@@ -33,7 +34,7 @@ Model::Model(const std::string& Filename)
 	ProcessNode(Scene->mRootNode, Scene);
 }
 
-GLvoid Model::Draw(const Shader& ModelShader) const
+void Model::Draw(const Shader& ModelShader) const
 {
 	for (const auto& Mesh : _Meshes)
 	{
@@ -41,16 +42,16 @@ GLvoid Model::Draw(const Shader& ModelShader) const
 	}
 }
 
-GLvoid Model::ProcessNode(const aiNode* Node, const aiScene* Scene)
+void Model::ProcessNode(const aiNode* Node, const aiScene* Scene)
 {
 	aiMesh* Mesh = nullptr;
-	for (GLint i = 0; i != Node->mNumMeshes; ++i)
+	for (std::uint32_t i = 0; i != Node->mNumMeshes; ++i)
 	{
 		Mesh = Scene->mMeshes[Node->mMeshes[i]];
 		_Meshes.emplace_back(ProcessMesh(Mesh, Scene));
 	}
 
-	for (GLint i = 0; i != Node->mNumChildren; ++i)
+	for (std::uint32_t i = 0; i != Node->mNumChildren; ++i)
 	{
 		ProcessNode(Node->mChildren[i], Scene);
 	}
@@ -58,12 +59,12 @@ GLvoid Model::ProcessNode(const aiNode* Node, const aiScene* Scene)
 
 std::unique_ptr<Mesh> Model::ProcessMesh(const aiMesh* Mesh, const aiScene* Scene)
 {
-	std::vector<GLuint>        Indices;
+	std::vector<std::uint32_t> Indices;
 	std::vector<Mesh::Texture> Textures;
 	std::vector<Mesh::Vertex>  Vertices;
 	Mesh::Vertex               MeshVertex{};
 
-	for (GLint i = 0; i != Mesh->mNumVertices; ++i)
+	for (std::uint32_t i = 0; i != Mesh->mNumVertices; ++i)
 	{
 		glm::vec3 Vector(Mesh->mVertices[i].x, Mesh->mVertices[i].y, Mesh->mVertices[i].z);
 		MeshVertex.Position = Vector;
@@ -102,10 +103,10 @@ std::unique_ptr<Mesh> Model::ProcessMesh(const aiMesh* Mesh, const aiScene* Scen
 	}
 
 	aiFace Face;
-	for (GLint i = 0; i != Mesh->mNumFaces; ++i)
+	for (std::uint32_t i = 0; i != Mesh->mNumFaces; ++i)
 	{
 		Face = Mesh->mFaces[i];
-		for (GLint j = 0; j != Face.mNumIndices; ++j)
+		for (std::uint32_t j = 0; j != Face.mNumIndices; ++j)
 		{
 			Indices.emplace_back(Face.mIndices[j]);
 		}
@@ -131,17 +132,17 @@ std::vector<Mesh::Texture> Model::LoadMaterialTextures(const aiMaterial* Materia
 	aiString                   ImageFilename;
 	Mesh::Texture              MaterialTexture;
 
-	for (GLint i = 0; i != Material->GetTextureCount(TextureType); ++i)
+	for (std::uint32_t i = 0; i != Material->GetTextureCount(TextureType); ++i)
 	{
 		Material->GetTexture(TextureType, i, &ImageFilename);
 
-		GLboolean bSkipLoading = GL_FALSE;
+		bool bSkipLoading = false;
 		for (const auto& kTexture : _Textures)
 		{
 			if (std::strcmp(kTexture.ImageFilename.data(), ImageFilename.C_Str()) == 0)
 			{
 				Textures.emplace_back(kTexture);
-				bSkipLoading = GL_TRUE;
+				bSkipLoading = true;
 				break;
 			}
 		}
@@ -149,7 +150,7 @@ std::vector<Mesh::Texture> Model::LoadMaterialTextures(const aiMaterial* Materia
 		if (!bSkipLoading)
 		{
 			std::string ImageFilepath = _Directory + '/' + ImageFilename.C_Str();
-			MaterialTexture.Data = std::make_shared<Asset::Texture>(Asset::Texture::Type::k2D, ImageFilepath, GL_TRUE, GL_TRUE, GL_FALSE);
+			MaterialTexture.Data = std::make_shared<Asset::Texture>(Asset::Texture::Type::k2D, ImageFilepath, true, true, false);
 			MaterialTexture.TypeName = TypeName;
 			MaterialTexture.ImageFilename = ImageFilename.C_Str();
 			Textures.emplace_back(MaterialTexture);
