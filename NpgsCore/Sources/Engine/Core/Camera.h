@@ -77,6 +77,7 @@ public:
 	const glm::quat& GetOrientation() const;
 
 private:
+	void ProcessRotation(float Yaw, float Pitch, float Roll);
 	void UpdateVectors();
 
 private:

@@ -21,10 +21,11 @@ const char* kWindowTitle  = "Von-Neumann Probe in Galaxy Simulator FPS:";
 float       kWindowAspect = static_cast<float>(kWindowWidth) / static_cast<float>(kWindowHeight);
 int         kMultiSamples = 4;
 
+static void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY);
 static void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height);
 static GLvoid MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, const GLvoid* UserParam);
-static void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY);
 static void ProcessInput(GLFWwindow* Window, double DeltaTime);
+static void ScrollCallback(GLFWwindow* Window, GLdouble OffsetX, GLdouble OffsetY);
 static void Terminate(GLFWwindow* Window);
 
 using namespace Npgs;
@@ -58,8 +59,9 @@ int main()
 	}
 
 	glfwMakeContextCurrent(Window);
-	glfwSetFramebufferSizeCallback(Window, FramebufferSizeCallback);
 	glfwSetCursorPosCallback(Window, nullptr);
+	glfwSetFramebufferSizeCallback(Window, FramebufferSizeCallback);
+	glfwSetScrollCallback(Window, ScrollCallback);
 	// glfwSwapInterval(0);
 
 	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
@@ -166,6 +168,23 @@ int main()
 	return EXIT_SUCCESS;
 }
 
+void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY)
+{
+	if (kbFirstMouse)
+	{
+		kLastX = PosX;
+		kLastY = PosY;
+		kbFirstMouse = false;
+	}
+
+	double OffsetX = PosX - kLastX;
+	double OffsetY = kLastY - PosY;
+	kLastX = PosX;
+	kLastY = PosY;
+
+	kFreeCamera->ProcessMouseMovement(OffsetX, OffsetY);
+}
+
 void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height)
 {
 	glViewport(0, 0, Width, Height);
@@ -243,23 +262,6 @@ GLvoid MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, G
 	std::println("Source: {}, Type: {}, Severity: {}\n{}: {}", SourceStr, TypeStr, SeverityStr, Id, Message);
 }
 
-void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY)
-{
-	if (kbFirstMouse)
-	{
-		kLastX = PosX;
-		kLastY = PosY;
-		kbFirstMouse = false;
-	}
-
-	double OffsetX = PosX - kLastX;
-	double OffsetY = kLastY - PosY;
-	kLastX = PosX;
-	kLastY = PosY;
-
-	kFreeCamera->ProcessMouseMovement(OffsetX, OffsetY);
-}
-
 void ProcessInput(GLFWwindow* Window, double DeltaTime)
 {
 	if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -297,6 +299,11 @@ void ProcessInput(GLFWwindow* Window, double DeltaTime)
 		kFreeCamera->ProcessKeyboard(Movement::kRollLeft, DeltaTime);
 	if (glfwGetKey(Window, GLFW_KEY_E) == GLFW_PRESS)
 		kFreeCamera->ProcessKeyboard(Movement::kRollRight, DeltaTime);
+}
+
+void ScrollCallback(GLFWwindow* Window, GLdouble OffsetX, GLdouble OffsetY)
+{
+	kFreeCamera->ProcessMouseScroll(OffsetY);
 }
 
 void Terminate(GLFWwindow* Window)
