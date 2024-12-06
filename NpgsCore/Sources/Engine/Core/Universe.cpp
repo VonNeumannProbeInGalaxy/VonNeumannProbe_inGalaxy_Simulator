@@ -1026,7 +1026,7 @@ void Universe::GenerateBinaryStars(int MaxThread)
 		SelectedGenerator.SetMassLowerLimit(MassLowerLimit);
 		SelectedGenerator.SetMassUpperLimit(MassUpperLimit);
 		SelectedGenerator.SetLogMassSuggestDistribution(
-			std::make_shared<Util::NormalDistribution<>>(std::log10(FirstStarInitialMassSol), 0.25f));
+			std::make_unique<Util::NormalDistribution<>>(std::log10(FirstStarInitialMassSol), 0.25f));
 
 		double Age = Star->GetAge();
 		float  FeH = Star->GetFeH();

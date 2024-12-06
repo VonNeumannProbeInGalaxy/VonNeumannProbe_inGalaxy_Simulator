@@ -24,9 +24,9 @@ enum class VectorType
 constexpr glm::vec3 kPosition    = glm::vec3(0.0f);
 constexpr glm::vec3 kFront       = glm::vec3(0.0f, 0.0f, -1.0f);
 constexpr glm::vec3 kWorldUp     = glm::vec3(0.0f, 1.0f,  0.0f);
+constexpr float     kSensitivity = 0.05f;
+constexpr float     kSpeed       = 2.5f;
 constexpr float     kZoom        = 45.0f;
-constexpr double    kSensitivity = 0.05;
-constexpr double    kSpeed       = 2.5;
 
 class Camera
 {
@@ -36,7 +36,12 @@ public:
 	// @param: WorldUp  世界坐标系的上向量。
 	// @param: Pitch    俯仰角。
 	// @param: Yaw      偏航角。
-	Camera(const glm::vec3& Position = kPosition, const glm::vec3& WorldUp = kWorldUp);
+	Camera(const glm::vec3& Position = kPosition,
+		   const glm::vec3& WorldUp  = kWorldUp,
+		   float Sensitivity         = kSensitivity,
+		   float Speed               = kSpeed,
+		   float Zoom                = kZoom);
+
 	~Camera() = default;
 
 	// @brief: 获取相机向量。
@@ -52,7 +57,7 @@ public:
 	// @param: OffsetX 鼠标 X 轴偏移量。
 	// @param: OffsetY 鼠标 Y 轴偏移量。
 	// @param: ConstrainPitch 是否限制俯仰角。必须为 true。
-	void ProcessMouseMovement(double OffsetX, double OffsetY, bool bConstrainPitch = true);
+	void ProcessMouseMovement(double OffsetX, double OffsetY);
 
 	// @brief: 处理鼠标滚轮输入。
 	// @param: OffsetY 鼠标滚轮 Y 轴偏移量。
@@ -85,9 +90,12 @@ private:
 	glm::vec3 _Up;
 	glm::vec3 _Right;
 	glm::vec3 _WorldUp;
-	double    _Sensitivity;
-	double    _Speed;
+	glm::vec3 _CurrentVelocity = glm::vec3(0.0f);
+	float     _Sensitivity;
+	float     _Speed;
 	float     _Zoom;
+	float     _PrevOffsetX;
+	float     _PrevOffsetY;
 };
 
 _NPGS_END

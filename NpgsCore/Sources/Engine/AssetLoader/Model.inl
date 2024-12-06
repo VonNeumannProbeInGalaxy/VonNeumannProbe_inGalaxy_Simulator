@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Model.h"
 
 _NPGS_BEGIN

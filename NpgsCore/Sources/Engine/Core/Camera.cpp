@@ -5,14 +5,18 @@
 
 _NPGS_BEGIN
 
-Camera::Camera(const glm::vec3& Position, const glm::vec3& WorldUp) :
+Camera::Camera(const glm::vec3& Position, const glm::vec3& WorldUp,
+			   float Sensitivity, float Speed, float Zoom)
+	:
 	_Orientation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f)),
 	_Position(Position),
 	_Front(kFront),
 	_WorldUp(WorldUp),
-	_Sensitivity(kSensitivity),
-	_Speed(kSpeed),
-	_Zoom(kZoom)
+	_Sensitivity(Sensitivity),
+	_Speed(Speed),
+	_Zoom(Zoom),
+	_PrevOffsetX(0.0f),
+	_PrevOffsetY(0.0f)
 {
 	UpdateVectors();
 }
@@ -69,10 +73,16 @@ void Camera::ProcessKeyboard(Movement Direction, double DeltaTime)
 	UpdateVectors();
 }
 
-void Camera::ProcessMouseMovement(double OffsetX, double OffsetY, bool)
+void Camera::ProcessMouseMovement(double OffsetX, double OffsetY)
 {
-    float HorizontalAngle = static_cast<float>(_Sensitivity *  OffsetX);
-    float VerticalAngle   = static_cast<float>(_Sensitivity * -OffsetY);
+	static float SmoothCoefficient = 0.1f;
+	float SmoothedX = SmoothCoefficient * static_cast<float>(OffsetX) + (1.0f - SmoothCoefficient) * _PrevOffsetX;
+	float SmoothedY = SmoothCoefficient * static_cast<float>(OffsetY) + (1.0f - SmoothCoefficient) * _PrevOffsetY;
+	_PrevOffsetX = SmoothedX;
+	_PrevOffsetY = SmoothedY;
+
+    float HorizontalAngle = static_cast<float>(_Sensitivity *  SmoothedX);
+    float VerticalAngle   = static_cast<float>(_Sensitivity * -SmoothedY);
 
     ProcessRotation(HorizontalAngle, VerticalAngle, 0.0f);
 }

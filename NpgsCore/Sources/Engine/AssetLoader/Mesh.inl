@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Mesh.h"
 
 _NPGS_BEGIN

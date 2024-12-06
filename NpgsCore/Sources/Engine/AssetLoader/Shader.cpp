@@ -168,7 +168,7 @@ void Shader::InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderT
 GLuint Shader::CompileShader(const Source& ShaderSource, GLenum ShaderType) const
 {
 	GLuint Shader = glCreateShader(ShaderType);
-	const GLchar* SourceCodePointer = static_cast<const GLchar*>(ShaderSource.Data.c_str());
+	const GLchar* SourceCodePointer = ShaderSource.Data.c_str();
 
 	glShaderSource(Shader, 1, &SourceCodePointer, nullptr);
 	glCompileShader(Shader);

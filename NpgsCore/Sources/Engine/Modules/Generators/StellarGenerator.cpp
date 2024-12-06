@@ -86,10 +86,10 @@ StellarGenerator::StellarGenerator(const std::seed_seq& SeedSequence,
 
 	_FeHGenerators
 	{
-		std::make_shared<Util::LogNormalDistribution<>>(-0.3f, 0.5f),
-		std::make_shared<Util::NormalDistribution<>>(-0.3f, 0.15f),
-		std::make_shared<Util::NormalDistribution<>>(-0.08f, 0.12f),
-		std::make_shared<Util::NormalDistribution<>>(0.05f, 0.16f)
+		std::make_unique<Util::LogNormalDistribution<>>(-0.3f, 0.5f),
+		std::make_unique<Util::NormalDistribution<>>(-0.3f, 0.15f),
+		std::make_unique<Util::NormalDistribution<>>(-0.08f, 0.12f),
+		std::make_unique<Util::NormalDistribution<>>(0.05f, 0.16f)
 	},
 
 	_SpinGenerators
@@ -99,8 +99,8 @@ StellarGenerator::StellarGenerator(const std::seed_seq& SeedSequence,
 	},
 
 	_LogMassGenerator(Option == StellarGenerator::GenerateOption::kMergeStar ?
-					  std::make_shared<Util::UniformRealDistribution<>>(0.0f, 1.0f) :
-					  std::make_shared<Util::UniformRealDistribution<>>(std::log10(MassLowerLimit), std::log10(MassUpperLimit))),
+					  std::make_unique<Util::UniformRealDistribution<>>(0.0f, 1.0f) :
+					  std::make_unique<Util::UniformRealDistribution<>>(std::log10(MassLowerLimit), std::log10(MassUpperLimit))),
 	_AgeGenerator(AgeLowerLimit, AgeUpperLimit),
 	_CommonGenerator(0.0f, 1.0f),
 
@@ -669,8 +669,8 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 	{
 		if (Files.first != Files.second) [[likely]]
 		{
-			std::shared_ptr<MistData> LowerData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
-			std::shared_ptr<MistData> UpperData = LoadCsvAsset<MistData>(Files.second, _kMistHeaders);
+			MistData* LowerData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
+			MistData* UpperData = LoadCsvAsset<MistData>(Files.second, _kMistHeaders);
 
 			auto LowerPhaseChanges = FindPhaseChanges(LowerData);
 			auto UpperPhaseChanges = FindPhaseChanges(UpperData);
@@ -704,7 +704,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 		}
 		else [[unlikely]]
 		{
-			std::shared_ptr<MistData> StarData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
+			MistData* StarData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
 			auto PhaseChanges = FindPhaseChanges(StarData);
 
 			if (Util::Equal(TargetAge, -1.0))
@@ -753,8 +753,8 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 	{
 		if (Files.first != Files.second) [[likely]]
 		{
-			std::shared_ptr<WdMistData> LowerData = LoadCsvAsset<WdMistData>(Files.first,  _kWdMistHeaders);
-			std::shared_ptr<WdMistData> UpperData = LoadCsvAsset<WdMistData>(Files.second, _kWdMistHeaders);
+			WdMistData* LowerData = LoadCsvAsset<WdMistData>(Files.first,  _kWdMistHeaders);
+			WdMistData* UpperData = LoadCsvAsset<WdMistData>(Files.second, _kWdMistHeaders);
 
 			std::vector<double> LowerRows = InterpolateStarData(LowerData, TargetAge);
 			std::vector<double> UpperRows = InterpolateStarData(UpperData, TargetAge);
@@ -763,7 +763,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 		}
 		else [[unlikely]]
 		{
-			std::shared_ptr<WdMistData> StarData = LoadCsvAsset<WdMistData>(Files.first, _kWdMistHeaders);
+			WdMistData* StarData = LoadCsvAsset<WdMistData>(Files.first, _kWdMistHeaders);
 			Result = InterpolateStarData(StarData, TargetAge);
 		}
 	}
@@ -771,7 +771,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 	return Result;
 }
 
-std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const std::shared_ptr<MistData>& DataCsv)
+std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const MistData* DataCsv)
 {
 	std::vector<std::vector<double>> Result;
 
@@ -1040,7 +1040,7 @@ void StellarGenerator::AlignArrays(std::pair<std::vector<std::vector<double>>, s
 	}
 }
 
-std::vector<double> StellarGenerator::InterpolateHrDiagram(const std::shared_ptr<StellarGenerator::HrDiagram>& Data, double BvColorIndex)
+std::vector<double> StellarGenerator::InterpolateHrDiagram(StellarGenerator::HrDiagram* Data, double BvColorIndex)
 {
 	std::vector<double> Result;
 
@@ -1070,17 +1070,17 @@ std::vector<double> StellarGenerator::InterpolateHrDiagram(const std::shared_ptr
 	return Result;
 }
 
-std::vector<double> StellarGenerator::InterpolateStarData(const std::shared_ptr<StellarGenerator::MistData>& Data, double EvolutionProgress)
+std::vector<double> StellarGenerator::InterpolateStarData(StellarGenerator::MistData* Data, double EvolutionProgress)
 {
 	return InterpolateStarData(Data, EvolutionProgress, "x", StellarGenerator::_kXIndex, false);
 }
 
-std::vector<double> StellarGenerator::InterpolateStarData(const std::shared_ptr<StellarGenerator::WdMistData>& Data, double TargetAge)
+std::vector<double> StellarGenerator::InterpolateStarData(StellarGenerator::WdMistData* Data, double TargetAge)
 {
 	return InterpolateStarData(Data, TargetAge, "star_age", StellarGenerator::_kWdStarAgeIndex, true);
 }
 
-std::vector<double> StellarGenerator::InterpolateStarData(const auto& Data, double Target, const std::string& Header, int Index, bool bIsWhiteDwarf)
+std::vector<double> StellarGenerator::InterpolateStarData(auto* Data, double Target, const std::string& Header, int Index, bool bIsWhiteDwarf)
 {
 	std::vector<double> Result;
 
@@ -1429,7 +1429,7 @@ Util::StellarClass::LuminosityClass StellarGenerator::CalculateLuminosityClass(c
 	}
 
 	std::string HrDiagramDataFilepath = Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/H-R Diagram/H-R Diagram.csv");
-	std::shared_ptr<HrDiagram> HrDiagramData = LoadCsvAsset<HrDiagram>(HrDiagramDataFilepath, _kHrDiagramHeaders);
+	HrDiagram* HrDiagramData = LoadCsvAsset<HrDiagram>(HrDiagramDataFilepath, _kHrDiagramHeaders);
 
 	float Teff = StarData.GetTeff();
 	float BvColorIndex = 0.0f;
@@ -2076,11 +2076,11 @@ void StellarGenerator::ExpandMistData(double TargetMass, std::vector<double>& St
 }
 
 template<typename CsvType>
-std::shared_ptr<CsvType> StellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers)
+CsvType* StellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers)
 {
 	{
 		std::shared_lock Lock(_kCacheMutex);
-		auto Asset = Asset::AssetManager::GetAsset<CsvType>(Filename);
+		auto* Asset = Asset::AssetManager::GetAsset<CsvType>(Filename);
 		if (Asset != nullptr)
 		{
 			return Asset;
@@ -2088,10 +2088,10 @@ std::shared_ptr<CsvType> StellarGenerator::LoadCsvAsset(const std::string& Filen
 	}
 
 	std::unique_lock Lock(_kCacheMutex);
-	auto CsvAsset = std::make_shared<CsvType>(Filename, Headers);
+	auto CsvAsset = CsvType(Filename, Headers);
 	Asset::AssetManager::AddAsset<CsvType>(Filename, CsvAsset);
 
-	return CsvAsset;
+	return Asset::AssetManager::GetAsset<CsvType>(Filename);
 }
 
 const int StellarGenerator::_kStarAgeIndex        = 0;
@@ -2127,7 +2127,7 @@ const std::vector<std::string> StellarGenerator::_kWdMistHeaders
 
 const std::vector<std::string> StellarGenerator::_kHrDiagramHeaders{ "B-V", "Ia", "Ib", "II", "III", "IV", "V" };
 std::unordered_map<std::string, std::vector<float>> StellarGenerator::_kMassFileCache;
-std::unordered_map<std::shared_ptr<StellarGenerator::MistData>, std::vector<std::vector<double>>> StellarGenerator::_kPhaseChangesCache;
+std::unordered_map<const StellarGenerator::MistData*, std::vector<std::vector<double>>> StellarGenerator::_kPhaseChangesCache;
 std::shared_mutex StellarGenerator::_kCacheMutex;
 bool StellarGenerator::_kbMistDataInitiated = false;
 

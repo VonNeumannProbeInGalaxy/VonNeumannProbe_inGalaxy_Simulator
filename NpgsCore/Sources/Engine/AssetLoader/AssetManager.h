@@ -17,6 +17,15 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
+struct VoidDeleter
+{
+	template <typename T>
+	void operator()(T* Pointer)
+	{
+		delete Pointer;
+	}
+};
+
 template <typename AssetType>
 concept Copyable = std::copyable<AssetType>;
 
@@ -28,44 +37,25 @@ public:
 
 	template<typename AssetType>
 	requires Copyable<AssetType>
-	static void AddAsset(const std::string& Name, const std::shared_ptr<AssetType>& Asset)
-	{
-		_kAssets[Name] = Asset;
-	}
+	static void AddAsset(const std::string& Name, const AssetType& Asset);
 
 	template<typename AssetType>
 	requires Copyable<AssetType>
-	static std::shared_ptr<AssetType> GetAsset(const std::string& Name)
-	{
-		return std::static_pointer_cast<AssetType>(_kAssets[Name]);
-	}
+	static AssetType* GetAsset(const std::string& Name);
 
 	template<typename AssetType>
 	requires Copyable<AssetType>
-	static std::vector<std::shared_ptr<AssetType>> GetAssets()
-	{
-		std::vector<std::shared_ptr<AssetType>> Assets;
-		for (auto& Asset : _kAssets)
-		{
-			Assets.emplace_back(std::static_pointer_cast<AssetType>(Asset.second));
-		}
+	static std::vector<std::unique_ptr<AssetType>> GetAssets();
 
-		return Assets;
-	}
+	static void RemoveAsset(const std::string& Name);
 
-	static void RemoveAsset(const std::string& Name)
-	{
-		_kAssets.erase(Name);
-	}
-
-	static void ClearAssets()
-	{
-		_kAssets.clear();
-	}
+	static void ClearAssets();
 
 private:
-	static std::unordered_map<std::string, std::shared_ptr<void>> _kAssets;
+	static std::unordered_map<std::string, std::unique_ptr<void, VoidDeleter>> _kAssets;
 };
 
 _ASSET_END
 _NPGS_END
+
+#include "AssetManager.inl"

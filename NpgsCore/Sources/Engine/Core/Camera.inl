@@ -1,10 +1,12 @@
+#pragma once
+
 #include "Camera.h"
 
 _NPGS_BEGIN
 
 inline void Camera::ProcessMouseScroll(double OffsetY)
 {
-	_Speed += OffsetY * 0.1;
+	_Speed += static_cast<float>(OffsetY * 0.1);
 
 	if (_Speed <= 0)
 	{

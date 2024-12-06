@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Texture.h"
 
 _NPGS_BEGIN

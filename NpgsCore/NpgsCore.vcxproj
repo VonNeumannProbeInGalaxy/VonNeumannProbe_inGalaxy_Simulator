@@ -203,6 +203,7 @@
   <ItemGroup>
     <None Include="Assets\Shaders\Triangle.frag" />
     <None Include="Assets\Shaders\Triangle.vert" />
+    <None Include="Sources\Engine\AssetLoader\AssetManager.inl" />
     <None Include="Sources\Engine\AssetLoader\Mesh.inl" />
     <None Include="Sources\Engine\AssetLoader\Model.inl" />
     <None Include="Sources\Engine\AssetLoader\Shader.inl" />
@@ -213,6 +214,8 @@
     <None Include="Sources\Engine\Base\Intelli\Civilization.inl" />
     <None Include="Sources\Engine\Base\Astro\StellarSystem.inl" />
     <None Include="Sources\Engine\Core\Camera.inl" />
+    <None Include="Sources\Engine\Core\ThreadPool.inl" />
+    <None Include="Sources\Engine\Utilities\Logger.inl" />
     <None Include="Sources\Engine\Utilities\StellarClass.inl" />
     <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />
   </ItemGroup>

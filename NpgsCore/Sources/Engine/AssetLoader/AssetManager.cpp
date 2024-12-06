@@ -5,7 +5,20 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-std::unordered_map<std::string, std::shared_ptr<void>> AssetManager::_kAssets;
+template<typename AssetType>
+requires Copyable<AssetType>
+std::vector<std::unique_ptr<AssetType>> AssetManager::GetAssets()
+{
+	std::vector<std::unique_ptr<AssetType>> Assets;
+	for (auto& Asset : _kAssets)
+	{
+		Assets.emplace_back(std::make_unique<AssetType>(*static_cast<AssetType*>(Asset.second.get())));
+	}
+
+	return Assets;
+}
+
+std::unordered_map<std::string, std::unique_ptr<void, VoidDeleter>> AssetManager::_kAssets;
 
 _ASSET_END
 _NPGS_END

@@ -11,16 +11,8 @@ class NPGS_API Logger
 {
 public:
 	static void Init();
-
-	static std::shared_ptr<spdlog::logger>& GetCoreLogger()
-	{
-		return _kCoreLogger;
-	}
-
-	static std::shared_ptr<spdlog::logger>& GetClientLogger()
-	{
-		return _kClientLogger;
-	}
+	static std::shared_ptr<spdlog::logger>& GetCoreLogger();
+	static std::shared_ptr<spdlog::logger>& GetClientLogger();
 
 private:
 	Logger() {};
@@ -32,6 +24,8 @@ private:
 
 _UTIL_END
 _NPGS_END
+
+#include "Logger.inl"
 
 #ifdef ENABLE_CONSOLE_LOGGER
 // Core logger
