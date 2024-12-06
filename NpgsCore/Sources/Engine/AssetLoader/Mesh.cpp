@@ -43,9 +43,33 @@ Mesh::Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indic
 	glDeleteBuffers(1, &ElementBuffer);
 }
 
+Mesh::Mesh(Mesh&& Other) noexcept
+	:
+	_Indices(std::move(Other._Indices)),
+	_Textures(std::move(Other._Textures)),
+	_VertexArray(Other._VertexArray)
+{
+	Other._VertexArray = 0;
+}
+
 Mesh::~Mesh()
 {
 	glDeleteVertexArrays(1, &_VertexArray);
+}
+
+Mesh& Mesh::operator=(Mesh&& Other) noexcept
+{
+	if (this != &Other)
+	{
+		glDeleteVertexArrays(1, &_VertexArray);
+
+		_Indices           = std::move(Other._Indices);
+		_Textures          = std::move(Other._Textures);
+		_VertexArray       = Other._VertexArray;
+		Other._VertexArray = 0;
+	}
+
+	return *this;
 }
 
 void Mesh::Draw(const Shader& ModelShader) const

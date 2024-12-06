@@ -44,7 +44,12 @@ public:
 public:
 	Mesh() = default;
 	Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices, const std::vector<Texture>& Textures);
+	Mesh(const Mesh&) = delete;
+	Mesh(Mesh&& Other) noexcept;
 	~Mesh();
+
+	Mesh& operator=(const Mesh&) = delete;
+	Mesh& operator=(Mesh&& Other) noexcept;
 
 	void Draw(const Shader& ModelShader) const;
 

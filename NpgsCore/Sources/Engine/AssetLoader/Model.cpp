@@ -34,6 +34,26 @@ Model::Model(const std::string& Filename)
 	ProcessNode(Scene->mRootNode, Scene);
 }
 
+Model::Model(Model&& Other) noexcept
+	:
+	_Textures(std::move(Other._Textures)),
+	_Meshes(std::move(Other._Meshes)),
+	_Directory(std::move(Other._Directory))
+{
+}
+
+Model& Model::operator=(Model&& Other) noexcept
+{
+	if (this != &Other)
+	{
+		_Textures  = std::move(Other._Textures);
+		_Meshes    = std::move(Other._Meshes);
+		_Directory = std::move(Other._Directory);
+	}
+
+	return *this;
+}
+
 void Model::Draw(const Shader& ModelShader) const
 {
 	for (const auto& Mesh : _Meshes)

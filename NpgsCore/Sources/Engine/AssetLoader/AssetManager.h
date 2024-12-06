@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "Engine/AssetLoader/Csv.hpp"
@@ -27,7 +28,7 @@ struct VoidDeleter
 };
 
 template <typename AssetType>
-concept Copyable = std::copyable<AssetType>;
+concept MoveOnlyType = std::movable<AssetType> && !std::copyable<AssetType>;
 
 class NPGS_API AssetManager
 {
@@ -36,15 +37,15 @@ public:
 	~AssetManager() = default;
 
 	template<typename AssetType>
-	requires Copyable<AssetType>
-	static void AddAsset(const std::string& Name, const AssetType& Asset);
+	requires MoveOnlyType<AssetType>
+	static void AddAsset(const std::string& Name, AssetType&& Asset);
 
 	template<typename AssetType>
-	requires Copyable<AssetType>
+	requires MoveOnlyType<AssetType>
 	static AssetType* GetAsset(const std::string& Name);
 
 	template<typename AssetType>
-	requires Copyable<AssetType>
+	requires MoveOnlyType<AssetType>
 	static std::vector<std::unique_ptr<AssetType>> GetAssets();
 
 	static void RemoveAsset(const std::string& Name);

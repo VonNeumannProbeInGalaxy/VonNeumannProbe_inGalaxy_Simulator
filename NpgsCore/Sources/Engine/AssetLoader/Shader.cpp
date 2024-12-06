@@ -64,9 +64,36 @@ Shader::Shader(const std::vector<std::string>& SourceFiles, const std::string& P
 	}
 }
 
+Shader::Shader(Shader&& Other) noexcept
+	:
+	_IncludedFiles(std::move(Other._IncludedFiles)),
+	_ShaderTypes(std::move(Other._ShaderTypes)),
+	_Program(Other._Program)
+{
+	Other._Program = 0;
+}
+
 Shader::~Shader()
 {
 	glDeleteProgram(_Program);
+}
+
+Shader& Shader::operator=(Shader&& Other) noexcept
+{
+	if (this != &Other)
+	{
+		if (_Program)
+		{
+			glDeleteProgram(_Program);
+		}
+
+		_IncludedFiles = std::move(Other._IncludedFiles);
+		_ShaderTypes   = std::move(Other._ShaderTypes);
+		_Program       = Other._Program;
+		Other._Program = 0;
+	}
+
+	return *this;
 }
 
 std::string Shader::GetIncludeDirectory(const std::string& Filepath) const

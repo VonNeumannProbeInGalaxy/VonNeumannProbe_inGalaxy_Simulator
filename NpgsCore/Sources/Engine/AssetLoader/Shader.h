@@ -39,7 +39,12 @@ public:
 	//        __VERT 表示顶点着色器，__FRAG 表示片元着色器，__GEOM 表示几何着色器（注意是两个下划线）。目前支持这三种着色器。
 	//        例：{ __FRAG_MY_MACRO 1 } 将会插入 #define MY_MACRO 1 语句到片元着色器的源代码中。
 	Shader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName = "", const std::vector<std::string>& Macros = { "NULL" });
+	Shader(const Shader&) = delete;
+	Shader(Shader&& Other) noexcept;
 	~Shader();
+
+	Shader& operator=(const Shader&) = delete;
+	Shader& operator=(Shader&& Other) noexcept;
 
 	GLuint GetProgram() const;
 	void UseProgram() const;

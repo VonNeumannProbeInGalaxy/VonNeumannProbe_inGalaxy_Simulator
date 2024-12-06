@@ -73,7 +73,13 @@ public:
 	// @param Height 纹理高度。
 	Texture(Type CreateType, GLsizei Width, GLsizei Height);
 
+	Texture(const Texture&) = delete;
+	Texture(Texture&& Other) noexcept;
+
 	~Texture();
+
+	Texture& operator=(const Texture&) = delete;
+	Texture& operator=(Texture&& Other) noexcept;
 
 	// @brief 绑定纹理单元。
 	// @param ActivatedShader 激活的着色器。

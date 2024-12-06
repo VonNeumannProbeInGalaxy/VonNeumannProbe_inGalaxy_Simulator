@@ -6,7 +6,7 @@ _NPGS_BEGIN
 _ASSET_BEGIN
 
 template<typename AssetType>
-requires Copyable<AssetType>
+requires MoveOnlyType<AssetType>
 std::vector<std::unique_ptr<AssetType>> AssetManager::GetAssets()
 {
 	std::vector<std::unique_ptr<AssetType>> Assets;

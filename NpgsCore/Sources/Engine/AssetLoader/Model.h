@@ -25,7 +25,12 @@ public:
 	// @param Filename 模型文件路径。函数内部已经调用过 GetAssetFilepath，故只需要传递 Models/ 路径之后的文件名。
 	//        例：Backpack/backpack.obj。
 	Model(const std::string& Filename);
+	Model(const Model&) = delete;
+	Model(Model&& Other) noexcept;
 	~Model() = default;
+
+	Model& operator=(const Model&) = delete;
+	Model& operator=(Model&& Other) noexcept;
 
 	void Draw(const Shader& ModelShader) const;
 

@@ -134,9 +134,34 @@ Texture::Texture(Type CreateType, GLsizei Width, GLsizei Height) : _Texture(0), 
 	glTextureParameterfv(_Texture, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(BorderColor));
 }
 
+Texture::Texture(Texture&& Other) noexcept
+	:
+	_Texture(Other._Texture),
+	_TextureType(Other._TextureType)
+{
+	Other._Texture = 0;
+}
+
 Texture::~Texture()
 {
 	glDeleteTextures(1, &_Texture);
+}
+
+Texture& Texture::operator=(Texture&& Other) noexcept
+{
+	if (this != &Other)
+	{
+		if (_Texture)
+		{
+			glDeleteTextures(1, &_Texture);
+		}
+
+		_Texture       = Other._Texture;
+		_TextureType   = Other._TextureType;
+		Other._Texture = 0;
+	}
+
+	return *this;
 }
 
 void Texture::BindTextureUnit(const Shader& ActivatedShader, const std::string& UniformName, GLuint Unit) const

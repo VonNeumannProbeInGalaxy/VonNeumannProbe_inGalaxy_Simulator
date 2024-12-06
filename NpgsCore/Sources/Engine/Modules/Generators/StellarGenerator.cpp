@@ -2088,8 +2088,7 @@ CsvType* StellarGenerator::LoadCsvAsset(const std::string& Filename, const std::
 	}
 
 	std::unique_lock Lock(_kCacheMutex);
-	auto CsvAsset = CsvType(Filename, Headers);
-	Asset::AssetManager::AddAsset<CsvType>(Filename, CsvAsset);
+	Asset::AssetManager::AddAsset<CsvType>(Filename, CsvType(Filename, Headers));
 
 	return Asset::AssetManager::GetAsset<CsvType>(Filename);
 }
