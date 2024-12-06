@@ -23,7 +23,7 @@ int         kMultiSamples = 4;
 
 static void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY);
 static void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height);
-static GLvoid MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, const GLvoid* UserParam);
+static void MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, const void* UserParam);
 static void ProcessInput(GLFWwindow* Window, double DeltaTime);
 static void ScrollCallback(GLFWwindow* Window, GLdouble OffsetX, GLdouble OffsetY);
 static void Terminate(GLFWwindow* Window);
@@ -99,11 +99,11 @@ int main()
 	
 	glEnable(GL_DEPTH_TEST);
 
-	double        CurrentTime   = 0.0;
-	double        PreviousTime  = glfwGetTime();
-	double        LastFrameTime = 0.0;
-	double        DeltaTime     = 0.0;
-	std::uint32_t FrameCount    = 0;
+	double CurrentTime   = 0.0;
+	double PreviousTime  = glfwGetTime();
+	double LastFrameTime = 0.0;
+	double DeltaTime     = 0.0;
+	int    FrameCount    = 0;
 
 	glm::mat4x4 Model(1.0f);
 	glm::mat4x4 View(1.0f);
@@ -196,7 +196,7 @@ void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height)
 	}
 }
 
-GLvoid MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, const GLvoid* UserParam)
+void MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, const void* UserParam)
 {
 	auto SourceStr = [Source]() -> std::string
 	{
@@ -282,7 +282,6 @@ void ProcessInput(GLFWwindow* Window, double DeltaTime)
 		kbFirstMouse = true;
 	}
 
-	// 相机移动控制
 	if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
 		kFreeCamera->ProcessKeyboard(Movement::kForward, DeltaTime);
 	if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)

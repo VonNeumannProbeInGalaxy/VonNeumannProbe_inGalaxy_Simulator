@@ -59,10 +59,10 @@ void Camera::ProcessKeyboard(Movement Direction, double DeltaTime)
 		_Position -= _Up * Velocity;
 		break;
 	case Movement::kRollLeft:
-		ProcessRotation(0.0f, 0.0f,  10.0f * Velocity);
+		ProcessRotation(0.0f, 0.0f, -10.0f * Velocity);
 		break;
 	case Movement::kRollRight:
-		ProcessRotation(0.0f, 0.0f, -10.0f * Velocity);
+		ProcessRotation(0.0f, 0.0f,  10.0f * Velocity);
 		break;
 	}
 
@@ -75,16 +75,6 @@ void Camera::ProcessMouseMovement(double OffsetX, double OffsetY, bool)
     float VerticalAngle   = static_cast<float>(_Sensitivity * -OffsetY);
 
     ProcessRotation(HorizontalAngle, VerticalAngle, 0.0f);
-}
-
-void Camera::ProcessMouseScroll(double OffsetY)
-{
-	_Speed += OffsetY * 0.1;
-
-	if (_Speed <= 0)
-	{
-		_Speed = 0;
-	}
 }
 
 void Camera::ProcessRotation(float Yaw, float Pitch, float Roll)

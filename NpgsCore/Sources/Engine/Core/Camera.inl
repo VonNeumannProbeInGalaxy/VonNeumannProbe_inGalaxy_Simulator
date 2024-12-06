@@ -2,6 +2,16 @@
 
 _NPGS_BEGIN
 
+inline void Camera::ProcessMouseScroll(double OffsetY)
+{
+	_Speed += OffsetY * 0.1;
+
+	if (_Speed <= 0)
+	{
+		_Speed = 0;
+	}
+}
+
 inline float Camera::GetCameraZoom() const
 {
 	return _Zoom;

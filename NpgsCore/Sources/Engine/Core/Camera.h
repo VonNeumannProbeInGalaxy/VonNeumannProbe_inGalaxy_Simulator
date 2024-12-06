@@ -23,9 +23,7 @@ enum class VectorType
 
 constexpr glm::vec3 kPosition    = glm::vec3(0.0f);
 constexpr glm::vec3 kFront       = glm::vec3(0.0f, 0.0f, -1.0f);
-constexpr glm::vec3 kWorldUp     = glm::vec3(0.0f, 1.0f, 0.0f);
-constexpr float     kPitch       = 0.0f;
-constexpr float     kYaw         = -90.0f;
+constexpr glm::vec3 kWorldUp     = glm::vec3(0.0f, 1.0f,  0.0f);
 constexpr float     kZoom        = 45.0f;
 constexpr double    kSensitivity = 0.05;
 constexpr double    kSpeed       = 2.5;

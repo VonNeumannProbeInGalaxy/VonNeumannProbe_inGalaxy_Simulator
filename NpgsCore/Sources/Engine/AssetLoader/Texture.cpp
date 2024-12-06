@@ -139,7 +139,7 @@ Texture::~Texture()
 	glDeleteTextures(1, &_Texture);
 }
 
-GLvoid Texture::BindTextureUnit(const Shader& ActivatedShader, const std::string& UniformName, GLuint Unit) const
+void Texture::BindTextureUnit(const Shader& ActivatedShader, const std::string& UniformName, GLuint Unit) const
 {
 	glBindTextureUnit(Unit, _Texture);
 	ActivatedShader.SetUniform1i(UniformName, static_cast<GLint>(Unit));
