@@ -10,9 +10,9 @@ inline GLuint Texture::GetTexture() const
 	return _Texture;
 }
 
-inline Texture::Type Texture::GetTextureType() const
+inline Texture::TextureType Texture::GetTextureType() const
 {
-	return _TextureType;
+	return _Type;
 }
 
 _ASSET_END

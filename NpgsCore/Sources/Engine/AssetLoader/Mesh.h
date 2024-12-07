@@ -17,8 +17,6 @@ _ASSET_BEGIN
 
 const int kMaxBoneInfluence = 4;
 
-// @brief Mesh 网格类，用于加载和绘制网格模型。
-//        该类不会手动调用，故省略注释。
 class NPGS_API Mesh
 {
 public:

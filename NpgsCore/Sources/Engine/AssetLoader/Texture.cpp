@@ -13,14 +13,14 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-Texture::Texture(Type CreateType, const std::string& Filepath, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
-	: _Texture(0), _TextureType(CreateType)
+Texture::Texture(TextureType CreateType, const std::string& Filepath, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
+	: _Texture(0), _Type(CreateType)
 {
 	ImageData Data{};
 
-	switch (_TextureType)
+	switch (_Type)
 	{
-	case Type::k2D:
+	case TextureType::k2D:
 	{
 		Data = LoadImage(Filepath, bSrgb, bFlipVertically, bAutoFillFilepath);
 
@@ -37,7 +37,7 @@ Texture::Texture(Type CreateType, const std::string& Filepath, bool bSrgb, bool 
 
 		break;
 	}
-	case Type::kCubeMap:
+	case TextureType::kCubeMap:
 	{
 		glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_Texture);
 
@@ -91,7 +91,7 @@ Texture::Texture(Type CreateType, const std::string& Filepath, bool bSrgb, bool 
 	stbi_image_free(Data.Data);
 }
 
-Texture::Texture(Type CreateType, const FT_Face& Face) : _Texture(0), _TextureType(CreateType)
+Texture::Texture(TextureType CreateType, const FT_Face& Face) : _Texture(0), _Type(CreateType)
 {
 	glCreateTextures(GL_TEXTURE_2D, 1, &_Texture);
 	glTextureStorage2D(_Texture, 1, GL_R8, Face->glyph->bitmap.width, Face->glyph->bitmap.rows);
@@ -103,8 +103,8 @@ Texture::Texture(Type CreateType, const FT_Face& Face) : _Texture(0), _TextureTy
 	glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-Texture::Texture(Type CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer)
-	: _Texture(0), _TextureType(CreateType)
+Texture::Texture(TextureType CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer)
+	: _Texture(0), _Type(CreateType)
 {
 	glCreateTextures(GL_TEXTURE_2D, 1, &_Texture);
 	glTextureParameteri(_Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -113,15 +113,15 @@ Texture::Texture(Type CreateType, GLsizei Width, GLsizei Height, GLenum Internal
 	glNamedFramebufferTexture(Framebuffer, Attachment, _Texture, 0);
 }
 
-Texture::Texture(Type CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLsizei Samples, GLenum Attachment, bool bFixedSampleLocations, GLuint Framebuffer)
-	: _Texture(0), _TextureType(CreateType)
+Texture::Texture(TextureType CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLsizei Samples, GLenum Attachment, bool bFixedSampleLocations, GLuint Framebuffer)
+	: _Texture(0), _Type(CreateType)
 {
 	glCreateTextures(GL_TEXTURE_2D_MULTISAMPLE, 1, &_Texture);
 	glTextureStorage2DMultisample(_Texture, Samples, InternalFormat, Width, Height, bFixedSampleLocations);
 	glNamedFramebufferTexture(Framebuffer, Attachment, _Texture, 0);
 }
 
-Texture::Texture(Type CreateType, GLsizei Width, GLsizei Height) : _Texture(0), _TextureType(CreateType)
+Texture::Texture(TextureType CreateType, GLsizei Width, GLsizei Height) : _Texture(0), _Type(CreateType)
 {
 	glCreateTextures(GL_TEXTURE_2D, 1, &_Texture);
 	glTextureStorage2D(_Texture, 1, GL_DEPTH_COMPONENT24, Width, Height);
@@ -137,7 +137,7 @@ Texture::Texture(Type CreateType, GLsizei Width, GLsizei Height) : _Texture(0), 
 Texture::Texture(Texture&& Other) noexcept
 	:
 	_Texture(Other._Texture),
-	_TextureType(Other._TextureType)
+	_Type(Other._Type)
 {
 	Other._Texture = 0;
 }
@@ -157,7 +157,7 @@ Texture& Texture::operator=(Texture&& Other) noexcept
 		}
 
 		_Texture       = Other._Texture;
-		_TextureType   = Other._TextureType;
+		_Type          = Other._Type;
 		Other._Texture = 0;
 	}
 

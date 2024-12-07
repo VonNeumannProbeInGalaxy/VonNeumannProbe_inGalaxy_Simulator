@@ -15,15 +15,10 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-// @brief 模型类，用于加载和渲染模型。
 class Model
 {
 public:
 	Model() = default;
-
-	// @brief 构造函数，加载模型文件。
-	// @param Filename 模型文件路径。函数内部已经调用过 GetAssetFilepath，故只需要传递 Models/ 路径之后的文件名。
-	//        例：Backpack/backpack.obj。
 	Model(const std::string& Filename);
 	Model(const Model&) = delete;
 	Model(Model&& Other) noexcept;

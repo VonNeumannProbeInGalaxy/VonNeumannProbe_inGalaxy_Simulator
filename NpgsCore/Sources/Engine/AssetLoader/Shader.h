@@ -12,32 +12,19 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-// @brief 着色器类，用于从 GLSL 代码文件或二进制着色器程序文件加载并创建着色器程序。
-//        支持 #include 指令，支持在加载的同时插入宏。
 class Shader
 {
 private:
-	// @brief Source 结构体
 	struct Source
 	{
-		std::string Data;        // 着色器字符串数据
-		std::string Filepath;    // 着色器源代码文件路径
-		bool        bHasInclude; // 是否有 #include 指令
-		bool        bHasMacros;  // 是否包含插入宏
+		std::string Data;
+		std::string Filepath;
+		bool        bHasInclude;
+		bool        bHasMacros;
 	};
 
 public:
 	Shader();
-
-	// @brief 着色器类主构造函数，用于通过给定的参数加载着色器程序。
-	// @param SourceFiles 着色器源代码文件路径列表。使用 {} 初始化列表传递 2-3 个参数，几何着色器是可选的。
-	//        内部已经调用了 GetAssetFilepath 函数，直接从 Shaders/ 之后传递文件名即可。
-	//        例：{ "VertShaders/Shader.glsl", "FragShaders/Shader.glsl" }
-	//        或  { "VertShaders/Shader.glsl", "FragShaders/Shader.glsl", "GeomShaders/Shader.glsl" }。
-	// @param ProgramName 着色器二进制程序文件名。留空则不保存二进制程序，也不会从二进制程序加载。
-	// @param Macros 插入宏列表。可以使用 {} 初始化列表传递多个。通过不同前缀识别不同着色器的宏，
-	//        __VERT 表示顶点着色器，__FRAG 表示片元着色器，__GEOM 表示几何着色器（注意是两个下划线）。目前支持这三种着色器。
-	//        例：{ __FRAG_MY_MACRO 1 } 将会插入 #define MY_MACRO 1 语句到片元着色器的源代码中。
 	Shader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName = "", const std::vector<std::string>& Macros = { "NULL" });
 	Shader(const Shader&) = delete;
 	Shader(Shader&& Other) noexcept;

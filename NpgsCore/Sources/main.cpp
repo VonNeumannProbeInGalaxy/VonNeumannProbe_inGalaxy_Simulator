@@ -83,8 +83,8 @@ int main()
 	std::vector<std::string> LampShaderMacros{ "__FRAG_LAMP_CUBE" };
 	AssetManager::AddAsset<Shader>("Triangle", Shader(TriangleShaderFiles));
 	AssetManager::AddAsset<Shader>("Lamp", Shader(TriangleShaderFiles, "", LampShaderMacros));
-	AssetManager::AddAsset<Texture>("TexNpgs", Texture(Texture::Type::k2D, "Wood.png"));
-	AssetManager::AddAsset<Texture>("TexFace", Texture(Texture::Type::k2D, "AwesomeFace.png"));
+	AssetManager::AddAsset<Texture>("TexNpgs", Texture(Texture::TextureType::k2D, "Wood.png"));
+	AssetManager::AddAsset<Texture>("TexFace", Texture(Texture::TextureType::k2D, "AwesomeFace.png"));
 
 	GLuint VertexArray  = 0;
 	GLuint VertexBuffer = 0;
