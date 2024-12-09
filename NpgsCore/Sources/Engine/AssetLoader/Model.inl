@@ -5,7 +5,7 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-inline const std::vector<std::unique_ptr<Mesh>>& Model::GetMeshes() const
+NPGS_INLINE const std::vector<std::unique_ptr<Mesh>>& Model::GetMeshes() const
 {
 	return _Meshes;
 }

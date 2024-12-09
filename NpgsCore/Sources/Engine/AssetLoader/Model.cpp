@@ -170,7 +170,7 @@ std::vector<Mesh::Texture> Model::LoadMaterialTextures(const aiMaterial* Materia
 		if (!bSkipLoading)
 		{
 			std::string ImageFilepath = _Directory + '/' + ImageFilename.C_Str();
-			MaterialTexture.Data = std::make_shared<Asset::Texture>(Asset::Texture::Type::k2D, ImageFilepath, true, true, false);
+			MaterialTexture.Data = std::make_shared<Asset::Texture>(Asset::Texture::TextureType::k2D, ImageFilepath, true, true, false);
 			MaterialTexture.TypeName = TypeName;
 			MaterialTexture.ImageFilename = ImageFilename.C_Str();
 			Textures.emplace_back(MaterialTexture);

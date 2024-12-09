@@ -5,12 +5,12 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-inline GLuint Texture::GetTexture() const
+NPGS_INLINE GLuint Texture::GetTexture() const
 {
 	return _Texture;
 }
 
-inline Texture::TextureType Texture::GetTextureType() const
+NPGS_INLINE Texture::TextureType Texture::GetTextureType() const
 {
 	return _Type;
 }

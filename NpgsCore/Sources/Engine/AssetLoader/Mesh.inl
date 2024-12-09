@@ -5,12 +5,12 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-inline GLuint Mesh::GetVertexArray() const
+NPGS_INLINE GLuint Mesh::GetVertexArray() const
 {
 	return _VertexArray;
 }
 
-inline const std::vector<GLuint>& Mesh::GetIndices() const
+NPGS_INLINE const std::vector<GLuint>& Mesh::GetIndices() const
 {
 	return _Indices;
 }

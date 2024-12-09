@@ -2,8 +2,8 @@
 
 #include <utility>
 
-// NPGS_API
-// ---------
+// NPGS_API NPGS_INLINE
+// --------------------
 #ifdef _WIN64
 #   ifdef _MSVC_LANG
 #       ifdef NPGS_DLL_EXPORT
@@ -15,6 +15,7 @@
 #       else
 #           define NPGS_API
 #       endif // NPGS_DLL_BUILD
+#       define NPGS_INLINE __forceinline
 #   else
 #       error NPGS can only build on Visual Studio with MSVC
 #   endif // _MSVC_LANG
