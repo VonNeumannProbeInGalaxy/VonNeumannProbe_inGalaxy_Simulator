@@ -459,7 +459,8 @@ void StellarGenerator::InitMistData()
 		return;
 	}
 
-	const std::array<std::string, 10> kPresetPrefix{
+	const std::array<std::string, 10> kPresetPrefix
+	{
 		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-4.0"),
 		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-3.0"),
 		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-2.0"),
