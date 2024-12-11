@@ -103,7 +103,7 @@ public:
 	private:
 		std::vector<Orbit*> _DirectOrbits;         // 直接下级轨道
 		Orbit*              _HostOrbit{};          // 所在轨道
-		OrbitalObject       _Object;               // 轨道天体
+		OrbitalObject       _Object;               // 天体
 		float               _InitialTrueAnomaly{}; // 初始真近点角，单位 rad
 	};
 
