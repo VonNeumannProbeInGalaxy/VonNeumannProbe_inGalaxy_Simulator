@@ -194,7 +194,7 @@ void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System)
 
 	float LogPeriodDays       = 0.0f;
 	float CommonCoefficient   = 365 * std::pow(MassSol1 + MassSol2, 0.3f);
-	float LogPeriodLowerLimit = std::log10(50 * CommonCoefficient);
+	float LogPeriodLowerLimit = std::log10(50   * CommonCoefficient);
 	float LogPeriodUpperLimit = std::log10(2500 * CommonCoefficient);
 
 	do {
