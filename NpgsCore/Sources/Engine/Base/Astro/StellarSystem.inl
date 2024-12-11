@@ -72,13 +72,13 @@ NPGS_INLINE T* Orbit::OrbitalObject::GetObject() const
 	return nullptr;
 }
 
-NPGS_INLINE Orbit::ObjectDetails& Orbit::ObjectDetails::SetHostOrbit(Orbit* HostOrbit)
+NPGS_INLINE Orbit::OrbitalDetails& Orbit::OrbitalDetails::SetHostOrbit(Orbit* HostOrbit)
 {
 	_HostOrbit = HostOrbit;
 	return *this;
 }
 
-NPGS_INLINE Orbit::ObjectDetails& Orbit::ObjectDetails::SetOrbitalObject(NpgsObject* Object, ObjectType Type)
+NPGS_INLINE Orbit::OrbitalDetails& Orbit::OrbitalDetails::SetOrbitalObject(NpgsObject* Object, ObjectType Type)
 {
 	switch (Type)
 	{
@@ -104,28 +104,28 @@ NPGS_INLINE Orbit::ObjectDetails& Orbit::ObjectDetails::SetOrbitalObject(NpgsObj
 	return *this;
 }
 
-NPGS_INLINE Orbit::ObjectDetails& Orbit::ObjectDetails::SetInitialTrueAnomaly(float InitialTrueAnomaly)
+NPGS_INLINE Orbit::OrbitalDetails& Orbit::OrbitalDetails::SetInitialTrueAnomaly(float InitialTrueAnomaly)
 {
 	_InitialTrueAnomaly = InitialTrueAnomaly;
 	return *this;
 }
 
-NPGS_INLINE Orbit* Orbit::ObjectDetails::GetHostOrbit()
+NPGS_INLINE Orbit* Orbit::OrbitalDetails::GetHostOrbit()
 {
 	return _HostOrbit;
 }
 
-NPGS_INLINE Orbit::OrbitalObject& Orbit::ObjectDetails::GetOrbitalObject()
+NPGS_INLINE Orbit::OrbitalObject& Orbit::OrbitalDetails::GetOrbitalObject()
 {
 	return _Object;
 }
 
-NPGS_INLINE float Orbit::ObjectDetails::GetInitialTrueAnomaly() const
+NPGS_INLINE float Orbit::OrbitalDetails::GetInitialTrueAnomaly() const
 {
 	return _InitialTrueAnomaly;
 }
 
-NPGS_INLINE std::vector<Orbit*> Orbit::ObjectDetails::DirectOrbitsData()
+NPGS_INLINE std::vector<Orbit*> Orbit::OrbitalDetails::DirectOrbitsData()
 {
 	return _DirectOrbits;
 }
@@ -249,7 +249,7 @@ NPGS_INLINE float Orbit::GetPeriod() const
 	return _Period;
 }
 
-NPGS_INLINE std::vector<Orbit::ObjectDetails>& Orbit::ObjectsData()
+NPGS_INLINE std::vector<Orbit::OrbitalDetails>& Orbit::ObjectsData()
 {
 	return _Objects;
 }

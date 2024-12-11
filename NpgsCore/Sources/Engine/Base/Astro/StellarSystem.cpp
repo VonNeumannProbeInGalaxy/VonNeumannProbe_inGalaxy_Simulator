@@ -32,7 +32,7 @@ Orbit::OrbitalObject::OrbitalObject(NpgsObject* Object, ObjectType Type)
 	}
 }
 
-Orbit::ObjectDetails::ObjectDetails(NpgsObject* Object, ObjectType Type, Orbit* HostOrbit, float InitialTrueAnomaly)
+Orbit::OrbitalDetails::OrbitalDetails(NpgsObject* Object, ObjectType Type, Orbit* HostOrbit, float InitialTrueAnomaly)
 	: _Object{ OrbitalObject(Object, Type) }, _HostOrbit(HostOrbit), _InitialTrueAnomaly(InitialTrueAnomaly)
 {
 }

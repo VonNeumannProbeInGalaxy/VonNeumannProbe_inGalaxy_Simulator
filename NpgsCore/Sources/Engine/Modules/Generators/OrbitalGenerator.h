@@ -57,7 +57,7 @@ private:
 	void GenerateBinaryOrbit(Astro::StellarSystem& System);
 
 	void GeneratePlanets(std::size_t StarIndex,
-						 Astro::Orbit::ObjectDetails& ParentStar,
+						 Astro::Orbit::OrbitalDetails& ParentStar,
 						 Astro::StellarSystem& System);
 
 	void GenerateOrbitElements(Astro::Orbit& Orbit);
@@ -91,14 +91,14 @@ private:
 					   const Astro::Star* Star,
 					   float PoyntingVector,
 					   const std::pair<float, float>& HabitableZoneAu,
-					   Astro::Orbit::ObjectDetails& ParentPlanet,
+					   Astro::Orbit::OrbitalDetails& ParentPlanet,
 					   std::vector<std::unique_ptr<Astro::Orbit>>& Orbits,
 					   std::vector<std::unique_ptr<Astro::Planet>>& Planets);
 
 	void GenerateRings(std::size_t PlanetIndex,
 					   float FrostLineAu,
 					   const Astro::Star* Star,
-					   Astro::Orbit::ObjectDetails& ParentPlanet,
+					   Astro::Orbit::OrbitalDetails& ParentPlanet,
 					   std::vector<std::unique_ptr<Astro::Orbit>>& Orbits,
 					   std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters);
 
@@ -111,7 +111,7 @@ private:
 	void GenerateTrojan(const Astro::Star* Star,
 						float FrostLineAu,
 						Astro::Orbit* Orbit,
-						Astro::Orbit::ObjectDetails& ParentPlanet,
+						Astro::Orbit::OrbitalDetails& ParentPlanet,
 						std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters);
 
 	void GenerateCivilization(const Astro::Star* Star,

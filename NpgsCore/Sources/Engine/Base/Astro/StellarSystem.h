@@ -83,16 +83,16 @@ public:
 		ObjectType    _Type{ ObjectType::kBaryCenter };
 	};
 
-	class ObjectDetails
+	class OrbitalDetails
 	{
 	public:
-		ObjectDetails() = default;
-		ObjectDetails(NpgsObject* Object, ObjectType Type, Orbit* HostOrbit, float InitialTrueAnomaly = 0.0f);
-		~ObjectDetails() = default;
+		OrbitalDetails() = default;
+		OrbitalDetails(NpgsObject* Object, ObjectType Type, Orbit* HostOrbit, float InitialTrueAnomaly = 0.0f);
+		~OrbitalDetails() = default;
 
-		ObjectDetails& SetHostOrbit(Orbit* HostOrbit);
-		ObjectDetails& SetOrbitalObject(NpgsObject* Object, ObjectType Type);
-		ObjectDetails& SetInitialTrueAnomaly(float InitialTrueAnomaly);
+		OrbitalDetails& SetHostOrbit(Orbit* HostOrbit);
+		OrbitalDetails& SetOrbitalObject(NpgsObject* Object, ObjectType Type);
+		OrbitalDetails& SetInitialTrueAnomaly(float InitialTrueAnomaly);
 
 		Orbit* GetHostOrbit();
 		OrbitalObject& GetOrbitalObject();
@@ -131,11 +131,11 @@ public:
 	const glm::vec2& GetNormal() const;
 	float GetPeriod() const;
 	
-	std::vector<ObjectDetails>& ObjectsData();
+	std::vector<OrbitalDetails>& ObjectsData();
 
 private:
 	KeplerElements             _OrbitElements;
-	std::vector<ObjectDetails> _Objects;  // 轨道上的天体
+	std::vector<OrbitalDetails> _Objects;  // 轨道上的天体
 	OrbitalObject              _Parent;   // 上级天体
 	glm::vec2                  _Normal{}; // 轨道法向量 (theta, phi)
 	float                      _Period{}; // 轨道周期，单位 s
