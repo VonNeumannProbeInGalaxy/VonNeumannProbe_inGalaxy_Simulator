@@ -98,7 +98,7 @@ public:
 		OrbitalObject& GetOrbitalObject();
 		float GetInitialTrueAnomaly() const;
 
-		std::vector<Orbit*> DirectOrbitsData();
+		std::vector<Orbit*>& DirectOrbitsData();
 
 	private:
 		std::vector<Orbit*> _DirectOrbits;         // 直接下级轨道

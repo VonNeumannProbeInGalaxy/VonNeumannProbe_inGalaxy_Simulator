@@ -521,7 +521,6 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex,
 	for (auto& Orbit : Orbits)
 	{
 		Orbit->SetParent(Star, Astro::Orbit::ObjectType::kStar);
-		ParentStar.DirectOrbitsData().emplace_back(Orbit.get());
 	}
 
 	// 生成初始轨道半长轴
@@ -1137,6 +1136,14 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex,
 			Planets.erase(Planets.begin() + i);
 			--i;
 			--PlanetCount;
+		}
+	}
+
+	for (auto& Orbit : Orbits)
+	{
+		if (Orbit->GetParent().GetObjectType() == Astro::Orbit::ObjectType::kStar)
+		{
+			ParentStar.DirectOrbitsData().emplace_back(Orbit.get());
 		}
 	}
 

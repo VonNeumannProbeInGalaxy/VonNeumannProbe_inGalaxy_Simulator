@@ -125,7 +125,7 @@ NPGS_INLINE float Orbit::OrbitalDetails::GetInitialTrueAnomaly() const
 	return _InitialTrueAnomaly;
 }
 
-NPGS_INLINE std::vector<Orbit*> Orbit::OrbitalDetails::DirectOrbitsData()
+NPGS_INLINE std::vector<Orbit*>& Orbit::OrbitalDetails::DirectOrbitsData()
 {
 	return _DirectOrbits;
 }
