@@ -16,83 +16,42 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-class NPGS_API StellarSystem : public NpgsObject
+struct BaryCenter : public NpgsObject
+{
+	glm::vec3   Position{};     // 位置，使用 3 个 float 分量的向量存储
+	glm::vec2   Normal{};       // 法向量，(theta, phi)
+	std::size_t DistanceRank{}; // 距离 (0, 0, 0) 的排名
+	std::string Name;           // 质心名字
+
+	BaryCenter() = default;
+	BaryCenter(const glm::vec3& Position, const glm::vec2& Normal, std::size_t DistanceRank, const std::string& Name);
+};
+
+class Orbit
 {
 public:
-	struct BaryCenter : public NpgsObject
+	enum class ObjectType
 	{
-		glm::vec3   Position{};     // 位置，使用 3 个 float 分量的向量存储
-		glm::vec2   Normal{};       // 法向量，(theta, phi)
-		std::size_t DistanceRank{}; // 距离 (0, 0, 0) 的排名
-		std::string Name;           // 质心名字
-
-		BaryCenter() = default;
-		BaryCenter(const glm::vec3& Position, const glm::vec2& Normal, std::size_t DistanceRank, const std::string& Name)
-			: Position(Position), Normal(Normal), DistanceRank(DistanceRank), Name(Name)
-		{
-		}
+		kBaryCenter,
+		kStar,
+		kPlanet,
+		kAsteroidCluster,
+		kArtifactCluster
 	};
 
-	struct Orbit
+	union ObjectPointer
 	{
-		enum class ObjectType
-		{
-			kBaryCenter,
-			kStar,
-			kPlanet,
-			kAsteroidCluster,
-			kArtifactCluster
-		};
+		BaryCenter*        SystemBary;
+		Star*              Star;
+		Planet*            Planet;
+		AsteroidCluster*   Asteroids;
+		Intelli::Artifact* Artifacts;
 
-		union ObjectPointer
-		{
-			BaryCenter*        SystemBary;
-			Star*              Star;
-			Planet*            Planet;
-			AsteroidCluster*   Asteroids;
-			Intelli::Artifact* Artifacts;
+		ObjectPointer() : SystemBary(nullptr) {}
+	};
 
-			ObjectPointer() : SystemBary(nullptr) {}
-		};
-
-		struct OrbitalObject
-		{
-			Orbit*              HostOrbit{};          // 所在轨道
-			std::vector<Orbit*> DirectOrbits;         // 直接下级轨道
-			ObjectPointer       Object{};
-			ObjectType          Type{ ObjectType::kBaryCenter };
-			float               InitialTrueAnomaly{}; // 初始真近点角，单位 rad
-
-			OrbitalObject() = default;
-			OrbitalObject(NpgsObject* Object, ObjectType Type, Orbit* HostOrbit, float InitialTrueAnomaly = 0.0f)
-				: Type(Type), HostOrbit(HostOrbit), InitialTrueAnomaly(InitialTrueAnomaly)
-			{
-				switch (Type)
-				{
-				case ObjectType::kBaryCenter:
-					this->Object.SystemBary = static_cast<BaryCenter*>(Object);
-					break;
-				case ObjectType::kStar:
-					this->Object.Star = static_cast<Star*>(Object);
-					break;
-				case ObjectType::kPlanet:
-					this->Object.Planet = static_cast<Planet*>(Object);
-					break;
-				case ObjectType::kAsteroidCluster:
-					this->Object.Asteroids = static_cast<AsteroidCluster*>(Object);
-					break;
-				case ObjectType::kArtifactCluster:
-					this->Object.Artifacts = static_cast<Intelli::Artifact*>(Object);
-				}
-			}
-		};
-
-		std::vector<OrbitalObject> Objects;                               // 轨道上的天体
-		ObjectPointer              Parent;                                // 轨道环绕的上级天体
-		ObjectType                 ParentType{ ObjectType::kBaryCenter }; // 上级天体类型
-		glm::vec2                  Normal{};                              // 轨道法向量 (theta, phi)
-
-		float Period{};                   // 周期，单位 s
+	struct KeplerElements
+	{
 		float SemiMajorAxis{};            // 半长轴，单位 AU
 		float Eccentricity{};             // 离心率
 		float Inclination{};              // 轨道倾角，单位 rad
@@ -101,6 +60,89 @@ public:
 		float TrueAnomaly{};              // 真近点角，单位 rad
 	};
 
+	class OrbitalObject
+	{
+	public:
+		OrbitalObject() = default;
+		OrbitalObject(NpgsObject* Object, ObjectType Type);
+		~OrbitalObject() = default;
+
+		OrbitalObject& SetObject(BaryCenter* SystemBary);
+		OrbitalObject& SetObject(Star* Star);
+		OrbitalObject& SetObject(Planet* Planet);
+		OrbitalObject& SetObject(AsteroidCluster* AsteroidCluster);
+		OrbitalObject& SetObject(Intelli::Artifact* AsteroidCluster);
+
+		ObjectType GetObjectType() const;
+
+		template <typename T>
+		T* GetObject() const;
+
+	private:
+		ObjectPointer _Object{};
+		ObjectType    _Type{ ObjectType::kBaryCenter };
+	};
+
+	class ObjectDetails
+	{
+	public:
+		ObjectDetails() = default;
+		ObjectDetails(NpgsObject* Object, ObjectType Type, Orbit* HostOrbit, float InitialTrueAnomaly = 0.0f);
+		~ObjectDetails() = default;
+
+		ObjectDetails& SetHostOrbit(Orbit* HostOrbit);
+		ObjectDetails& SetOrbitalObject(NpgsObject* Object, ObjectType Type);
+		ObjectDetails& SetInitialTrueAnomaly(float InitialTrueAnomaly);
+
+		Orbit* GetHostOrbit();
+		OrbitalObject& GetOrbitalObject();
+		float GetInitialTrueAnomaly() const;
+
+		std::vector<Orbit*> DirectOrbitsData();
+
+	private:
+		std::vector<Orbit*> _DirectOrbits;         // 直接下级轨道
+		Orbit*              _HostOrbit{};          // 所在轨道
+		OrbitalObject       _Object;               // 轨道天体
+		float               _InitialTrueAnomaly{}; // 初始真近点角，单位 rad
+	};
+
+public:
+	Orbit() = default;
+	~Orbit() = default;
+
+	Orbit& SetSemiMajorAxis(float SemiMajorAxis);
+	Orbit& SetEccentricity(float Eccentricity);
+	Orbit& SetInclination(float Inclination);
+	Orbit& SetLongitudeOfAscendingNode(float LongitudeOfAscendingNode);
+	Orbit& SetArgumentOfPeriapsis(float ArgumentOfPeriapsis);
+	Orbit& SetTrueAnomaly(float TrueAnomaly);
+	Orbit& SetParent(NpgsObject* Object, ObjectType Type);
+	Orbit& SetNormal(const glm::vec2& Normal);
+	Orbit& SetPeriod(float Period);
+
+	float GetSemiMajorAxis() const;
+	float GetEccentricity() const;
+	float GetInclination() const;
+	float GetLongitudeOfAscendingNode() const;
+	float GetArgumentOfPeriapsis() const;
+	float GetTrueAnomaly() const;
+	const OrbitalObject& GetParent() const;
+	const glm::vec2& GetNormal() const;
+	float GetPeriod() const;
+	
+	std::vector<ObjectDetails>& ObjectsData();
+
+private:
+	KeplerElements             _OrbitElements;
+	std::vector<ObjectDetails> _Objects;  // 轨道上的天体
+	OrbitalObject              _Parent;   // 上级天体
+	glm::vec2                  _Normal{}; // 轨道法向量 (theta, phi)
+	float                      _Period{}; // 轨道周期，单位 s
+};
+
+class NPGS_API StellarSystem : public NpgsObject
+{
 public:
 	StellarSystem() = default;
 	StellarSystem(const BaryCenter& SystemBary);
@@ -122,10 +164,10 @@ public:
 	const std::string& GetBaryName() const;
 
 	BaryCenter* GetBaryCenter();
-	std::vector<std::unique_ptr<Astro::Star>>& StarData();
-	std::vector<std::unique_ptr<Astro::Planet>>& PlanetData();
-	std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusterData();
-	std::vector<std::unique_ptr<Orbit>>& OrbitData();
+	std::vector<std::unique_ptr<Astro::Star>>& StarsData();
+	std::vector<std::unique_ptr<Astro::Planet>>& PlanetsData();
+	std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClustersData();
+	std::vector<std::unique_ptr<Orbit>>& OrbitsData();
 
 private:
 	BaryCenter                                           _SystemBary;

@@ -12,13 +12,23 @@ _NPGS_BEGIN
 // @brief: 相机移动方向。
 enum class Movement
 {
-	kForward, kBack, kLeft, kRight, kUp, kDown, kRollLeft, kRollRight
+	kForward,
+	kBack,
+	kLeft,
+	kRight,
+	kUp,
+	kDown,
+	kRollLeft,
+	kRollRight
 };
 
 // @brief 相机向量类型。
 enum class VectorType
 {
-	kPosition, kFront, kUp, kRight
+	kPosition,
+	kFront,
+	kUp,
+	kRight
 };
 
 constexpr glm::vec3 kPosition    = glm::vec3(0.0f);

@@ -57,10 +57,10 @@ private:
 	void GenerateBinaryOrbit(Astro::StellarSystem& System);
 
 	void GeneratePlanets(std::size_t StarIndex,
-						 Astro::StellarSystem::Orbit::OrbitalObject& ParentStar,
+						 Astro::Orbit::ObjectDetails& ParentStar,
 						 Astro::StellarSystem& System);
 
-	void GenerateOrbitElements(Astro::StellarSystem::Orbit& Orbit);
+	void GenerateOrbitElements(Astro::Orbit& Orbit);
 
 	std::size_t JudgeLargePlanets(std::size_t StarIndex,
 								  const std::vector<std::unique_ptr<Astro::Star>>& StarData,
@@ -69,7 +69,7 @@ private:
 								  float FrostLineAu,
 								  std::vector<float>& CoreMassesSol,
 								  std::vector<float>& NewCoreMassesSol,
-								  std::vector<std::unique_ptr<Astro::StellarSystem::Orbit>>& Orbits,
+								  std::vector<std::unique_ptr<Astro::Orbit>>& Orbits,
 								  std::vector<std::unique_ptr<Astro::Planet>>& Planets);
 
 	float CalculatePlanetMass(float CoreMass,
@@ -80,9 +80,9 @@ private:
 							  Astro::Planet* Planet);
 
 	void CalculatePlanetRadius(float MassEarth, Astro::Planet* Planet);
-	void GenerateSpin(float SemiMajorAxis, const Astro::StellarSystem::Orbit::OrbitalObject Parent, Astro::Planet* Planet);
+	void GenerateSpin(float SemiMajorAxis, const Astro::Orbit::OrbitalObject& Parent, Astro::Planet* Planet);
 
-	void CalculateTemperature(const Astro::StellarSystem::Orbit::ObjectType ParentType,
+	void CalculateTemperature(const Astro::Orbit::ObjectType ParentType,
 							  float PoyntingVector,
 							  Astro::Planet* Planet);
 
@@ -91,36 +91,36 @@ private:
 					   const Astro::Star* Star,
 					   float PoyntingVector,
 					   const std::pair<float, float>& HabitableZoneAu,
-					   Astro::StellarSystem::Orbit::OrbitalObject& ParentPlanet,
-					   std::vector<std::unique_ptr<Astro::StellarSystem::Orbit>>& Orbits,
+					   Astro::Orbit::ObjectDetails& ParentPlanet,
+					   std::vector<std::unique_ptr<Astro::Orbit>>& Orbits,
 					   std::vector<std::unique_ptr<Astro::Planet>>& Planets);
 
 	void GenerateRings(std::size_t PlanetIndex,
 					   float FrostLineAu,
 					   const Astro::Star* Star,
-					   Astro::StellarSystem::Orbit::OrbitalObject& ParentPlanet,
-					   std::vector<std::unique_ptr<Astro::StellarSystem::Orbit>>& Orbits,
+					   Astro::Orbit::ObjectDetails& ParentPlanet,
+					   std::vector<std::unique_ptr<Astro::Orbit>>& Orbits,
 					   std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters);
 
 	void GenerateTerra(const Astro::Star* Star,
 					   float PoyntingVector,
 					   const std::pair<float, float>& HabitableZoneAu,
-					   const Astro::StellarSystem::Orbit* Orbit,
+					   const Astro::Orbit* Orbit,
 					   Astro::Planet* Planet);
 
 	void GenerateTrojan(const Astro::Star* Star,
 						float FrostLineAu,
-						Astro::StellarSystem::Orbit* Orbit,
-						Astro::StellarSystem::Orbit::OrbitalObject& ParentPlanet,
+						Astro::Orbit* Orbit,
+						Astro::Orbit::ObjectDetails& ParentPlanet,
 						std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters);
 
 	void GenerateCivilization(const Astro::Star* Star,
 							  float PoyntingVector,
 							  const std::pair<float, float>& HabitableZoneAu,
-							  const Astro::StellarSystem::Orbit* Orbit,
+							  const Astro::Orbit* Orbit,
 							  Astro::Planet* Planet);
 
-	void CalculateOrbitalPeriods(std::vector<std::unique_ptr<Astro::StellarSystem::Orbit>>& Orbits);
+	void CalculateOrbitalPeriods(std::vector<std::unique_ptr<Astro::Orbit>>& Orbits);
 
 private:
 	std::mt19937                                 _RandomEngine;

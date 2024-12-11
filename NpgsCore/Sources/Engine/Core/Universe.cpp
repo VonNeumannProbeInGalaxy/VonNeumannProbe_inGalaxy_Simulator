@@ -76,7 +76,7 @@ void Universe::ReplaceStar(std::size_t DistanceRank, const Astro::Star& StarData
 	{
 		if (DistanceRank == System.GetBaryDistanceRank())
 		{
-			auto& Stars = System.StarData();
+			auto& Stars = System.StarsData();
 			if (Stars.size() > 1)
 			{
 				return; // TODO: 处理双星
@@ -333,7 +333,7 @@ void Universe::CountStars()
 
 	for (auto& System : _StellarSystems)
 	{
-		for (auto& Star : System.StarData())
+		for (auto& Star : System.StarsData())
 		{
 			++TotalStars;
 
@@ -750,7 +750,7 @@ void Universe::GenerateStars(int MaxThread)
 		Name = "SYSTEM-" + Stream.str();
 		System.SetBaryName(Name).SetBaryDistanceRank(Offset);
 
-		auto& Stars = System.StarData();
+		auto& Stars = System.StarsData();
 		if (Stars.size() > 1)
 		{
 			std::sort(Stars.begin(), Stars.end(),
@@ -797,7 +797,7 @@ void Universe::GenerateStars(int MaxThread)
 	HomeNode->AddPoint(glm::vec3(0.0f));
 	HomeSystem->SetBaryNormal(glm::vec2(0.0f));
 
-	for (auto& Star : HomeSystem->StarData())
+	for (auto& Star : HomeSystem->StarsData())
 	{
 		Star->SetNormal(glm::vec3(0.0f));
 	}
@@ -970,10 +970,10 @@ void Universe::OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::
 		{
 			for (const auto& Point : Node.GetPoints())
 			{
-				Astro::StellarSystem::BaryCenter NewBary(Point, glm::vec2(0.0f), 0, "");
+				Astro::BaryCenter NewBary(Point, glm::vec2(0.0f), 0, "");
 				Astro::StellarSystem NewSystem(NewBary);
-				NewSystem.StarData().emplace_back(std::make_unique<Astro::Star>(Stars.back()));
-				NewSystem.SetBaryNormal(NewSystem.StarData().front()->GetNormal());
+				NewSystem.StarsData().emplace_back(std::make_unique<Astro::Star>(Stars.back()));
+				NewSystem.SetBaryNormal(NewSystem.StarsData().front()->GetNormal());
 				Stars.pop_back();
 
 				_StellarSystems.emplace_back(std::move(NewSystem));
@@ -1005,7 +1005,7 @@ void Universe::GenerateBinaryStars(int MaxThread)
 	std::vector<Astro::StellarSystem*> BinarySystems;
 	for (auto& System : _StellarSystems)
 	{
-		const auto& Star = System.StarData().front();
+		const auto& Star = System.StarsData().front();
 		if (!Star->GetIsSingleStar())
 		{
 			BinarySystems.emplace_back(&System);
@@ -1018,7 +1018,7 @@ void Universe::GenerateBinaryStars(int MaxThread)
 		std::size_t ThreadId = i % MaxThread;
 		auto& SelectedGenerator = Generators[ThreadId];
 
-		const auto& Star = BinarySystems[i]->StarData().front();
+		const auto& Star = BinarySystems[i]->StarsData().front();
 		float FirstStarInitialMassSol = Star->GetInitialMass() / kSolarMass;
 		float MassLowerLimit = std::max(0.075f, 0.1f * FirstStarInitialMassSol);
 		float MassUpperLimit = std::min(10 * FirstStarInitialMassSol, 300.0f);
@@ -1043,7 +1043,7 @@ void Universe::GenerateBinaryStars(int MaxThread)
 
 	for (std::size_t i = 0; i != BinarySystems.size(); ++i)
 	{
-		BinarySystems[i]->StarData().emplace_back(std::make_unique<Astro::Star>(Stars[i]));
+		BinarySystems[i]->StarsData().emplace_back(std::make_unique<Astro::Star>(Stars[i]));
 	}
 }
 

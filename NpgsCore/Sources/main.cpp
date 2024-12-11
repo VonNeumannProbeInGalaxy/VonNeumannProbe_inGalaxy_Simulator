@@ -76,8 +76,8 @@ int main() {
     s2.SetIsSingleStar(false);
 
     StellarSystem ss;
-    ss.StarData().push_back(std::make_unique<Astro::Star>(s1));
-    ss.StarData().push_back(std::make_unique<Astro::Star>(s2));
+    ss.StarsData().push_back(std::make_unique<Astro::Star>(s1));
+    ss.StarsData().push_back(std::make_unique<Astro::Star>(s2));
 
     //try {
     //    while (true) {
