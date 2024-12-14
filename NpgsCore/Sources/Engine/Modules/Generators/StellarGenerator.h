@@ -126,7 +126,7 @@ private:
 
 	float GenerateAge(float MaxPdf);
 	float GenerateMass(float MaxPdf, auto& LogMassPdf);
-	std::vector<double> GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWhiteDwarf);
+	std::vector<double> GetFullMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWhiteDwarf);
 	std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassCoefficient);
 	std::vector<std::vector<double>> FindPhaseChanges(const MistData* DataCsv);
 	double CalculateEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);

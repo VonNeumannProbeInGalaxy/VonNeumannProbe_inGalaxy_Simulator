@@ -31,8 +31,13 @@ CalculatePlanetMass(kSolarMass * CoreMassesSol[Index],                \
 
 // Tool functions
 // --------------
-static float CalculatePrevMainSequenceLuminosity(float StarInitialMassSol);
-static std::unique_ptr<Astro::AsteroidCluster> PlanetToAsteroidCluster(const Astro::Planet* Planet);
+namespace
+{
+
+float CalculatePrevMainSequenceLuminosity(float StarInitialMassSol);
+std::unique_ptr<Astro::AsteroidCluster> PlanetToAsteroidCluster(const Astro::Planet* Planet);
+
+}
 
 // OrbitalGenerator implementations
 // --------------------------------
@@ -2430,6 +2435,9 @@ void OrbitalGenerator::CalculateOrbitalPeriods(std::vector<std::unique_ptr<Astro
 
 // Tool function implementations
 // -----------------------------
+namespace
+{
+
 float CalculatePrevMainSequenceLuminosity(float StarInitialMassSol)
 {
 	float CommonCoefficient = (std::pow(10.0f, 2.0f - StarInitialMassSol) + 1.0f) * static_cast<float>(kSolarLuminosity);
@@ -2470,6 +2478,8 @@ std::unique_ptr<Astro::AsteroidCluster> PlanetToAsteroidCluster(const Astro::Pla
 	AsteroidCluster.SetMassEnergeticNuclide(Planet->GetCoreMassEnergeticNuclide());
 
 	return std::make_unique<Astro::AsteroidCluster>(AsteroidCluster);
+}
+
 }
 
 _MODULE_END

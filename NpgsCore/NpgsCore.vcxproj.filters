@@ -84,6 +84,9 @@
     <ClCompile Include="Sources\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\Base\NpgsObject.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Core\Assert.h">
@@ -216,5 +219,14 @@
     </None>
     <None Include="Assets\Shaders\Triangle.vert" />
     <None Include="Assets\Shaders\Triangle.frag" />
+    <None Include="Sources\Engine\AssetLoader\AssetManager.inl">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Sources\Engine\Core\ThreadPool.inl">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Sources\Engine\Utilities\Logger.inl">
+      <Filter>头文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

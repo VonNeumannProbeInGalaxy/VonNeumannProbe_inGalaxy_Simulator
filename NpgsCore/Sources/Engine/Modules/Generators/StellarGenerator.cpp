@@ -46,9 +46,14 @@ _MODULE_BEGIN
 
 // Tool functions
 // --------------
-static float DefaultAgePdf(const glm::vec3&, float Age, float UniverseAge);
-static float DefaultLogMassPdfSingleStar(float LogMassSol);
-static float DefaultLogMassPdfBinaryStar(float LogMassSol);
+namespace
+{
+
+float DefaultAgePdf(const glm::vec3&, float Age, float UniverseAge);
+float DefaultLogMassPdfSingleStar(float LogMassSol);
+float DefaultLogMassPdfBinaryStar(float LogMassSol);
+
+}
 
 // StellarGenerator implementations
 // --------------------------------
@@ -98,9 +103,9 @@ StellarGenerator::StellarGenerator(const std::seed_seq& SeedSequence,
 		Util::UniformRealDistribution<>(0.001f, 0.998f)
 	},
 
-	_LogMassGenerator(Option == StellarGenerator::GenerateOption::kMergeStar ?
-					  std::make_unique<Util::UniformRealDistribution<>>(0.0f, 1.0f) :
-					  std::make_unique<Util::UniformRealDistribution<>>(std::log10(MassLowerLimit), std::log10(MassUpperLimit))),
+	_LogMassGenerator(Option == StellarGenerator::GenerateOption::kMergeStar
+					  ? std::make_unique<Util::UniformRealDistribution<>>(0.0f, 1.0f)
+					  : std::make_unique<Util::UniformRealDistribution<>>(std::log10(MassLowerLimit), std::log10(MassUpperLimit))),
 	_AgeGenerator(AgeLowerLimit, AgeUpperLimit),
 	_CommonGenerator(0.0f, 1.0f),
 
@@ -324,7 +329,7 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties)
 	{
 		try
 		{
-			StarData = GetActuallyMistData(Properties, false, true);
+			StarData = GetFullMistData(Properties, false, true);
 		}
 		catch (Astro::Star& DeathStar)
 		{
@@ -348,7 +353,7 @@ Astro::Star StellarGenerator::GenerateStar(BasicProperties&& Properties)
 	case GenerateOption::kGiant:
 	{
 		Properties.Age = -1.0f; // 使用 -1.0，在计算年龄的时候根据寿命赋值一个濒死年龄
-		StarData = GetActuallyMistData(Properties, false, true);
+		StarData = GetFullMistData(Properties, false, true);
 		break;
 	}
 	case GenerateOption::kDeathStar:
@@ -557,7 +562,7 @@ float StellarGenerator::GenerateMass(float MaxPdf, auto& LogMassPdf)
 	return std::pow(10.0f, LogMass);
 }
 
-std::vector<double> StellarGenerator::GetActuallyMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWhiteDwarf)
+std::vector<double> StellarGenerator::GetFullMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWhiteDwarf)
 {
 	float TargetAge  = Properties.Age;
 	float TargetFeH  = Properties.FeH;
@@ -815,7 +820,8 @@ double StellarGenerator::CalculateEvolutionProgress(std::pair<std::vector<std::v
 	double Result = 0.0;
 	double Phase  = 0.0;
 
-	if (PhaseChanges.second.empty()) [[unlikely]] {
+	if (PhaseChanges.second.empty()) [[unlikely]]
+	{
 		const auto& TimePointResults = FindSurroundingTimePoints(PhaseChanges.first, TargetAge);
 		Phase = TimePointResults.first;
 		const auto& TimePoints = TimePointResults.second;
@@ -1777,7 +1783,7 @@ void StellarGenerator::ProcessDeathStar(Astro::Star& DeathStar, GenerateOption O
 	case Util::StellarClass::StarType::kWhiteDwarf:
 	{
 		std::vector<double> WhiteDwarfData =
-			GetActuallyMistData({ static_cast<float>(DeathStarAge), 0.0f, DeathStarMassSol }, true, true);
+			GetFullMistData({ static_cast<float>(DeathStarAge), 0.0f, DeathStarMassSol }, true, true);
 
 		StarAge      = static_cast<float>(WhiteDwarfData[_kWdStarAgeIndex]);
 		LogR         = static_cast<float>(WhiteDwarfData[_kWdLogRIndex]);
@@ -2133,6 +2139,9 @@ bool StellarGenerator::_kbMistDataInitiated = false;
 
 // Tool functions implementations
 // ------------------------------
+namespace
+{
+
 float DefaultAgePdf(const glm::vec3&, float Age, float UniverseAge)
 {
 	float Probability = 0.0f;
@@ -2178,6 +2187,8 @@ float DefaultLogMassPdfBinaryStar(float LogMassSol)
 	}
 
 	return Probability;
+}
+
 }
 
 _MODULE_END

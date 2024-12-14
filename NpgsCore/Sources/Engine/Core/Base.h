@@ -25,7 +25,7 @@
 #           define NPGS_INLINE __forceinline
 #       else
 #           ifdef MSVC_ATTRIBUTE_FORCE_INLINE
-#               define NPGS_INLINE [[msvc::forceinline]]
+#               define NPGS_INLINE [[msvc::forceinline]] inline
 #           else
 #               define NPGS_INLINE inline
 #           endif // MSVC_ATTRIBUTE_FORCE_INLINE

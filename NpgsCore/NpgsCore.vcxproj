@@ -153,6 +153,7 @@
     <ClCompile Include="Sources\Engine\Base\Intelli\Civilization.cpp" />
     <ClCompile Include="Sources\Engine\Base\Astro\StellarSystem.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\AssetManager.cpp" />
+    <ClCompile Include="Sources\Engine\Base\NpgsObject.cpp" />
     <ClCompile Include="Sources\Engine\Core\Camera.cpp" />
     <ClCompile Include="Sources\Engine\Utilities\Logger.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\CivilizationGenerator.cpp" />

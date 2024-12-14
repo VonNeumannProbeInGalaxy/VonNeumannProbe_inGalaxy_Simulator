@@ -6,7 +6,10 @@
 
 _NPGS_BEGIN
 
-static int CountPhysicalCore()
+namespace
+{
+
+int CountPhysicalCore()
 {
 	DWORD Length = 0;
 	GetLogicalProcessorInformationEx(RelationProcessorCore, nullptr, &Length);
@@ -27,6 +30,8 @@ static int CountPhysicalCore()
 	}
 
 	return CoreCount;
+}
+
 }
 
 // ThreadPool implementations
