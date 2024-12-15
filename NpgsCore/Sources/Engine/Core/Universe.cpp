@@ -22,14 +22,9 @@
 
 _NPGS_BEGIN
 
-Universe::Universe(std::uint32_t Seed,
-				   std::size_t   StarCount,
-				   std::size_t   ExtraGiantCount,
-				   std::size_t   ExtraMassiveStarCount,
-				   std::size_t   ExtraNeutronStarCount,
-				   std::size_t   ExtraBlackHoleCount,
-				   std::size_t   ExtraMergeStarCount,
-				   float         UniverseAge)
+Universe::Universe(std::uint32_t Seed, std::size_t StarCount, std::size_t ExtraGiantCount, std::size_t ExtraMassiveStarCount,
+				   std::size_t ExtraNeutronStarCount, std::size_t ExtraBlackHoleCount, std::size_t ExtraMergeStarCount,
+				   float UniverseAge)
 	:
 	_RandomEngine(Seed),
 	_SeedGenerator(0ull, std::numeric_limits<std::uint32_t>::max()),
@@ -593,9 +588,7 @@ void Universe::CountStars()
 }
 
 template<typename AstroType, typename DataType>
-void Universe::MakeChunks(int MaxThread,
-						  std::vector<DataType>& Data,
-						  std::vector<std::vector<DataType>>& DataLists,
+void Universe::MakeChunks(int MaxThread, std::vector<DataType>& Data, std::vector<std::vector<DataType>>& DataLists,
 						  std::vector<std::promise<std::vector<AstroType>>>& Promises,
 						  std::vector<std::future<std::vector<AstroType>>>& ChunkFutures)
 {
@@ -826,8 +819,7 @@ void Universe::FillStellarSystem(int MaxThread)
 	}
 }
 
-std::vector<Astro::Star> Universe::InterpolateStars(int MaxThread,
-													std::vector<Module::StellarGenerator>& Generators,
+std::vector<Astro::Star> Universe::InterpolateStars(int MaxThread, std::vector<Module::StellarGenerator>& Generators,
 													std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties)
 {
 	std::vector<std::vector<Module::StellarGenerator::BasicProperties>> PropertyLists(MaxThread);

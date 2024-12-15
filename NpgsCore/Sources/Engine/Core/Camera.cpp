@@ -5,8 +5,7 @@
 
 _NPGS_BEGIN
 
-Camera::Camera(const glm::vec3& Position, const glm::vec3& WorldUp,
-			   float Sensitivity, float Speed, float Zoom)
+Camera::Camera(const glm::vec3& Position, const glm::vec3& WorldUp, float Sensitivity, float Speed, float Zoom)
 	:
 	_Orientation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f)),
 	_Position(Position),

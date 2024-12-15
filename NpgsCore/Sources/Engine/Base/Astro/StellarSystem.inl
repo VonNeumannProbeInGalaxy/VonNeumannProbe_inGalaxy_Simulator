@@ -69,38 +69,13 @@ NPGS_INLINE T* Orbit::OrbitalObject::GetObject() const
 	{
 		return _Type == ObjectType::kArtifactCluster ? _Object.Artifacts : nullptr;
 	}
+
 	return nullptr;
 }
 
 NPGS_INLINE Orbit::OrbitalDetails& Orbit::OrbitalDetails::SetHostOrbit(Orbit* HostOrbit)
 {
 	_HostOrbit = HostOrbit;
-	return *this;
-}
-
-NPGS_INLINE Orbit::OrbitalDetails& Orbit::OrbitalDetails::SetOrbitalObject(NpgsObject* Object, ObjectType Type)
-{
-	switch (Type)
-	{
-	case ObjectType::kBaryCenter:
-		_Object.SetObject(static_cast<BaryCenter*>(Object));
-		break;
-	case ObjectType::kStar:
-		_Object.SetObject(static_cast<Star*>(Object));
-		break;
-	case ObjectType::kPlanet:
-		_Object.SetObject(static_cast<Planet*>(Object));
-		break;
-	case ObjectType::kAsteroidCluster:
-		_Object.SetObject(static_cast<AsteroidCluster*>(Object));
-		break;
-	case ObjectType::kArtifactCluster:
-		_Object.SetObject(static_cast<Intelli::Artifact*>(Object));
-		break;
-	default:
-		break;
-	}
-
 	return *this;
 }
 
@@ -163,32 +138,6 @@ NPGS_INLINE Orbit& Orbit::SetArgumentOfPeriapsis(float ArgumentOfPeriapsis)
 NPGS_INLINE Orbit& Orbit::SetTrueAnomaly(float TrueAnomaly)
 {
 	_OrbitElements.TrueAnomaly = TrueAnomaly;
-	return *this;
-}
-
-NPGS_INLINE Orbit& Orbit::SetParent(NpgsObject* Object, ObjectType Type)
-{
-	switch (Type)
-	{
-	case ObjectType::kBaryCenter:
-		_Parent.SetObject(static_cast<BaryCenter*>(Object));
-		break;
-	case ObjectType::kStar:
-		_Parent.SetObject(static_cast<Star*>(Object));
-		break;
-	case ObjectType::kPlanet:
-		_Parent.SetObject(static_cast<Planet*>(Object));
-		break;
-	case ObjectType::kAsteroidCluster:
-		_Parent.SetObject(static_cast<AsteroidCluster*>(Object));
-		break;
-	case ObjectType::kArtifactCluster:
-		_Parent.SetObject(static_cast<Intelli::Artifact*>(Object));
-		break;
-	default:
-		break;
-	}
-
 	return *this;
 }
 

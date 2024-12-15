@@ -26,7 +26,8 @@ int CountPhysicalCore()
 		}
 
 		Length -= BufferPtr->Size;
-		BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(reinterpret_cast<std::uint8_t*>(BufferPtr) + BufferPtr->Size);
+		BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(
+			reinterpret_cast<std::uint8_t*>(BufferPtr) + BufferPtr->Size);
 	}
 
 	return CoreCount;
@@ -121,6 +122,10 @@ ThreadPool::ThreadPool() : _Terminate(false)
 
 		SetThreadAffinity(_Threads.back(), i);
 	}
+}
+
+ThreadPool::~ThreadPool()
+{
 }
 
 void ThreadPool::SetThreadAffinity(std::thread& Thread, std::size_t CoreId)

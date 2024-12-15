@@ -171,6 +171,9 @@ int main()
 
 	Terminate(Window);
 
+	AssetManager::RemoveAsset("Backpack");
+	Sleep(10000);
+
 	return EXIT_SUCCESS;
 }
 

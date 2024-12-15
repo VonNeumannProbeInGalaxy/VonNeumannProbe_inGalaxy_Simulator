@@ -134,11 +134,11 @@ public:
 	std::vector<OrbitalDetails>& ObjectsData();
 
 private:
-	KeplerElements             _OrbitElements;
+	KeplerElements              _OrbitElements;
 	std::vector<OrbitalDetails> _Objects;  // 轨道上的天体
-	OrbitalObject              _Parent;   // 上级天体
-	glm::vec2                  _Normal{}; // 轨道法向量 (theta, phi)
-	float                      _Period{}; // 轨道周期，单位 s
+	OrbitalObject               _Parent;   // 上级天体
+	glm::vec2                   _Normal{}; // 轨道法向量 (theta, phi)
+	float                       _Period{}; // 轨道周期，单位 s
 };
 
 class NPGS_API StellarSystem : public NpgsObject

@@ -18,13 +18,22 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-struct VoidDeleter
+class TypeErasedDeleter
 {
+public:
 	template <typename T>
-	void operator()(T* Pointer)
+	TypeErasedDeleter(T*)
+		: _Deleter([](void* Ptr) -> void { delete static_cast<T*>(Ptr); })
 	{
-		delete Pointer;
 	}
+
+	void operator()(void* Ptr) const
+	{
+		_Deleter(Ptr);
+	}
+
+private:
+	void (*_Deleter)(void*);
 };
 
 template <typename AssetType>
@@ -46,14 +55,14 @@ public:
 
 	template<typename AssetType>
 	requires MoveOnlyType<AssetType>
-	static std::vector<std::unique_ptr<AssetType>> GetAssets();
+	static std::vector<AssetType*> GetAssets();
 
 	static void RemoveAsset(const std::string& Name);
-
 	static void ClearAssets();
 
 private:
-	static std::unordered_map<std::string, std::unique_ptr<void, VoidDeleter>> _kAssets;
+	using ManagedAsset = std::unique_ptr<void, TypeErasedDeleter>;
+	static std::unordered_map<std::string, ManagedAsset> _kAssets;
 };
 
 _ASSET_END

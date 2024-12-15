@@ -41,16 +41,10 @@ std::unique_ptr<Astro::AsteroidCluster> PlanetToAsteroidCluster(const Astro::Pla
 
 // OrbitalGenerator implementations
 // --------------------------------
-OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence,
-								   float UniverseAge,
-								   float BinaryPeriodMean,
-								   float BinaryPeriodSigma,
-								   float CoilTemperatureLimit,
-								   float AsteroidUpperLimit,
-								   float RingsParentLowerLimit,
-								   float LifeOccurrenceProbability,
-								   bool  bContainUltravioletHabitableZone,
-								   bool  bEnableAsiFilter)
+OrbitalGenerator::OrbitalGenerator(const std::seed_seq& SeedSequence, float UniverseAge, float BinaryPeriodMean,
+								   float BinaryPeriodSigma, float CoilTemperatureLimit, float AsteroidUpperLimit,
+								   float RingsParentLowerLimit, float LifeOccurrenceProbability,
+								   bool bContainUltravioletHabitableZone, bool bEnableAsiFilter)
 	:
 	_RandomEngine(SeedSequence),
 	_RingsProbabilities{ Util::BernoulliDistribution<>(0.5), Util::BernoulliDistribution<>(0.2) },
@@ -351,9 +345,7 @@ void OrbitalGenerator::GenerateBinaryOrbit(Astro::StellarSystem& System)
 #endif // DEBUG_OUTPUT
 }
 
-void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex,
-									   Astro::Orbit::OrbitalDetails& ParentStar,
-									   Astro::StellarSystem& System)
+void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::Orbit::OrbitalDetails& ParentStar, Astro::StellarSystem& System)
 {
 	// 变量名未标注单位均为国际单位制
 	Astro::Star* Star = System.StarsData()[StarIndex].get();
@@ -998,8 +990,7 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex,
 	else
 	{
 		PlanetCount = JudgeLargePlanets(StarIndex, System.StarsData(), BinarySemiMajorAxis,
-										std::numeric_limits<float>::infinity(),
-										std::numeric_limits<float>::infinity(),
+										std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
 										CoreMassesSol, NewCoreMassesSol, Orbits, Planets);
 
 		for (std::size_t i = 0; i < PlanetCount; ++i)
@@ -1154,18 +1145,18 @@ void OrbitalGenerator::GeneratePlanets(std::size_t StarIndex,
 
 	System.PlanetsData().reserve(System.PlanetsData().size() + Planets.size());
 	System.PlanetsData().insert(System.PlanetsData().end(),
-							   std::make_move_iterator(Planets.begin()),
-							   std::make_move_iterator(Planets.end()));
+								std::make_move_iterator(Planets.begin()),
+								std::make_move_iterator(Planets.end()));
 
 	System.OrbitsData().reserve(System.OrbitsData().size() + Orbits.size());
 	System.OrbitsData().insert(System.OrbitsData().end(),
-							  std::make_move_iterator(Orbits.begin()),
-							  std::make_move_iterator(Orbits.end()));
+							   std::make_move_iterator(Orbits.begin()),
+							   std::make_move_iterator(Orbits.end()));
 
 	System.AsteroidClustersData().reserve(System.AsteroidClustersData().size() + AsteroidClusters.size());
 	System.AsteroidClustersData().insert(System.AsteroidClustersData().end(),
-										std::make_move_iterator(AsteroidClusters.begin()),
-										std::make_move_iterator(AsteroidClusters.end()));
+										 std::make_move_iterator(AsteroidClusters.begin()),
+										 std::make_move_iterator(AsteroidClusters.end()));
 }
 
 void OrbitalGenerator::GenerateOrbitElements(Astro::Orbit& Orbit)
@@ -1196,13 +1187,9 @@ void OrbitalGenerator::GenerateOrbitElements(Astro::Orbit& Orbit)
 	}
 }
 
-std::size_t OrbitalGenerator::JudgeLargePlanets(std::size_t StarIndex,
-												const std::vector<std::unique_ptr<Astro::Star>>& StarData,
-												float BinarySemiMajorAxis,
-												float InterHabitableZoneRadiusAu,
-												float FrostLineAu,
-												std::vector<float>& CoreMassesSol,
-												std::vector<float>& NewCoreMassesSol,
+std::size_t OrbitalGenerator::JudgeLargePlanets(std::size_t StarIndex, const std::vector<std::unique_ptr<Astro::Star>>& StarData,
+												float BinarySemiMajorAxis, float InterHabitableZoneRadiusAu, float FrostLineAu,
+												std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol,
 												std::vector<std::unique_ptr<Astro::Orbit>>& Orbits,
 												std::vector<std::unique_ptr<Astro::Planet>>& Planets)
 {
@@ -1346,12 +1333,9 @@ std::size_t OrbitalGenerator::JudgeLargePlanets(std::size_t StarIndex,
 	return PlanetCount;
 }
 
-float OrbitalGenerator::CalculatePlanetMass(float CoreMass,
-											float NewCoreMass,
-											float SemiMajorAxisAu,
+float OrbitalGenerator::CalculatePlanetMass(float CoreMass, float NewCoreMass, float SemiMajorAxisAu,
 											const PlanetaryDisk& PlanetaryDiskTempData,
-											const Astro::Star* Star,
-											Astro::Planet* Planet)
+											const Astro::Star* Star, Astro::Planet* Planet)
 {
 	float Random1 = 0.0f;
 	float Random2 = 0.0f;
@@ -1703,9 +1687,7 @@ void OrbitalGenerator::GenerateSpin(float SemiMajorAxis, const Astro::Orbit::Orb
 	Planet->SetSpin(Spin);
 }
 
-void OrbitalGenerator::CalculateTemperature(const Astro::Orbit::ObjectType ParentType,
-											float PoyntingVector,
-											Astro::Planet* Planet)
+void OrbitalGenerator::CalculateTemperature(const Astro::Orbit::ObjectType ParentType, float PoyntingVector, Astro::Planet* Planet)
 {
 	auto  PlanetType = Planet->GetPlanetType();
 	float Albedo     = 0.0f;
@@ -1815,12 +1797,8 @@ void OrbitalGenerator::CalculateTemperature(const Astro::Orbit::ObjectType Paren
 	Planet->SetBalanceTemperature(BalanceTemperature);
 }
 
-void OrbitalGenerator::GenerateMoons(std::size_t PlanetIndex,
-									 float FrostLineAu,
-									 const Astro::Star* Star,
-									 float PoyntingVector,
-									 const std::pair<float, float>& HabitableZoneAu,
-									 Astro::Orbit::OrbitalDetails& ParentPlanet,
+void OrbitalGenerator::GenerateMoons(std::size_t PlanetIndex, float FrostLineAu, const Astro::Star* Star, float PoyntingVector,
+									 const std::pair<float, float>& HabitableZoneAu, Astro::Orbit::OrbitalDetails& ParentPlanet,
 									 std::vector<std::unique_ptr<Astro::Orbit>>& Orbits,
 									 std::vector<std::unique_ptr<Astro::Planet>>& Planets)
 {
@@ -2085,9 +2063,7 @@ void OrbitalGenerator::GenerateMoons(std::size_t PlanetIndex,
 				   std::make_move_iterator(Moons.end()));
 }
 
-void OrbitalGenerator::GenerateRings(std::size_t PlanetIndex,
-									 float FrostLineAu,
-									 const Astro::Star* Star,
+void OrbitalGenerator::GenerateRings(std::size_t PlanetIndex, float FrostLineAu, const Astro::Star* Star,
 									 Astro::Orbit::OrbitalDetails& ParentPlanet,
 									 std::vector<std::unique_ptr<Astro::Orbit>>& Orbits,
 									 std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters)
@@ -2173,11 +2149,8 @@ void OrbitalGenerator::GenerateRings(std::size_t PlanetIndex,
 #endif // DEBUG_OUTPUT
 }
 
-void OrbitalGenerator::GenerateTerra(const Astro::Star* Star,
-									 float PoyntingVector,
-									 const std::pair<float, float>& HabitableZoneAu,
-									 const Astro::Orbit* Orbit,
-									 Astro::Planet* Planet)
+void OrbitalGenerator::GenerateTerra(const Astro::Star* Star, float PoyntingVector, const std::pair<float, float>& HabitableZoneAu,
+									 const Astro::Orbit* Orbit, Astro::Planet* Planet)
 {
 	auto  PlanetType        = Planet->GetPlanetType();
 	float PlanetMass        = Planet->GetMassDigital<float>();
@@ -2276,9 +2249,7 @@ void OrbitalGenerator::GenerateTerra(const Astro::Star* Star,
 	}
 }
 
-void OrbitalGenerator::GenerateTrojan(const Astro::Star* Star,
-									  float FrostLineAu,
-									  Astro::Orbit* Orbit,
+void OrbitalGenerator::GenerateTrojan(const Astro::Star* Star, float FrostLineAu, Astro::Orbit* Orbit,
 									  Astro::Orbit::OrbitalDetails& ParentPlanet,
 									  std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters)
 {
@@ -2365,11 +2336,9 @@ void OrbitalGenerator::GenerateTrojan(const Astro::Star* Star,
 	AsteroidClusters.emplace_back(std::move(TrojanBelt));
 }
 
-void OrbitalGenerator::GenerateCivilization(const Astro::Star* Star,
-											float PoyntingVector,
+void OrbitalGenerator::GenerateCivilization(const Astro::Star* Star, float PoyntingVector,
 											const std::pair<float, float>& HabitableZoneAu,
-											const Astro::Orbit* Orbit,
-											Astro::Planet* Planet)
+											const Astro::Orbit* Orbit, Astro::Planet* Planet)
 {
 	bool bHasLife = false;
 	if (Star->GetAge() > 5e8)

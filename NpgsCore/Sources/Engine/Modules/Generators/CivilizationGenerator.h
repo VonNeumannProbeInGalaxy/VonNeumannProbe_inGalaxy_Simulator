@@ -16,10 +16,8 @@ class NPGS_API CivilizationGenerator
 {
 public:
 	CivilizationGenerator() = delete;
-	explicit CivilizationGenerator(const std::seed_seq& SeedSequence,
-								   float LifeOccurrenceProbability,
-								   bool  bEnableAsiFilter = false,
-								   float DestroyedByDisasterProbability = 0.001f);
+	explicit CivilizationGenerator(const std::seed_seq& SeedSequence, float LifeOccurrenceProbability,
+								   bool bEnableAsiFilter = false, float DestroyedByDisasterProbability = 0.001f);
 
 	~CivilizationGenerator() = default;
 

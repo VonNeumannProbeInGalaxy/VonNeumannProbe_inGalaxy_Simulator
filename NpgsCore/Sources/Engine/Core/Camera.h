@@ -42,52 +42,18 @@ public:
 	};
 
 public:
-	// @brief: 构造函数。
-	// @param: Position 相机位置。
-	// @param: WorldUp  世界坐标系的上向量。
-	// @param: Pitch    俯仰角。
-	// @param: Yaw      偏航角。
-	Camera(const glm::vec3& Position = kPosition,
-		   const glm::vec3& WorldUp  = kWorldUp,
-		   float Sensitivity         = kSensitivity,
-		   float Speed               = kSpeed,
-		   float Zoom                = kZoom);
+	Camera(const glm::vec3& Position = kPosition, const glm::vec3& WorldUp = kWorldUp, float Sensitivity = kSensitivity,
+		   float Speed = kSpeed, float Zoom = kZoom);
 
 	~Camera() = default;
 
-	// @brief: 获取相机向量。
-	// @param: Type 向量类型。
 	const glm::vec3& GetCameraVector(VectorType Type) const;
-
-	// @brief: 处理相机输入。
-	// @param: Movement  相机移动方向。
-	// @param: DeltaTime 时间间隔，使不同帧数下移动速度相同。
 	void ProcessKeyboard(Movement Direction, double DeltaTime);
-
-	// @brief: 处理鼠标输入。
-	// @param: OffsetX 鼠标 X 轴偏移量。
-	// @param: OffsetY 鼠标 Y 轴偏移量。
-	// @param: ConstrainPitch 是否限制俯仰角。必须为 true。
 	void ProcessMouseMovement(double OffsetX, double OffsetY);
-
-	// @brief: 处理鼠标滚轮输入。
-	// @param: OffsetY 鼠标滚轮 Y 轴偏移量。
 	void ProcessMouseScroll(double OffsetY);
-
-	// @brief: 获取相机缩放。
-	// @return: 相机缩放。
 	float GetCameraZoom() const;
-
-	// @brief: 获取相机视图矩阵。
-	// @return: 相机视图矩阵。
 	glm::mat4x4 GetViewMatrix() const;
-
-	// @brief: 设置相机四元数。
-	// @param: Orientation 四元数
 	void SetOrientation(const glm::quat& Orientation);
-
-	// @brief: 获取相机四元数。
-	// @return: 相机四元数。
 	const glm::quat& GetOrientation() const;
 
 private:
@@ -101,7 +67,6 @@ private:
 	glm::vec3 _Up;
 	glm::vec3 _Right;
 	glm::vec3 _WorldUp;
-	glm::vec3 _CurrentVelocity = glm::vec3(0.0f);
 	float     _Sensitivity;
 	float     _Speed;
 	float     _Zoom;

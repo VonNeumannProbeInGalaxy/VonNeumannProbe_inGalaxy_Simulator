@@ -32,7 +32,7 @@ public:
 
 private:
 	explicit ThreadPool();
-	~ThreadPool() {}
+	~ThreadPool();
 
 	static void SetThreadAffinity(std::thread& Thread, std::size_t CoreId);
 

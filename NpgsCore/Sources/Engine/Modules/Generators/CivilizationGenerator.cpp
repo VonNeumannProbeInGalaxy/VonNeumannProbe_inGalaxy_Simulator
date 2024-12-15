@@ -11,10 +11,8 @@
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-CivilizationGenerator::CivilizationGenerator(const std::seed_seq& SeedSequence,
-											 float LifeOccurrenceProbability,
-											 bool  bEnableAsiFilter,
-											 float DestroyedByDisasterProbability)
+CivilizationGenerator::CivilizationGenerator(const std::seed_seq& SeedSequence, float LifeOccurrenceProbability,
+											 bool bEnableAsiFilter, float DestroyedByDisasterProbability)
 	:
 	_RandomEngine(SeedSequence),
 	_AsiFiltedProbability(static_cast<double>(bEnableAsiFilter) * 0.2),
