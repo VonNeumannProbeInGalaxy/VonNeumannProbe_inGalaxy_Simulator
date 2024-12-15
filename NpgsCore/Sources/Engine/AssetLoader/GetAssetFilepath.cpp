@@ -1,4 +1,5 @@
 #include "GetAssetFilepath.h"
+
 #include "Engine/Core/Assert.h"
 
 _NPGS_BEGIN

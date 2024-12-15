@@ -1,6 +1,7 @@
 #pragma once
 
 #include "StellarSystem.h"
+
 #include <type_traits>
 
 _NPGS_BEGIN
