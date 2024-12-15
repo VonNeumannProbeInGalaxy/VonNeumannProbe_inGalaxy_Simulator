@@ -224,7 +224,3 @@ Texture::ImageData Texture::LoadImage(const std::string& ImageFilename, bool bSr
 
 _ASSET_END
 _NPGS_END
-
-// stb_image implementation
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>

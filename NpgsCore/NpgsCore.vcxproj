@@ -145,6 +145,7 @@
     <ClCompile Include="Sources\Engine\AssetLoader\Mesh.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\Model.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\Shader.cpp" />
+    <ClCompile Include="Sources\Engine\AssetLoader\stb_image.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\Texture.cpp" />
     <ClCompile Include="Sources\Engine\Base\Intelli\Artifact.cpp" />
     <ClCompile Include="Sources\Engine\Base\Astro\CelestialObject.cpp" />

@@ -43,7 +43,7 @@ void Terminate(GLFWwindow* Window);
 
 int main()
 {
-	if (!glfwInit())
+	if (glfwInit() == GLFW_FALSE)
 	{
 		std::println("Error: Failed to initialize GLFW.");
 		return EXIT_FAILURE;

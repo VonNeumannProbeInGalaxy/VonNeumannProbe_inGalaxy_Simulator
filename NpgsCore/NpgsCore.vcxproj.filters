@@ -87,6 +87,9 @@
     <ClCompile Include="Sources\Engine\Base\NpgsObject.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\AssetLoader\stb_image.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Core\Assert.h">
