@@ -501,7 +501,7 @@ void StellarGenerator::InitMistData()
 			}
 		}
 
-		_kMassFileCache.emplace(PrefixDirectory, Masses);
+		_kMassFilesCache.emplace(PrefixDirectory, Masses);
 		Masses.clear();
 	}
 
@@ -611,7 +611,7 @@ std::vector<double> StellarGenerator::GetFullMistData(const BasicProperties& Pro
 	std::vector<float> Masses;
 	{
 		std::shared_lock Lock(_kCacheMutex);
-		Masses = _kMassFileCache[PrefixDirectory];
+		Masses = _kMassFilesCache[PrefixDirectory];
 	}
 
 	auto it = std::lower_bound(Masses.begin(), Masses.end(), TargetMass);
@@ -2132,7 +2132,7 @@ const std::vector<std::string> StellarGenerator::_kWdMistHeaders
 };
 
 const std::vector<std::string> StellarGenerator::_kHrDiagramHeaders{ "B-V", "Ia", "Ib", "II", "III", "IV", "V" };
-std::unordered_map<std::string, std::vector<float>> StellarGenerator::_kMassFileCache;
+std::unordered_map<std::string, std::vector<float>> StellarGenerator::_kMassFilesCache;
 std::unordered_map<const StellarGenerator::MistData*, std::vector<std::vector<double>>> StellarGenerator::_kPhaseChangesCache;
 std::shared_mutex StellarGenerator::_kCacheMutex;
 bool StellarGenerator::_kbMistDataInitiated = false;

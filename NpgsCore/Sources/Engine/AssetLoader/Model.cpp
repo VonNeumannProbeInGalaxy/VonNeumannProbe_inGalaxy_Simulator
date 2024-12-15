@@ -36,7 +36,7 @@ Model::Model(const std::string& Filename)
 
 Model::Model(Model&& Other) noexcept
 	:
-	_Textures(std::move(Other._Textures)),
+	_TexturesCache(std::move(Other._TexturesCache)),
 	_Meshes(std::move(Other._Meshes)),
 	_Directory(std::move(Other._Directory))
 {
@@ -46,9 +46,9 @@ Model& Model::operator=(Model&& Other) noexcept
 {
 	if (this != &Other)
 	{
-		_Textures  = std::move(Other._Textures);
-		_Meshes    = std::move(Other._Meshes);
-		_Directory = std::move(Other._Directory);
+		_TexturesCache = std::move(Other._TexturesCache);
+		_Meshes        = std::move(Other._Meshes);
+		_Directory     = std::move(Other._Directory);
 	}
 
 	return *this;
@@ -135,17 +135,19 @@ std::unique_ptr<Mesh> Model::ProcessMesh(const aiMesh* Mesh, const aiScene* Scen
 	aiMaterial* Material = Scene->mMaterials[Mesh->mMaterialIndex];
 
 	std::vector<Mesh::Texture> DiffuseMaps = LoadMaterialTextures(Material, aiTextureType_DIFFUSE, "iDiffuseTex");
-	Textures.insert(Textures.end(), DiffuseMaps.begin(), DiffuseMaps.end());
+	Textures.insert(Textures.end(), std::make_move_iterator(DiffuseMaps.begin()), std::make_move_iterator(DiffuseMaps.end()));
 	std::vector<Mesh::Texture> SpecularMaps = LoadMaterialTextures(Material, aiTextureType_SPECULAR, "iSpecularTex");
-	Textures.insert(Textures.end(), SpecularMaps.begin(), SpecularMaps.end());
+	Textures.insert(Textures.end(), std::make_move_iterator(SpecularMaps.begin()), std::make_move_iterator(SpecularMaps.end()));
 	std::vector<Mesh::Texture> NormalMaps = LoadMaterialTextures(Material, aiTextureType_NORMALS, "iNormalTex");
-	Textures.insert(Textures.end(), NormalMaps.begin(), NormalMaps.end());
+	Textures.insert(Textures.end(), std::make_move_iterator(NormalMaps.begin()), std::make_move_iterator(NormalMaps.end()));
 	std::vector<Mesh::Texture> HeightMaps = LoadMaterialTextures(Material, aiTextureType_AMBIENT, "iHeightTex");
-	Textures.insert(Textures.end(), HeightMaps.begin(), HeightMaps.end());
+	Textures.insert(Textures.end(), std::make_move_iterator(HeightMaps.begin()), std::make_move_iterator(HeightMaps.end()));
 
 	return std::make_unique<Asset::Mesh>(Vertices, Indices, Textures);
 }
 
+#pragma warning(push)
+#pragma warning(disable : 26800) // For disable a IntelliSense bug
 std::vector<Mesh::Texture> Model::LoadMaterialTextures(const aiMaterial* Material, const aiTextureType& TextureType, const std::string& TypeName)
 {
 	std::vector<Mesh::Texture> Textures;
@@ -157,11 +159,11 @@ std::vector<Mesh::Texture> Model::LoadMaterialTextures(const aiMaterial* Materia
 		Material->GetTexture(TextureType, i, &ImageFilename);
 
 		bool bSkipLoading = false;
-		for (const auto& kTexture : _Textures)
+		for (const auto& Texture : _TexturesCache)
 		{
-			if (std::strcmp(kTexture.ImageFilename.data(), ImageFilename.C_Str()) == 0)
+			if (std::strcmp(Texture.ImageFilename.data(), ImageFilename.C_Str()) == 0)
 			{
-				Textures.emplace_back(kTexture);
+				Textures.emplace_back(Texture);
 				bSkipLoading = true;
 				break;
 			}
@@ -170,16 +172,18 @@ std::vector<Mesh::Texture> Model::LoadMaterialTextures(const aiMaterial* Materia
 		if (!bSkipLoading)
 		{
 			std::string ImageFilepath = _Directory + '/' + ImageFilename.C_Str();
-			MaterialTexture.Data = std::make_shared<Asset::Texture>(Asset::Texture::TextureType::k2D, ImageFilepath, true, true, false);
+			MaterialTexture.Data =
+				std::make_shared<Asset::Texture>(Asset::Texture::TextureType::k2D, ImageFilepath, true, true, false);
 			MaterialTexture.TypeName = TypeName;
 			MaterialTexture.ImageFilename = ImageFilename.C_Str();
-			Textures.emplace_back(MaterialTexture);
-		   _Textures.emplace_back(MaterialTexture);
+			_TexturesCache.emplace_back(std::move(MaterialTexture));
+			Textures.emplace_back(_TexturesCache.back());
 		}
 	}
 
 	return Textures;
 }
+#pragma warning(pop)
 
 _ASSET_END
 _NPGS_END

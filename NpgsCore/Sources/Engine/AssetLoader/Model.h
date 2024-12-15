@@ -36,7 +36,7 @@ private:
 	const std::vector<std::unique_ptr<Mesh>>& GetMeshes() const;
 
 private:
-	std::vector<Mesh::Texture>         _Textures;
+	std::vector<Mesh::Texture>         _TexturesCache;
 	std::vector<std::unique_ptr<Mesh>> _Meshes;
 	std::string                        _Directory;
 };

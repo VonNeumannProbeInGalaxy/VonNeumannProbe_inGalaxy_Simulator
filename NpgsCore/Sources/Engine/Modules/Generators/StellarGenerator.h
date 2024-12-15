@@ -203,7 +203,7 @@ private:
 	static const std::vector<std::string> _kMistHeaders;
 	static const std::vector<std::string> _kWdMistHeaders;
 	static const std::vector<std::string> _kHrDiagramHeaders;
-	static std::unordered_map<std::string, std::vector<float>> _kMassFileCache;
+	static std::unordered_map<std::string, std::vector<float>> _kMassFilesCache;
 	static std::unordered_map<const MistData*, std::vector<std::vector<double>>> _kPhaseChangesCache;
 	static std::shared_mutex _kCacheMutex;
 	static bool _kbMistDataInitiated;

@@ -1,8 +1,8 @@
 #version 460 core
 
-layout(location = 0) in vec3 InPosition;
-layout(location = 1) in vec3 InNormal;
-layout(location = 2) in vec2 InTexCoord;
+layout(location = 0) in vec3 InputPos;
+layout(location = 1) in vec3 InputNormal;
+layout(location = 2) in vec2 InputTexCoord;
 
 out vec3 Normal;
 out vec2 TexCoord;
@@ -15,8 +15,8 @@ uniform mat3x3 iNormalMatrix;
 
 void main()
 {
-	TexCoord = InTexCoord;
-	Normal   = normalize(iNormalMatrix * InNormal);
-	FragPos  = vec3(iModel * vec4(InPosition, 1.0));
+	TexCoord = InputTexCoord;
+	Normal   = normalize(iNormalMatrix * InputNormal);
+	FragPos  = vec3(iModel * vec4(InputPos, 1.0));
 	gl_Position = iProjection * iView * vec4(FragPos, 1.0);
 }

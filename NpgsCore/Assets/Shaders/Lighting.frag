@@ -10,22 +10,15 @@ struct Light
 	vec3 SpecularColor;
 };
 
-struct Material
-{
-	sampler2D Diffuse;
-	sampler2D Specular;
-	float Shininess;
-};
-
 in vec3 Normal;
 in vec2 TexCoord;
 in vec3 FragPos;
 
-uniform vec3 iViewPos;
-uniform Light iLight;
-uniform Material iMaterial;
+uniform float     iShininess;
+uniform vec3      iViewPos;
 uniform sampler2D iDiffuseTex0;
 uniform sampler2D iSpecularTex0;
+uniform Light     iLight;
 
 void main()
 {
@@ -41,7 +34,7 @@ void main()
 
 	vec3 ViewDir = normalize(iViewPos - FragPos);
 	vec3 ReflectDir = reflect(-LightDir, Normal);
-	float SpecularFactor = pow(max(dot(ViewDir, ReflectDir), 0.0), iMaterial.Shininess);
+	float SpecularFactor = pow(max(dot(ViewDir, ReflectDir), 0.0), iShininess);
 	vec3 SpecularColor = iLight.SpecularColor * texture(iSpecularTex0, TexCoord).rgb * SpecularFactor;
 
 	vec3 Result = AmbientColor + DiffuseColor + SpecularColor;

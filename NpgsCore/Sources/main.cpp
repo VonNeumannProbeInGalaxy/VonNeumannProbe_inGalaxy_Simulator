@@ -25,7 +25,7 @@ int         kWindowWidth  = 1280;
 int         kWindowHeight = 960;
 const char* kWindowTitle  = "Von-Neumann Probe in Galaxy Simulator FPS:";
 float       kWindowAspect = static_cast<float>(kWindowWidth) / static_cast<float>(kWindowHeight);
-int         kMultiSamples = 4;
+int         kMultiSamples = 32;
 
 Camera* kFreeCamera  = nullptr;
 bool    kbFirstMouse = true;
@@ -84,31 +84,16 @@ int main()
 
 #include "Vertices.inc"
 
-	std::vector<std::string> TriangleShaderFiles{ "Lighting.vert", "Lighting.frag" };
+	std::vector<std::string> LightingShaderFiles{ "Lighting.vert", "Lighting.frag" };
 	std::vector<std::string> LampShaderMacros{ "__FRAG_LAMP_CUBE" };
-	AssetManager::AddAsset<Shader>("Triangle", Shader(TriangleShaderFiles));
-	AssetManager::AddAsset<Shader>("Lamp", Shader(TriangleShaderFiles, "", LampShaderMacros));
-	AssetManager::AddAsset<Texture>("TexDiffuse", Texture(Texture::TextureType::k2D, "ContainerDiffuse.png"));
-	AssetManager::AddAsset<Texture>("TexSpecular", Texture(Texture::TextureType::k2D, "ContainerSpecular.png"));
+	AssetManager::AddAsset<Shader>("Lighting", Shader(LightingShaderFiles));
+	AssetManager::AddAsset<Shader>("Lamp", Shader(LightingShaderFiles, "", LampShaderMacros));
 	AssetManager::AddAsset<Model>("Backpack", Model("Backpack/backpack.obj"));
 
-	//GLuint VertexArray  = 0;
 	GLuint VertexBuffer = 0;
 	glCreateBuffers(1, &VertexBuffer);
 	glNamedBufferData(VertexBuffer, ContainerVertices.size() * sizeof(GLfloat), ContainerVertices.data(), GL_STATIC_DRAW);
-	//glCreateVertexArrays(1, &VertexArray);
-	//glVertexArrayVertexBuffer(VertexArray, 0, VertexBuffer, 0, 8 * sizeof(GLfloat));
-	//glEnableVertexArrayAttrib(VertexArray, 0);
-	//glEnableVertexArrayAttrib(VertexArray, 1);
-	//glEnableVertexArrayAttrib(VertexArray, 2);
-	//glVertexArrayAttribFormat(VertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
-	//glVertexArrayAttribFormat(VertexArray, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat));
-	//glVertexArrayAttribFormat(VertexArray, 2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat));
-	//glVertexArrayAttribBinding(VertexArray, 0, 0);
-	//glVertexArrayAttribBinding(VertexArray, 1, 0);
-	//glVertexArrayAttribBinding(VertexArray, 2, 0);
-
-	GLuint LampVertexArray  = 0;
+	GLuint LampVertexArray = 0;
 	glCreateVertexArrays(1, &LampVertexArray);
 	glVertexArrayVertexBuffer(LampVertexArray, 0, VertexBuffer, 0, 8 * sizeof(GLfloat));
 	glEnableVertexArrayAttrib(LampVertexArray, 0);
@@ -123,25 +108,15 @@ int main()
 	double DeltaTime     = 0.0;
 	int    FrameCount    = 0;
 
-	auto* TriangleShader = AssetManager::GetAsset<Shader>("Triangle");  
-	auto* LampShader = AssetManager::GetAsset<Shader>("Lamp");
-	auto* TexDiffuse = AssetManager::GetAsset<Texture>("TexDiffuse");
-	auto* TexSpecular = AssetManager::GetAsset<Texture>("TexSpecular");
-	auto* Backpack = AssetManager::GetAsset<Model>("Backpack");
-
-	//TriangleShader->UseProgram();
-	//TexDiffuse->BindTextureUnit(*TriangleShader, "iMaterial.Diffuse", 0);
-	//TexSpecular->BindTextureUnit(*TriangleShader, "iMaterial.Specular", 1);
+	auto* LightingShader = AssetManager::GetAsset<Shader>("Lighting");  
+	auto* LampShader     = AssetManager::GetAsset<Shader>("Lamp");
+	auto* Backpack       = AssetManager::GetAsset<Model>("Backpack");
 
 	glm::mat4x4 Model(1.0f);
 	glm::mat4x4 View(1.0f);
 	glm::mat4x4 Projection(1.0f);
-
-	glm::vec3 LightColor(1.0f);
-	glm::vec3 ObjectColor(1.0f, 0.5f, 0.31f);
-	glm::vec3 LightPos(1.2f, 1.0f, 2.0f);
-
 	glm::mat3x3 NormalMatrix(1.0f);
+	glm::vec3   LightPos(1.2f, 1.0f, 2.0f);
 
 	while (!glfwWindowShouldClose(Window))
 	{
@@ -150,39 +125,24 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		View = kFreeCamera->GetViewMatrix();
-		Projection = glm::perspective(glm::radians(45.0f), kWindowAspect, 0.1f, 100.0f);
+		Projection = glm::perspective(kFreeCamera->GetCameraZoom(), kWindowAspect, 0.1f, 100.0f);
 
-		TriangleShader->UseProgram();
-		TriangleShader->SetUniformMatrix4fv("iModel", Model);
-		TriangleShader->SetUniformMatrix4fv("iView", View);
-		TriangleShader->SetUniformMatrix4fv("iProjection", Projection);
-		TriangleShader->SetUniform3fv("iLight.Position", LightPos);
-		TriangleShader->SetUniform3fv("iLight.AmbientColor", glm::vec3(0.0f));
-		TriangleShader->SetUniform3fv("iLight.DiffuseColor", glm::vec3(1.0f));
-		TriangleShader->SetUniform3fv("iLight.SpecularColor", glm::vec3(1.0f));
-		TriangleShader->SetUniform1f("iMaterial.Shininess", 64.0f);
-		TriangleShader->SetUniform3fv("iViewPos", kFreeCamera->GetCameraVector(Camera::VectorType::kPosition));
-
-		//glBindVertexArray(VertexArray);
-
-		//for (int i = 0; i != 10; ++i)
-		//{
-		//	Model = glm::mat4x4(1.0f);
-		//	Model = glm::translate(Model, CubePositions[i]);
-
-		//	float Angle = 20.0f * i;
-		//	Model = glm::rotate(Model, glm::radians(Angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		//	NormalMatrix = glm::transpose(glm::inverse(Model));
-
-		//	TriangleShader->SetUniformMatrix4fv("iModel", Model);
-		//	TriangleShader->SetUniformMatrix3fv("iNormalMatrix", NormalMatrix);
-		//	glDrawArrays(GL_TRIANGLES, 0, 36);
-		//}
-
-		//glBindVertexArray(VertexArray);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		Backpack->Draw(*TriangleShader);
+		Model = glm::mat4x4(1.0f);
+		Model = glm::translate(Model, glm::vec3(0.0f));
+		Model = glm::scale(Model, glm::vec3(1.0f));
+		NormalMatrix = glm::transpose(glm::inverse(Model));
+		LightingShader->UseProgram();
+		LightingShader->SetUniformMatrix4fv("iModel", Model);
+		LightingShader->SetUniformMatrix4fv("iView", View);
+		LightingShader->SetUniformMatrix4fv("iProjection", Projection);
+		LightingShader->SetUniformMatrix3fv("iNormalMatrix", NormalMatrix);
+		LightingShader->SetUniform1f("iShininess", 64.0f);
+		LightingShader->SetUniform3fv("iViewPos", kFreeCamera->GetCameraVector(Camera::VectorType::kPosition));
+		LightingShader->SetUniform3fv("iLight.Position", LightPos);
+		LightingShader->SetUniform3fv("iLight.AmbientColor", glm::vec3(0.2f));
+		LightingShader->SetUniform3fv("iLight.DiffuseColor", glm::vec3(1.0f));
+		LightingShader->SetUniform3fv("iLight.SpecularColor", glm::vec3(1.0f));
+		Backpack->Draw(*LightingShader);
 
 		Model = glm::mat4x4(1.0f);
 		Model = glm::translate(Model, LightPos);

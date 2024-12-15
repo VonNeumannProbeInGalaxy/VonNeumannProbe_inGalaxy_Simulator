@@ -1,5 +1,3 @@
-#pragma warning(disable : 4715)
-
 #include "GetAssetFilepath.h"
 #include "Engine/Core/Assert.h"
 
