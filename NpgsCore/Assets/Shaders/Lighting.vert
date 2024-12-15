@@ -16,7 +16,7 @@ uniform mat3x3 iNormalMatrix;
 void main()
 {
 	TexCoord = InTexCoord;
-	Normal   = iNormalMatrix * InNormal;
+	Normal   = normalize(iNormalMatrix * InNormal);
 	FragPos  = vec3(iModel * vec4(InPosition, 1.0));
 	gl_Position = iProjection * iView * vec4(FragPos, 1.0);
 }

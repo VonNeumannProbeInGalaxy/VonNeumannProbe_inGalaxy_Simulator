@@ -9,28 +9,6 @@
 
 _NPGS_BEGIN
 
-// @brief: 相机移动方向。
-enum class Movement
-{
-	kForward,
-	kBack,
-	kLeft,
-	kRight,
-	kUp,
-	kDown,
-	kRollLeft,
-	kRollRight
-};
-
-// @brief 相机向量类型。
-enum class VectorType
-{
-	kPosition,
-	kFront,
-	kUp,
-	kRight
-};
-
 constexpr glm::vec3 kPosition    = glm::vec3(0.0f);
 constexpr glm::vec3 kFront       = glm::vec3(0.0f, 0.0f, -1.0f);
 constexpr glm::vec3 kWorldUp     = glm::vec3(0.0f, 1.0f,  0.0f);
@@ -40,6 +18,29 @@ constexpr float     kZoom        = 45.0f;
 
 class Camera
 {
+public:
+	// @brief: 相机移动方向。
+	enum class Movement
+	{
+		kForward,
+		kBack,
+		kLeft,
+		kRight,
+		kUp,
+		kDown,
+		kRollLeft,
+		kRollRight
+	};
+
+	// @brief 相机向量类型。
+	enum class VectorType
+	{
+		kPosition,
+		kFront,
+		kUp,
+		kRight
+	};
+
 public:
 	// @brief: 构造函数。
 	// @param: Position 相机位置。

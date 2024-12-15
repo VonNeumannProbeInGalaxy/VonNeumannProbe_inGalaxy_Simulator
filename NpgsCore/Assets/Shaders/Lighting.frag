@@ -2,15 +2,30 @@
 
 layout(location = 0) out vec4 FragColor;
 
+struct Light
+{
+	vec3 Position;
+	vec3 AmbientColor;
+	vec3 DiffuseColor;
+	vec3 SpecularColor;
+};
+
+struct Material
+{
+	sampler2D Diffuse;
+	sampler2D Specular;
+	float Shininess;
+};
+
 in vec3 Normal;
 in vec2 TexCoord;
 in vec3 FragPos;
 
-uniform sampler2D iFace;
-uniform sampler2D iNpgs;
-uniform vec3 iLightPos;
-uniform vec3 iLightColor;
-uniform vec3 iObjectColor;
+uniform vec3 iViewPos;
+uniform Light iLight;
+uniform Material iMaterial;
+uniform sampler2D iDiffuseTex0;
+uniform sampler2D iSpecularTex0;
 
 void main()
 {
@@ -18,12 +33,17 @@ void main()
 	FragColor = vec4(1.0);
 	return;
 #endif
-	vec3 SurfaceNormal = normalize(Normal);
-	vec3 LightDir = normalize(iLightPos - FragPos);
+	vec3 AmbientColor = iLight.AmbientColor * texture(iDiffuseTex0, TexCoord).rgb;
 
-	float Diffuse = max(dot(SurfaceNormal, LightDir), 0.0);
-	vec3  DiffuseColor = Diffuse * iLightColor;
+	vec3 LightDir = normalize(iLight.Position - FragPos);
+	float DiffuseFactor = max(dot(Normal, LightDir), 0.0);
+	vec3 DiffuseColor = iLight.DiffuseColor * texture(iDiffuseTex0, TexCoord).rgb * DiffuseFactor;
 
-	vec4 Color = vec4(DiffuseColor * iObjectColor, 1.0);
-	FragColor = Color * mix(texture(iNpgs, TexCoord), texture(iFace, TexCoord), 0.3);
+	vec3 ViewDir = normalize(iViewPos - FragPos);
+	vec3 ReflectDir = reflect(-LightDir, Normal);
+	float SpecularFactor = pow(max(dot(ViewDir, ReflectDir), 0.0), iMaterial.Shininess);
+	vec3 SpecularColor = iLight.SpecularColor * texture(iSpecularTex0, TexCoord).rgb * SpecularFactor;
+
+	vec3 Result = AmbientColor + DiffuseColor + SpecularColor;
+	FragColor = vec4(Result, 1.0);
 }

@@ -97,7 +97,7 @@ std::unique_ptr<Mesh> Model::ProcessMesh(const aiMesh* Mesh, const aiScene* Scen
 			MeshVertex.Normal = Vector;
 		}
 
-		if (Mesh->mTextureCoords[0])
+		if (Mesh->HasTextureCoords(0))
 		{
 			Vector.x = Mesh->mTextureCoords[0][i].x;
 			Vector.y = Mesh->mTextureCoords[0][i].y;

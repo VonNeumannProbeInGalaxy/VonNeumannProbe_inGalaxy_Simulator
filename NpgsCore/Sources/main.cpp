@@ -88,24 +88,25 @@ int main()
 	std::vector<std::string> LampShaderMacros{ "__FRAG_LAMP_CUBE" };
 	AssetManager::AddAsset<Shader>("Triangle", Shader(TriangleShaderFiles));
 	AssetManager::AddAsset<Shader>("Lamp", Shader(TriangleShaderFiles, "", LampShaderMacros));
-	AssetManager::AddAsset<Texture>("TexNpgs", Texture(Texture::TextureType::k2D, "Wood.png"));
-	AssetManager::AddAsset<Texture>("TexFace", Texture(Texture::TextureType::k2D, "AwesomeFace.png"));
+	AssetManager::AddAsset<Texture>("TexDiffuse", Texture(Texture::TextureType::k2D, "ContainerDiffuse.png"));
+	AssetManager::AddAsset<Texture>("TexSpecular", Texture(Texture::TextureType::k2D, "ContainerSpecular.png"));
+	AssetManager::AddAsset<Model>("Backpack", Model("Backpack/backpack.obj"));
 
-	GLuint VertexArray  = 0;
+	//GLuint VertexArray  = 0;
 	GLuint VertexBuffer = 0;
 	glCreateBuffers(1, &VertexBuffer);
 	glNamedBufferData(VertexBuffer, ContainerVertices.size() * sizeof(GLfloat), ContainerVertices.data(), GL_STATIC_DRAW);
-	glCreateVertexArrays(1, &VertexArray);
-	glVertexArrayVertexBuffer(VertexArray, 0, VertexBuffer, 0, 8 * sizeof(GLfloat));
-	glEnableVertexArrayAttrib(VertexArray, 0);
-	glEnableVertexArrayAttrib(VertexArray, 1);
-	glEnableVertexArrayAttrib(VertexArray, 2);
-	glVertexArrayAttribFormat(VertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
-	glVertexArrayAttribFormat(VertexArray, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat));
-	glVertexArrayAttribFormat(VertexArray, 2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat));
-	glVertexArrayAttribBinding(VertexArray, 0, 0);
-	glVertexArrayAttribBinding(VertexArray, 1, 0);
-	glVertexArrayAttribBinding(VertexArray, 2, 0);
+	//glCreateVertexArrays(1, &VertexArray);
+	//glVertexArrayVertexBuffer(VertexArray, 0, VertexBuffer, 0, 8 * sizeof(GLfloat));
+	//glEnableVertexArrayAttrib(VertexArray, 0);
+	//glEnableVertexArrayAttrib(VertexArray, 1);
+	//glEnableVertexArrayAttrib(VertexArray, 2);
+	//glVertexArrayAttribFormat(VertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
+	//glVertexArrayAttribFormat(VertexArray, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat));
+	//glVertexArrayAttribFormat(VertexArray, 2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat));
+	//glVertexArrayAttribBinding(VertexArray, 0, 0);
+	//glVertexArrayAttribBinding(VertexArray, 1, 0);
+	//glVertexArrayAttribBinding(VertexArray, 2, 0);
 
 	GLuint LampVertexArray  = 0;
 	glCreateVertexArrays(1, &LampVertexArray);
@@ -122,18 +123,19 @@ int main()
 	double DeltaTime     = 0.0;
 	int    FrameCount    = 0;
 
+	auto* TriangleShader = AssetManager::GetAsset<Shader>("Triangle");  
+	auto* LampShader = AssetManager::GetAsset<Shader>("Lamp");
+	auto* TexDiffuse = AssetManager::GetAsset<Texture>("TexDiffuse");
+	auto* TexSpecular = AssetManager::GetAsset<Texture>("TexSpecular");
+	auto* Backpack = AssetManager::GetAsset<Model>("Backpack");
+
+	//TriangleShader->UseProgram();
+	//TexDiffuse->BindTextureUnit(*TriangleShader, "iMaterial.Diffuse", 0);
+	//TexSpecular->BindTextureUnit(*TriangleShader, "iMaterial.Specular", 1);
+
 	glm::mat4x4 Model(1.0f);
 	glm::mat4x4 View(1.0f);
 	glm::mat4x4 Projection(1.0f);
-
-	auto* TriangleShader = AssetManager::GetAsset<Shader>("Triangle");
-	auto* LampShader = AssetManager::GetAsset<Shader>("Lamp");
-	auto* TexNpgs = AssetManager::GetAsset<Texture>("TexNpgs");
-	auto* TexFace = AssetManager::GetAsset<Texture>("TexFace");
-
-	TriangleShader->UseProgram();
-	TexNpgs->BindTextureUnit(*TriangleShader, "iNpgs", 1);
-	TexFace->BindTextureUnit(*TriangleShader, "iFace", 0);
 
 	glm::vec3 LightColor(1.0f);
 	glm::vec3 ObjectColor(1.0f, 0.5f, 0.31f);
@@ -151,31 +153,36 @@ int main()
 		Projection = glm::perspective(glm::radians(45.0f), kWindowAspect, 0.1f, 100.0f);
 
 		TriangleShader->UseProgram();
-		TriangleShader->SetUniform3fv("iLightColor", LightColor);
-		TriangleShader->SetUniform3fv("iObjectColor", ObjectColor);
-		TriangleShader->SetUniform3fv("iLightPos", LightPos);
 		TriangleShader->SetUniformMatrix4fv("iModel", Model);
 		TriangleShader->SetUniformMatrix4fv("iView", View);
 		TriangleShader->SetUniformMatrix4fv("iProjection", Projection);
+		TriangleShader->SetUniform3fv("iLight.Position", LightPos);
+		TriangleShader->SetUniform3fv("iLight.AmbientColor", glm::vec3(0.0f));
+		TriangleShader->SetUniform3fv("iLight.DiffuseColor", glm::vec3(1.0f));
+		TriangleShader->SetUniform3fv("iLight.SpecularColor", glm::vec3(1.0f));
+		TriangleShader->SetUniform1f("iMaterial.Shininess", 64.0f);
+		TriangleShader->SetUniform3fv("iViewPos", kFreeCamera->GetCameraVector(Camera::VectorType::kPosition));
 
-		glBindVertexArray(VertexArray);
+		//glBindVertexArray(VertexArray);
 
-		for (int i = 0; i != 10; ++i)
-		{
-			Model = glm::mat4x4(1.0f);
-			Model = glm::translate(Model, CubePositions[i]);
+		//for (int i = 0; i != 10; ++i)
+		//{
+		//	Model = glm::mat4x4(1.0f);
+		//	Model = glm::translate(Model, CubePositions[i]);
 
-			float Angle = 20.0f * i;
-			Model = glm::rotate(Model, glm::radians(Angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			NormalMatrix = glm::transpose(glm::inverse(Model));
+		//	float Angle = 20.0f * i;
+		//	Model = glm::rotate(Model, glm::radians(Angle), glm::vec3(1.0f, 0.3f, 0.5f));
+		//	NormalMatrix = glm::transpose(glm::inverse(Model));
 
-			TriangleShader->SetUniformMatrix4fv("iModel", Model);
-			TriangleShader->SetUniformMatrix3fv("iNormalMatrix", NormalMatrix);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		//	TriangleShader->SetUniformMatrix4fv("iModel", Model);
+		//	TriangleShader->SetUniformMatrix3fv("iNormalMatrix", NormalMatrix);
+		//	glDrawArrays(GL_TRIANGLES, 0, 36);
+		//}
 
-		glBindVertexArray(VertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(VertexArray);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		Backpack->Draw(*TriangleShader);
 
 		Model = glm::mat4x4(1.0f);
 		Model = glm::translate(Model, LightPos);
@@ -325,21 +332,21 @@ void ProcessInput(GLFWwindow* Window, double DeltaTime)
 	}
 
 	if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Movement::kForward, DeltaTime);
+		kFreeCamera->ProcessKeyboard(Camera::Movement::kForward, DeltaTime);
 	if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Movement::kBack, DeltaTime);
+		kFreeCamera->ProcessKeyboard(Camera::Movement::kBack, DeltaTime);
 	if (glfwGetKey(Window, GLFW_KEY_A) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Movement::kLeft, DeltaTime);
+		kFreeCamera->ProcessKeyboard(Camera::Movement::kLeft, DeltaTime);
 	if (glfwGetKey(Window, GLFW_KEY_D) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Movement::kRight, DeltaTime);
+		kFreeCamera->ProcessKeyboard(Camera::Movement::kRight, DeltaTime);
 	if (glfwGetKey(Window, GLFW_KEY_R) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Movement::kUp, DeltaTime);
+		kFreeCamera->ProcessKeyboard(Camera::Movement::kUp, DeltaTime);
 	if (glfwGetKey(Window, GLFW_KEY_F) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Movement::kDown, DeltaTime);
+		kFreeCamera->ProcessKeyboard(Camera::Movement::kDown, DeltaTime);
 	if (glfwGetKey(Window, GLFW_KEY_Q) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Movement::kRollLeft, DeltaTime);
+		kFreeCamera->ProcessKeyboard(Camera::Movement::kRollLeft, DeltaTime);
 	if (glfwGetKey(Window, GLFW_KEY_E) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Movement::kRollRight, DeltaTime);
+		kFreeCamera->ProcessKeyboard(Camera::Movement::kRollRight, DeltaTime);
 }
 
 void ScrollCallback(GLFWwindow* Window, GLdouble OffsetX, GLdouble OffsetY)
