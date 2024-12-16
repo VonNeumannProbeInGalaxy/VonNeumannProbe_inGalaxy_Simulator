@@ -32,11 +32,11 @@ public:
 
 public:
 	Texture(TextureType CreateType, const std::string& Filename, bool bSrgb = false, bool bFlipVertically = true, bool bAutoFillFilepath = true);
-	Texture(TextureType CreateType, const FT_Face& Face);
-	Texture(TextureType CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer);
-	Texture(TextureType CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLsizei Samples,
-			GLenum Attachment, bool bFixedSampleLocations, GLuint Framebuffer);
-	Texture(TextureType CreateType, GLsizei Width, GLsizei Height);
+	Texture(const FT_Face& Face);
+	Texture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer);
+	Texture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLsizei Samples,
+			GLboolean bFixedSampleLocations, GLuint Framebuffer);
+	Texture(GLsizei Width, GLsizei Height);
 	Texture(const Texture&) = delete;
 	Texture(Texture&& Other) noexcept;
 

@@ -21,16 +21,22 @@ using namespace Npgs::Asset;
 namespace
 {
 
-int         kWindowWidth  = 1280;
-int         kWindowHeight = 960;
-const char* kWindowTitle  = "Von-Neumann Probe in Galaxy Simulator FPS:";
-float       kWindowAspect = static_cast<float>(kWindowWidth) / static_cast<float>(kWindowHeight);
-int         kMultiSamples = 32;
+int   kWindowWidth       = 1280;
+int   kWindowHeight      = 960;
+float kWindowAspect      = static_cast<float>(kWindowWidth) / static_cast<float>(kWindowHeight);
+const char* kWindowTitle = "Von-Neumann Probe in Galaxy Simulator FPS:";
 
-Camera* kFreeCamera  = nullptr;
-bool    kbFirstMouse = true;
-double  kLastX       = 0.0;
-double  kLastY       = 0.0;
+int    kMultiSamples            = 32;
+GLuint kMultiSampleFramebuffer  = 0;
+GLuint kIntermediateFramebuffer = 0;
+GLuint kRenderbuffer            = 0;
+Texture* kTexColorBuffer        = nullptr;
+Texture* kTexMultiSampleBuffer  = nullptr;
+
+Camera* kFreeCamera = nullptr;
+bool   kbFirstMouse = true;
+double kLastX       = 0.0;
+double kLastY       = 0.0;
 
 void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY);
 void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height);
@@ -84,10 +90,12 @@ int main()
 
 #include "Vertices.inc"
 
+	std::vector<std::string> FramebufferShaderFiles{ "Framebuffer.vert", "Framebuffer.frag" };
 	std::vector<std::string> LightingShaderFiles{ "Lighting.vert", "Lighting.frag" };
 	std::vector<std::string> AdvancedShaderFiles{ "Advanced.vert", "Advanced.frag" };
 	std::vector<std::string> LampShaderMacros{ "__FRAG_LAMP_CUBE" };
-	std::vector<std::string> BorderShaderMacros{ "__FRAG_BORDER" };	
+	std::vector<std::string> BorderShaderMacros{ "__FRAG_BORDER" };
+	AssetManager::AddAsset<Shader>("Framebuffer", Shader(FramebufferShaderFiles));
 	AssetManager::AddAsset<Shader>("Lighting", Shader(LightingShaderFiles));
 	AssetManager::AddAsset<Shader>("Advanced", Shader(AdvancedShaderFiles));
 	AssetManager::AddAsset<Shader>("Lamp", Shader(LightingShaderFiles, "", LampShaderMacros));
@@ -110,6 +118,10 @@ int main()
 	GLuint TransparentVertexBuffer = 0;
 	glCreateBuffers(1, &TransparentVertexBuffer);
 	glNamedBufferData(TransparentVertexBuffer, TransparentVertices.size() * sizeof(GLfloat), TransparentVertices.data(), GL_STATIC_DRAW);
+
+	GLuint QuadVertexBuffer = 0;
+	glCreateBuffers(1, &QuadVertexBuffer);
+	glNamedBufferData(QuadVertexBuffer, QuadVertices.size() * sizeof(GLfloat), QuadVertices.data(), GL_STATIC_DRAW);
 
 	GLuint LampVertexArray = 0;
 	glCreateVertexArrays(1, &LampVertexArray);
@@ -148,9 +160,38 @@ int main()
 	glVertexArrayAttribBinding(TransparentVertexArray, 0, 0);
 	glVertexArrayAttribBinding(TransparentVertexArray, 1, 0);
 
+	GLuint QuadVertexArray = 0;
+	glCreateVertexArrays(1, &QuadVertexArray);
+	glVertexArrayVertexBuffer(QuadVertexArray, 0, QuadVertexBuffer, 0, 4 * sizeof(GLfloat));
+	glEnableVertexArrayAttrib(QuadVertexArray, 0);
+	glEnableVertexArrayAttrib(QuadVertexArray, 1);
+	glVertexArrayAttribFormat(QuadVertexArray, 0, 2, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribFormat(QuadVertexArray, 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat));
+	glVertexArrayAttribBinding(QuadVertexArray, 0, 0);
+	glVertexArrayAttribBinding(QuadVertexArray, 1, 0);
+
+	glCreateFramebuffers(1, &kMultiSampleFramebuffer);
+	glCreateFramebuffers(1, &kIntermediateFramebuffer);
+	glCreateRenderbuffers(1, &kRenderbuffer);
+
+	kTexMultiSampleBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kMultiSamples, GL_TRUE, kMultiSampleFramebuffer);
+	kTexColorBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kIntermediateFramebuffer);
+
+	glNamedRenderbufferStorageMultisample(kRenderbuffer, kMultiSamples, GL_DEPTH24_STENCIL8, kWindowWidth, kWindowHeight);
+	glNamedFramebufferRenderbuffer(kMultiSampleFramebuffer, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, kRenderbuffer);
+
+	if (glCheckNamedFramebufferStatus(kMultiSampleFramebuffer,  GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE ||
+		glCheckNamedFramebufferStatus(kIntermediateFramebuffer, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		GLenum Error = glGetError();
+		std::println("Error: Framebuffer is not complete. Error: {}", Error);
+		Terminate(Window);
+		std::system("pause");
+		return EXIT_FAILURE;
+	}
+
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_STENCIL_TEST);
 
@@ -162,21 +203,23 @@ int main()
 	double DeltaTime     = 0.0;
 	int    FrameCount    = 0;
 
-	auto* LightingShader = AssetManager::GetAsset<Shader>("Lighting");
-	auto* AdvancedShader = AssetManager::GetAsset<Shader>("Advanced");
-	auto* LampShader     = AssetManager::GetAsset<Shader>("Lamp");
-	auto* BorderShader   = AssetManager::GetAsset<Shader>("Border");
-	auto* Metal          = AssetManager::GetAsset<Texture>("Metal");
-	auto* Marble         = AssetManager::GetAsset<Texture>("Marble");
-	auto* RedWindow      = AssetManager::GetAsset<Texture>("RedWindow");
-	auto* Grass          = AssetManager::GetAsset<Texture>("Grass");
-	auto* Backpack       = AssetManager::GetAsset<Model>("Backpack");
-	auto* Nanosuit       = AssetManager::GetAsset<Model>("Nanosuit");
+	auto* FramebufferShader = AssetManager::GetAsset<Shader>("Framebuffer");
+	auto* LightingShader    = AssetManager::GetAsset<Shader>("Lighting");
+	auto* AdvancedShader    = AssetManager::GetAsset<Shader>("Advanced");
+	auto* LampShader        = AssetManager::GetAsset<Shader>("Lamp");
+	auto* BorderShader      = AssetManager::GetAsset<Shader>("Border");
+	auto* Metal             = AssetManager::GetAsset<Texture>("Metal");
+	auto* Marble            = AssetManager::GetAsset<Texture>("Marble");
+	auto* RedWindow         = AssetManager::GetAsset<Texture>("RedWindow");
+	auto* Grass             = AssetManager::GetAsset<Texture>("Grass");
+	auto* Backpack          = AssetManager::GetAsset<Model>("Backpack");
+	auto* Nanosuit          = AssetManager::GetAsset<Model>("Nanosuit");
 
 	Metal->BindTextureUnit(0);
 	Marble->BindTextureUnit(1);
 	Grass->BindTextureUnit(2);
 	RedWindow->BindTextureUnit(3);
+	kTexColorBuffer->BindTextureUnit(4);
 
 	glm::mat4x4 Model(1.0f);
 	glm::mat4x4 View(1.0f);
@@ -188,13 +231,14 @@ int main()
 	{
 		ProcessInput(Window, DeltaTime);
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT  | GL_STENCIL_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, kMultiSampleFramebuffer);
+		glEnable(GL_DEPTH_TEST);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		Model = glm::mat4x4(1.0f);
 		View = kFreeCamera->GetViewMatrix();
-		Projection = glm::perspective(kFreeCamera->GetCameraZoom(), kWindowAspect, 0.1f, 100.0f);
-
-		//glStencilMask(0x00);
+		Projection = glm::perspective(glm::radians(kFreeCamera->GetCameraZoom()), kWindowAspect, 0.1f, 10000.0f);
 
 		AdvancedShader->UseProgram();
 		AdvancedShader->SetUniformMatrix4fv("iView", View);
@@ -205,10 +249,6 @@ int main()
 		AdvancedShader->SetUniformMatrix4fv("iModel", Model);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		//glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		//glStencilMask(0xFF);
-		//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
 		AdvancedShader->SetUniform1i("iTex", 1);
 		glBindVertexArray(CubeVertexArray);
 		Model = glm::translate(Model, glm::vec3(-1.0f, 0.0f, -1.0f));
@@ -218,38 +258,6 @@ int main()
 		Model = glm::translate(Model, glm::vec3(2.0f, 0.0f, 0.0f));
 		AdvancedShader->SetUniformMatrix4fv("iModel", Model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		AdvancedShader->SetUniform1i("iTex", 3);
-		glBindVertexArray(TransparentVertexArray);
-		for (std::size_t i = 0; i != TransparentPositions.size(); ++i)
-		{
-			Model = glm::mat4x4(1.0f);
-			Model = glm::translate(Model, TransparentPositions[i]);
-			AdvancedShader->SetUniformMatrix4fv("iModel", Model);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
-
-		//glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		//glStencilMask(0x00);
-		//glDisable(GL_DEPTH_TEST);
-
-		//BorderShader->UseProgram();
-		//BorderShader->SetUniformMatrix4fv("iView", View);
-		//BorderShader->SetUniformMatrix4fv("iProjection", Projection);
-
-		//Model = glm::mat4x4(1.0f);
-		//Model = glm::translate(Model, glm::vec3(-1.0f, 0.0f, -1.0f));
-		//Model = glm::scale(Model, glm::vec3(1.1f));
-		//BorderShader->SetUniformMatrix4fv("iModel", Model);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-		//Model = glm::mat4x4(1.0f);
-		//Model = glm::translate(Model, glm::vec3(2.0f, 0.0f, 0.0f));
-		//Model = glm::scale(Model, glm::vec3(1.1f));
-		//BorderShader->SetUniformMatrix4fv("iModel", Model);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		//glStencilMask(0xFF);
-		//glEnable(GL_DEPTH_TEST);
 
 		//Model = glm::mat4x4(1.0f);
 		//Model = glm::translate(Model, glm::vec3(0.0f));
@@ -282,6 +290,19 @@ int main()
 		//LampShader->SetUniformMatrix4fv("iProjection", Projection);
 		//glBindVertexArray(LampVertexArray);
 		//glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		glBlitNamedFramebuffer(kMultiSampleFramebuffer, kIntermediateFramebuffer, 0, 0, kWindowWidth, kWindowHeight,
+							   0, 0, kWindowWidth, kWindowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_DEPTH_TEST);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		FramebufferShader->UseProgram();
+		FramebufferShader->SetUniform1i("iTexColorBuffer", 4);
+		glBindVertexArray(QuadVertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
@@ -328,9 +349,18 @@ void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height)
 	glViewport(0, 0, Width, Height);
 	if (Width != 0 && Height != 0)
 	{
-		kWindowWidth = Width;
+		kWindowWidth  = Width;
 		kWindowHeight = Height;
 		kWindowAspect = static_cast<float>(Width) / static_cast<float>(Height);
+
+		glNamedRenderbufferStorageMultisample(kRenderbuffer, kMultiSamples, GL_DEPTH24_STENCIL8, kWindowWidth, kWindowHeight);
+		glNamedFramebufferRenderbuffer(kMultiSampleFramebuffer, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, kRenderbuffer);
+
+		delete kTexMultiSampleBuffer;
+		kTexMultiSampleBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kMultiSamples, GL_TRUE, kMultiSampleFramebuffer);
+		delete kTexColorBuffer;
+		kTexColorBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kIntermediateFramebuffer);
+		kTexColorBuffer->BindTextureUnit(4);
 	}
 }
 

@@ -238,5 +238,7 @@
     <None Include="Assets\Shaders\Lighting.frag" />
     <None Include="Assets\Shaders\Advanced.vert" />
     <None Include="Assets\Shaders\Advanced.frag" />
+    <None Include="Assets\Shaders\Framebuffer.vert" />
+    <None Include="Assets\Shaders\Framebuffer.frag" />
   </ItemGroup>
 </Project>

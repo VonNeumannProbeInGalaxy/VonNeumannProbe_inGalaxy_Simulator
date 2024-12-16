@@ -33,7 +33,8 @@ Texture::Texture(TextureType CreateType, const std::string& Filename, bool bSrgb
 	stbi_image_free(Data.Data);
 }
 
-Texture::Texture(TextureType CreateType, const FT_Face& Face) : _Texture(0), _Type(CreateType)
+Texture::Texture(const FT_Face& Face)
+	: _Texture(0), _Type(TextureType::kCharacter)
 {
 	glCreateTextures(GL_TEXTURE_2D, 1, &_Texture);
 	glTextureStorage2D(_Texture, 1, GL_R8, Face->glyph->bitmap.width, Face->glyph->bitmap.rows);
@@ -45,8 +46,8 @@ Texture::Texture(TextureType CreateType, const FT_Face& Face) : _Texture(0), _Ty
 	glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-Texture::Texture(TextureType CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer)
-	: _Texture(0), _Type(CreateType)
+Texture::Texture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer)
+	: _Texture(0), _Type(TextureType::kAttachment)
 {
 	glCreateTextures(GL_TEXTURE_2D, 1, &_Texture);
 	glTextureParameteri(_Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -55,15 +56,16 @@ Texture::Texture(TextureType CreateType, GLsizei Width, GLsizei Height, GLenum I
 	glNamedFramebufferTexture(Framebuffer, Attachment, _Texture, 0);
 }
 
-Texture::Texture(TextureType CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLsizei Samples, GLenum Attachment, bool bFixedSampleLocations, GLuint Framebuffer)
-	: _Texture(0), _Type(CreateType)
+Texture::Texture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLsizei Samples, GLboolean bFixedSampleLocations, GLuint Framebuffer)
+	: _Texture(0), _Type(TextureType::kAttachment)
 {
 	glCreateTextures(GL_TEXTURE_2D_MULTISAMPLE, 1, &_Texture);
 	glTextureStorage2DMultisample(_Texture, Samples, InternalFormat, Width, Height, bFixedSampleLocations);
 	glNamedFramebufferTexture(Framebuffer, Attachment, _Texture, 0);
 }
 
-Texture::Texture(TextureType CreateType, GLsizei Width, GLsizei Height) : _Texture(0), _Type(CreateType)
+Texture::Texture(GLsizei Width, GLsizei Height)
+	: _Texture(0), _Type(TextureType::kDepthMap)
 {
 	glCreateTextures(GL_TEXTURE_2D, 1, &_Texture);
 	glTextureStorage2D(_Texture, 1, GL_DEPTH_COMPONENT24, Width, Height);

@@ -205,6 +205,8 @@
   <ItemGroup>
     <None Include="Assets\Shaders\Advanced.frag" />
     <None Include="Assets\Shaders\Advanced.vert" />
+    <None Include="Assets\Shaders\Framebuffer.frag" />
+    <None Include="Assets\Shaders\Framebuffer.vert" />
     <None Include="Assets\Shaders\Lighting.frag" />
     <None Include="Assets\Shaders\Lighting.vert" />
     <None Include="Assets\Shaders\Triangle.frag" />
