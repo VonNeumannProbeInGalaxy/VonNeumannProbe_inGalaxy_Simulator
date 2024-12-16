@@ -90,6 +90,9 @@
     <ClCompile Include="Sources\Engine\AssetLoader\stb_image.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\Utilities\UniformBlockManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Core\Assert.h">
@@ -182,6 +185,9 @@
     <ClInclude Include="Sources\Engine\Core\Camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Engine\Utilities\UniformBlockManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\Astro\CelestialObject.inl">
@@ -240,5 +246,8 @@
     <None Include="Assets\Shaders\Advanced.frag" />
     <None Include="Assets\Shaders\Framebuffer.vert" />
     <None Include="Assets\Shaders\Framebuffer.frag" />
+    <None Include="Sources\Engine\Utilities\UniformBlockManager.inl">
+      <Filter>头文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

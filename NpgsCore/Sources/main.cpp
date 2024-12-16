@@ -14,9 +14,11 @@
 
 #include "Engine/AssetLoader/AssetManager.h"
 #include "Engine/Core/Camera.h"
+#include "Engine/Utilities/UniformBlockManager.h"
 
 using namespace Npgs;
 using namespace Npgs::Asset;
+using namespace Npgs::Util;
 
 namespace
 {

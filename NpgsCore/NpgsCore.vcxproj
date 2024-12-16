@@ -169,6 +169,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\Utilities\UniformBlockManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\AssetLoader\GetAssetFilepath.h" />
@@ -201,6 +202,7 @@
     <ClInclude Include="Sources\Engine\Utilities\Utilities.h" />
     <ClInclude Include="Sources\Npgs.h" />
     <ClInclude Include="Sources\stdafx.h" />
+    <ClInclude Include="Sources\Engine\Utilities\UniformBlockManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Advanced.frag" />
@@ -226,6 +228,7 @@
     <None Include="Sources\Engine\Utilities\Logger.inl" />
     <None Include="Sources\Engine\Utilities\StellarClass.inl" />
     <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />
+    <None Include="Sources\Engine\Utilities\UniformBlockManager.inl" />
     <None Include="Sources\Vertices.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

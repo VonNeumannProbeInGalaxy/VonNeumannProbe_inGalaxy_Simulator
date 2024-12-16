@@ -87,6 +87,8 @@ public:
 
 	GLuint GetUniformBuffer(const std::string& BlockName) const;
 	bool HasUniformBlock(const std::string& BlockName) const;
+	GLuint GetProgram() const;
+	GLint GetUniformLocation(const std::string& Name) const;
 
 	void UseProgram() const;
 	void SetUniform1i(const std::string& Name, GLboolean Value) const;
@@ -102,9 +104,6 @@ public:
 	void SetUniformMatrix2fv(const std::string& Name, const glm::mat2x2& Matrix) const;
 	void SetUniformMatrix3fv(const std::string& Name, const glm::mat3x3& Matrix) const;
 	void SetUniformMatrix4fv(const std::string& Name, const glm::mat4x4& Matrix) const;
-
-	GLuint GetProgram() const;
-	GLint  GetUniformLocation(const std::string& Name) const;
 
 private:
 	void InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros);
@@ -127,24 +126,6 @@ private:
 	std::set<std::string>                             _IncludedFiles;
 	GLuint                                            _Program;
 };
-
-class UniformBlockManager
-{
-public:
-	UniformBlockManager(Shader* Shader, const std::string& BlockName, GLuint BindingPoint,
-						const std::vector<std::string>& MemberNames,
-						Shader::UniformBlockLayout Layout = Shader::UniformBlockLayout::kShared);
-
-	UniformBlockManager(Shader* Shader, const std::string& BlockName);
-
-	template<typename T>
-	Shader::UniformBlockUpdater<T> Get(const std::string& MemberName);
-
-private:
-	Shader*     _Shader;
-	std::string _BlockName;
-};
-
 
 _ASSET_END
 _NPGS_END

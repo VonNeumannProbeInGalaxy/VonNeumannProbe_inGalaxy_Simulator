@@ -26,6 +26,16 @@ NPGS_INLINE bool Shader::HasUniformBlock(const std::string& BlockName) const
 	return _UniformBlocks.find(BlockName) != _UniformBlocks.end();
 }
 
+NPGS_INLINE GLuint Shader::GetProgram() const
+{
+	return _Program;
+}
+
+NPGS_INLINE GLint Shader::GetUniformLocation(const std::string& Name) const
+{
+	return glGetUniformLocation(_Program, Name.c_str());
+}
+
 NPGS_INLINE void Shader::UseProgram() const
 {
 	glUseProgram(_Program);
@@ -96,16 +106,6 @@ NPGS_INLINE void Shader::SetUniformMatrix4fv(const std::string& Name, const glm:
 	glUniformMatrix4fv(glGetUniformLocation(_Program, Name.c_str()), 1, GL_FALSE, glm::value_ptr(Matrix));
 }
 
-NPGS_INLINE GLuint Shader::GetProgram() const
-{
-	return _Program;
-}
-
-NPGS_INLINE GLint Shader::GetUniformLocation(const std::string& Name) const
-{
-	return glGetUniformLocation(_Program, Name.c_str());
-}
-
 NPGS_INLINE GLuint Shader::GetUniformBlockIndex(const std::string& BlockName) const
 {
 	GLuint BlockIndex = glGetUniformBlockIndex(_Program, BlockName.c_str());
@@ -117,12 +117,6 @@ NPGS_INLINE GLint Shader::GetUniformBlockSize(const std::string& BlockName, GLui
 	GLint BlockSize = 0;
 	glGetActiveUniformBlockiv(_Program, BlockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &BlockSize);
 	return BlockSize;
-}
-
-template<typename T>
-NPGS_INLINE Shader::UniformBlockUpdater<T> UniformBlockManager::Get(const std::string& MemberName)
-{
-	return _Shader->GetUniformBlockUpdater<T>(_BlockName, MemberName);
 }
 
 _ASSET_END
