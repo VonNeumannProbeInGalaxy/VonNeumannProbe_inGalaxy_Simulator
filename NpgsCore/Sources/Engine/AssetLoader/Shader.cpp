@@ -18,6 +18,43 @@ Shader::Shader() : _ShaderTypes{ GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMET
 Shader::Shader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros)
 	: _ShaderTypes{ GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER }, _Program(0)
 {
+	InitShader(SourceFiles, ProgramName, Macros);
+}
+
+Shader::Shader(Shader&& Other) noexcept
+	:
+	_IncludedFiles(std::move(Other._IncludedFiles)),
+	_ShaderTypes(std::move(Other._ShaderTypes)),
+	_Program(Other._Program)
+{
+	Other._Program = 0;
+}
+
+Shader::~Shader()
+{
+	glDeleteProgram(_Program);
+}
+
+Shader& Shader::operator=(Shader&& Other) noexcept
+{
+	if (this != &Other)
+	{
+		if (_Program)
+		{
+			glDeleteProgram(_Program);
+		}
+
+		_IncludedFiles = std::move(Other._IncludedFiles);
+		_ShaderTypes   = std::move(Other._ShaderTypes);
+		_Program       = Other._Program;
+		Other._Program = 0;
+	}
+
+	return *this;
+}
+
+void Shader::InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros)
+{
 	std::string ProgramCache = GetAssetFilepath(Asset::AssetType::kBinaryShader, ProgramName + ".bin");
 	if (ProgramName != "")
 	{
@@ -62,38 +99,6 @@ Shader::Shader(const std::vector<std::string>& SourceFiles, const std::string& P
 		glDetachShader(_Program, Shader);
 		glDeleteShader(Shader);
 	}
-}
-
-Shader::Shader(Shader&& Other) noexcept
-	:
-	_IncludedFiles(std::move(Other._IncludedFiles)),
-	_ShaderTypes(std::move(Other._ShaderTypes)),
-	_Program(Other._Program)
-{
-	Other._Program = 0;
-}
-
-Shader::~Shader()
-{
-	glDeleteProgram(_Program);
-}
-
-Shader& Shader::operator=(Shader&& Other) noexcept
-{
-	if (this != &Other)
-	{
-		if (_Program)
-		{
-			glDeleteProgram(_Program);
-		}
-
-		_IncludedFiles = std::move(Other._IncludedFiles);
-		_ShaderTypes   = std::move(Other._ShaderTypes);
-		_Program       = Other._Program;
-		Other._Program = 0;
-	}
-
-	return *this;
 }
 
 std::string Shader::GetIncludeDirectory(const std::string& Filepath) const

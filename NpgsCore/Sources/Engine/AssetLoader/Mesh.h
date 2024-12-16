@@ -27,16 +27,23 @@ public:
 		std::string ImageFilename;
 	};
 
+	struct TextureInfo
+	{
+		Texture* Texture{};
+		GLuint   Unit;
+		GLint    UniformLocation;
+	};
+
 	struct Vertex
 	{
-		glm::vec3 Position;
-		glm::vec3 Normal;
-		glm::vec2 TexCoords;
-		glm::vec3 Tangent;
-		glm::vec3 Bitangent;
+		glm::vec3 Position{};
+		glm::vec3 Normal{};
+		glm::vec2 TexCoords{};
+		glm::vec3 Tangent{};
+		glm::vec3 Bitangent{};
 
-		std::array<GLint,   kMaxBoneInfluence> BoneIds;
-		std::array<GLfloat, kMaxBoneInfluence> Weigths;
+		std::array<GLint,   kMaxBoneInfluence> BoneIds{};
+		std::array<GLfloat, kMaxBoneInfluence> Weigths{};
 	};
 
 public:
@@ -49,16 +56,21 @@ public:
 	Mesh& operator=(const Mesh&) = delete;
 	Mesh& operator=(Mesh&& Other) noexcept;
 
-	void Draw(const Shader& ModelShader) const;
-
-public:
+	void InitTextures(const Shader& ModelShader);
+	void StaticDraw(const Shader& ModelShader) const;
+	void DynamicDraw(const Shader& ModelShader) const;
 	GLuint GetVertexArray() const;
 	const std::vector<GLuint>& GetIndices() const;
 
 private:
-	std::vector<GLuint>  _Indices;
-	std::vector<Texture> _Textures;
-	GLuint               _VertexArray;
+	void InitStaticVertexArray(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices);
+	std::ptrdiff_t GetTextureCount(const std::string& typeName) const;
+
+private:
+	std::vector<GLuint>      _Indices;
+	std::vector<Texture>     _Textures;
+	std::vector<TextureInfo> _TextureInfos;
+	GLuint                   _VertexArray;
 };
 
 _ASSET_END

@@ -10,28 +10,17 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
+#include "Engine/AssetLoader/AssetManager.h"
 #include "Engine/AssetLoader/GetAssetFilepath.h"
 #include "Engine/AssetLoader/Texture.h"
 
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-Model::Model(const std::string& Filename)
+Model::Model(const std::string& Filename, const std::string& ShaderName)
 {
-	Assimp::Importer Loader;
-	std::string Filepath = GetAssetFilepath(Asset::AssetType::kModel, Filename);
-	const aiScene* Scene = Loader.ReadFile(Filepath, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
-										   aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-	if (!Scene || Scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode)
-	{
-		std::println("Fatal error: Assimp: {}", Loader.GetErrorString());
-		std::system("pause");
-		std::exit(EXIT_FAILURE);
-	}
-
-	_Directory = std::filesystem::path(Filepath).parent_path().string();
-
-	ProcessNode(Scene->mRootNode, Scene);
+	InitModel(Filename);
+	InitModelTexture(*AssetManager::GetAsset<Shader>(ShaderName));
 }
 
 Model::Model(Model&& Other) noexcept
@@ -54,11 +43,45 @@ Model& Model::operator=(Model&& Other) noexcept
 	return *this;
 }
 
-void Model::Draw(const Shader& ModelShader) const
+void Model::StaticDraw(const Shader& ModelShader) const
 {
 	for (const auto& Mesh : _Meshes)
 	{
-		Mesh->Draw(ModelShader);
+		Mesh->StaticDraw(ModelShader);
+	}
+}
+
+void Model::DynamicDraw(const Shader& ModelShader) const
+{
+	for (const auto& Mesh : _Meshes)
+	{
+		Mesh->DynamicDraw(ModelShader);
+	}
+}
+
+void Model::InitModel(const std::string& Filename)
+{
+	Assimp::Importer Loader;
+	std::string Filepath = GetAssetFilepath(Asset::AssetType::kModel, Filename);
+	const aiScene* Scene = Loader.ReadFile(Filepath, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
+										   aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	if (!Scene || Scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode)
+	{
+		std::println("Fatal error: Assimp: {}", Loader.GetErrorString());
+		std::system("pause");
+		std::exit(EXIT_FAILURE);
+	}
+
+	_Directory = std::filesystem::path(Filepath).parent_path().string();
+
+	ProcessNode(Scene->mRootNode, Scene);
+}
+
+void Model::InitModelTexture(const Shader& ModelShader)
+{
+	for (auto& Mesh : _Meshes)
+	{
+		Mesh->InitTextures(ModelShader);
 	}
 }
 
@@ -86,33 +109,18 @@ std::unique_ptr<Mesh> Model::ProcessMesh(const aiMesh* Mesh, const aiScene* Scen
 
 	for (std::uint32_t i = 0; i != Mesh->mNumVertices; ++i)
 	{
-		glm::vec3 Vector(Mesh->mVertices[i].x, Mesh->mVertices[i].y, Mesh->mVertices[i].z);
-		MeshVertex.Position = Vector;
+		MeshVertex.Position = glm::vec3(Mesh->mVertices[i].x, Mesh->mVertices[i].y, Mesh->mVertices[i].z);
 
 		if (Mesh->HasNormals())
 		{
-			Vector.x = Mesh->mNormals[i].x;
-			Vector.y = Mesh->mNormals[i].y;
-			Vector.z = Mesh->mNormals[i].z;
-			MeshVertex.Normal = Vector;
+			MeshVertex.Normal = glm::vec3(Mesh->mNormals[i].x, Mesh->mNormals[i].y, Mesh->mNormals[i].z);
 		}
 
-		if (Mesh->HasTextureCoords(0))
+		if (Mesh->HasTextureCoords(0u))
 		{
-			Vector.x = Mesh->mTextureCoords[0][i].x;
-			Vector.y = Mesh->mTextureCoords[0][i].y;
-			MeshVertex.TexCoords.x = Vector.x;
-			MeshVertex.TexCoords.y = Vector.y;
-
-			Vector.x = Mesh->mTangents[i].x;
-			Vector.y = Mesh->mTangents[i].y;
-			Vector.z = Mesh->mTangents[i].z;
-			MeshVertex.Tangent = Vector;
-
-			Vector.x = Mesh->mBitangents[i].x;
-			Vector.y = Mesh->mBitangents[i].y;
-			Vector.z = Mesh->mBitangents[i].z;
-			MeshVertex.Bitangent = Vector;
+			MeshVertex.TexCoords = glm::vec2(Mesh->mTextureCoords[0][i].x, Mesh->mTextureCoords[0][i].y);
+			MeshVertex.Tangent   = glm::vec3(Mesh->mTangents[i].x, Mesh->mTangents[i].y, Mesh->mTangents[i].z);
+			MeshVertex.Bitangent = glm::vec3(Mesh->mBitangents[i].x, Mesh->mBitangents[i].y, Mesh->mBitangents[i].z);
 		}
 		else
 		{

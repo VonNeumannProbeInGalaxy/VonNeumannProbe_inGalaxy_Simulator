@@ -137,14 +137,14 @@ std::vector<GLfloat> CubeVertices2
 
 std::vector<GLfloat> PlaneVertices
 {
-    // positions            // normals         // texcoords
-     25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-    -25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
-    -25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
+    // positions          // normals         // texcoords
+     5.0f, -0.5f,  5.0f,  0.0f, 1.0f, 0.0f,  2.0f,  0.0f,
+    -5.0f, -0.5f,  5.0f,  0.0f, 1.0f, 0.0f,  0.0f,  0.0f,
+    -5.0f, -0.5f, -5.0f,  0.0f, 1.0f, 0.0f,  0.0f,  2.0f,
 
-     25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-    -25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
-     25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
+     5.0f, -0.5f,  5.0f,  0.0f, 1.0f, 0.0f,  2.0f,  0.0f,
+    -5.0f, -0.5f, -5.0f,  0.0f, 1.0f, 0.0f,  0.0f,  2.0f,
+     5.0f, -0.5f, -5.0f,  0.0f, 1.0f, 0.0f,  2.0f,  2.0f
 };
 
 std::vector<GLfloat> TransparentVertices

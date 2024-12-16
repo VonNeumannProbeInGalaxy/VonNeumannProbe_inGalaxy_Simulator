@@ -85,22 +85,76 @@ int main()
 #include "Vertices.inc"
 
 	std::vector<std::string> LightingShaderFiles{ "Lighting.vert", "Lighting.frag" };
+	std::vector<std::string> AdvancedShaderFiles{ "Advanced.vert", "Advanced.frag" };
 	std::vector<std::string> LampShaderMacros{ "__FRAG_LAMP_CUBE" };
+	std::vector<std::string> BorderShaderMacros{ "__FRAG_BORDER" };	
 	AssetManager::AddAsset<Shader>("Lighting", Shader(LightingShaderFiles));
+	AssetManager::AddAsset<Shader>("Advanced", Shader(AdvancedShaderFiles));
 	AssetManager::AddAsset<Shader>("Lamp", Shader(LightingShaderFiles, "", LampShaderMacros));
-	AssetManager::AddAsset<Model>("Backpack", Model("Backpack/backpack.obj"));
+	AssetManager::AddAsset<Shader>("Border", Shader(AdvancedShaderFiles, "", BorderShaderMacros));
+	AssetManager::AddAsset<Texture>("Metal", Texture(Texture::TextureType::k2D, "Metal.png"));
+	AssetManager::AddAsset<Texture>("Marble", Texture(Texture::TextureType::k2D, "Marble.jpg"));
+	AssetManager::AddAsset<Texture>("RedWindow", Texture(Texture::TextureType::k2D, "RedWindow.png"));
+	AssetManager::AddAsset<Texture>("Grass", Texture(Texture::TextureType::k2D, "Grass.png", false, false));
+	//AssetManager::AddAsset<Model>("Backpack", Model("Backpack/backpack.obj", "Lighting"));
+	//AssetManager::AddAsset<Model>("Nanosuit", Model("Nanosuit/nanosuit.obj", "Lighting"));
 
-	GLuint VertexBuffer = 0;
-	glCreateBuffers(1, &VertexBuffer);
-	glNamedBufferData(VertexBuffer, ContainerVertices.size() * sizeof(GLfloat), ContainerVertices.data(), GL_STATIC_DRAW);
+	GLuint CubeVertexBuffer = 0;
+	glCreateBuffers(1, &CubeVertexBuffer);
+	glNamedBufferData(CubeVertexBuffer, CubeVertices.size() * sizeof(GLfloat), CubeVertices.data(), GL_STATIC_DRAW);
+
+	GLuint PlaneVertexBuffer = 0;
+	glCreateBuffers(1, &PlaneVertexBuffer);
+	glNamedBufferData(PlaneVertexBuffer, PlaneVertices.size() * sizeof(GLfloat), PlaneVertices.data(), GL_STATIC_DRAW);
+
+	GLuint TransparentVertexBuffer = 0;
+	glCreateBuffers(1, &TransparentVertexBuffer);
+	glNamedBufferData(TransparentVertexBuffer, TransparentVertices.size() * sizeof(GLfloat), TransparentVertices.data(), GL_STATIC_DRAW);
+
 	GLuint LampVertexArray = 0;
 	glCreateVertexArrays(1, &LampVertexArray);
-	glVertexArrayVertexBuffer(LampVertexArray, 0, VertexBuffer, 0, 8 * sizeof(GLfloat));
+	glVertexArrayVertexBuffer(LampVertexArray, 0, CubeVertexBuffer, 0, 5 * sizeof(GLfloat));
 	glEnableVertexArrayAttrib(LampVertexArray, 0);
 	glVertexArrayAttribFormat(LampVertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexArrayAttribBinding(LampVertexArray, 0, 0);
 
+	GLuint CubeVertexArray = 0;
+	glCreateVertexArrays(1, &CubeVertexArray);
+	glVertexArrayVertexBuffer(CubeVertexArray, 0, CubeVertexBuffer, 0, 5 * sizeof(GLfloat));
+	glEnableVertexArrayAttrib(CubeVertexArray, 0);
+	glEnableVertexArrayAttrib(CubeVertexArray, 1);
+	glVertexArrayAttribFormat(CubeVertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribFormat(CubeVertexArray, 1, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat));
+	glVertexArrayAttribBinding(CubeVertexArray, 0, 0);
+	glVertexArrayAttribBinding(CubeVertexArray, 1, 0);
+
+	GLuint PlaneVertexArray = 0;
+	glCreateVertexArrays(1, &PlaneVertexArray);
+	glVertexArrayVertexBuffer(PlaneVertexArray, 0, PlaneVertexBuffer, 0, 8 * sizeof(GLfloat));
+	glEnableVertexArrayAttrib(PlaneVertexArray, 0);
+	glEnableVertexArrayAttrib(PlaneVertexArray, 1);
+	glVertexArrayAttribFormat(PlaneVertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribFormat(PlaneVertexArray, 1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat));
+	glVertexArrayAttribBinding(PlaneVertexArray, 0, 0);
+	glVertexArrayAttribBinding(PlaneVertexArray, 1, 0);
+
+	GLuint TransparentVertexArray = 0;
+	glCreateVertexArrays(1, &TransparentVertexArray);
+	glVertexArrayVertexBuffer(TransparentVertexArray, 0, TransparentVertexBuffer, 0, 5 * sizeof(GLfloat));
+	glEnableVertexArrayAttrib(TransparentVertexArray, 0);
+	glEnableVertexArrayAttrib(TransparentVertexArray, 1);
+	glVertexArrayAttribFormat(TransparentVertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribFormat(TransparentVertexArray, 1, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat));
+	glVertexArrayAttribBinding(TransparentVertexArray, 0, 0);
+	glVertexArrayAttribBinding(TransparentVertexArray, 1, 0);
+
+	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE);
+	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_STENCIL_TEST);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	double CurrentTime   = 0.0;
 	double PreviousTime  = glfwGetTime();
@@ -108,9 +162,21 @@ int main()
 	double DeltaTime     = 0.0;
 	int    FrameCount    = 0;
 
-	auto* LightingShader = AssetManager::GetAsset<Shader>("Lighting");  
+	auto* LightingShader = AssetManager::GetAsset<Shader>("Lighting");
+	auto* AdvancedShader = AssetManager::GetAsset<Shader>("Advanced");
 	auto* LampShader     = AssetManager::GetAsset<Shader>("Lamp");
+	auto* BorderShader   = AssetManager::GetAsset<Shader>("Border");
+	auto* Metal          = AssetManager::GetAsset<Texture>("Metal");
+	auto* Marble         = AssetManager::GetAsset<Texture>("Marble");
+	auto* RedWindow      = AssetManager::GetAsset<Texture>("RedWindow");
+	auto* Grass          = AssetManager::GetAsset<Texture>("Grass");
 	auto* Backpack       = AssetManager::GetAsset<Model>("Backpack");
+	auto* Nanosuit       = AssetManager::GetAsset<Model>("Nanosuit");
+
+	Metal->BindTextureUnit(0);
+	Marble->BindTextureUnit(1);
+	Grass->BindTextureUnit(2);
+	RedWindow->BindTextureUnit(3);
 
 	glm::mat4x4 Model(1.0f);
 	glm::mat4x4 View(1.0f);
@@ -122,37 +188,100 @@ int main()
 	{
 		ProcessInput(Window, DeltaTime);
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT  | GL_STENCIL_BUFFER_BIT);
 
+		Model = glm::mat4x4(1.0f);
 		View = kFreeCamera->GetViewMatrix();
 		Projection = glm::perspective(kFreeCamera->GetCameraZoom(), kWindowAspect, 0.1f, 100.0f);
 
-		Model = glm::mat4x4(1.0f);
-		Model = glm::translate(Model, glm::vec3(0.0f));
-		Model = glm::scale(Model, glm::vec3(1.0f));
-		NormalMatrix = glm::transpose(glm::inverse(Model));
-		LightingShader->UseProgram();
-		LightingShader->SetUniformMatrix4fv("iModel", Model);
-		LightingShader->SetUniformMatrix4fv("iView", View);
-		LightingShader->SetUniformMatrix4fv("iProjection", Projection);
-		LightingShader->SetUniformMatrix3fv("iNormalMatrix", NormalMatrix);
-		LightingShader->SetUniform1f("iShininess", 64.0f);
-		LightingShader->SetUniform3fv("iViewPos", kFreeCamera->GetCameraVector(Camera::VectorType::kPosition));
-		LightingShader->SetUniform3fv("iLight.Position", LightPos);
-		LightingShader->SetUniform3fv("iLight.AmbientColor", glm::vec3(0.2f));
-		LightingShader->SetUniform3fv("iLight.DiffuseColor", glm::vec3(1.0f));
-		LightingShader->SetUniform3fv("iLight.SpecularColor", glm::vec3(1.0f));
-		Backpack->Draw(*LightingShader);
+		//glStencilMask(0x00);
 
+		AdvancedShader->UseProgram();
+		AdvancedShader->SetUniformMatrix4fv("iView", View);
+		AdvancedShader->SetUniformMatrix4fv("iProjection", Projection);
+		AdvancedShader->SetUniform1i("iTex", 0);
+		glBindVertexArray(PlaneVertexArray);
 		Model = glm::mat4x4(1.0f);
-		Model = glm::translate(Model, LightPos);
-		Model = glm::scale(Model, glm::vec3(0.2f));
-		LampShader->UseProgram();
-		LampShader->SetUniformMatrix4fv("iModel", Model);
-		LampShader->SetUniformMatrix4fv("iView", View);
-		LampShader->SetUniformMatrix4fv("iProjection", Projection);
-		glBindVertexArray(LampVertexArray);
+		AdvancedShader->SetUniformMatrix4fv("iModel", Model);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		//glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		//glStencilMask(0xFF);
+		//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+		AdvancedShader->SetUniform1i("iTex", 1);
+		glBindVertexArray(CubeVertexArray);
+		Model = glm::translate(Model, glm::vec3(-1.0f, 0.0f, -1.0f));
+		AdvancedShader->SetUniformMatrix4fv("iModel", Model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+		Model = glm::mat4x4(1.0f);
+		Model = glm::translate(Model, glm::vec3(2.0f, 0.0f, 0.0f));
+		AdvancedShader->SetUniformMatrix4fv("iModel", Model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		AdvancedShader->SetUniform1i("iTex", 3);
+		glBindVertexArray(TransparentVertexArray);
+		for (std::size_t i = 0; i != TransparentPositions.size(); ++i)
+		{
+			Model = glm::mat4x4(1.0f);
+			Model = glm::translate(Model, TransparentPositions[i]);
+			AdvancedShader->SetUniformMatrix4fv("iModel", Model);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+
+		//glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		//glStencilMask(0x00);
+		//glDisable(GL_DEPTH_TEST);
+
+		//BorderShader->UseProgram();
+		//BorderShader->SetUniformMatrix4fv("iView", View);
+		//BorderShader->SetUniformMatrix4fv("iProjection", Projection);
+
+		//Model = glm::mat4x4(1.0f);
+		//Model = glm::translate(Model, glm::vec3(-1.0f, 0.0f, -1.0f));
+		//Model = glm::scale(Model, glm::vec3(1.1f));
+		//BorderShader->SetUniformMatrix4fv("iModel", Model);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//Model = glm::mat4x4(1.0f);
+		//Model = glm::translate(Model, glm::vec3(2.0f, 0.0f, 0.0f));
+		//Model = glm::scale(Model, glm::vec3(1.1f));
+		//BorderShader->SetUniformMatrix4fv("iModel", Model);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		//glStencilMask(0xFF);
+		//glEnable(GL_DEPTH_TEST);
+
+		//Model = glm::mat4x4(1.0f);
+		//Model = glm::translate(Model, glm::vec3(0.0f));
+		//Model = glm::scale(Model, glm::vec3(1.0f));
+		//NormalMatrix = glm::transpose(glm::inverse(Model));
+		//LightingShader->UseProgram();
+		//LightingShader->SetUniformMatrix4fv("iModel", Model);
+		//LightingShader->SetUniformMatrix4fv("iView", View);
+		//LightingShader->SetUniformMatrix4fv("iProjection", Projection);
+		//LightingShader->SetUniformMatrix3fv("iNormalMatrix", NormalMatrix);
+		//LightingShader->SetUniform1f("iShininess", 64.0f);
+		//LightingShader->SetUniform3fv("iViewPos", kFreeCamera->GetCameraVector(Camera::VectorType::kPosition));
+		//LightingShader->SetUniform3fv("iLight.Position", LightPos);
+		//LightingShader->SetUniform3fv("iLight.AmbientColor", glm::vec3(0.2f));
+		//LightingShader->SetUniform3fv("iLight.DiffuseColor", glm::vec3(1.0f));
+		//LightingShader->SetUniform3fv("iLight.SpecularColor", glm::vec3(1.0f));
+		//Backpack->DynamicDraw(*LightingShader);
+		//Model = glm::mat4x4(1.0f);
+		//Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
+		//Model = glm::scale(Model, glm::vec3(0.2f));
+		//LightingShader->SetUniformMatrix4fv("iModel", Model);
+		//Nanosuit->DynamicDraw(*LightingShader);
+
+		//Model = glm::mat4x4(1.0f);
+		//Model = glm::translate(Model, LightPos);
+		//Model = glm::scale(Model, glm::vec3(0.2f));
+		//LampShader->UseProgram();
+		//LampShader->SetUniformMatrix4fv("iModel", Model);
+		//LampShader->SetUniformMatrix4fv("iView", View);
+		//LampShader->SetUniformMatrix4fv("iProjection", Projection);
+		//glBindVertexArray(LampVertexArray);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
@@ -170,9 +299,6 @@ int main()
 	}
 
 	Terminate(Window);
-
-	AssetManager::RemoveAsset("Backpack");
-	Sleep(10000);
 
 	return EXIT_SUCCESS;
 }

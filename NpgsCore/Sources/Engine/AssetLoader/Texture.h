@@ -21,17 +21,17 @@ public:
 
 	struct ImageData
 	{
-		GLubyte* Data;
-		GLsizei  Width;
-		GLsizei  Height;
-		GLenum   Format;
-		GLenum   InternalFormat;
-		GLenum   TexWrapS;
-		GLenum   TexWrapT;
+		GLubyte* Data{};
+		GLsizei Width{};
+		GLsizei Height{};
+		GLenum Format{};
+		GLenum InternalFormat{};
+		GLenum TexWrapS{};
+		GLenum TexWrapT{};
 	};
 
 public:
-	Texture(TextureType CreateType, const std::string& Filepath, bool bSrgb = false, bool bFlipVertically = true, bool bAutoFillFilepath = true);
+	Texture(TextureType CreateType, const std::string& Filename, bool bSrgb = false, bool bFlipVertically = true, bool bAutoFillFilepath = true);
 	Texture(TextureType CreateType, const FT_Face& Face);
 	Texture(TextureType CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer);
 	Texture(TextureType CreateType, GLsizei Width, GLsizei Height, GLenum InternalFormat, GLsizei Samples,
@@ -45,12 +45,15 @@ public:
 	Texture& operator=(const Texture&) = delete;
 	Texture& operator=(Texture&& Other) noexcept;
 
-	void BindTextureUnit(const Shader& ActivatedShader, const std::string& UniformName, GLuint Unit) const;
+	void BindTextureUnit(GLuint Unit) const;
+	void BindTextureUnit(const Shader& DrawShader, const std::string& UniformName, GLuint Unit) const;
 	GLuint GetTexture() const;
 	TextureType GetTextureType() const;
 
 private:
-	ImageData LoadImage(const std::string& ImageFilename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath) const;
+	ImageData Create2dTexture(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath);
+	ImageData CreateCubeMap(const std::string& Filename, bool bSrgb, bool bFlipVertically);
+	ImageData LoadImage(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath) const;
 
 private:
 	GLuint _Texture;

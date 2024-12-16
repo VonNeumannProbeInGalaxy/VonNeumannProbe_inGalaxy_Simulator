@@ -8,6 +8,81 @@ _ASSET_BEGIN
 Mesh::Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices, const std::vector<Texture>& Textures)
 	: _Indices(Indices), _Textures(Textures), _VertexArray(0)
 {
+	InitStaticVertexArray(Vertices, Indices);
+}
+
+Mesh::Mesh(Mesh&& Other) noexcept
+	:
+	_Indices(std::move(Other._Indices)),
+	_Textures(std::move(Other._Textures)),
+	_VertexArray(Other._VertexArray)
+{
+	Other._VertexArray = 0;
+}
+
+Mesh::~Mesh()
+{
+	glDeleteVertexArrays(1, &_VertexArray);
+}
+
+Mesh& Mesh::operator=(Mesh&& Other) noexcept
+{
+	if (this != &Other)
+	{
+		glDeleteVertexArrays(1, &_VertexArray);
+
+		_Indices           = std::move(Other._Indices);
+		_Textures          = std::move(Other._Textures);
+		_VertexArray       = Other._VertexArray;
+		Other._VertexArray = 0;
+	}
+
+	return *this;
+}
+
+void Mesh::InitTextures(const Shader& ModelShader)
+{
+	GLuint TextureUnit = 0;
+	for (auto& Texture : _Textures)
+	{
+		TextureInfo Info;
+		Info.Texture         = &Texture;
+		Info.Unit            = TextureUnit++;
+		Info.UniformLocation =
+			ModelShader.GetUniformLocation(Texture.TypeName + std::to_string(GetTextureCount(Texture.TypeName)));
+		_TextureInfos.emplace_back(Info);
+
+		Texture.Data->BindTextureUnit(Info.Unit);
+	}
+}
+
+void Mesh::StaticDraw(const Shader& ModelShader) const
+{
+	for (const auto& Info : _TextureInfos)
+	{
+		glUniform1i(Info.UniformLocation, Info.Unit);
+	}
+
+	glBindVertexArray(_VertexArray);
+	glDrawElements(GL_TRIANGLES, static_cast<GLuint>(_Indices.size()), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void Mesh::DynamicDraw(const Shader& ModelShader) const
+{
+	for (const auto& Info : _TextureInfos)
+	{
+		Info.Texture->Data->BindTextureUnit(ModelShader, Info.Texture->TypeName, Info.Unit);
+		glUniform1i(Info.UniformLocation, Info.Unit);
+	}
+
+	glBindVertexArray(_VertexArray);
+	glDrawElements(GL_TRIANGLES, static_cast<GLuint>(_Indices.size()), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void Mesh::InitStaticVertexArray(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices)
+{
 	GLuint VertexBuffer  = 0;
 	GLuint ElementBuffer = 0;
 
@@ -41,72 +116,6 @@ Mesh::Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indic
 
 	glDeleteBuffers(1, &VertexBuffer);
 	glDeleteBuffers(1, &ElementBuffer);
-}
-
-Mesh::Mesh(Mesh&& Other) noexcept
-	:
-	_Indices(std::move(Other._Indices)),
-	_Textures(std::move(Other._Textures)),
-	_VertexArray(Other._VertexArray)
-{
-	Other._VertexArray = 0;
-}
-
-Mesh::~Mesh()
-{
-	glDeleteVertexArrays(1, &_VertexArray);
-}
-
-Mesh& Mesh::operator=(Mesh&& Other) noexcept
-{
-	if (this != &Other)
-	{
-		glDeleteVertexArrays(1, &_VertexArray);
-
-		_Indices           = std::move(Other._Indices);
-		_Textures          = std::move(Other._Textures);
-		_VertexArray       = Other._VertexArray;
-		Other._VertexArray = 0;
-	}
-
-	return *this;
-}
-
-void Mesh::Draw(const Shader& ModelShader) const
-{
-	GLuint DiffuseIndex  = 0;
-	GLuint SpecularIndex = 0;
-	GLuint NormalIndex   = 0;
-	GLuint HeightIndex   = 0;
-
-	for (std::size_t i = 0; i != _Textures.size(); ++i)
-	{
-		std::string Index;
-		std::string UniformName = _Textures[i].TypeName;
-
-		if (UniformName == "iDiffuseTex")
-		{
-			Index = std::to_string(DiffuseIndex++);
-		}
-		else if (UniformName == "iSpecularTex")
-		{
-			Index = std::to_string(SpecularIndex++);
-		}
-		else if (UniformName == "iNormalTex")
-		{
-			Index = std::to_string(NormalIndex++);
-		}
-		else if (UniformName == "iHeightTex")
-		{
-			Index = std::to_string(HeightIndex++);
-		}
-
-		_Textures[i].Data->BindTextureUnit(ModelShader, UniformName + Index, static_cast<GLuint>(i));
-	}
-
-	glBindVertexArray(_VertexArray);
-	glDrawElements(GL_TRIANGLES, static_cast<GLuint>(_Indices.size()), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
 }
 
 _ASSET_END

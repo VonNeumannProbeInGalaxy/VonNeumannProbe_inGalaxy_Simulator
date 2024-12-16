@@ -231,5 +231,12 @@
     <None Include="Sources\Engine\Utilities\Logger.inl">
       <Filter>头文件</Filter>
     </None>
+    <None Include="Sources\Vertices.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting.vert" />
+    <None Include="Assets\Shaders\Lighting.frag" />
+    <None Include="Assets\Shaders\Advanced.vert" />
+    <None Include="Assets\Shaders\Advanced.frag" />
   </ItemGroup>
 </Project>

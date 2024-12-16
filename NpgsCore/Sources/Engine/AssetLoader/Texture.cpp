@@ -13,77 +13,19 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-Texture::Texture(TextureType CreateType, const std::string& Filepath, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
+Texture::Texture(TextureType CreateType, const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
 	: _Texture(0), _Type(CreateType)
 {
-	ImageData Data{};
+	ImageData Data;
 
 	switch (_Type)
 	{
 	case TextureType::k2D:
-	{
-		Data = LoadImage(Filepath, bSrgb, bFlipVertically, bAutoFillFilepath);
-
-		glCreateTextures(GL_TEXTURE_2D, 1, &_Texture);
-
-		glTextureStorage2D(_Texture, 1, Data.InternalFormat, Data.Width, Data.Height);
-		glTextureSubImage2D(_Texture, 0, 0, 0, Data.Width, Data.Height, Data.Format, GL_UNSIGNED_BYTE, Data.Data);
-		glGenerateTextureMipmap(_Texture);
-
-		glTextureParameteri(_Texture, GL_TEXTURE_WRAP_S, Data.TexWrapS);
-		glTextureParameteri(_Texture, GL_TEXTURE_WRAP_T, Data.TexWrapT);
-		glTextureParameteri(_Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+		Data = Create2dTexture(Filename, bSrgb, bFlipVertically, bAutoFillFilepath);
 		break;
-	}
 	case TextureType::kCubeMap:
-	{
-		glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_Texture);
-
-		std::vector<std::string> FaceNames{ "Right", "Left", "Top", "Bottom", "Front", "Back" };
-		std::vector<std::string> Images(6);
-
-		std::string Directory = GetAssetFilepath(AssetType::kTexture, Filepath);
-
-		for (const auto& Entry : std::filesystem::directory_iterator(Directory))
-		{
-			if (Entry.is_regular_file())
-			{
-				std::string Stem      = Entry.path().stem().string();
-				std::string Extension = Entry.path().extension().string();
-
-				for (GLuint i = 0; i != FaceNames.size(); ++i)
-				{
-					if (Stem.find(FaceNames[i]) != std::string::npos)
-					{
-						Images[i] = Stem + Extension;
-						break;
-					}
-				}
-			}
-		}
-
-		for (GLuint i = 0; i != Images.size(); ++i)
-		{
-			Data = LoadImage(Directory + '/' + Images[i], bSrgb, bFlipVertically, GL_FALSE);
-
-			if (i == 0)
-			{
-				glTextureStorage2D(_Texture, 1, Data.InternalFormat, Data.Width, Data.Height);
-			}
-
-			glTextureSubImage3D(_Texture, 0, 0, 0, i, Data.Width, Data.Height, 1, Data.Format, GL_UNSIGNED_BYTE, Data.Data);
-
-			glTextureParameteri(_Texture, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-			glTextureParameteri(_Texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTextureParameteri(_Texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTextureParameteri(_Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		}
-
+		Data = CreateCubeMap(Filename, bSrgb, bFlipVertically);
 		break;
-	}
 	default:
 		break;
 	}
@@ -164,13 +106,75 @@ Texture& Texture::operator=(Texture&& Other) noexcept
 	return *this;
 }
 
-void Texture::BindTextureUnit(const Shader& ActivatedShader, const std::string& UniformName, GLuint Unit) const
+Texture::ImageData Texture::Create2dTexture(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
 {
-	glBindTextureUnit(Unit, _Texture);
-	ActivatedShader.SetUniform1i(UniformName, static_cast<GLint>(Unit));
+	ImageData Data = LoadImage(Filename, bSrgb, bFlipVertically, bAutoFillFilepath);
+
+	glCreateTextures(GL_TEXTURE_2D, 1, &_Texture);
+
+	glTextureStorage2D(_Texture, 1, Data.InternalFormat, Data.Width, Data.Height);
+	glTextureSubImage2D(_Texture, 0, 0, 0, Data.Width, Data.Height, Data.Format, GL_UNSIGNED_BYTE, Data.Data);
+	glGenerateTextureMipmap(_Texture);
+
+	glTextureParameteri(_Texture, GL_TEXTURE_WRAP_S, Data.TexWrapS);
+	glTextureParameteri(_Texture, GL_TEXTURE_WRAP_T, Data.TexWrapT);
+	glTextureParameteri(_Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	return Data;
 }
 
-Texture::ImageData Texture::LoadImage(const std::string& ImageFilename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath) const
+Texture::ImageData Texture::CreateCubeMap(const std::string& Filename, bool bSrgb, bool bFlipVertically)
+{
+	ImageData Data;
+
+	glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_Texture);
+
+	std::vector<std::string> FaceNames{ "Right", "Left", "Top", "Bottom", "Front", "Back" };
+	std::vector<std::string> Images(6);
+
+	std::string Directory = GetAssetFilepath(AssetType::kTexture, Filename);
+
+	for (const auto& Entry : std::filesystem::directory_iterator(Directory))
+	{
+		if (Entry.is_regular_file())
+		{
+			std::string Stem = Entry.path().stem().string();
+			std::string Extension = Entry.path().extension().string();
+
+			for (GLuint i = 0; i != FaceNames.size(); ++i)
+			{
+				if (Stem.find(FaceNames[i]) != std::string::npos)
+				{
+					Images[i] = Stem + Extension;
+					break;
+				}
+			}
+		}
+	}
+
+	for (GLuint i = 0; i != Images.size(); ++i)
+	{
+		Data = LoadImage(Directory + '/' + Images[i], bSrgb, bFlipVertically, GL_FALSE);
+
+		if (i == 0)
+		{
+			glTextureStorage2D(_Texture, 1, Data.InternalFormat, Data.Width, Data.Height);
+		}
+
+		glTextureSubImage3D(_Texture, 0, 0, 0, i, Data.Width, Data.Height, 1, Data.Format, GL_UNSIGNED_BYTE, Data.Data);
+
+		glTextureParameteri(_Texture, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(_Texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(_Texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(_Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+
+	return Data;
+}
+
+Texture::ImageData Texture::LoadImage(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath) const
 {
 	GLint ImageWidth    = 0;
 	GLint ImageHeight   = 0;
@@ -179,11 +183,11 @@ Texture::ImageData Texture::LoadImage(const std::string& ImageFilename, bool bSr
 	std::string ImageFilepath;
 	if (bAutoFillFilepath)
 	{
-		ImageFilepath = GetAssetFilepath(AssetType::kTexture, ImageFilename);
+		ImageFilepath = GetAssetFilepath(AssetType::kTexture, Filename);
 	}
 	else
 	{
-		ImageFilepath = ImageFilename;
+		ImageFilepath = Filename;
 	}
 
 	stbi_set_flip_vertically_on_load(bFlipVertically);

@@ -19,7 +19,7 @@ class Model
 {
 public:
 	Model() = default;
-	Model(const std::string& Filename);
+	Model(const std::string& Filename, const std::string& ShaderName);
 	Model(const Model&) = delete;
 	Model(Model&& Other) noexcept;
 	~Model() = default;
@@ -27,13 +27,16 @@ public:
 	Model& operator=(const Model&) = delete;
 	Model& operator=(Model&& Other) noexcept;
 
-	void Draw(const Shader& ModelShader) const;
+	void StaticDraw(const Shader& ModelShader) const;
+	void DynamicDraw(const Shader& ModelShader) const;
+	const std::vector<std::unique_ptr<Mesh>>& GetMeshes() const;
 
 private:
+	void InitModel(const std::string& Filename);
+	void InitModelTexture(const Shader& ModelShader);
 	void ProcessNode(const aiNode* Node, const aiScene* Scene);
 	std::unique_ptr<Mesh> ProcessMesh(const aiMesh* Mesh, const aiScene* Scene);
 	std::vector<Mesh::Texture> LoadMaterialTextures(const aiMaterial* Material, const aiTextureType& TextureType, const std::string& TypeName);
-	const std::vector<std::unique_ptr<Mesh>>& GetMeshes() const;
 
 private:
 	std::vector<Mesh::Texture>         _TexturesCache;

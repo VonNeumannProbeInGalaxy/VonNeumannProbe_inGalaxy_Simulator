@@ -33,7 +33,6 @@ public:
 	Shader& operator=(const Shader&) = delete;
 	Shader& operator=(Shader&& Other) noexcept;
 
-	GLuint GetProgram() const;
 	void UseProgram() const;
 	void SetUniform1i(const std::string& Name, GLboolean Value) const;
 	void SetUniform1i(const std::string& Name, GLint     Value) const;
@@ -49,7 +48,11 @@ public:
 	void SetUniformMatrix3fv(const std::string& Name, const glm::mat3x3& Matrix) const;
 	void SetUniformMatrix4fv(const std::string& Name, const glm::mat4x4& Matrix) const;
 
+	GLuint GetProgram() const;
+	GLint  GetUniformLocation(const std::string& Name) const;
+
 private:
+	void InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros);
 	std::string GetIncludeDirectory(const std::string& Filepath) const;
 	std::string GetIncludeFilename(const std::string& Statement) const;
 	Source LoadShaderSource(const std::string& Filepath);

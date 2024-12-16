@@ -8,11 +8,6 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-NPGS_INLINE GLuint Shader::GetProgram() const
-{
-	return _Program;
-}
-
 NPGS_INLINE void Shader::UseProgram() const
 {
 	glUseProgram(_Program);
@@ -81,6 +76,16 @@ NPGS_INLINE void Shader::SetUniformMatrix3fv(const std::string& Name, const glm:
 NPGS_INLINE void Shader::SetUniformMatrix4fv(const std::string& Name, const glm::mat4x4& Matrix) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(_Program, Name.c_str()), 1, GL_FALSE, glm::value_ptr(Matrix));
+}
+
+NPGS_INLINE GLuint Shader::GetProgram() const
+{
+	return _Program;
+}
+
+NPGS_INLINE GLint Shader::GetUniformLocation(const std::string& Name) const
+{
+	return glGetUniformLocation(_Program, Name.c_str());
 }
 
 _ASSET_END
