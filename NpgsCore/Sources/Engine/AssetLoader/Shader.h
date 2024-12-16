@@ -60,8 +60,8 @@ private:
 	struct UniformBlockInfo
 	{
 		GLuint Buffer{};
-		GLuint BlockIndex{};
-		GLint  BlockSize{};
+		GLuint Index{};
+		GLint  Size{};
 		std::unordered_map<std::string, GLint> Offsets{};
 		UniformBlockLayout Layout{ UniformBlockLayout::kShared };
 	};
@@ -86,9 +86,6 @@ public:
 	UniformBlockUpdater<T> GetUniformBlockUpdater(const std::string& BlockName, const std::string& MemberName) const;
 
 	GLuint GetUniformBuffer(const std::string& BlockName) const;
-	GLuint GetUniformBlockIndex(const std::string& BlockName) const;
-	GLint GetUniformBlockSize(const std::string& BlockName) const;
-	GLint GetUniformBlockMemberOffset(const std::string& BlockName, const std::string& MemberName) const;
 	bool HasUniformBlock(const std::string& BlockName) const;
 
 	void UseProgram() const;
@@ -120,6 +117,8 @@ private:
 	void SaveProgramBinary(const std::string& Filename) const;
 	void LoadProgramBinary(const std::string& Filename);
 	void CheckLinkError() const;
+	GLuint GetUniformBlockIndex(const std::string& BlockName) const;
+	GLint GetUniformBlockSize(const std::string& BlockName, GLuint BlockIndex) const;
 	std::vector<GLint> GetUniformBlockOffsets(const std::string& BlockName, const std::vector<std::string>& Names) const;
 
 private:

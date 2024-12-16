@@ -64,18 +64,18 @@ void Shader::CreateUniformBlock(const std::string& BlockName, GLuint BindingPoin
 {
 	UniformBlockInfo BlockInfo;
 	BlockInfo.Layout = Layout;
-	BlockInfo.BlockIndex = GetUniformBlockIndex(BlockName);
-	if (BlockInfo.BlockIndex == GL_INVALID_INDEX)
+	BlockInfo.Index = GetUniformBlockIndex(BlockName);
+	if (BlockInfo.Index == GL_INVALID_INDEX)
 	{
 		return;
 	}
 
-	BlockInfo.BlockSize = GetUniformBlockSize(BlockName);
+	BlockInfo.Size = GetUniformBlockSize(BlockName, BlockInfo.Index);
 
 	glCreateBuffers(1, &BlockInfo.Buffer);
-	glNamedBufferData(BlockInfo.Buffer, BlockInfo.BlockSize, nullptr, GL_DYNAMIC_DRAW);
+	glNamedBufferData(BlockInfo.Buffer, BlockInfo.Size, nullptr, GL_DYNAMIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, BindingPoint, BlockInfo.Buffer);
-	glUniformBlockBinding(_Program, BlockInfo.BlockIndex, BindingPoint);
+	glUniformBlockBinding(_Program, BlockInfo.Index, BindingPoint);
 
 	std::vector<const GLchar*> NamePtrs(MemberNames.size());
 	for (const auto& Names : MemberNames)
@@ -110,38 +110,6 @@ void Shader::UpdateUniformBlockMember(const std::string& BlockName, const std::s
 	}
 
 	glNamedBufferSubData(BlockInfo.Buffer, OffsetIt->second, sizeof(T), &Value);
-}
-
-GLuint Shader::GetUniformBlockIndex(const std::string& BlockName) const
-{
-	GLuint BlockIndex = glGetUniformBlockIndex(_Program, BlockName.c_str());
-	return BlockIndex;
-}
-
-GLint Shader::GetUniformBlockSize(const std::string& BlockName) const
-{
-	GLuint BlockIndex = GetUniformBlockIndex(BlockName);
-	GLint  BlockSize  = 0;
-	glGetActiveUniformBlockiv(_Program, BlockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &BlockSize);
-
-	return BlockSize;
-}
-
-GLint Shader::GetUniformBlockMemberOffset(const std::string& BlockName, const std::string& MemberName) const
-{
-	auto BlockIt = _UniformBlocks.find(BlockName);
-	if (BlockIt == _UniformBlocks.end())
-	{
-		return -1;
-	}
-
-	auto OffsetIt = BlockIt->second.Offsets.find(MemberName);
-	if (OffsetIt == BlockIt->second.Offsets.end())
-	{
-		return -1;
-	}
-
-	return OffsetIt->second;
 }
 
 void Shader::InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros)

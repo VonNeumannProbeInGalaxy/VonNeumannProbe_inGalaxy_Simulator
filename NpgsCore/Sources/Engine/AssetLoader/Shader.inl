@@ -106,6 +106,19 @@ NPGS_INLINE GLint Shader::GetUniformLocation(const std::string& Name) const
 	return glGetUniformLocation(_Program, Name.c_str());
 }
 
+NPGS_INLINE GLuint Shader::GetUniformBlockIndex(const std::string& BlockName) const
+{
+	GLuint BlockIndex = glGetUniformBlockIndex(_Program, BlockName.c_str());
+	return BlockIndex;
+}
+
+NPGS_INLINE GLint Shader::GetUniformBlockSize(const std::string& BlockName, GLuint BlockIndex) const
+{
+	GLint BlockSize = 0;
+	glGetActiveUniformBlockiv(_Program, BlockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &BlockSize);
+	return BlockSize;
+}
+
 template<typename T>
 NPGS_INLINE Shader::UniformBlockUpdater<T> UniformBlockManager::Get(const std::string& MemberName)
 {
