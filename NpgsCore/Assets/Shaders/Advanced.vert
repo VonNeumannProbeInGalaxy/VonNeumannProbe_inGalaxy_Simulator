@@ -5,9 +5,12 @@ layout(location = 1) in vec2 InputTexCoord;
 
 out vec2 TexCoord;
 
-uniform mat4x4 iModel;
-uniform mat4x4 iView;
-uniform mat4x4 iProjection;
+layout(shared, binding = 0) uniform Matrices
+{
+	mat4x4 iModel;
+	mat4x4 iView;
+	mat4x4 iProjection;
+};
 
 void main()
 {

@@ -33,6 +33,12 @@ Shader::Shader(Shader&& Other) noexcept
 Shader::~Shader()
 {
 	glDeleteProgram(_Program);
+
+	for (auto& [Name, Block] : _UniformBlocks)
+	{
+		glDeleteBuffers(1, &Block.Buffer);
+	}
+	_UniformBlocks.clear();
 }
 
 Shader& Shader::operator=(Shader&& Other) noexcept
@@ -51,6 +57,91 @@ Shader& Shader::operator=(Shader&& Other) noexcept
 	}
 
 	return *this;
+}
+
+void Shader::CreateUniformBlock(const std::string& BlockName, GLuint BindingPoint,
+								const std::vector<std::string>& MemberNames, UniformBlockLayout Layout)
+{
+	UniformBlockInfo BlockInfo;
+	BlockInfo.Layout = Layout;
+	BlockInfo.BlockIndex = GetUniformBlockIndex(BlockName);
+	if (BlockInfo.BlockIndex == GL_INVALID_INDEX)
+	{
+		return;
+	}
+
+	BlockInfo.BlockSize = GetUniformBlockSize(BlockName);
+
+	glCreateBuffers(1, &BlockInfo.Buffer);
+	glNamedBufferData(BlockInfo.Buffer, BlockInfo.BlockSize, nullptr, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, BindingPoint, BlockInfo.Buffer);
+	glUniformBlockBinding(_Program, BlockInfo.BlockIndex, BindingPoint);
+
+	std::vector<const GLchar*> NamePtrs(MemberNames.size());
+	for (const auto& Names : MemberNames)
+	{
+		NamePtrs.emplace_back(Names.c_str());
+	}
+
+	std::vector<GLint> Offsets = GetUniformBlockOffsets(BlockName, MemberNames);
+
+	for (std::size_t i = 0; i != MemberNames.size(); ++i)
+	{
+		BlockInfo.Offsets[MemberNames[i]] = Offsets[i];
+	}
+
+	_UniformBlocks[BlockName] = BlockInfo;
+}
+
+template<typename T>
+void Shader::UpdateUniformBlockMember(const std::string& BlockName, const std::string& MemberName, const T& Value) const
+{
+	auto BlockIt = _UniformBlocks.find(BlockName);
+	if (BlockIt == _UniformBlocks.end())
+	{
+		return;
+	}
+
+	auto& BlockInfo = BlockIt->second;
+	auto OffsetIt = BlockInfo.Offsets.find(MemberName);
+	if (OffsetIt == BlockInfo.Offsets.end())
+	{
+		return;
+	}
+
+	glNamedBufferSubData(BlockInfo.Buffer, OffsetIt->second, sizeof(T), &Value);
+}
+
+GLuint Shader::GetUniformBlockIndex(const std::string& BlockName) const
+{
+	GLuint BlockIndex = glGetUniformBlockIndex(_Program, BlockName.c_str());
+	return BlockIndex;
+}
+
+GLint Shader::GetUniformBlockSize(const std::string& BlockName) const
+{
+	GLuint BlockIndex = GetUniformBlockIndex(BlockName);
+	GLint  BlockSize  = 0;
+	glGetActiveUniformBlockiv(_Program, BlockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &BlockSize);
+
+	return BlockSize;
+}
+
+GLint Shader::GetUniformBlockMemberOffset(const std::string& BlockName, const std::string& MemberName) const
+{
+	auto BlockIt = _UniformBlocks.find(BlockName);
+	if (BlockIt == _UniformBlocks.end())
+	{
+		return -1;
+	}
+
+	auto OffsetIt = BlockIt->second.Offsets.find(MemberName);
+	if (OffsetIt == BlockIt->second.Offsets.end())
+	{
+		return -1;
+	}
+
+	return OffsetIt->second;
 }
 
 void Shader::InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros)
@@ -305,6 +396,56 @@ void Shader::CheckLinkError() const
 
 		std::system("pause");
 		std::exit(EXIT_FAILURE);
+	}
+}
+
+std::vector<GLint> Shader::GetUniformBlockOffsets(const std::string& BlockName, const std::vector<std::string>& Names) const
+{
+	GLint MaxUniformIndices = 0;
+	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &MaxUniformIndices);
+
+	if (static_cast<GLint>(Names.size()) > MaxUniformIndices)
+	{
+		std::println("Warning: Number of uniforms ({}) exceeds maximum supported ({})",
+					 Names.size(), MaxUniformIndices);
+		return {};
+	}
+
+	std::vector<GLint> Offsets(Names.size());
+	std::vector<const GLchar*> NamePtrs(Names.size());
+
+	for (std::size_t i = 0; i != Names.size(); ++i)
+	{
+		NamePtrs[i] = Names[i].c_str();
+	}
+
+	std::vector<GLuint> Indices(MaxUniformIndices);
+	GLuint BlockIndex = GetUniformBlockIndex(BlockName);
+	if (BlockIndex != GL_INVALID_INDEX)
+	{
+		glGetUniformIndices(_Program, static_cast<GLsizei>(Names.size()), NamePtrs.data(), Indices.data());
+		glGetActiveUniformsiv(_Program, static_cast<GLsizei>(Names.size()), Indices.data(), GL_UNIFORM_OFFSET, Offsets.data());
+	}
+
+	return Offsets;
+}
+
+UniformBlockManager::UniformBlockManager(Shader* Shader, const std::string& BlockName, GLuint BindingPoint,
+										 const std::vector<std::string>& MemberNames, Shader::UniformBlockLayout Layout)
+	: _Shader(Shader), _BlockName(BlockName)
+{
+	if (!_Shader->HasUniformBlock(_BlockName))
+	{
+		_Shader->CreateUniformBlock(_BlockName, BindingPoint, MemberNames, Layout);
+	}
+}
+
+UniformBlockManager::UniformBlockManager(Shader* Shader, const std::string& BlockName)
+	: _Shader(Shader), _BlockName(BlockName)
+{
+	if (!_Shader->HasUniformBlock(_BlockName))
+	{
+		std::println("Warning: UniformBlock \"{}\" does not exist.", _BlockName);
 	}
 }
 

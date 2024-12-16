@@ -8,6 +8,24 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
+template<typename T>
+NPGS_INLINE Shader::UniformBlockUpdater<T> Shader::GetUniformBlockUpdater(const std::string& BlockName, const std::string& MemberName) const
+{
+	auto& BlockInfo = _UniformBlocks.at(BlockName);
+	return UniformBlockUpdater<T>(BlockInfo.Buffer, BlockInfo.Offsets.at(MemberName));
+}
+
+NPGS_INLINE GLuint Shader::GetUniformBuffer(const std::string& BlockName) const
+{
+	auto it = _UniformBlocks.find(BlockName);
+	return it != _UniformBlocks.end() ? it->second.Buffer : 0;
+}
+
+NPGS_INLINE bool Shader::HasUniformBlock(const std::string& BlockName) const
+{
+	return _UniformBlocks.find(BlockName) != _UniformBlocks.end();
+}
+
 NPGS_INLINE void Shader::UseProgram() const
 {
 	glUseProgram(_Program);
@@ -86,6 +104,12 @@ NPGS_INLINE GLuint Shader::GetProgram() const
 NPGS_INLINE GLint Shader::GetUniformLocation(const std::string& Name) const
 {
 	return glGetUniformLocation(_Program, Name.c_str());
+}
+
+template<typename T>
+NPGS_INLINE Shader::UniformBlockUpdater<T> UniformBlockManager::Get(const std::string& MemberName)
+{
+	return _Shader->GetUniformBlockUpdater<T>(_BlockName, MemberName);
 }
 
 _ASSET_END

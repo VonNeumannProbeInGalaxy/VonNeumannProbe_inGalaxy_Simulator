@@ -190,10 +190,15 @@ int main()
 		return EXIT_FAILURE;
 	}
 
+	GLuint UniformBuffer = 0;
+	glCreateBuffers(1, &UniformBuffer);
+	glNamedBufferData(UniformBuffer, 3 * sizeof(glm::mat4x4), nullptr, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, UniformBuffer);
+
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
-	glEnable(GL_STENCIL_TEST);
+	glEnable(GL_PROGRAM_POINT_SIZE);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -227,6 +232,11 @@ int main()
 	glm::mat3x3 NormalMatrix(1.0f);
 	glm::vec3   LightPos(1.2f, 1.0f, 2.0f);
 
+	UniformBlockManager Matrices(AdvancedShader, "Matrices", 0, { "iModel", "iView", "iProjection" }, Shader::UniformBlockLayout::kShared);
+	auto ModelUpdater = Matrices.Get<glm::mat4x4>("iModel");
+	auto ViewUpdater = Matrices.Get<glm::mat4x4>("iView");
+	auto ProjectionUpdater = Matrices.Get<glm::mat4x4>("iProjection");
+
 	while (!glfwWindowShouldClose(Window))
 	{
 		ProcessInput(Window, DeltaTime);
@@ -240,23 +250,33 @@ int main()
 		View = kFreeCamera->GetViewMatrix();
 		Projection = glm::perspective(glm::radians(kFreeCamera->GetCameraZoom()), kWindowAspect, 0.1f, 10000.0f);
 
-		AdvancedShader->UseProgram();
-		AdvancedShader->SetUniformMatrix4fv("iView", View);
-		AdvancedShader->SetUniformMatrix4fv("iProjection", Projection);
-		AdvancedShader->SetUniform1i("iTex", 0);
-		glBindVertexArray(PlaneVertexArray);
 		Model = glm::mat4x4(1.0f);
-		AdvancedShader->SetUniformMatrix4fv("iModel", Model);
+		//AdvancedShader->SetUniformMatrix4fv("iModel", Model);
+		//glNamedBufferSubData(UniformBuffer, 0, sizeof(glm::mat4x4), glm::value_ptr(Model));
+		//glNamedBufferSubData(UniformBuffer, sizeof(glm::mat4x4), sizeof(glm::mat4x4), glm::value_ptr(View));
+		//glNamedBufferSubData(UniformBuffer, 2 * sizeof(glm::mat4x4), sizeof(glm::mat4x4), glm::value_ptr(Projection));
+		ModelUpdater = Model;
+		ViewUpdater = View;
+		ProjectionUpdater = Projection;
+		AdvancedShader->UseProgram();
+		AdvancedShader->SetUniform1i("iTex", 0);
+		//AdvancedShader->SetUniformMatrix4fv("iView", View);
+		//AdvancedShader->SetUniformMatrix4fv("iProjection", Projection);
+		glBindVertexArray(PlaneVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		AdvancedShader->SetUniform1i("iTex", 1);
 		glBindVertexArray(CubeVertexArray);
 		Model = glm::translate(Model, glm::vec3(-1.0f, 0.0f, -1.0f));
-		AdvancedShader->SetUniformMatrix4fv("iModel", Model);
+		//AdvancedShader->SetUniformMatrix4fv("iModel", Model);
+		//glNamedBufferSubData(UniformBuffer, 0, sizeof(glm::mat4x4), glm::value_ptr(Model));
+		ModelUpdater = Model;
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		Model = glm::mat4x4(1.0f);
 		Model = glm::translate(Model, glm::vec3(2.0f, 0.0f, 0.0f));
-		AdvancedShader->SetUniformMatrix4fv("iModel", Model);
+		//AdvancedShader->SetUniformMatrix4fv("iModel", Model);
+		//glNamedBufferSubData(UniformBuffer, 0, sizeof(glm::mat4x4), glm::value_ptr(Model));
+		ModelUpdater = Model;
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		//Model = glm::mat4x4(1.0f);
