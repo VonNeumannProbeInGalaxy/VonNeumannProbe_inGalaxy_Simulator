@@ -2,7 +2,6 @@
 
 #include <set>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include <glad/glad.h>
@@ -15,39 +14,6 @@ _ASSET_BEGIN
 
 class Shader
 {
-public:
-	enum class UniformBlockLayout
-	{
-		kShared,
-		kStd140,
-		kStd430
-	};
-
-	template <typename T>
-	class UniformBlockUpdater
-	{
-	public:
-		UniformBlockUpdater(GLuint Buffer, GLint Offset)
-			: _Buffer(Buffer), _Offset(Offset)
-		{
-		}
-
-		UniformBlockUpdater& operator=(const T& Value)
-		{
-			Commit(Value);
-			return *this;
-		}
-
-		void Commit(const T& Value) const
-		{
-			glNamedBufferSubData(_Buffer, _Offset, sizeof(T), &Value);
-		}
-
-	private:
-		GLuint _Buffer;
-		GLint  _Offset;
-	};
-
 private:
 	struct Source
 	{
@@ -55,15 +21,6 @@ private:
 		std::string Filepath;
 		bool        bHasInclude{ false };
 		bool        bHasMacros{ false };
-	};
-
-	struct UniformBlockInfo
-	{
-		GLuint Buffer{};
-		GLuint Index{};
-		GLint  Size{};
-		std::unordered_map<std::string, GLint> Offsets{};
-		UniformBlockLayout Layout{ UniformBlockLayout::kShared };
 	};
 
 public:
@@ -76,20 +33,8 @@ public:
 	Shader& operator=(const Shader&) = delete;
 	Shader& operator=(Shader&& Other) noexcept;
 
-	void CreateUniformBlock(const std::string& BlockName, GLuint BindingPoint, const std::vector<std::string>& MemberNames,
-							UniformBlockLayout Layout = UniformBlockLayout::kShared);
-
-	template <typename T>
-	void UpdateUniformBlockMember(const std::string& BlockName, const std::string& MemberName, const T& Value) const;
-
-	template <typename T>
-	UniformBlockUpdater<T> GetUniformBlockUpdater(const std::string& BlockName, const std::string& MemberName) const;
-
-	GLuint GetUniformBuffer(const std::string& BlockName) const;
-	bool HasUniformBlock(const std::string& BlockName) const;
 	GLuint GetProgram() const;
 	GLint GetUniformLocation(const std::string& Name) const;
-	void VerifyUniformBlockLayout(const std::string& BlockName) const;
 
 	void UseProgram() const;
 	void SetUniform1i(const std::string& Name, GLboolean Value) const;
@@ -115,15 +60,11 @@ private:
 	void SaveProgramBinary(const std::string& Filename) const;
 	void LoadProgramBinary(const std::string& Filename);
 	void CheckLinkError() const;
-	GLuint GetUniformBlockIndex(const std::string& BlockName) const;
-	GLint GetUniformBlockSize(const std::string& BlockName, GLuint BlockIndex) const;
-	std::vector<GLint> GetUniformBlockOffsets(const std::string& BlockName, const std::vector<std::string>& Names) const;
 
 private:
-	std::unordered_map<std::string, UniformBlockInfo> _UniformBlocks;
-	std::vector<GLenum>                               _ShaderTypes;
-	std::set<std::string>                             _IncludedFiles;
-	GLuint                                            _Program;
+	std::vector<GLenum>   _ShaderTypes;
+	std::set<std::string> _IncludedFiles;
+	GLuint                _Program;
 };
 
 _ASSET_END

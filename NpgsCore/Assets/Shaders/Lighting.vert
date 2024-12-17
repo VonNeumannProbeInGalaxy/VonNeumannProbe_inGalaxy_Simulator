@@ -8,9 +8,17 @@ out vec3 Normal;
 out vec2 TexCoord;
 out vec3 FragPos;
 
-uniform mat4x4 iModel;
-uniform mat4x4 iView;
-uniform mat4x4 iProjection;
+//uniform mat4x4 iModel;
+//uniform mat4x4 iView;
+//uniform mat4x4 iProjection;
+
+layout(shared, binding = 0) uniform Matrices
+{
+    mat4 iModel;
+    mat4 iView;
+    mat4 iProjection;
+};
+
 uniform mat3x3 iNormalMatrix;
 
 void main()

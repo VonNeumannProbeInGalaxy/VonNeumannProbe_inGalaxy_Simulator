@@ -19,4 +19,19 @@ inline auto ThreadPool::Commit(Func&& Pred, Args&&... Params)
 	return Future;
 }
 
+NPGS_INLINE void ThreadPool::ChangeHyperThread()
+{
+	_kHyperThreadIndex = 1 - _kHyperThreadIndex;
+}
+
+NPGS_INLINE int ThreadPool::GetMaxThreadCount() const
+{
+	return _kMaxThreadCount;
+}
+
+NPGS_INLINE int ThreadPool::GetPhysicalCoreCount() const
+{
+	return _kPhysicalCoreCount;
+}
+
 _NPGS_END

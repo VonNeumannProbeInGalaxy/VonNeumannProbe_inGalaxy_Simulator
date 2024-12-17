@@ -92,22 +92,24 @@ int main()
 
 #include "Vertices.inc"
 
+	auto* AssetManagerInstance = AssetManager::GetInstance();
+
 	std::vector<std::string> FramebufferShaderFiles{ "Framebuffer.vert", "Framebuffer.frag" };
 	std::vector<std::string> LightingShaderFiles{ "Lighting.vert", "Lighting.frag" };
 	std::vector<std::string> AdvancedShaderFiles{ "Advanced.vert", "Advanced.frag" };
 	std::vector<std::string> LampShaderMacros{ "__FRAG_LAMP_CUBE" };
 	std::vector<std::string> BorderShaderMacros{ "__FRAG_BORDER" };
-	AssetManager::AddAsset<Shader>("Framebuffer", Shader(FramebufferShaderFiles));
-	AssetManager::AddAsset<Shader>("Lighting", Shader(LightingShaderFiles));
-	AssetManager::AddAsset<Shader>("Advanced", Shader(AdvancedShaderFiles));
-	AssetManager::AddAsset<Shader>("Lamp", Shader(LightingShaderFiles, "", LampShaderMacros));
-	AssetManager::AddAsset<Shader>("Border", Shader(AdvancedShaderFiles, "", BorderShaderMacros));
-	AssetManager::AddAsset<Texture>("Metal", Texture(Texture::TextureType::k2D, "Metal.png"));
-	AssetManager::AddAsset<Texture>("Marble", Texture(Texture::TextureType::k2D, "Marble.jpg"));
-	AssetManager::AddAsset<Texture>("RedWindow", Texture(Texture::TextureType::k2D, "RedWindow.png"));
-	AssetManager::AddAsset<Texture>("Grass", Texture(Texture::TextureType::k2D, "Grass.png", false, false));
-	//AssetManager::AddAsset<Model>("Backpack", Model("Backpack/backpack.obj", "Lighting"));
-	//AssetManager::AddAsset<Model>("Nanosuit", Model("Nanosuit/nanosuit.obj", "Lighting"));
+	AssetManagerInstance->AddAsset<Shader>("Framebuffer", Shader(FramebufferShaderFiles));
+	AssetManagerInstance->AddAsset<Shader>("Lighting", Shader(LightingShaderFiles));
+	AssetManagerInstance->AddAsset<Shader>("Advanced", Shader(AdvancedShaderFiles));
+	AssetManagerInstance->AddAsset<Shader>("Lamp", Shader(LightingShaderFiles, "", LampShaderMacros));
+	AssetManagerInstance->AddAsset<Shader>("Border", Shader(AdvancedShaderFiles, "", BorderShaderMacros));
+	AssetManagerInstance->AddAsset<Texture>("Metal", Texture(Texture::TextureType::k2D, "Metal.png"));
+	AssetManagerInstance->AddAsset<Texture>("Marble", Texture(Texture::TextureType::k2D, "Marble.jpg"));
+	AssetManagerInstance->AddAsset<Texture>("RedWindow", Texture(Texture::TextureType::k2D, "RedWindow.png"));
+	AssetManagerInstance->AddAsset<Texture>("Grass", Texture(Texture::TextureType::k2D, "Grass.png", false, false));
+	AssetManagerInstance->AddAsset<Model>("Backpack", Model("Backpack/backpack.obj", "Lighting"));
+	AssetManagerInstance->AddAsset<Model>("Nanosuit", Model("Nanosuit/nanosuit.obj", "Lighting"));
 
 	GLuint CubeVertexBuffer = 0;
 	glCreateBuffers(1, &CubeVertexBuffer);
@@ -210,17 +212,17 @@ int main()
 	double DeltaTime     = 0.0;
 	int    FrameCount    = 0;
 
-	auto* FramebufferShader = AssetManager::GetAsset<Shader>("Framebuffer");
-	auto* LightingShader    = AssetManager::GetAsset<Shader>("Lighting");
-	auto* AdvancedShader    = AssetManager::GetAsset<Shader>("Advanced");
-	auto* LampShader        = AssetManager::GetAsset<Shader>("Lamp");
-	auto* BorderShader      = AssetManager::GetAsset<Shader>("Border");
-	auto* Metal             = AssetManager::GetAsset<Texture>("Metal");
-	auto* Marble            = AssetManager::GetAsset<Texture>("Marble");
-	auto* RedWindow         = AssetManager::GetAsset<Texture>("RedWindow");
-	auto* Grass             = AssetManager::GetAsset<Texture>("Grass");
-	auto* Backpack          = AssetManager::GetAsset<Model>("Backpack");
-	auto* Nanosuit          = AssetManager::GetAsset<Model>("Nanosuit");
+	auto* FramebufferShader = AssetManagerInstance->GetAsset<Shader>("Framebuffer");
+	auto* LightingShader    = AssetManagerInstance->GetAsset<Shader>("Lighting");
+	auto* AdvancedShader    = AssetManagerInstance->GetAsset<Shader>("Advanced");
+	auto* LampShader        = AssetManagerInstance->GetAsset<Shader>("Lamp");
+	auto* BorderShader      = AssetManagerInstance->GetAsset<Shader>("Border");
+	auto* Metal             = AssetManagerInstance->GetAsset<Texture>("Metal");
+	auto* Marble            = AssetManagerInstance->GetAsset<Texture>("Marble");
+	auto* RedWindow         = AssetManagerInstance->GetAsset<Texture>("RedWindow");
+	auto* Grass             = AssetManagerInstance->GetAsset<Texture>("Grass");
+	auto* Backpack          = AssetManagerInstance->GetAsset<Model>("Backpack");
+	auto* Nanosuit          = AssetManagerInstance->GetAsset<Model>("Nanosuit");
 
 	Metal->BindTextureUnit(0);
 	Marble->BindTextureUnit(1);
@@ -235,12 +237,18 @@ int main()
 	glm::vec3   LightPos(1.2f, 1.0f, 2.0f);
 
 	std::vector<std::string> MatrixMembers = { "iModel", "iView", "iProjection" };
-	UniformBlockManager Matrices(AdvancedShader, "Matrices", 0, MatrixMembers, Shader::UniformBlockLayout::kShared);
-	AdvancedShader->VerifyUniformBlockLayout("Matrices");
+	//UniformBlockManager Matrices(AdvancedShader, "Matrices", 0, MatrixMembers, Shader::UniformBlockLayout::kShared);
+	//AdvancedShader->CreateUniformBlock("Matrices", 0, MatrixMembers);
+	//AdvancedShader->VerifyUniformBlockLayout("Matrices");
 
-	auto ModelUpdater      = Matrices.Get<glm::mat4x4>("iModel");
-	auto ViewUpdater       = Matrices.Get<glm::mat4x4>("iView");
-	auto ProjectionUpdater = Matrices.Get<glm::mat4x4>("iProjection");
+	auto* UboManagerInstance = UniformBlockManager::GetInstance();
+	UboManagerInstance->CreateSharedBlock(AdvancedShader->GetProgram(), "Matrices", 0, MatrixMembers);
+
+	auto ModelUpdater      = UboManagerInstance->GetBlockUpdater<glm::mat4x4>("Matrices", "iModel");
+	auto ViewUpdater       = UboManagerInstance->GetBlockUpdater<glm::mat4x4>("Matrices", "iView");
+	auto ProjectionUpdater = UboManagerInstance->GetBlockUpdater<glm::mat4x4>("Matrices", "iProjection");
+
+	UboManagerInstance->VerifyBlockLayout(AdvancedShader->GetProgram(), "Matrices");
 
 	while (!glfwWindowShouldClose(Window))
 	{
@@ -274,37 +282,44 @@ int main()
 		ModelUpdater = Model;
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		//Model = glm::mat4x4(1.0f);
-		//Model = glm::translate(Model, glm::vec3(0.0f));
-		//Model = glm::scale(Model, glm::vec3(1.0f));
-		//NormalMatrix = glm::transpose(glm::inverse(Model));
-		//LightingShader->UseProgram();
+		Model = glm::mat4x4(1.0f);
+		Model = glm::translate(Model, glm::vec3(0.0f));
+		Model = glm::scale(Model, glm::vec3(1.0f));
+		NormalMatrix = glm::transpose(glm::inverse(Model));
+		LightingShader->UseProgram();
 		//LightingShader->SetUniformMatrix4fv("iModel", Model);
 		//LightingShader->SetUniformMatrix4fv("iView", View);
 		//LightingShader->SetUniformMatrix4fv("iProjection", Projection);
-		//LightingShader->SetUniformMatrix3fv("iNormalMatrix", NormalMatrix);
-		//LightingShader->SetUniform1f("iShininess", 64.0f);
-		//LightingShader->SetUniform3fv("iViewPos", kFreeCamera->GetCameraVector(Camera::VectorType::kPosition));
-		//LightingShader->SetUniform3fv("iLight.Position", LightPos);
-		//LightingShader->SetUniform3fv("iLight.AmbientColor", glm::vec3(0.2f));
-		//LightingShader->SetUniform3fv("iLight.DiffuseColor", glm::vec3(1.0f));
-		//LightingShader->SetUniform3fv("iLight.SpecularColor", glm::vec3(1.0f));
-		//Backpack->DynamicDraw(*LightingShader);
-		//Model = glm::mat4x4(1.0f);
-		//Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
-		//Model = glm::scale(Model, glm::vec3(0.2f));
+		ModelUpdater = Model;
+		ViewUpdater = View;
+		ProjectionUpdater = Projection;
+		LightingShader->SetUniformMatrix3fv("iNormalMatrix", NormalMatrix);
+		LightingShader->SetUniform1f("iShininess", 64.0f);
+		LightingShader->SetUniform3fv("iViewPos", kFreeCamera->GetCameraVector(Camera::VectorType::kPosition));
+		LightingShader->SetUniform3fv("iLight.Position", LightPos);
+		LightingShader->SetUniform3fv("iLight.AmbientColor", glm::vec3(0.2f));
+		LightingShader->SetUniform3fv("iLight.DiffuseColor", glm::vec3(1.0f));
+		LightingShader->SetUniform3fv("iLight.SpecularColor", glm::vec3(1.0f));
+		Backpack->DynamicDraw(*LightingShader);
+		Model = glm::mat4x4(1.0f);
+		Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
+		Model = glm::scale(Model, glm::vec3(0.2f));
 		//LightingShader->SetUniformMatrix4fv("iModel", Model);
-		//Nanosuit->DynamicDraw(*LightingShader);
+		ModelUpdater = Model;
+		Nanosuit->DynamicDraw(*LightingShader);
 
-		//Model = glm::mat4x4(1.0f);
-		//Model = glm::translate(Model, LightPos);
-		//Model = glm::scale(Model, glm::vec3(0.2f));
-		//LampShader->UseProgram();
+		Model = glm::mat4x4(1.0f);
+		Model = glm::translate(Model, LightPos);
+		Model = glm::scale(Model, glm::vec3(0.2f));
+		LampShader->UseProgram();
 		//LampShader->SetUniformMatrix4fv("iModel", Model);
 		//LampShader->SetUniformMatrix4fv("iView", View);
 		//LampShader->SetUniformMatrix4fv("iProjection", Projection);
-		//glBindVertexArray(LampVertexArray);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		ModelUpdater = Model;
+		ViewUpdater = View;
+		ProjectionUpdater = Projection;
+		glBindVertexArray(LampVertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glBlitNamedFramebuffer(kMultiSampleFramebuffer, kIntermediateFramebuffer, 0, 0, kWindowWidth, kWindowHeight,
 							   0, 0, kWindowWidth, kWindowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);

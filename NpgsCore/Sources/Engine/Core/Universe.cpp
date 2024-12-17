@@ -52,7 +52,6 @@ Universe::Universe(std::uint32_t Seed, std::size_t StarCount, std::size_t ExtraG
 
 Universe::~Universe()
 {
-	_ThreadPool->Destroy();
 }
 
 void Universe::FillUniverse()

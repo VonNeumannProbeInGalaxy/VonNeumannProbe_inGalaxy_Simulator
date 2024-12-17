@@ -2080,9 +2080,10 @@ void StellarGenerator::ExpandMistData(double TargetMass, std::vector<double>& St
 template<typename CsvType>
 CsvType* StellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers)
 {
+	auto* AssetManagerInstance = Asset::AssetManager::GetInstance();
 	{
 		std::shared_lock Lock(_kCacheMutex);
-		auto* Asset = Asset::AssetManager::GetAsset<CsvType>(Filename);
+		auto* Asset = AssetManagerInstance->GetAsset<CsvType>(Filename);
 		if (Asset != nullptr)
 		{
 			return Asset;
@@ -2090,9 +2091,9 @@ CsvType* StellarGenerator::LoadCsvAsset(const std::string& Filename, const std::
 	}
 
 	std::unique_lock Lock(_kCacheMutex);
-	Asset::AssetManager::AddAsset<CsvType>(Filename, CsvType(Filename, Headers));
+	AssetManagerInstance->AddAsset<CsvType>(Filename, CsvType(Filename, Headers));
 
-	return Asset::AssetManager::GetAsset<CsvType>(Filename);
+	return AssetManagerInstance->GetAsset<CsvType>(Filename);
 }
 
 const int StellarGenerator::_kStarAgeIndex        = 0;

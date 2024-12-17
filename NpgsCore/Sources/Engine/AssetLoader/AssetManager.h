@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -42,27 +43,35 @@ concept MoveOnlyType = std::movable<AssetType> && !std::copyable<AssetType>;
 class NPGS_API AssetManager
 {
 public:
-	AssetManager() = default;
-	~AssetManager() = default;
+	template<typename AssetType>
+	requires MoveOnlyType<AssetType>
+	void AddAsset(const std::string& Name, AssetType&& Asset);
 
 	template<typename AssetType>
 	requires MoveOnlyType<AssetType>
-	static void AddAsset(const std::string& Name, AssetType&& Asset);
+	AssetType* GetAsset(const std::string& Name);
 
 	template<typename AssetType>
 	requires MoveOnlyType<AssetType>
-	static AssetType* GetAsset(const std::string& Name);
+	std::vector<AssetType*> GetAssets();
 
-	template<typename AssetType>
-	requires MoveOnlyType<AssetType>
-	static std::vector<AssetType*> GetAssets();
+	void RemoveAsset(const std::string& Name);
+	void ClearAssets();
 
-	static void RemoveAsset(const std::string& Name);
-	static void ClearAssets();
+	static AssetManager* GetInstance();
+
+private:
+	explicit AssetManager()           = default;
+	AssetManager(const AssetManager&) = delete;
+	AssetManager(AssetManager&&)      = delete;
+	~AssetManager();
+
+	AssetManager& operator=(const AssetManager&) = delete;
+	AssetManager& operator=(AssetManager&&)      = delete;
 
 private:
 	using ManagedAsset = std::unique_ptr<void, TypeErasedDeleter>;
-	static std::unordered_map<std::string, ManagedAsset> _kAssets;
+	std::unordered_map<std::string, ManagedAsset> _kAssets;
 };
 
 _ASSET_END

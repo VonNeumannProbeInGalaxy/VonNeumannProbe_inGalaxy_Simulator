@@ -5,7 +5,7 @@ layout(location = 1) in vec2 InputTexCoord;
 
 out vec2 TexCoord;
 
-layout(std140, binding = 0) uniform Matrices
+layout(shared, binding = 0) uniform Matrices
 {
     mat4 iModel;
     mat4 iView;

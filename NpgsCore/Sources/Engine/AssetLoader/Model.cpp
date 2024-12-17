@@ -20,7 +20,7 @@ _ASSET_BEGIN
 Model::Model(const std::string& Filename, const std::string& ShaderName)
 {
 	InitModel(Filename);
-	InitModelTexture(*AssetManager::GetAsset<Shader>(ShaderName));
+	InitModelTexture(*AssetManager::GetInstance()->GetAsset<Shader>(ShaderName));
 }
 
 Model::Model(Model&& Other) noexcept

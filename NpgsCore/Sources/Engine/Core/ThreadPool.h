@@ -22,19 +22,22 @@ public:
 	auto Commit(Func&& Pred, Args&&... Params);
 
 	void Terminate();
+	void ChangeHyperThread();
+	int GetMaxThreadCount() const;
+	int GetPhysicalCoreCount() const;
 
 	static ThreadPool* GetInstance();
-	static void Init();
-	static void Destroy();
-	static void ChangeHyperThread();
-	static int  GetMaxThreadCount();
-	static int  GetPhysicalCoreCount();
 
 private:
 	explicit ThreadPool();
+	ThreadPool(const ThreadPool&) = delete;
+	ThreadPool(ThreadPool&&)      = delete;
 	~ThreadPool();
 
-	static void SetThreadAffinity(std::thread& Thread, std::size_t CoreId);
+	ThreadPool& operator=(const ThreadPool&) = delete;
+	ThreadPool& operator=(ThreadPool&&)      = delete;
+
+	void SetThreadAffinity(std::thread& Thread, std::size_t CoreId) const;
 
 private:
 	std::vector<std::thread>          _Threads;
@@ -42,12 +45,9 @@ private:
 	std::mutex                        _Mutex;
 	std::condition_variable           _Condition;
 	bool                              _Terminate;
-
-	static ThreadPool*                _kInstance;
-	static std::once_flag             _kOnce;
-	static int                        _kMaxThreadCount;
-	static int                        _kPhysicalCoreCount;
-	static int                        _kHyperThreadIndex;
+	int                               _kMaxThreadCount;
+	int                               _kPhysicalCoreCount;
+	int                               _kHyperThreadIndex;
 };
 
 _NPGS_END

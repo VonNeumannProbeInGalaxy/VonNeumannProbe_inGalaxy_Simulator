@@ -8,24 +8,6 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-template<typename T>
-NPGS_INLINE Shader::UniformBlockUpdater<T> Shader::GetUniformBlockUpdater(const std::string& BlockName, const std::string& MemberName) const
-{
-	auto& BlockInfo = _UniformBlocks.at(BlockName);
-	return UniformBlockUpdater<T>(BlockInfo.Buffer, BlockInfo.Offsets.at(MemberName));
-}
-
-NPGS_INLINE GLuint Shader::GetUniformBuffer(const std::string& BlockName) const
-{
-	auto it = _UniformBlocks.find(BlockName);
-	return it != _UniformBlocks.end() ? it->second.Buffer : 0;
-}
-
-NPGS_INLINE bool Shader::HasUniformBlock(const std::string& BlockName) const
-{
-	return _UniformBlocks.find(BlockName) != _UniformBlocks.end();
-}
-
 NPGS_INLINE GLuint Shader::GetProgram() const
 {
 	return _Program;
@@ -104,19 +86,6 @@ NPGS_INLINE void Shader::SetUniformMatrix3fv(const std::string& Name, const glm:
 NPGS_INLINE void Shader::SetUniformMatrix4fv(const std::string& Name, const glm::mat4x4& Matrix) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(_Program, Name.c_str()), 1, GL_FALSE, glm::value_ptr(Matrix));
-}
-
-NPGS_INLINE GLuint Shader::GetUniformBlockIndex(const std::string& BlockName) const
-{
-	GLuint BlockIndex = glGetUniformBlockIndex(_Program, BlockName.c_str());
-	return BlockIndex;
-}
-
-NPGS_INLINE GLint Shader::GetUniformBlockSize(const std::string& BlockName, GLuint BlockIndex) const
-{
-	GLint BlockSize = 0;
-	glGetActiveUniformBlockiv(_Program, BlockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &BlockSize);
-	return BlockSize;
 }
 
 _ASSET_END
