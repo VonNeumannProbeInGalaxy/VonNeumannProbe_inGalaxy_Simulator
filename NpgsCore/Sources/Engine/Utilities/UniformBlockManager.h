@@ -31,15 +31,15 @@ public:
 		{
 		}
 
-		Updater& operator=(const T& Value)
+		Updater& operator<<(const T& Data)
 		{
-			Commit(Value);
+			Commit(Data);
 			return *this;
 		}
 
-		void Commit(const T& Value) const
+		void Commit(const T& Data) const
 		{
-			glNamedBufferSubData(_Buffer, _Offset, sizeof(T), &Value);
+			glNamedBufferSubData(_Buffer, _Offset, sizeof(T), &Data);
 		}
 
 	private:
@@ -64,7 +64,7 @@ public:
 	void VerifyBlockLayout(GLuint Program, const std::string& BlockName) const;
 
 	template <typename T>
-	void UpdateBlockMember(const std::string& BlockName, const std::string& MemberName, const T& Value) const;
+	void UpdateEntrieBlock(const std::string& BlockName, const T& Data) const;
 
 	template <typename T>
 	Updater<T> GetBlockUpdater(const std::string& BlockName, const std::string& MemberName) const;

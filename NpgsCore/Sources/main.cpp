@@ -47,6 +47,13 @@ namespace
 	void Terminate(GLFWwindow* Window);
 }
 
+struct VertMatrices
+{
+	glm::mat4x4 Model{ glm::mat4x4(1.0f) };
+	glm::mat4x4 View{ glm::mat4x4(1.0f) };
+	glm::mat4x4 Projection{ glm::mat4x4(1.0f) };
+};
+
 int main()
 {
 	if (glfwInit() == GLFW_FALSE)
@@ -247,6 +254,8 @@ int main()
 	auto ViewUpdater       = UboManagerInstance->GetBlockUpdater<glm::mat4x4>("Matrices", "iView");
 	auto ProjectionUpdater = UboManagerInstance->GetBlockUpdater<glm::mat4x4>("Matrices", "iProjection");
 
+	VertMatrices MvpMatrices;
+
 	while (!glfwWindowShouldClose(Window))
 	{
 		ProcessInput(Window, DeltaTime);
@@ -260,23 +269,23 @@ int main()
 		View  = kFreeCamera->GetViewMatrix();
 		Projection = glm::perspective(glm::radians(kFreeCamera->GetCameraZoom()), kWindowAspect, 0.1f, 10000.0f);
 
+		MvpMatrices = { Model, View, Projection };
+
 		Model = glm::mat4x4(1.0f);
-		ModelUpdater = Model;
-		ViewUpdater  = View;
-		ProjectionUpdater = Projection;
 		AdvancedShader->UseProgram();
 		AdvancedShader->SetUniform1i("iTex", 0);
+		UboManagerInstance->UpdateEntrieBlock("Matrices", MvpMatrices);
 		glBindVertexArray(PlaneVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		AdvancedShader->SetUniform1i("iTex", 1);
 		glBindVertexArray(CubeVertexArray);
 		Model = glm::translate(Model, glm::vec3(-1.0f, 0.0f, -1.0f));
-		ModelUpdater = Model;
+		ModelUpdater << Model;
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		Model = glm::mat4x4(1.0f);
 		Model = glm::translate(Model, glm::vec3(2.0f, 0.0f, 0.0f));
-		ModelUpdater = Model;
+		ModelUpdater << Model;
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		//Model = glm::mat4x4(1.0f);

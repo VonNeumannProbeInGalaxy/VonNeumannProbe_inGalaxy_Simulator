@@ -83,25 +83,6 @@ void UniformBlockManager::VerifyBlockLayout(GLuint Program, const std::string& B
 	std::println("Total size: {} bytes", Block.Size);
 }
 
-template<typename T>
-void UniformBlockManager::UpdateBlockMember(const std::string& BlockName, const std::string& MemberName, const T& Value) const
-{
-	auto BlockIt = _SharedBlocks.find(BlockName);
-	if (BlockIt == _SharedBlocks.end())
-	{
-		return;
-	}
-
-	auto& BlockInfo = BlockIt->second;
-	auto OffsetIt = BlockInfo.Offsets.find(MemberName);
-	if (OffsetIt == BlockInfo.Offsets.end())
-	{
-		return;
-	}
-
-	glNamedBufferSubData(BlockInfo.Buffer, OffsetIt->second, sizeof(T), &Value);
-}
-
 UniformBlockManager* UniformBlockManager::GetInstance()
 {
 	static UniformBlockManager Instance;
