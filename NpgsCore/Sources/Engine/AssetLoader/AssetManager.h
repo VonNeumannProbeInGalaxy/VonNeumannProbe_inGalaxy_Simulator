@@ -40,7 +40,7 @@ private:
 template <typename AssetType>
 concept MoveOnlyType = std::movable<AssetType> && !std::copyable<AssetType>;
 
-class NPGS_API AssetManager
+class AssetManager
 {
 public:
 	template<typename AssetType>

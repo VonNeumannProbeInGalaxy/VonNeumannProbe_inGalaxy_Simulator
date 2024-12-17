@@ -7,7 +7,7 @@
 _NPGS_BEGIN
 _UTIL_BEGIN
 
-class NPGS_API Logger
+class Logger
 {
 public:
 	static void Init();

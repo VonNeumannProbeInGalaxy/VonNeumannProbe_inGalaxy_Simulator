@@ -14,7 +14,7 @@
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-class NPGS_API OrbitalGenerator
+class OrbitalGenerator
 {
 public:
 	enum class GenerateOption

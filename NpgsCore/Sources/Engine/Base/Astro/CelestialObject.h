@@ -8,14 +8,14 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-class NPGS_API AstroObject : public NpgsObject
+class AstroObject : public NpgsObject
 {
 public:
 	AstroObject() = default;
 	virtual ~AstroObject() = default;
 };
 
-class NPGS_API CelestialBody : public AstroObject
+class CelestialBody : public AstroObject
 {
 public:
 	struct BasicProperties

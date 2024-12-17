@@ -17,7 +17,7 @@ _ASSET_BEGIN
 
 const int kMaxBoneInfluence = 4;
 
-class NPGS_API Mesh
+class Mesh
 {
 public:
 	struct Texture

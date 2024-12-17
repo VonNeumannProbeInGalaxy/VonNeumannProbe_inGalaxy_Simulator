@@ -19,7 +19,6 @@ constexpr float     kZoom        = 45.0f;
 class Camera
 {
 public:
-	// @brief: 相机移动方向。
 	enum class Movement
 	{
 		kForward,
@@ -32,7 +31,6 @@ public:
 		kRollRight
 	};
 
-	// @brief 相机向量类型。
 	enum class VectorType
 	{
 		kPosition,

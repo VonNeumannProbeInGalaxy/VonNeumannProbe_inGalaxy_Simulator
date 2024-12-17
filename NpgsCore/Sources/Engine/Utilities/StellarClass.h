@@ -7,7 +7,7 @@
 _NPGS_BEGIN
 _UTIL_BEGIN
 
-class NPGS_API StellarClass
+class StellarClass
 {
 public:
 	using SpecialMarkDigital = std::uint32_t;

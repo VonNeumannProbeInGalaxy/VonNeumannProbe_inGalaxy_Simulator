@@ -8,9 +8,7 @@ _NPGS_BEGIN
 
 namespace
 {
-
-int GetPhysicalCoreCount();
-
+	int GetPhysicalCoreCount();
 }
 
 // ThreadPool implementations
@@ -82,31 +80,29 @@ void ThreadPool::SetThreadAffinity(std::thread& Thread, std::size_t CoreId) cons
 
 namespace
 {
-
-int GetPhysicalCoreCount()
-{
-	DWORD Length = 0;
-	GetLogicalProcessorInformationEx(RelationProcessorCore, nullptr, &Length);
-	std::vector<std::uint8_t> Buffer(Length);
-	auto* BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(Buffer.data());
-	GetLogicalProcessorInformationEx(RelationProcessorCore, BufferPtr, &Length);
-
-	int CoreCount = 0;
-	while (Length > 0)
+	int GetPhysicalCoreCount()
 	{
-		if (BufferPtr->Relationship == RelationProcessorCore)
+		DWORD Length = 0;
+		GetLogicalProcessorInformationEx(RelationProcessorCore, nullptr, &Length);
+		std::vector<std::uint8_t> Buffer(Length);
+		auto* BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(Buffer.data());
+		GetLogicalProcessorInformationEx(RelationProcessorCore, BufferPtr, &Length);
+
+		int CoreCount = 0;
+		while (Length > 0)
 		{
-			++CoreCount;
+			if (BufferPtr->Relationship == RelationProcessorCore)
+			{
+				++CoreCount;
+			}
+
+			Length -= BufferPtr->Size;
+			BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(
+				reinterpret_cast<std::uint8_t*>(BufferPtr) + BufferPtr->Size);
 		}
 
-		Length -= BufferPtr->Size;
-		BufferPtr = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(
-			reinterpret_cast<std::uint8_t*>(BufferPtr) + BufferPtr->Size);
+		return CoreCount;
 	}
-
-	return CoreCount;
-}
-
 }
 
 _NPGS_END

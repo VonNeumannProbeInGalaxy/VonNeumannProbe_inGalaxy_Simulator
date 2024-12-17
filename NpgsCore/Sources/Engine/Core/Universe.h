@@ -16,7 +16,7 @@
 
 _NPGS_BEGIN
 
-class NPGS_API Universe
+class Universe
 {
 public:
 	Universe() = delete;

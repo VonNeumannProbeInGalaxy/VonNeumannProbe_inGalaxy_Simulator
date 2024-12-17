@@ -15,10 +15,8 @@ _ASSET_BEGIN
 
 namespace
 {
-
-std::string GetIncludeDirectory(const std::string& Filepath);
-std::string GetIncludeFilename(const std::string& Statement);
-
+	std::string GetIncludeDirectory(const std::string& Filepath);
+	std::string GetIncludeFilename(const std::string& Statement);
 }
 
 Shader::Shader() : _ShaderTypes{ GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER }, _Program(0) {}
@@ -305,20 +303,18 @@ void Shader::CheckLinkError() const
 
 namespace
 {
+	std::string GetIncludeDirectory(const std::string& Filepath)
+	{
+		return (std::filesystem::path(Filepath).parent_path().string() + '/');
+	}
 
-std::string GetIncludeDirectory(const std::string& Filepath)
-{
-	return (std::filesystem::path(Filepath).parent_path().string() + '/');
-}
+	std::string GetIncludeFilename(const std::string& Statement)
+	{
+		std::string::size_type FirstQuotePosition = Statement.find_first_of("\"");
+		std::string::size_type LastQuotePosition  = Statement.find_last_of("\"");
 
-std::string GetIncludeFilename(const std::string& Statement)
-{
-	std::string::size_type FirstQuotePosition = Statement.find_first_of("\"");
-	std::string::size_type LastQuotePosition  = Statement.find_last_of("\"");
-
-	return Statement.substr(FirstQuotePosition + 1, LastQuotePosition - FirstQuotePosition - 1);
-}
-
+		return Statement.substr(FirstQuotePosition + 1, LastQuotePosition - FirstQuotePosition - 1);
+	}
 }
 
 _ASSET_END

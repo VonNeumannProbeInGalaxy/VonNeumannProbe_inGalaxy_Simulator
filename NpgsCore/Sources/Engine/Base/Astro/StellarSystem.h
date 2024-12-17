@@ -141,7 +141,7 @@ private:
 	float                       _Period{}; // 轨道周期，单位 s
 };
 
-class NPGS_API StellarSystem : public NpgsObject
+class StellarSystem : public NpgsObject
 {
 public:
 	StellarSystem() = default;

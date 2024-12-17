@@ -16,7 +16,7 @@ struct ComplexMass
 	boost::multiprecision::uint128_t EnergeticNuclide;
 };
 
-class NPGS_API Planet : public CelestialBody
+class Planet : public CelestialBody
 {
 public:
 	enum class PlanetType : int
@@ -167,7 +167,7 @@ private:
 	ExtendedProperties _PlanetExtraProperties{};
 };
 
-class NPGS_API AsteroidCluster : public AstroObject
+class AsteroidCluster : public AstroObject
 {
 public:
 	enum class AsteroidType : int

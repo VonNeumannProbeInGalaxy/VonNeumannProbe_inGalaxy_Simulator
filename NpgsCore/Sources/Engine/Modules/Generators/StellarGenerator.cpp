@@ -48,11 +48,9 @@ _MODULE_BEGIN
 // --------------
 namespace
 {
-
-float DefaultAgePdf(const glm::vec3&, float Age, float UniverseAge);
-float DefaultLogMassPdfSingleStar(float LogMassSol);
-float DefaultLogMassPdfBinaryStar(float LogMassSol);
-
+	float DefaultAgePdf(const glm::vec3&, float Age, float UniverseAge);
+	float DefaultLogMassPdfSingleStar(float LogMassSol);
+	float DefaultLogMassPdfBinaryStar(float LogMassSol);
 }
 
 // StellarGenerator implementations
@@ -2137,54 +2135,52 @@ bool StellarGenerator::_kbMistDataInitiated = false;
 // ------------------------------
 namespace
 {
-
-float DefaultAgePdf(const glm::vec3&, float Age, float UniverseAge)
-{
-	float Probability = 0.0f;
-	if (Age - (UniverseAge - 13.8f) < 8.0f)
+	float DefaultAgePdf(const glm::vec3&, float Age, float UniverseAge)
 	{
-		Probability = std::exp((Age - (UniverseAge - 13.8f) / 8.4f));
-	}
-	else
-	{
-		Probability = 2.6f * std::exp((-0.5f * std::pow((Age - (UniverseAge - 13.8f)) - 8.0f, 2.0f)) / (std::pow(1.5f, 2.0f)));
-	}
+		float Probability = 0.0f;
+		if (Age - (UniverseAge - 13.8f) < 8.0f)
+		{
+			Probability = std::exp((Age - (UniverseAge - 13.8f) / 8.4f));
+		}
+		else
+		{
+			Probability = 2.6f * std::exp((-0.5f * std::pow((Age - (UniverseAge - 13.8f)) - 8.0f, 2.0f)) / (std::pow(1.5f, 2.0f)));
+		}
 
-	return static_cast<float>(Probability);
-}
-
-float DefaultLogMassPdfSingleStar(float LogMassSol)
-{
-	float Probability = 0.0f;
-
-	if (std::pow(10.0f, LogMassSol) <= 1.0f)
-	{
-		Probability = 0.158f * std::exp(-1.0f * std::pow(LogMassSol + 1.0f, 2.0f) / 1.101128f);
-	}
-	else
-	{
-		Probability = 0.06371598f * std::pow(std::pow(10.0f, LogMassSol), -0.8f);
+		return static_cast<float>(Probability);
 	}
 
-	return Probability;
-}
-
-float DefaultLogMassPdfBinaryStar(float LogMassSol)
-{
-	float Probability = 0.0f;
-
-	if (std::pow(10.0, LogMassSol) <= 1.0f)
+	float DefaultLogMassPdfSingleStar(float LogMassSol)
 	{
-		Probability = 0.086f * std::exp(-1.0f * std::pow(LogMassSol + 0.65757734f, 2.0f) / 1.101128f);
+		float Probability = 0.0f;
+
+		if (std::pow(10.0f, LogMassSol) <= 1.0f)
+		{
+			Probability = 0.158f * std::exp(-1.0f * std::pow(LogMassSol + 1.0f, 2.0f) / 1.101128f);
+		}
+		else
+		{
+			Probability = 0.06371598f * std::pow(std::pow(10.0f, LogMassSol), -0.8f);
+		}
+
+		return Probability;
 	}
-	else
+
+	float DefaultLogMassPdfBinaryStar(float LogMassSol)
 	{
-		Probability = 0.058070157f * std::pow(std::pow(10.0f, LogMassSol), -0.65f);
+		float Probability = 0.0f;
+
+		if (std::pow(10.0, LogMassSol) <= 1.0f)
+		{
+			Probability = 0.086f * std::exp(-1.0f * std::pow(LogMassSol + 0.65757734f, 2.0f) / 1.101128f);
+		}
+		else
+		{
+			Probability = 0.058070157f * std::pow(std::pow(10.0f, LogMassSol), -0.65f);
+		}
+
+		return Probability;
 	}
-
-	return Probability;
-}
-
 }
 
 _MODULE_END

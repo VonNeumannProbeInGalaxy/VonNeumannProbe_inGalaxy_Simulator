@@ -6,7 +6,7 @@
 _NPGS_BEGIN
 _INTELLI_BEGIN
 
-class NPGS_API Artifact : public NpgsObject
+class Artifact : public NpgsObject
 {
 };
 
