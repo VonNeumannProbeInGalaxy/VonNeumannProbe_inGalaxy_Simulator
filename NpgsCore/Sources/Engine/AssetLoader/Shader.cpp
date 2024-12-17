@@ -32,6 +32,7 @@ Shader::Shader(const std::vector<std::string>& SourceFiles, const std::string& P
 
 Shader::Shader(Shader&& Other) noexcept
 	:
+	_UniformBlocks(std::move(Other._UniformBlocks)),
 	_IncludedFiles(std::move(Other._IncludedFiles)),
 	_ShaderTypes(std::move(Other._ShaderTypes)),
 	_Program(Other._Program)
@@ -59,6 +60,7 @@ Shader& Shader::operator=(Shader&& Other) noexcept
 			glDeleteProgram(_Program);
 		}
 
+		_UniformBlocks = std::move(Other._UniformBlocks);
 		_IncludedFiles = std::move(Other._IncludedFiles);
 		_ShaderTypes   = std::move(Other._ShaderTypes);
 		_Program       = Other._Program;
