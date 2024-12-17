@@ -66,15 +66,6 @@ private:
 		UniformBlockLayout Layout{ UniformBlockLayout::kShared };
 	};
 
-	struct UniformTypeInfo
-	{
-		GLenum Type{};
-		GLint ArrayStride{};
-		GLint BaseAlign{};
-		GLint MatrixCount{};
-		GLint Size{};
-	};
-
 public:
 	Shader();
 	Shader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName = "", const std::vector<std::string>& Macros = { "NULL" });
@@ -127,8 +118,6 @@ private:
 	GLuint GetUniformBlockIndex(const std::string& BlockName) const;
 	GLint GetUniformBlockSize(const std::string& BlockName, GLuint BlockIndex) const;
 	std::vector<GLint> GetUniformBlockOffsets(const std::string& BlockName, const std::vector<std::string>& Names) const;
-	std::vector<GLint> ComputeStandardLayoutOffsets(const std::vector<UniformTypeInfo>& TypeInfos, UniformBlockLayout Layout) const;
-	std::vector<UniformTypeInfo> GetUniformTypeInfos(const std::string& BlockName, const std::vector<std::string>& MemberNames) const;
 
 private:
 	std::unordered_map<std::string, UniformBlockInfo> _UniformBlocks;

@@ -241,26 +241,47 @@ int main()
 
 	// 创建和初始化 uniform blocks
 	std::vector<std::string> complexBlockMembers = {
-	"scalar", "vector2", "vector3", "vector4", "intScalar", "intVector2", "intVector3", "intVector4",
-	"matrix2", "matrix3", "matrix4", "matrix2x3", "matrix3x2",
-	"floatArray", "vec2Array", "vec3Array", "vec4Array",
-	"lights[0].position", "lights[0].intensity", "lights[0].color",
-	"lights[1].position", "lights[1].intensity", "lights[1].color",
-	"matrixArray", "flag", "boolVector2", "boolVector3", "boolVector4"
+		"scalar", "vector2", "vector3", "vector4", "intScalar", "intVector2", "intVector3", "intVector4",
+		"matrix2", "matrix3", "matrix4", "matrix2x3", "matrix3x2",
+		"floatArray", "vec2Array", "vec3Array", "vec4Array",
+		"lights[0].position", "lights[0].intensity", "lights[0].color",
+		"lights[1].position", "lights[1].intensity", "lights[1].color",
+		"matrixArray", "flag", "boolVector2", "boolVector3", "boolVector4"
 	};
 	AdvancedShader->CreateUniformBlock("ComplexBlock", 3, complexBlockMembers, Shader::UniformBlockLayout::kStd140);
 	AdvancedShader->VerifyUniformBlockLayout("ComplexBlock");
 
-	std::vector<std::string> matrixMembers = { "iModel", "iView", "iProjection" };
-	AdvancedShader->CreateUniformBlock("Matrices", 0, matrixMembers, Shader::UniformBlockLayout::kShared);
-	AdvancedShader->VerifyUniformBlockLayout("Matrices");
-
-	std::vector<std::string> materialMembers = {
-		"baseColor", "roughness", "uvScale", "flags",
-		"normalMatrix", "parameters"
+	// 定义ExtendedBlock的所有成员
+	std::vector<std::string> extendedBlockMembers = {
+		"dScalar", "doubleVector2", "doubleVector3", "doubleVector4",
+		"mat4x3Array[0]", "mat4x3Array[1]",
+		"mat3x2Array[0]", "mat3x2Array[1]", "mat3x2Array[2]",
+		"nested.transform", "nested.parameters[0]", "nested.parameters[1]",
+		"clights[0].position", "clights[0].rotation", "clights[0].factors[0]", "clights[0].factors[1]", "clights[0].factors[2]",
+		"clights[1].position", "clights[1].rotation", "clights[1].factors[0]", "clights[1].factors[1]", "clights[1].factors[2]",
+		"boolArray[0]", "boolArray[1]", "boolArray[2]",
+		"doubleMatrix2", "doubleMatrix3",
+		"mixedData[0].color", "mixedData[0].flags", "mixedData[0].intensity",
+		"mixedData[1].color", "mixedData[1].flags", "mixedData[1].intensity",
+		"dmatrix2x4", "dmatrix4x2",
+		"padding"
 	};
-	AdvancedShader->CreateUniformBlock("Materials", 1, materialMembers, Shader::UniformBlockLayout::kStd140);
-	AdvancedShader->VerifyUniformBlockLayout("Materials");
+
+	//// 创建并验证uniform block
+	//AdvancedShader->CreateUniformBlock("ExtendedBlock", 4, extendedBlockMembers, Shader::UniformBlockLayout::kStd140);
+	//AdvancedShader->VerifyUniformBlockLayout("ExtendedBlock");
+
+
+	//std::vector<std::string> matrixMembers = { "iModel", "iView", "iProjection" };
+	//AdvancedShader->CreateUniformBlock("Matrices", 0, matrixMembers, Shader::UniformBlockLayout::kShared);
+	//AdvancedShader->VerifyUniformBlockLayout("Matrices");
+
+	//std::vector<std::string> materialMembers = {
+	//	"baseColor", "roughness", "uvScale", "flags",
+	//	"normalMatrix", "parameters"
+	//};
+	//AdvancedShader->CreateUniformBlock("Materials", 1, materialMembers, Shader::UniformBlockLayout::kStd140);
+	//AdvancedShader->VerifyUniformBlockLayout("Materials");
 
 	std::vector<std::string> lightMembers = {
 		"lightPositions", "lightColors", "lightIntensities",

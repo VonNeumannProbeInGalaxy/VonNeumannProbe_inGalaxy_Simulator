@@ -19,11 +19,6 @@ namespace
 std::string GetIncludeDirectory(const std::string& Filepath);
 std::string GetIncludeFilename(const std::string& Statement);
 std::string GetTypeName(GLenum Type);
-GLint GetActualSize(GLenum Type);
-GLint GetStd140Alignment(GLenum Type);
-GLint GetStd430Alignment(GLenum Type);
-GLint GetStd140Stride(GLenum Type, GLint ArraySize);
-GLint GetStd430Stride(GLenum Type, GLint ArraySize);
 
 }
 
@@ -84,23 +79,10 @@ void Shader::CreateUniformBlock(const std::string& BlockName, GLuint BindingPoin
 		return;
 	}
 
-	// 根据布局类型选择不同的偏移量计算方式
-	if (Layout == UniformBlockLayout::kShared)
+	std::vector<GLint> Offsets = GetUniformBlockOffsets(BlockName, MemberNames);
+	for (std::size_t i = 0; i != MemberNames.size(); ++i)
 	{
-		std::vector<GLint> Offsets = GetUniformBlockOffsets(BlockName, MemberNames);
-		for (std::size_t i = 0; i != MemberNames.size(); ++i)
-		{
-			BlockInfo.Offsets[MemberNames[i]] = Offsets[i];
-		}
-	}
-	else
-	{
-		auto TypeInfos = GetUniformTypeInfos(BlockName, MemberNames);
-		std::vector<GLint> Offsets = ComputeStandardLayoutOffsets(TypeInfos, Layout);
-		for (std::size_t i = 0; i != MemberNames.size(); ++i)
-		{
-			BlockInfo.Offsets[MemberNames[i]] = Offsets[i];
-		}
+		BlockInfo.Offsets[MemberNames[i]] = Offsets[i];
 	}
 
 	BlockInfo.Size = GetUniformBlockSize(BlockName, BlockInfo.Index);
@@ -152,11 +134,24 @@ void Shader::VerifyUniformBlockLayout(const std::string& BlockName) const
 				 Block.Layout == UniformBlockLayout::kShared ? "shared" :
 				 Block.Layout == UniformBlockLayout::kStd140 ? "std140" : "std430");
 
+	std::vector<std::pair<std::string, GLint>> SortedMembers;
+	SortedMembers.reserve(Block.Offsets.size());
+
+	for (const auto& [Name, Offset] : Block.Offsets)
+	{
+		SortedMembers.emplace_back(Name, Offset);
+	}
+
+	std::sort(SortedMembers.begin(), SortedMembers.end(), [](const auto& Lhs, const auto& Rhs) -> bool
+	{
+		return Lhs.second < Rhs.second;
+	});
+
 	// 获取所有成员的类型信息
 	GLint ActiveUniforms = 0;
 	glGetActiveUniformBlockiv(_Program, Block.Index, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &ActiveUniforms);
 
-	for (const auto& [Name, Offset] : Block.Offsets) {
+	for (const auto& [Name, Offset] : SortedMembers) {
 		GLint Size = 0, ArrayStride = 0, Type = 0;
 		GLuint Index = 0;
 		const GLchar* NameStr = Name.c_str();
@@ -166,7 +161,7 @@ void Shader::VerifyUniformBlockLayout(const std::string& BlockName) const
 			glGetActiveUniformsiv(_Program, 1, &Index, GL_UNIFORM_ARRAY_STRIDE, &ArrayStride);
 			glGetActiveUniformsiv(_Program, 1, &Index, GL_UNIFORM_TYPE, &Type);
 
-			std::println("- {:<16} offset = {:<4} size = {:<4} type = {:<7} array_stride = {:<4}",
+			std::println("- {:<20} offset = {:<4} size = {:<4} type = {:<7} array_stride = {:<4}",
 						 Name, Offset, Size, GetTypeName(Type), ArrayStride);
 		}
 	}
@@ -418,186 +413,41 @@ void Shader::CheckLinkError() const
 
 std::vector<GLint> Shader::GetUniformBlockOffsets(const std::string& BlockName, const std::vector<std::string>& Names) const
 {
-	GLint MaxUniformIndices = 0;
-	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &MaxUniformIndices);
-
-	if (static_cast<GLint>(Names.size()) > MaxUniformIndices)
-	{
-		std::println("Warning: Number of uniforms ({}) exceeds maximum supported ({})",
-					 Names.size(), MaxUniformIndices);
-		return {};
-	}
-
-	std::vector<GLint> Offsets(Names.size());
-	std::vector<const GLchar*> NamePtrs(Names.size());
-
-	for (std::size_t i = 0; i != Names.size(); ++i)
-	{
-		NamePtrs[i] = Names[i].c_str();
-	}
-
-	std::vector<GLuint> Indices(MaxUniformIndices);
-	GLuint BlockIndex = GetUniformBlockIndex(BlockName);
-	if (BlockIndex != GL_INVALID_INDEX)
-	{
-		glGetUniformIndices(_Program, static_cast<GLsizei>(Names.size()), NamePtrs.data(), Indices.data());
-		glGetActiveUniformsiv(_Program, static_cast<GLsizei>(Names.size()), Indices.data(), GL_UNIFORM_OFFSET, Offsets.data());
-	}
-
-	return Offsets;
-}
-
-std::vector<GLint> Shader::ComputeStandardLayoutOffsets(const std::vector<UniformTypeInfo>& TypeInfos, UniformBlockLayout Layout) const
-{
-	std::vector<GLint> Offsets;
-	GLint CurrentOffset = 0;
-
-	for (const auto& TypeInfo : TypeInfos)
-	{
-		GLint Alignment = (Layout == UniformBlockLayout::kStd140)
-						? GetStd140Alignment(TypeInfo.Type)
-						: GetStd430Alignment(TypeInfo.Type);
-
-		// 按布局规则对齐
-		CurrentOffset = (CurrentOffset + Alignment - 1) & ~(Alignment - 1);
-		Offsets.emplace_back(CurrentOffset);
-
-		if (TypeInfo.Size > 1)
-		{
-			// 数组类型
-			GLint Stride = (Layout == UniformBlockLayout::kStd140)
-						 ? GetStd140Stride(TypeInfo.Type, TypeInfo.Size)
-						 : GetStd430Stride(TypeInfo.Type, TypeInfo.Size);
-
-			if (TypeInfo.MatrixCount > 1)
-			{
-				Stride *= TypeInfo.MatrixCount;
-			}
-
-			CurrentOffset += Stride;
-		}
-		else
-		{
-			// 非数组类型 - 使用实际大小
-			CurrentOffset += GetActualSize(TypeInfo.Type);
-		}
-	}
-
-	return Offsets;
-}
-
-std::vector<Shader::UniformTypeInfo> Shader::GetUniformTypeInfos(const std::string& BlockName,
-																 const std::vector<std::string>& MemberNames) const
-{
-	std::vector<UniformTypeInfo> TypeInfos;
-	TypeInfos.reserve(MemberNames.size());
+	std::vector<GLint> Offsets(Names.size(), -1);
 
 	GLuint BlockIndex = GetUniformBlockIndex(BlockName);
 	if (BlockIndex == GL_INVALID_INDEX)
 	{
-		return TypeInfos;
+		return Offsets;
 	}
 
-	std::vector<GLuint> Indices(MemberNames.size());
-	std::vector<const GLchar*> NamePtrs(MemberNames.size());
+	std::vector<const GLchar*> NamePtrs;
+	std::vector<GLuint> Indices(Names.size());
 
-	for (std::size_t i = 0; i != MemberNames.size(); ++i)
+	NamePtrs.reserve(Names.size());
+	for (const auto& Name : Names)
 	{
-		NamePtrs[i] = MemberNames[i].c_str();
+		NamePtrs.emplace_back(Name.c_str());
 	}
 
-	glGetUniformIndices(_Program, static_cast<GLsizei>(MemberNames.size()), NamePtrs.data(), Indices.data());
+	glGetUniformIndices(_Program, static_cast<GLsizei>(Names.size()), NamePtrs.data(), Indices.data());
 
-	// 获取每个成员的类型信息
-	std::vector<GLint> Types(MemberNames.size());
-	std::vector<GLint> ArrayStrides(MemberNames.size());
-	std::vector<GLint> Sizes(MemberNames.size());
-
-	glGetActiveUniformsiv(_Program, static_cast<GLsizei>(MemberNames.size()), Indices.data(), GL_UNIFORM_TYPE, Types.data());
-	glGetActiveUniformsiv(_Program, static_cast<GLsizei>(MemberNames.size()), Indices.data(), GL_UNIFORM_ARRAY_STRIDE, ArrayStrides.data());
-	glGetActiveUniformsiv(_Program, static_cast<GLsizei>(MemberNames.size()), Indices.data(), GL_UNIFORM_SIZE, Sizes.data());
-
-	for (std::size_t i = 0; i != MemberNames.size(); ++i)
+	bool bAllValid = true;
+	for (GLuint i = 0; i < Names.size(); ++i)
 	{
-		if (Indices[i] != GL_INVALID_INDEX)
+		if (Indices[i] == GL_INVALID_INDEX)
 		{
-			UniformTypeInfo TypeInfo;
-			TypeInfo.Type = static_cast<GLenum>(Types[i]);
-			TypeInfo.MatrixCount = 1;
-			// 特殊处理矩阵类型
-			switch (Types[i])
-			{
-			case GL_FLOAT_MAT2:
-				TypeInfo.ArrayStride = 16; // 每列 vec2，16 字节对齐
-				TypeInfo.Size = 2;         // 2 列
-				break;
-			case GL_FLOAT_MAT2x3:
-				TypeInfo.ArrayStride = 16; // 每列 vec3，16 字节对齐
-				TypeInfo.Size = 2;         // 2 列
-				break;
-			case GL_FLOAT_MAT2x4:
-				TypeInfo.ArrayStride = 16; // 每列 vec4，16 字节对齐
-				TypeInfo.Size = 2;         // 2 列
-				break;
-			case GL_FLOAT_MAT3x2:
-				TypeInfo.ArrayStride = 16; // 每列 vec2，16 字节对齐
-				TypeInfo.Size = 3;         // 3 列
-				break;
-			case GL_FLOAT_MAT3:
-				TypeInfo.ArrayStride = 16; // 每列 vec3，16 字节对齐
-				TypeInfo.Size = 3;         // 3 列
-				break;
-			case GL_FLOAT_MAT3x4:
-				TypeInfo.ArrayStride = 16; // 每列 vec4，16 字节对齐
-				TypeInfo.Size = 3;         // 3 列
-				break;
-			case GL_FLOAT_MAT4x2:
-				TypeInfo.ArrayStride = 16; // 每列 vec2，16 字节对齐
-				TypeInfo.Size = 4;         // 4 列
-				break;
-			case GL_FLOAT_MAT4x3:
-				TypeInfo.ArrayStride = 16; // 每列 vec3，16 字节对齐
-				TypeInfo.Size = 4;         // 4 列
-				break;
-			case GL_FLOAT_MAT4:
-				TypeInfo.ArrayStride = 16; // 每列 vec4，16 字节对齐
-				TypeInfo.Size = 4;         // 4 列
-				break;
-			default:
-				// 非矩阵类型使用原有逻辑
-				TypeInfo.ArrayStride = ArrayStrides[i];
-				TypeInfo.MatrixCount = 0;
-				TypeInfo.Size = Sizes[i];
-				break;
-			}
-
-			if (TypeInfo.MatrixCount != 0 && Sizes[i] > 1)
-			{
-				TypeInfo.MatrixCount = Sizes[i];
-			}
-
-			TypeInfo.BaseAlign = (TypeInfo.Size > 1)
-							   ? 16                                 // 数组总是 16 字节对齐
-							   : GetStd140Alignment(TypeInfo.Type); // 非数组使用基本对齐
-
-			TypeInfos.emplace_back(TypeInfo);
-		}
-		else
-		{
-			// 如果找不到成员，添加一个默认的类型信息
-			UniformTypeInfo TypeInfo{};
-			TypeInfo.Type        = GL_FLOAT; // 默认类型
-			TypeInfo.ArrayStride = 0;
-			TypeInfo.MatrixCount = 0;
-			TypeInfo.Size        = 1;
-			TypeInfo.BaseAlign   = 4;
-			TypeInfos.emplace_back(TypeInfo);
-
-			std::println("Warning: Uniform \"{}\" not found in block \"{}\"", MemberNames[i], BlockName);
+			std::println("Warning: Uniform \"{}\" not found in block \"{}\"", Names[i], BlockName);
+			bAllValid = false;
 		}
 	}
 
-	return TypeInfos;
+	if (bAllValid)
+	{
+		glGetActiveUniformsiv(_Program, static_cast<GLsizei>(Names.size()), Indices.data(), GL_UNIFORM_OFFSET, Offsets.data());
+	}
+
+	return Offsets;
 }
 
 namespace
@@ -677,256 +527,6 @@ std::string GetTypeName(GLenum Type)
 	case GL_IMAGE_CUBE:			     return "imageCube";
 	default:                         return "unknown";
 	}
-}
-
-GLint GetActualSize(GLenum Type)
-{
-	switch (Type)
-	{
-	// 标量类型
-	case GL_FLOAT:
-	case GL_INT:
-	case GL_UNSIGNED_INT:
-	case GL_BOOL:
-		return 4;  // 4 字节
-
-	// 向量类型
-	case GL_FLOAT_VEC2:
-	case GL_INT_VEC2:
-	case GL_UNSIGNED_INT_VEC2:
-	case GL_BOOL_VEC2:
-		return 8;  // 8 字节
-	case GL_FLOAT_VEC3:
-	case GL_INT_VEC3:
-	case GL_UNSIGNED_INT_VEC3:
-	case GL_BOOL_VEC3:
-		return 12; // 12 字节（实际大小）
-	case GL_FLOAT_VEC4:
-	case GL_INT_VEC4:
-	case GL_UNSIGNED_INT_VEC4:
-	case GL_BOOL_VEC4:
-		return 16; // 16 字节
-
-	// 矩阵类型 - 按列存储
-	case GL_FLOAT_MAT2:
-		return 16; // 2x2: 2 列，每列 vec2 (8 字节)
-	case GL_FLOAT_MAT2x3:
-		return 24; // 2x3: 2 列，每列 vec3 (12 字节)
-	case GL_FLOAT_MAT2x4:
-		return 32; // 2x4: 2 列，每列 vec4 (16 字节)
-	case GL_FLOAT_MAT3x2:
-		return 24; // 3x2: 3 列，每列 vec2 (8 字节)
-	case GL_FLOAT_MAT3:
-		return 36; // 3x3: 3 列，每列 vec3 (12 字节)
-	case GL_FLOAT_MAT3x4:
-		return 48; // 3x4: 3 列，每列 vec4 (16 字节)
-	case GL_FLOAT_MAT4x2:
-		return 32; // 4x2: 4 列，每列 vec2 (8 字节)
-	case GL_FLOAT_MAT4x3:
-		return 48; // 4x3: 4 列，每列 vec3 (12 字节)
-	case GL_FLOAT_MAT4:
-		return 64; // 4x4: 4 列，每列 vec4 (16 字节)
-	default:
-		return 0;
-	}
-}
-
-GLint GetStd140Alignment(GLenum Type)
-{
-	switch (Type)
-	{
-	case GL_FLOAT:
-	case GL_INT:
-	case GL_BOOL:
-		return 4;  // 标量类型 4 字节对齐
-	case GL_FLOAT_VEC2:
-	case GL_INT_VEC2:
-	case GL_BOOL_VEC2:
-		return 8;  // 2 分量向量 8 字节对齐
-	case GL_FLOAT_VEC3:
-	case GL_FLOAT_VEC4:
-	case GL_INT_VEC3:
-	case GL_INT_VEC4:
-	case GL_BOOL_VEC3:
-	case GL_BOOL_VEC4:
-	case GL_FLOAT_MAT2:
-	case GL_FLOAT_MAT2x3:
-	case GL_FLOAT_MAT2x4:
-	case GL_FLOAT_MAT3x2:
-	case GL_FLOAT_MAT3:
-	case GL_FLOAT_MAT3x4:
-	case GL_FLOAT_MAT4x2:
-	case GL_FLOAT_MAT4x3:
-	case GL_FLOAT_MAT4:
-		return 16;  // 3/4 分量向量和矩阵 16 字节对齐
-	default:
-		return 4;   // 默认 4 字节对齐
-	}
-}
-
-GLint GetStd430Alignment(GLenum Type)
-{
-	switch (Type)
-	{
-	case GL_FLOAT:
-	case GL_INT:
-	case GL_BOOL:
-		return 4;  // 标量类型 4 字节对齐
-	case GL_FLOAT_VEC2:
-	case GL_INT_VEC2:
-		return 8;  // 2 分量向量 8 字节对齐
-	case GL_FLOAT_VEC3:
-	case GL_INT_VEC3:
-		return 16; // 3 分量向量 16 字节对齐
-	case GL_FLOAT_VEC4:
-	case GL_INT_VEC4:
-		return 16; // 4 分量向量 16 字节对齐
-	case GL_FLOAT_MAT2:
-		return 8;  // 2x2 矩阵 8 字节对齐
-	case GL_FLOAT_MAT3:
-	case GL_FLOAT_MAT4:
-		return 16; // 3x3 和 4x4 矩阵 16 字节对齐
-	default:
-		return 4;  // 默认 4 字节对齐
-	}
-}
-
-GLint GetStd140Stride(GLenum Type, GLint ArraySize)
-{
-	GLint BaseSize = 0;
-
-	switch (Type)
-	{
-	case GL_FLOAT:
-	case GL_INT:
-	case GL_BOOL:
-		BaseSize = 4;  // 标量类型在 std140 中占用 4 字节
-		if (ArraySize > 1)
-		{
-			return BaseSize * ArraySize; // 基本类型数组不需要 16 字节对齐
-		}
-		break;
-	case GL_FLOAT_VEC2:
-	case GL_INT_VEC2:
-		BaseSize = 8;  // vec2 在 std140 中占用 8 字节
-		break;
-	case GL_FLOAT_VEC3:
-	case GL_INT_VEC3:
-		BaseSize = 16; // vec3 在 std140 中占用 16 字节
-		break;
-	case GL_FLOAT_VEC4:
-	case GL_INT_VEC4:
-		BaseSize = 16; // vec4 在 std140 中占用 16 字节
-		break;
-
-	// 矩阵类型特殊处理
-	case GL_FLOAT_MAT2:
-		BaseSize = ArraySize > 1 ? 32 : 16; // 单个 mat2 占用 16 字节，数组时 32 字节对齐
-		return BaseSize;
-	case GL_FLOAT_MAT2x3:
-		BaseSize = ArraySize > 1 ? 32 : 24;
-		return BaseSize;
-	case GL_FLOAT_MAT2x4:
-		BaseSize = 32;
-		return BaseSize;
-	case GL_FLOAT_MAT3x2:
-		BaseSize = ArraySize > 1 ? 48 : 24;
-		return BaseSize;
-	case GL_FLOAT_MAT3:
-		BaseSize = ArraySize > 1 ? 48 : 48; // 3 列，每列 16 字节
-		return BaseSize;
-	case GL_FLOAT_MAT3x4:
-		BaseSize = 48;
-		return BaseSize;
-	case GL_FLOAT_MAT4x2:
-		BaseSize = ArraySize > 1 ? 64 : 32;
-		return BaseSize;
-	case GL_FLOAT_MAT4x3:
-		BaseSize = ArraySize > 1 ? 64 : 48;
-		return BaseSize;
-	case GL_FLOAT_MAT4:
-		BaseSize = 64;
-		return BaseSize;
-	}
-
-	if (ArraySize > 1)
-	{
-		// 只对非基本类型的数组执行 16 字节对齐
-		if (Type != GL_FLOAT && Type != GL_INT && Type != GL_BOOL)
-		{
-			BaseSize = (BaseSize + 15) & ~15;
-		}
-		return BaseSize * ArraySize;
-	}
-
-	return BaseSize;
-}
-
-GLint GetStd430Stride(GLenum Type, GLint ArraySize)
-{
-	GLint BaseSize = 0;
-	GLint Alignment = GetStd430Alignment(Type);
-
-	switch (Type)
-	{
-	case GL_FLOAT:
-	case GL_INT:
-	case GL_BOOL:
-		BaseSize = 4;
-		break;
-	case GL_FLOAT_VEC2:
-	case GL_INT_VEC2:
-		BaseSize = 8;
-		break;
-	case GL_FLOAT_VEC3:
-	case GL_INT_VEC3:
-		BaseSize = 12; // vec3 在 std430 中紧密排列
-		break;
-	case GL_FLOAT_VEC4:
-	case GL_INT_VEC4:
-		BaseSize = 16;
-		break;
-	case GL_FLOAT_MAT2:
-		BaseSize = 16; // 2x2 矩阵，每列 vec2，共 2 列
-		break;
-	case GL_FLOAT_MAT2x3:
-		BaseSize = 24; // 2x3 矩阵，每列 vec3，共 2 列
-		break;
-	case GL_FLOAT_MAT2x4:
-		BaseSize = 32; // 2x4 矩阵，每列 vec4，共 2 列
-		break;
-	case GL_FLOAT_MAT3x2:
-		BaseSize = 24; // 3x2 矩阵，每列 vec2，共 3 列
-		break;
-	case GL_FLOAT_MAT3:
-		BaseSize = 36; // 3x3 矩阵，每列 vec3，共 3 列
-		break;
-	case GL_FLOAT_MAT3x4:
-		BaseSize = 48; // 3x4 矩阵，每列 vec4，共 3 列
-		break;
-	case GL_FLOAT_MAT4x2:
-		BaseSize = 32; // 4x2 矩阵，每列 vec2，共 4 列
-		break;
-	case GL_FLOAT_MAT4x3:
-		BaseSize = 48; // 4x3 矩阵，每列 vec3，共 4 列
-		break;
-	case GL_FLOAT_MAT4:
-		BaseSize = 64; // 4x4 矩阵，每列 vec4，共 4 列
-		break;
-	default:
-		BaseSize = 0; // 未知类型，大小为 0
-		break;
-	}
-
-	if (ArraySize > 1)
-	{
-		// 数组元素按基本类型对齐
-		GLint Alignment = GetStd430Alignment(Type);
-		BaseSize = (BaseSize + Alignment - 1) & ~(Alignment - 1);
-		return BaseSize * ArraySize;
-	}
-
-	return BaseSize;
 }
 
 }
