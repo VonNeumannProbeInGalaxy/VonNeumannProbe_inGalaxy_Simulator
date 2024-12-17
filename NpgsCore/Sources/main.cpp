@@ -234,10 +234,40 @@ int main()
 	glm::mat3x3 NormalMatrix(1.0f);
 	glm::vec3   LightPos(1.2f, 1.0f, 2.0f);
 
-	UniformBlockManager Matrices(AdvancedShader, "Matrices", 0, { "iModel", "iView", "iProjection" }, Shader::UniformBlockLayout::kShared);
-	auto ModelUpdater = Matrices.Get<glm::mat4x4>("iModel");
-	auto ViewUpdater = Matrices.Get<glm::mat4x4>("iView");
-	auto ProjectionUpdater = Matrices.Get<glm::mat4x4>("iProjection");
+	//UniformBlockManager Matrices(AdvancedShader, "Matrices", 0, { "iModel", "iView", "iProjection" }, Shader::UniformBlockLayout::kShared);
+	//auto ModelUpdater = Matrices.Get<glm::mat4x4>("iModel");
+	//auto ViewUpdater = Matrices.Get<glm::mat4x4>("iView");
+	//auto ProjectionUpdater = Matrices.Get<glm::mat4x4>("iProjection");
+
+	// 创建和初始化 uniform blocks
+	std::vector<std::string> complexBlockMembers = {
+	"scalar", "vector2", "vector3", "vector4", "intScalar", "intVector2", "intVector3", "intVector4",
+	"matrix2", "matrix3", "matrix4", "matrix2x3", "matrix3x2",
+	"floatArray", "vec2Array", "vec3Array", "vec4Array",
+	"lights[0].position", "lights[0].intensity", "lights[0].color",
+	"lights[1].position", "lights[1].intensity", "lights[1].color",
+	"matrixArray", "flag", "boolVector2", "boolVector3", "boolVector4"
+	};
+	AdvancedShader->CreateUniformBlock("ComplexBlock", 3, complexBlockMembers, Shader::UniformBlockLayout::kStd140);
+	AdvancedShader->VerifyUniformBlockLayout("ComplexBlock");
+
+	std::vector<std::string> matrixMembers = { "iModel", "iView", "iProjection" };
+	AdvancedShader->CreateUniformBlock("Matrices", 0, matrixMembers, Shader::UniformBlockLayout::kShared);
+	AdvancedShader->VerifyUniformBlockLayout("Matrices");
+
+	std::vector<std::string> materialMembers = {
+		"baseColor", "roughness", "uvScale", "flags",
+		"normalMatrix", "parameters"
+	};
+	AdvancedShader->CreateUniformBlock("Materials", 1, materialMembers, Shader::UniformBlockLayout::kStd140);
+	AdvancedShader->VerifyUniformBlockLayout("Materials");
+
+	std::vector<std::string> lightMembers = {
+		"lightPositions", "lightColors", "lightIntensities",
+		"lightEnabled", "lightTransforms"
+	};
+	AdvancedShader->CreateUniformBlock("Lights", 2, lightMembers, Shader::UniformBlockLayout::kStd430);
+	AdvancedShader->VerifyUniformBlockLayout("Lights");
 
 	while (!glfwWindowShouldClose(Window))
 	{
@@ -257,9 +287,9 @@ int main()
 		//glNamedBufferSubData(UniformBuffer, 0, sizeof(glm::mat4x4), glm::value_ptr(Model));
 		//glNamedBufferSubData(UniformBuffer, sizeof(glm::mat4x4), sizeof(glm::mat4x4), glm::value_ptr(View));
 		//glNamedBufferSubData(UniformBuffer, 2 * sizeof(glm::mat4x4), sizeof(glm::mat4x4), glm::value_ptr(Projection));
-		ModelUpdater = Model;
-		ViewUpdater = View;
-		ProjectionUpdater = Projection;
+		//ModelUpdater = Model;
+		//ViewUpdater = View;
+		//ProjectionUpdater = Projection;
 		AdvancedShader->UseProgram();
 		AdvancedShader->SetUniform1i("iTex", 0);
 		//AdvancedShader->SetUniformMatrix4fv("iView", View);
@@ -272,13 +302,13 @@ int main()
 		Model = glm::translate(Model, glm::vec3(-1.0f, 0.0f, -1.0f));
 		//AdvancedShader->SetUniformMatrix4fv("iModel", Model);
 		//glNamedBufferSubData(UniformBuffer, 0, sizeof(glm::mat4x4), glm::value_ptr(Model));
-		ModelUpdater = Model;
+		//ModelUpdater = Model;
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		Model = glm::mat4x4(1.0f);
 		Model = glm::translate(Model, glm::vec3(2.0f, 0.0f, 0.0f));
 		//AdvancedShader->SetUniformMatrix4fv("iModel", Model);
 		//glNamedBufferSubData(UniformBuffer, 0, sizeof(glm::mat4x4), glm::value_ptr(Model));
-		ModelUpdater = Model;
+		//ModelUpdater = Model;
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		//Model = glm::mat4x4(1.0f);

@@ -66,6 +66,15 @@ private:
 		UniformBlockLayout Layout{ UniformBlockLayout::kShared };
 	};
 
+	struct UniformTypeInfo
+	{
+		GLenum Type{};
+		GLint ArrayStride{};
+		GLint BaseAlign{};
+		GLint MatrixCount{};
+		GLint Size{};
+	};
+
 public:
 	Shader();
 	Shader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName = "", const std::vector<std::string>& Macros = { "NULL" });
@@ -89,6 +98,7 @@ public:
 	bool HasUniformBlock(const std::string& BlockName) const;
 	GLuint GetProgram() const;
 	GLint GetUniformLocation(const std::string& Name) const;
+	void VerifyUniformBlockLayout(const std::string& BlockName) const;
 
 	void UseProgram() const;
 	void SetUniform1i(const std::string& Name, GLboolean Value) const;
@@ -107,8 +117,6 @@ public:
 
 private:
 	void InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros);
-	std::string GetIncludeDirectory(const std::string& Filepath) const;
-	std::string GetIncludeFilename(const std::string& Statement) const;
 	Source LoadShaderSource(const std::string& Filepath);
 	void InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderType, Source& ShaderSource) const;
 	GLuint CompileShader(const Source& ShaderSource, GLenum ShaderType) const;
@@ -119,6 +127,8 @@ private:
 	GLuint GetUniformBlockIndex(const std::string& BlockName) const;
 	GLint GetUniformBlockSize(const std::string& BlockName, GLuint BlockIndex) const;
 	std::vector<GLint> GetUniformBlockOffsets(const std::string& BlockName, const std::vector<std::string>& Names) const;
+	std::vector<GLint> ComputeStandardLayoutOffsets(const std::vector<UniformTypeInfo>& TypeInfos, UniformBlockLayout Layout) const;
+	std::vector<UniformTypeInfo> GetUniformTypeInfos(const std::string& BlockName, const std::vector<std::string>& MemberNames) const;
 
 private:
 	std::unordered_map<std::string, UniformBlockInfo> _UniformBlocks;
