@@ -22,31 +22,29 @@ using namespace Npgs::Util;
 
 namespace
 {
+	int   kWindowWidth       = 1280;
+	int   kWindowHeight      = 960;
+	float kWindowAspect      = static_cast<float>(kWindowWidth) / static_cast<float>(kWindowHeight);
+	const char* kWindowTitle = "Von-Neumann Probe in Galaxy Simulator FPS:";
 
-int   kWindowWidth       = 1280;
-int   kWindowHeight      = 960;
-float kWindowAspect      = static_cast<float>(kWindowWidth) / static_cast<float>(kWindowHeight);
-const char* kWindowTitle = "Von-Neumann Probe in Galaxy Simulator FPS:";
+	int    kMultiSamples            = 32;
+	GLuint kMultiSampleFramebuffer  = 0;
+	GLuint kIntermediateFramebuffer = 0;
+	GLuint kRenderbuffer            = 0;
+	Texture* kTexColorBuffer        = nullptr;
+	Texture* kTexMultiSampleBuffer  = nullptr;
 
-int    kMultiSamples            = 32;
-GLuint kMultiSampleFramebuffer  = 0;
-GLuint kIntermediateFramebuffer = 0;
-GLuint kRenderbuffer            = 0;
-Texture* kTexColorBuffer        = nullptr;
-Texture* kTexMultiSampleBuffer  = nullptr;
+	Camera* kFreeCamera = nullptr;
+	bool   kbFirstMouse = true;
+	double kLastX       = 0.0;
+	double kLastY       = 0.0;
 
-Camera* kFreeCamera = nullptr;
-bool   kbFirstMouse = true;
-double kLastX       = 0.0;
-double kLastY       = 0.0;
-
-void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY);
-void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height);
-void MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, const void* UserParam);
-void ProcessInput(GLFWwindow* Window, double DeltaTime);
-void ScrollCallback(GLFWwindow* Window, GLdouble OffsetX, GLdouble OffsetY);
-void Terminate(GLFWwindow* Window);
-
+	void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY);
+	void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height);
+	void MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, const void* UserParam);
+	void ProcessInput(GLFWwindow* Window, double DeltaTime);
+	void ScrollCallback(GLFWwindow* Window, GLdouble OffsetX, GLdouble OffsetY);
+	void Terminate(GLFWwindow* Window);
 }
 
 int main()
@@ -355,163 +353,161 @@ int main()
 
 namespace
 {
-
-void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY)
-{
-	if (kbFirstMouse)
+	void CursorPosCallback(GLFWwindow* Window, double PosX, double PosY)
 	{
+		if (kbFirstMouse)
+		{
+			kLastX = PosX;
+			kLastY = PosY;
+			kbFirstMouse = false;
+		}
+
+		double OffsetX = PosX - kLastX;
+		double OffsetY = kLastY - PosY;
 		kLastX = PosX;
 		kLastY = PosY;
-		kbFirstMouse = false;
+
+		kFreeCamera->ProcessMouseMovement(OffsetX, OffsetY);
 	}
 
-	double OffsetX = PosX - kLastX;
-	double OffsetY = kLastY - PosY;
-	kLastX = PosX;
-	kLastY = PosY;
-
-	kFreeCamera->ProcessMouseMovement(OffsetX, OffsetY);
-}
-
-void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height)
-{
-	glViewport(0, 0, Width, Height);
-	if (Width != 0 && Height != 0)
+	void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height)
 	{
-		kWindowWidth  = Width;
-		kWindowHeight = Height;
-		kWindowAspect = static_cast<float>(Width) / static_cast<float>(Height);
-
-		glNamedRenderbufferStorageMultisample(kRenderbuffer, kMultiSamples, GL_DEPTH24_STENCIL8, kWindowWidth, kWindowHeight);
-		glNamedFramebufferRenderbuffer(kMultiSampleFramebuffer, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, kRenderbuffer);
-
-		delete kTexMultiSampleBuffer;
-		kTexMultiSampleBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kMultiSamples, GL_TRUE, kMultiSampleFramebuffer);
-		delete kTexColorBuffer;
-		kTexColorBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kIntermediateFramebuffer);
-		kTexColorBuffer->BindTextureUnit(4);
-	}
-}
-
-void MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, const void* UserParam)
-{
-	auto SourceStr = [Source]() -> std::string
-	{
-		switch (Source)
+		glViewport(0, 0, Width, Height);
+		if (Width != 0 && Height != 0)
 		{
-		case GL_DEBUG_SOURCE_API:
-			return "API";
-		case GL_DEBUG_SOURCE_APPLICATION:
-			return "APPLICATION";
-		case GL_DEBUG_SOURCE_OTHER:
-			return "OTHER";
-		case GL_DEBUG_SOURCE_SHADER_COMPILER:
-			return "SHADER";
-		case GL_DEBUG_SOURCE_THIRD_PARTY:
-			return "THIRD_PARTY";
-		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-			return "WINDOW_SYSTEM";
-		default:
-			assert(false);
-		}
-	}();
+			kWindowWidth  = Width;
+			kWindowHeight = Height;
+			kWindowAspect = static_cast<float>(Width) / static_cast<float>(Height);
 
-	auto TypeStr = [Type]() -> std::string
+			glNamedRenderbufferStorageMultisample(kRenderbuffer, kMultiSamples, GL_DEPTH24_STENCIL8, kWindowWidth, kWindowHeight);
+			glNamedFramebufferRenderbuffer(kMultiSampleFramebuffer, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, kRenderbuffer);
+
+			delete kTexMultiSampleBuffer;
+			kTexMultiSampleBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kMultiSamples, GL_TRUE, kMultiSampleFramebuffer);
+			delete kTexColorBuffer;
+			kTexColorBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kIntermediateFramebuffer);
+			kTexColorBuffer->BindTextureUnit(4);
+		}
+	}
+
+	void MessageCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, const void* UserParam)
 	{
-		switch (Type)
+		auto SourceStr = [Source]() -> std::string
 		{
-		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-			return "DEPRECATED_BEHAVIOR";
-		case GL_DEBUG_TYPE_ERROR:
-			return "ERROR";
-		case GL_DEBUG_TYPE_MARKER:
-			return "MARKER";
-		case GL_DEBUG_TYPE_OTHER:
-			return "OTHER";
-		case GL_DEBUG_TYPE_PERFORMANCE:
-			return "PERFORMANCE";
-		case GL_DEBUG_TYPE_PORTABILITY:
-			return "PORTABILITY";
-		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-			return "UNDEFINED_BEHAVIOR";
-		default:
-			assert(false);
-		}
-	}();
+			switch (Source)
+			{
+			case GL_DEBUG_SOURCE_API:
+				return "API";
+			case GL_DEBUG_SOURCE_APPLICATION:
+				return "APPLICATION";
+			case GL_DEBUG_SOURCE_OTHER:
+				return "OTHER";
+			case GL_DEBUG_SOURCE_SHADER_COMPILER:
+				return "SHADER";
+			case GL_DEBUG_SOURCE_THIRD_PARTY:
+				return "THIRD_PARTY";
+			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+				return "WINDOW_SYSTEM";
+			default:
+				assert(false);
+			}
+		}();
 
-	auto SeverityStr = [Severity]() -> std::string
-	{
-		switch (Severity)
+		auto TypeStr = [Type]() -> std::string
 		{
-		case GL_DEBUG_SEVERITY_HIGH:
-			return "HIGH";
-		case GL_DEBUG_SEVERITY_LOW:
-			return "LOW";
-		case GL_DEBUG_SEVERITY_MEDIUM:
-			return "MEDIUM";
-		case GL_DEBUG_SEVERITY_NOTIFICATION:
-			return "NOTIFICATION";
-		default:
-			assert(false);
+			switch (Type)
+			{
+			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+				return "DEPRECATED_BEHAVIOR";
+			case GL_DEBUG_TYPE_ERROR:
+				return "ERROR";
+			case GL_DEBUG_TYPE_MARKER:
+				return "MARKER";
+			case GL_DEBUG_TYPE_OTHER:
+				return "OTHER";
+			case GL_DEBUG_TYPE_PERFORMANCE:
+				return "PERFORMANCE";
+			case GL_DEBUG_TYPE_PORTABILITY:
+				return "PORTABILITY";
+			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+				return "UNDEFINED_BEHAVIOR";
+			default:
+				assert(false);
+			}
+		}();
+
+		auto SeverityStr = [Severity]() -> std::string
+		{
+			switch (Severity)
+			{
+			case GL_DEBUG_SEVERITY_HIGH:
+				return "HIGH";
+			case GL_DEBUG_SEVERITY_LOW:
+				return "LOW";
+			case GL_DEBUG_SEVERITY_MEDIUM:
+				return "MEDIUM";
+			case GL_DEBUG_SEVERITY_NOTIFICATION:
+				return "NOTIFICATION";
+			default:
+				assert(false);
+			}
+		}();
+
+		std::println("Source: {}, Type: {}, Severity: {}\n{}: {}", SourceStr, TypeStr, SeverityStr, Id, Message);
+	}
+
+	void ProcessInput(GLFWwindow* Window, double DeltaTime)
+	{
+		if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		{
+			glfwSetWindowShouldClose(Window, GL_TRUE);
 		}
-	}();
 
-	std::println("Source: {}, Type: {}, Severity: {}\n{}: {}", SourceStr, TypeStr, SeverityStr, Id, Message);
-}
+		if (glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		{
+			glfwSetCursorPosCallback(Window, CursorPosCallback);
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
 
-void ProcessInput(GLFWwindow* Window, double DeltaTime)
-{
-	if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-	{
-		glfwSetWindowShouldClose(Window, GL_TRUE);
+		if (glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+		{
+			glfwSetCursorPosCallback(Window, nullptr);
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			kbFirstMouse = true;
+		}
+
+		if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
+			kFreeCamera->ProcessKeyboard(Camera::Movement::kForward, DeltaTime);
+		if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)
+			kFreeCamera->ProcessKeyboard(Camera::Movement::kBack, DeltaTime);
+		if (glfwGetKey(Window, GLFW_KEY_A) == GLFW_PRESS)
+			kFreeCamera->ProcessKeyboard(Camera::Movement::kLeft, DeltaTime);
+		if (glfwGetKey(Window, GLFW_KEY_D) == GLFW_PRESS)
+			kFreeCamera->ProcessKeyboard(Camera::Movement::kRight, DeltaTime);
+		if (glfwGetKey(Window, GLFW_KEY_R) == GLFW_PRESS)
+			kFreeCamera->ProcessKeyboard(Camera::Movement::kUp, DeltaTime);
+		if (glfwGetKey(Window, GLFW_KEY_F) == GLFW_PRESS)
+			kFreeCamera->ProcessKeyboard(Camera::Movement::kDown, DeltaTime);
+		if (glfwGetKey(Window, GLFW_KEY_Q) == GLFW_PRESS)
+			kFreeCamera->ProcessKeyboard(Camera::Movement::kRollLeft, DeltaTime);
+		if (glfwGetKey(Window, GLFW_KEY_E) == GLFW_PRESS)
+			kFreeCamera->ProcessKeyboard(Camera::Movement::kRollRight, DeltaTime);
 	}
 
-	if (glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	void ScrollCallback(GLFWwindow* Window, GLdouble OffsetX, GLdouble OffsetY)
 	{
-		glfwSetCursorPosCallback(Window, CursorPosCallback);
-		glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		kFreeCamera->ProcessMouseScroll(OffsetY);
 	}
 
-	if (glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+	void Terminate(GLFWwindow* Window)
 	{
-		glfwSetCursorPosCallback(Window, nullptr);
-		glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		kbFirstMouse = true;
+		if (kFreeCamera)
+		{
+			delete kFreeCamera;
+			kFreeCamera = nullptr;
+		}
+
+		glfwDestroyWindow(Window);
+		glfwTerminate();
 	}
-
-	if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Camera::Movement::kForward, DeltaTime);
-	if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Camera::Movement::kBack, DeltaTime);
-	if (glfwGetKey(Window, GLFW_KEY_A) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Camera::Movement::kLeft, DeltaTime);
-	if (glfwGetKey(Window, GLFW_KEY_D) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Camera::Movement::kRight, DeltaTime);
-	if (glfwGetKey(Window, GLFW_KEY_R) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Camera::Movement::kUp, DeltaTime);
-	if (glfwGetKey(Window, GLFW_KEY_F) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Camera::Movement::kDown, DeltaTime);
-	if (glfwGetKey(Window, GLFW_KEY_Q) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Camera::Movement::kRollLeft, DeltaTime);
-	if (glfwGetKey(Window, GLFW_KEY_E) == GLFW_PRESS)
-		kFreeCamera->ProcessKeyboard(Camera::Movement::kRollRight, DeltaTime);
-}
-
-void ScrollCallback(GLFWwindow* Window, GLdouble OffsetX, GLdouble OffsetY)
-{
-	kFreeCamera->ProcessMouseScroll(OffsetY);
-}
-
-void Terminate(GLFWwindow* Window)
-{
-	if (kFreeCamera)
-	{
-		delete kFreeCamera;
-		kFreeCamera = nullptr;
-	}
-
-	glfwDestroyWindow(Window);
-	glfwTerminate();
-}
-
 }
