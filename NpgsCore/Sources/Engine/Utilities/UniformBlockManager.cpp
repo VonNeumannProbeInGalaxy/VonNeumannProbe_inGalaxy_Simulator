@@ -65,12 +65,14 @@ void UniformBlockManager::VerifyBlockLayout(GLuint Program, const std::string& B
 
 	// 获取所有成员的类型信息
 
-	for (const auto& [Name, Offset] : SortedMembers) {
+	for (const auto& [Name, Offset] : SortedMembers)
+	{
 		GLint Size = 0, ArrayStride = 0, Type = 0;
 		GLuint Index = 0;
 		const GLchar* NameStr = Name.c_str();
 		glGetUniformIndices(Program, 1, &NameStr, &Index);
-		if (Index != GL_INVALID_INDEX) {
+		if (Index != GL_INVALID_INDEX)
+		{
 			glGetActiveUniformsiv(Program, 1, &Index, GL_UNIFORM_SIZE, &Size);
 			glGetActiveUniformsiv(Program, 1, &Index, GL_UNIFORM_ARRAY_STRIDE, &ArrayStride);
 			glGetActiveUniformsiv(Program, 1, &Index, GL_UNIFORM_TYPE, &Type);

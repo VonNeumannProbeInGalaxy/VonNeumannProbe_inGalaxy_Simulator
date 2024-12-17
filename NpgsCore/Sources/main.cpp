@@ -108,8 +108,8 @@ int main()
 	AssetManagerInstance->AddAsset<Texture>("Marble", Texture(Texture::TextureType::k2D, "Marble.jpg"));
 	AssetManagerInstance->AddAsset<Texture>("RedWindow", Texture(Texture::TextureType::k2D, "RedWindow.png"));
 	AssetManagerInstance->AddAsset<Texture>("Grass", Texture(Texture::TextureType::k2D, "Grass.png", false, false));
-	AssetManagerInstance->AddAsset<Model>("Backpack", Model("Backpack/backpack.obj", "Lighting"));
-	AssetManagerInstance->AddAsset<Model>("Nanosuit", Model("Nanosuit/nanosuit.obj", "Lighting"));
+	//AssetManagerInstance->AddAsset<Model>("Backpack", Model("Backpack/backpack.obj", "Lighting"));
+	//AssetManagerInstance->AddAsset<Model>("Nanosuit", Model("Nanosuit/nanosuit.obj", "Lighting"));
 
 	GLuint CubeVertexBuffer = 0;
 	glCreateBuffers(1, &CubeVertexBuffer);
@@ -243,12 +243,11 @@ int main()
 
 	auto* UboManagerInstance = UniformBlockManager::GetInstance();
 	UboManagerInstance->CreateSharedBlock(AdvancedShader->GetProgram(), "Matrices", 0, MatrixMembers);
+	UboManagerInstance->VerifyBlockLayout(AdvancedShader->GetProgram(), "Matrices");
 
 	auto ModelUpdater      = UboManagerInstance->GetBlockUpdater<glm::mat4x4>("Matrices", "iModel");
 	auto ViewUpdater       = UboManagerInstance->GetBlockUpdater<glm::mat4x4>("Matrices", "iView");
 	auto ProjectionUpdater = UboManagerInstance->GetBlockUpdater<glm::mat4x4>("Matrices", "iProjection");
-
-	UboManagerInstance->VerifyBlockLayout(AdvancedShader->GetProgram(), "Matrices");
 
 	while (!glfwWindowShouldClose(Window))
 	{
@@ -282,44 +281,44 @@ int main()
 		ModelUpdater = Model;
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		Model = glm::mat4x4(1.0f);
-		Model = glm::translate(Model, glm::vec3(0.0f));
-		Model = glm::scale(Model, glm::vec3(1.0f));
-		NormalMatrix = glm::transpose(glm::inverse(Model));
-		LightingShader->UseProgram();
-		//LightingShader->SetUniformMatrix4fv("iModel", Model);
-		//LightingShader->SetUniformMatrix4fv("iView", View);
-		//LightingShader->SetUniformMatrix4fv("iProjection", Projection);
-		ModelUpdater = Model;
-		ViewUpdater = View;
-		ProjectionUpdater = Projection;
-		LightingShader->SetUniformMatrix3fv("iNormalMatrix", NormalMatrix);
-		LightingShader->SetUniform1f("iShininess", 64.0f);
-		LightingShader->SetUniform3fv("iViewPos", kFreeCamera->GetCameraVector(Camera::VectorType::kPosition));
-		LightingShader->SetUniform3fv("iLight.Position", LightPos);
-		LightingShader->SetUniform3fv("iLight.AmbientColor", glm::vec3(0.2f));
-		LightingShader->SetUniform3fv("iLight.DiffuseColor", glm::vec3(1.0f));
-		LightingShader->SetUniform3fv("iLight.SpecularColor", glm::vec3(1.0f));
-		Backpack->DynamicDraw(*LightingShader);
-		Model = glm::mat4x4(1.0f);
-		Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
-		Model = glm::scale(Model, glm::vec3(0.2f));
-		//LightingShader->SetUniformMatrix4fv("iModel", Model);
-		ModelUpdater = Model;
-		Nanosuit->DynamicDraw(*LightingShader);
+		//Model = glm::mat4x4(1.0f);
+		//Model = glm::translate(Model, glm::vec3(0.0f));
+		//Model = glm::scale(Model, glm::vec3(1.0f));
+		//NormalMatrix = glm::transpose(glm::inverse(Model));
+		//LightingShader->UseProgram();
+		////LightingShader->SetUniformMatrix4fv("iModel", Model);
+		////LightingShader->SetUniformMatrix4fv("iView", View);
+		////LightingShader->SetUniformMatrix4fv("iProjection", Projection);
+		//ModelUpdater = Model;
+		//ViewUpdater = View;
+		//ProjectionUpdater = Projection;
+		//LightingShader->SetUniformMatrix3fv("iNormalMatrix", NormalMatrix);
+		//LightingShader->SetUniform1f("iShininess", 64.0f);
+		//LightingShader->SetUniform3fv("iViewPos", kFreeCamera->GetCameraVector(Camera::VectorType::kPosition));
+		//LightingShader->SetUniform3fv("iLight.Position", LightPos);
+		//LightingShader->SetUniform3fv("iLight.AmbientColor", glm::vec3(0.2f));
+		//LightingShader->SetUniform3fv("iLight.DiffuseColor", glm::vec3(1.0f));
+		//LightingShader->SetUniform3fv("iLight.SpecularColor", glm::vec3(1.0f));
+		//Backpack->DynamicDraw(*LightingShader);
+		//Model = glm::mat4x4(1.0f);
+		//Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
+		//Model = glm::scale(Model, glm::vec3(0.2f));
+		////LightingShader->SetUniformMatrix4fv("iModel", Model);
+		//ModelUpdater = Model;
+		//Nanosuit->DynamicDraw(*LightingShader);
 
-		Model = glm::mat4x4(1.0f);
-		Model = glm::translate(Model, LightPos);
-		Model = glm::scale(Model, glm::vec3(0.2f));
-		LampShader->UseProgram();
-		//LampShader->SetUniformMatrix4fv("iModel", Model);
-		//LampShader->SetUniformMatrix4fv("iView", View);
-		//LampShader->SetUniformMatrix4fv("iProjection", Projection);
-		ModelUpdater = Model;
-		ViewUpdater = View;
-		ProjectionUpdater = Projection;
-		glBindVertexArray(LampVertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//Model = glm::mat4x4(1.0f);
+		//Model = glm::translate(Model, LightPos);
+		//Model = glm::scale(Model, glm::vec3(0.2f));
+		//LampShader->UseProgram();
+		////LampShader->SetUniformMatrix4fv("iModel", Model);
+		////LampShader->SetUniformMatrix4fv("iView", View);
+		////LampShader->SetUniformMatrix4fv("iProjection", Projection);
+		//ModelUpdater = Model;
+		//ViewUpdater = View;
+		//ProjectionUpdater = Projection;
+		//glBindVertexArray(LampVertexArray);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glBlitNamedFramebuffer(kMultiSampleFramebuffer, kIntermediateFramebuffer, 0, 0, kWindowWidth, kWindowHeight,
 							   0, 0, kWindowWidth, kWindowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
