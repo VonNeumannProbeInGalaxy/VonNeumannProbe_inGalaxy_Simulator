@@ -20,7 +20,17 @@ namespace
 }
 
 Shader::Shader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros)
-	: _ShaderTypes{ GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER }, _Program(0)
+	:
+	_ShaderTypes
+	{
+		GL_VERTEX_SHADER,
+		GL_FRAGMENT_SHADER,
+		GL_GEOMETRY_SHADER,
+		GL_COMPUTE_SHADER,
+		GL_TESS_CONTROL_SHADER,
+		GL_TESS_EVALUATION_SHADER,
+	},
+	_Program(0)
 {
 	InitShader(SourceFiles, ProgramName, Macros);
 }
@@ -72,9 +82,9 @@ void Shader::InitShader(const std::vector<std::string>& SourceFiles, const std::
 	}
 
 	std::vector<Source> ShaderSources;
-	for (const auto& kSourceFile : SourceFiles)
+	for (const auto& SourceFile : SourceFiles)
 	{
-		ShaderSources.emplace_back(LoadShaderSource(GetAssetFilepath(Asset::AssetType::kShader, kSourceFile)));
+		ShaderSources.emplace_back(LoadShaderSource(GetAssetFilepath(Asset::AssetType::kShader, SourceFile)));
 	}
 
 	if (Macros.front() != "NULL")
@@ -155,12 +165,18 @@ void Shader::InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderT
 	{
 		switch (ShaderType)
 		{
-		case GL_VERTEX_SHADER:
-			return "__VERT";
+		case GL_COMPUTE_SHADER:
+			return "__COMP";
 		case GL_FRAGMENT_SHADER:
 			return "__FRAG";
 		case GL_GEOMETRY_SHADER:
 			return "__GEOM";
+		case GL_TESS_CONTROL_SHADER:
+			return "__TESSC";
+		case GL_TESS_EVALUATION_SHADER:
+			return "__TESSE";
+		case GL_VERTEX_SHADER:
+			return "__VERT";
 		default:
 			NpgsAssert(false, "Invalid shader type");
 			return "";
@@ -170,13 +186,13 @@ void Shader::InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderT
 	std::uint32_t          InsertedMacroCount = 0;
 	std::string::size_type InsertedCharLength = 0;
 
-	for (const std::string& kMacro : Macros)
+	for (const std::string& Macro : Macros)
 	{
-		if (kMacro.find(TypePrefix) != std::string::npos)
+		if (Macro.find(TypePrefix) != std::string::npos)
 		{
 			ShaderSource.bHasMacros = true;
-			ShaderSource.Data.insert(19ULL + InsertedCharLength, "#define " + kMacro.substr(7) + '\n');
-			InsertedCharLength += kMacro.size() + 2;
+			ShaderSource.Data.insert(19ULL + InsertedCharLength, "#define " + Macro.substr(TypePrefix.size() + 1) + '\n');
+			InsertedCharLength += Macro.size() + 2;
 			++InsertedMacroCount;
 		}
 	}
