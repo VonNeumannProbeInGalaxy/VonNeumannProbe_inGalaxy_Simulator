@@ -30,7 +30,6 @@ public:
 	using RowArray = std::vector<BasicType>;
 
 public:
-	Csv() = default;
 	Csv(const std::string& Filename, const std::vector<std::string>& ColNames)
 		: _Filename(Filename), _ColNames(ColNames)
 	{

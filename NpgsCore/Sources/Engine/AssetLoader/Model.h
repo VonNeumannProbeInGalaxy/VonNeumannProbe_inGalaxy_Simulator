@@ -18,7 +18,6 @@ _ASSET_BEGIN
 class Model
 {
 public:
-	Model() = default;
 	Model(const std::string& Filename, const std::string& ShaderName);
 	Model(const Model&) = delete;
 	Model(Model&& Other) noexcept;

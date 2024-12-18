@@ -24,7 +24,6 @@ private:
 	};
 
 public:
-	Shader();
 	Shader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName = "", const std::vector<std::string>& Macros = { "NULL" });
 	Shader(const Shader&) = delete;
 	Shader(Shader&& Other) noexcept;

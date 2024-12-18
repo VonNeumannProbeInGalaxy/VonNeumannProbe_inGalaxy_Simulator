@@ -47,7 +47,6 @@ public:
 	};
 
 public:
-	Mesh() = default;
 	Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices, const std::vector<Texture>& Textures);
 	Mesh(const Mesh&) = delete;
 	Mesh(Mesh&& Other) noexcept;
