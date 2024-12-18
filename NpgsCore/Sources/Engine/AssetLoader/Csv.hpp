@@ -40,11 +40,12 @@ public:
 
 	Csv(const Csv&) = delete;
 	Csv(Csv&& Other) noexcept
+		:
+		_Filename(std::move(Other._Filename)),
+		_ColNames(std::move(Other._ColNames)),
+		_HeaderMap(std::move(Other._HeaderMap)),
+		_Data(std::move(Other._Data))
 	{
-		_Filename  = std::move(Other._Filename);
-		_ColNames  = std::move(Other._ColNames);
-		_HeaderMap = std::move(Other._HeaderMap);
-		_Data      = std::move(Other._Data);
 	}
 
 	~Csv() = default;
