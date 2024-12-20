@@ -93,7 +93,8 @@ public:
 	}
 
 	template <typename Func = std::less<>>
-	std::pair<RowArray, RowArray> FindSurroundingValues(const std::string& DataHeader, const BasicType& TargetValue, bool bSorted = true, Func&& Pred = Func())
+	std::pair<RowArray, RowArray> FindSurroundingValues(const std::string& DataHeader, const BasicType& TargetValue,
+														bool bSorted = true, Func&& Pred = Func())
 	{
 		std::size_t DataIndex = GetHeaderIndex(DataHeader);
 
@@ -111,7 +112,8 @@ public:
 			});
 		}
 
-		auto it = std::lower_bound(_Data.begin(), _Data.end(), TargetValue, [&](const RowArray& Row, const BasicType& Value) -> bool
+		auto it = std::lower_bound(_Data.begin(), _Data.end(), TargetValue,
+		[&](const RowArray& Row, const BasicType& Value) -> bool
 		{
 			return Comparator(Row[DataIndex], Value);
 		});
@@ -137,7 +139,7 @@ public:
 		return { *LowerRow, *UpperRow };
 	}
 
-	const std::vector<RowArray>* const Data() const
+	const std::vector<RowArray>* Data() const
 	{
 		return &_Data;
 	}

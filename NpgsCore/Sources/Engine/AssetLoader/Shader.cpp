@@ -9,7 +9,7 @@
 #include <print>
 #include <utility>
 
-#include "Engine/AssetLoader/GetAssetFilepath.h"
+#include "Engine/AssetLoader/GetAssetFullPath.h"
 #include "Engine/Core/Assert.h"
 
 _NPGS_BEGIN
@@ -62,7 +62,7 @@ Shader& Shader::operator=(Shader&& Other) noexcept
 
 void Shader::InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros)
 {
-	std::string ProgramCache = GetAssetFilepath(Asset::AssetType::kBinaryShader, ProgramName + ".bin");
+	std::string ProgramCache = GetAssetFullPath(Asset::AssetType::kBinaryShader, ProgramName + ".bin");
 	if (ProgramName != "")
 	{
 		std::filesystem::path ProgramCachePath(ProgramCache);
@@ -77,7 +77,7 @@ void Shader::InitShader(const std::vector<std::string>& SourceFiles, const std::
 	std::vector<Source> ShaderSources;
 	for (const auto& SourceFile : SourceFiles)
 	{
-		ShaderSources.emplace_back(LoadShaderSource(GetAssetFilepath(Asset::AssetType::kShader, SourceFile)));
+		ShaderSources.emplace_back(LoadShaderSource(GetAssetFullPath(Asset::AssetType::kShader, SourceFile)));
 	}
 
 	for (const auto& SourceFile : SourceFiles)
@@ -251,10 +251,10 @@ GLuint Shader::CompileShader(const Source& ShaderSource, GLenum ShaderType) cons
 		glGetShaderiv(Shader, GL_INFO_LOG_LENGTH, &InfoLogLength);
 		std::string InfoLog(InfoLogLength, '\0');
 		glGetShaderInfoLog(Shader, InfoLogLength, nullptr, InfoLog.data());
-		std::println("Shader \"{}\" compile failed:\n{}", ShaderSource.Filepath, InfoLog.data());
-		if (ShaderSource.bHasInclude || ShaderSource.bHasMacros)
+		std::println("Shader \"{}\" compile failed:\n{}", ShaderSource.Filename, InfoLog.data());
+		if (ShaderSource.bHasIncludes || ShaderSource.bHasMacros)
 		{
-			std::ofstream ErrorShader(ShaderSource.Filepath + ".Error.glsl");
+			std::ofstream ErrorShader(ShaderSource.Filename + ".Error.glsl");
 			ErrorShader << ShaderSource.Data << std::endl;
 			ErrorShader.close();
 		}

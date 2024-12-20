@@ -10,7 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
 
-#include "Engine/AssetLoader/GetAssetFilepath.h"
+#include "Engine/AssetLoader/GetAssetFullPath.h"
 
 _NPGS_BEGIN
 _ASSET_BEGIN
@@ -126,7 +126,7 @@ Texture& Texture::operator=(Texture&& Other) noexcept
 
 GLubyte* Texture::Create2dTexture(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
 {
-	std::string ImageFilepath = bAutoFillFilepath ? GetAssetFilepath(AssetType::kTexture, Filename) : Filename;
+	std::string ImageFilepath = bAutoFillFilepath ? GetAssetFullPath(AssetType::kTexture, Filename) : Filename;
 
 	GLenum MyTexture = 0;
 	glCreateTextures(GL_TEXTURE_2D, 1, &MyTexture);
@@ -185,7 +185,7 @@ GLubyte* Texture::CreateCubeMap(const std::string& Filename, bool bSrgb, bool bF
 	if (std::filesystem::path(Filename).extension().string() == ".ddx" ||
 		std::filesystem::path(Filename).extension().string() == ".ktx")
 	{
-		gli::texture_cube Cube(gli::load(GetAssetFilepath(Asset::AssetType::kTexture, Filename)));
+		gli::texture_cube Cube(gli::load(GetAssetFullPath(Asset::AssetType::kTexture, Filename)));
 		if (!Cube.empty())
 		{
 			gli::gl Converter(gli::gl::PROFILE_GL33);
@@ -216,7 +216,7 @@ GLubyte* Texture::CreateCubeMap(const std::string& Filename, bool bSrgb, bool bF
 	}
 
 	ImageData Data;
-	std::string Directory = GetAssetFilepath(AssetType::kTexture, Filename);
+	std::string Directory = GetAssetFullPath(AssetType::kTexture, Filename);
 
 	std::vector<std::string> FaceNames{ "posx", "negx", "posy", "negy", "posz", "negz" };
 	std::vector<std::string> Images(6);

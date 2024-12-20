@@ -1,4 +1,4 @@
-#include "GetAssetFilepath.h"
+#include "GetAssetFullPath.h"
 
 #include "Engine/Core/Assert.h"
 
@@ -7,7 +7,7 @@ _ASSET_BEGIN
 
 #pragma warning(push)
 #pragma warning(disable : 4715)
-std::string GetAssetFilepath(AssetType Type, const std::string& Filename)
+std::string GetAssetFullPath(AssetType Type, const std::string& Filename)
 {
 	std::string RootFolderName = Type == AssetType::kBinaryShader ? "" : "Assets/";
 #ifdef _RELEASE

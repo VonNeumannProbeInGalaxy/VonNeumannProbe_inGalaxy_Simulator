@@ -141,7 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\Engine\AssetLoader\GetAssetFilepath.cpp" />
+    <ClCompile Include="Sources\Engine\AssetLoader\GetAssetFullPath.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\Mesh.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\Model.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\Shader.cpp" />
@@ -172,7 +172,7 @@
     <ClCompile Include="Sources\Engine\Utilities\UniformBlockManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Engine\AssetLoader\GetAssetFilepath.h" />
+    <ClInclude Include="Sources\Engine\AssetLoader\GetAssetFullPath.h" />
     <ClInclude Include="Sources\Engine\AssetLoader\Mesh.h" />
     <ClInclude Include="Sources\Engine\AssetLoader\Model.h" />
     <ClInclude Include="Sources\Engine\AssetLoader\Shader.h" />

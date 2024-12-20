@@ -75,7 +75,7 @@
     <ClCompile Include="Sources\Engine\AssetLoader\Texture.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\AssetLoader\GetAssetFilepath.cpp">
+    <ClCompile Include="Sources\Engine\AssetLoader\GetAssetFullPath.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Core\Camera.cpp">
@@ -179,7 +179,7 @@
     <ClInclude Include="Sources\Engine\AssetLoader\Texture.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\AssetLoader\GetAssetFilepath.h">
+    <ClInclude Include="Sources\Engine\AssetLoader\GetAssetFullPath.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\Camera.h">

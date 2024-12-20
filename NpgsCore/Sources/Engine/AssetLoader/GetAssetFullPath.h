@@ -16,7 +16,7 @@ enum class AssetType
 	kTexture       // 纹理
 };
 
-std::string GetAssetFilepath(AssetType Type, const std::string& Filename);
+std::string GetAssetFullPath(AssetType Type, const std::string& Filename);
 
 _ASSET_END
 _NPGS_END

@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "Engine/AssetLoader/Csv.hpp"
-#include "Engine/AssetLoader/GetAssetFilepath.h"
+#include "Engine/AssetLoader/GetAssetFullPath.h"
 #include "Engine/AssetLoader/Mesh.h"
 #include "Engine/AssetLoader/Model.h"
 #include "Engine/AssetLoader/Shader.h"
@@ -71,7 +71,7 @@ private:
 
 private:
 	using ManagedAsset = std::unique_ptr<void, TypeErasedDeleter>;
-	std::unordered_map<std::string, ManagedAsset> _kAssets;
+	std::unordered_map<std::string, ManagedAsset> _Assets;
 };
 
 _ASSET_END

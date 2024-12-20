@@ -459,16 +459,16 @@ void StellarGenerator::InitMistData()
 
 	const std::array<std::string, 10> kPresetPrefix
 	{
-		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-4.0"),
-		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-3.0"),
-		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-2.0"),
-		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-1.5"),
-		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-1.0"),
-		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-0.5"),
-		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=+0.0"),
-		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=+0.5"),
-		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/WhiteDwarfs/Thin"),
-		Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/WhiteDwarfs/Thick")
+		Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-4.0"),
+		Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-3.0"),
+		Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-2.0"),
+		Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-1.5"),
+		Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-1.0"),
+		Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=-0.5"),
+		Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=+0.0"),
+		Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]=+0.5"),
+		Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/WhiteDwarfs/Thin"),
+		Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/WhiteDwarfs/Thick")
 	};
 
 	std::vector<float> Masses;
@@ -587,17 +587,17 @@ std::vector<double> StellarGenerator::GetFullMistData(const BasicProperties& Pro
 		{
 			PrefixDirectory.insert(PrefixDirectory.begin(), '+');
 		}
-		PrefixDirectory.insert(0, Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]="));
+		PrefixDirectory.insert(0, Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/[Fe_H]="));
 	}
 	else
 	{
 		if (bIsSingleWhiteDwarf)
 		{
-			PrefixDirectory = Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/WhiteDwarfs/Thin");
+			PrefixDirectory = Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/WhiteDwarfs/Thin");
 		}
 		else
 		{
-			PrefixDirectory = Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/MIST/WhiteDwarfs/Thick");
+			PrefixDirectory = Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/MIST/WhiteDwarfs/Thick");
 		}
 	}
 
@@ -1428,7 +1428,7 @@ Util::StellarClass::LuminosityClass StellarGenerator::CalculateLuminosityClass(c
 		return LuminosityClass;
 	}
 
-	std::string HrDiagramDataFilepath = Asset::GetAssetFilepath(Asset::AssetType::kDataTable, "StellarParameters/H-R Diagram/H-R Diagram.csv");
+	std::string HrDiagramDataFilepath = Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/H-R Diagram/H-R Diagram.csv");
 	HrDiagram* HrDiagramData = LoadCsvAsset<HrDiagram>(HrDiagramDataFilepath, _kHrDiagramHeaders);
 
 	float Teff = StarData.GetTeff();

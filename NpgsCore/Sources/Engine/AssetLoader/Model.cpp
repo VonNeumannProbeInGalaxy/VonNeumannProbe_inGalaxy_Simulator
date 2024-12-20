@@ -11,7 +11,7 @@
 #include <assimp/postprocess.h>
 
 #include "Engine/AssetLoader/AssetManager.h"
-#include "Engine/AssetLoader/GetAssetFilepath.h"
+#include "Engine/AssetLoader/GetAssetFullPath.h"
 #include "Engine/AssetLoader/Texture.h"
 
 _NPGS_BEGIN
@@ -62,7 +62,7 @@ void Model::DynamicDraw(const Shader& ModelShader) const
 void Model::InitModel(const std::string& Filename)
 {
 	Assimp::Importer Loader;
-	std::string Filepath = GetAssetFilepath(Asset::AssetType::kModel, Filename);
+	std::string Filepath = GetAssetFullPath(Asset::AssetType::kModel, Filename);
 	const aiScene* Scene = Loader.ReadFile(Filepath, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
 										   aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	if (!Scene || Scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode)

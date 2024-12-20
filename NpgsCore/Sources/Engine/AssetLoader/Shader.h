@@ -18,9 +18,9 @@ private:
 	struct Source
 	{
 		std::string Data;
-		std::string Filepath;
-		bool        bHasInclude{ false };
-		bool        bHasMacros{ false };
+		std::string Filename;
+		bool bHasIncludes{ false };
+		bool bHasMacros{ false };
 	};
 
 public:

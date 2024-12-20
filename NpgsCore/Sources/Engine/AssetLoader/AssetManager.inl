@@ -9,7 +9,7 @@ template<typename AssetType>
 requires MoveOnlyType<AssetType>
 inline void AssetManager::AddAsset(const std::string& Name, AssetType&& Asset)
 {
-	_kAssets.emplace(Name, ManagedAsset(
+	_Assets.emplace(Name, ManagedAsset(
 		static_cast<void*>(new AssetType(std::move(Asset))),
 		TypeErasedDeleter(static_cast<AssetType*>(nullptr))
 	));
@@ -19,8 +19,8 @@ template<typename AssetType>
 requires MoveOnlyType<AssetType>
 inline AssetType* AssetManager::GetAsset(const std::string& Name)
 {
-	auto it = _kAssets.find(Name);
-	if (it != _kAssets.end())
+	auto it = _Assets.find(Name);
+	if (it != _Assets.end())
 	{
 		return static_cast<AssetType*>(it->second.get());
 	}
@@ -33,7 +33,7 @@ requires MoveOnlyType<AssetType>
 inline std::vector<AssetType*> AssetManager::GetAssets()
 {
 	std::vector<AssetType*> Result;
-	for (const auto& [Name, Asset] : _kAssets)
+	for (const auto& [Name, Asset] : _Assets)
 	{
 		if (auto* AssetPtr = dynamic_cast<AssetType*>(Asset.get()))
 		{
@@ -46,12 +46,12 @@ inline std::vector<AssetType*> AssetManager::GetAssets()
 
 NPGS_INLINE void AssetManager::RemoveAsset(const std::string& Name)
 {
-	_kAssets.erase(Name);
+	_Assets.erase(Name);
 }
 
 NPGS_INLINE void AssetManager::ClearAssets()
 {
-	_kAssets.clear();
+	_Assets.clear();
 }
 
 _ASSET_END
