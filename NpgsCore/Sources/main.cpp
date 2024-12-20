@@ -98,7 +98,7 @@ int main()
 #include "Vertices.inc"
 
 	auto* AssetManagerInstance = AssetManager::GetInstance();
-
+	AssetManagerInstance->AddAsset<Texture>("Test", Texture(Texture::TextureType::kCubeMap, "Skybox"));
 	std::vector<std::string> FramebufferShaderFiles{ "Framebuffer.vert", "Framebuffer.frag" };
 	std::vector<std::string> LightingShaderFiles{ "Lighting.vert", "Lighting.frag" };
 	std::vector<std::string> AdvancedShaderFiles{ "Advanced.vert", "Advanced.frag" };

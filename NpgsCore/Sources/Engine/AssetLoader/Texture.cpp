@@ -5,6 +5,7 @@
 #include <print>
 #include <vector>
 
+#include <gli/gli.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
 
@@ -16,7 +17,7 @@ _ASSET_BEGIN
 Texture::Texture(TextureType CreateType, const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
 	: _Texture(0), _Type(CreateType)
 {
-	ImageData Data;
+	GLubyte* Data = nullptr;
 
 	switch (_Type)
 	{
@@ -30,7 +31,10 @@ Texture::Texture(TextureType CreateType, const std::string& Filename, bool bSrgb
 		break;
 	}
 
-	stbi_image_free(Data.Data);
+	if (Data != nullptr)
+	{
+		stbi_image_free(Data);
+	}
 }
 
 Texture::Texture(const FT_Face& Face)
@@ -108,11 +112,41 @@ Texture& Texture::operator=(Texture&& Other) noexcept
 	return *this;
 }
 
-Texture::ImageData Texture::Create2dTexture(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
+GLubyte* Texture::Create2dTexture(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
 {
-	ImageData Data = LoadImage(Filename, bSrgb, bFlipVertically, bAutoFillFilepath);
+	std::string ImageFilepath = bAutoFillFilepath ? GetAssetFilepath(AssetType::kTexture, Filename) : Filename;
 
 	glCreateTextures(GL_TEXTURE_2D, 1, &_Texture);
+
+	if (std::filesystem::path(Filename).extension() == ".ddx" ||
+		std::filesystem::path(Filename).extension() == ".ktx")
+	{
+		gli::texture2d Texture(gli::load(ImageFilepath));
+		if (!Texture.empty())
+		{
+			gli::gl Converter(gli::gl::PROFILE_GL33);
+			gli::gl::format Format = Converter.translate(Texture.format(), Texture.swizzles());
+
+			glTextureStorage2D(_Texture, static_cast<GLint>(Texture.levels()), Format.Internal,
+							   Texture.extent().x, Texture.extent().y);
+
+			for (std::size_t Level = 0; Level < Texture.levels(); ++Level)
+			{
+				glTextureSubImage2D(_Texture, static_cast<GLint>(Level), 0, 0,
+									Texture[Level].extent().x, Texture[Level].extent().y,
+									Format.External, Format.Type, Texture[Level].data());
+			}
+
+			glTextureParameteri(_Texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTextureParameteri(_Texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTextureParameteri(_Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			return nullptr;
+		}
+	}
+
+	ImageData Data = LoadImage(ImageFilepath, bSrgb, bFlipVertically, bAutoFillFilepath);
 
 	glTextureStorage2D(_Texture, 1, Data.InternalFormat, Data.Width, Data.Height);
 	glTextureSubImage2D(_Texture, 0, 0, 0, Data.Width, Data.Height, Data.Format, GL_UNSIGNED_BYTE, Data.Data);
@@ -123,19 +157,49 @@ Texture::ImageData Texture::Create2dTexture(const std::string& Filename, bool bS
 	glTextureParameteri(_Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	return Data;
+	return Data.Data;
 }
 
-Texture::ImageData Texture::CreateCubeMap(const std::string& Filename, bool bSrgb, bool bFlipVertically)
+GLubyte* Texture::CreateCubeMap(const std::string& Filename, bool bSrgb, bool bFlipVertically)
 {
-	ImageData Data;
-
 	glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_Texture);
 
-	std::vector<std::string> FaceNames{ "Right", "Left", "Top", "Bottom", "Front", "Back" };
-	std::vector<std::string> Images(6);
+	if (std::filesystem::path(Filename).extension() == ".ddx" ||
+		std::filesystem::path(Filename).extension() == ".ktx")
+	{
+		gli::texture_cube Cube(gli::load(GetAssetFilepath(Asset::AssetType::kTexture, Filename)));
+		if (!Cube.empty())
+		{
+			gli::gl Converter(gli::gl::PROFILE_GL33);
+			gli::gl::format Format = Converter.translate(Cube.format(), Cube.swizzles());
 
+			glTextureStorage2D(_Texture, static_cast<GLint>(Cube.levels()), Format.Internal, Cube.extent().x, Cube.extent().y);
+
+			for (std::size_t Face = 0; Face != Cube.faces(); ++Face)
+			{
+				for (std::size_t Level = 0; Level != Cube.levels(); ++Level)
+				{
+					glTextureSubImage3D(_Texture, static_cast<GLint>(Level), 0, 0, static_cast<GLint>(Face),
+										Cube[Face][Level].extent().x, Cube[Face][Level].extent().y, 1,
+										Format.External, Format.Type, Cube[Face][Level].data());
+				}
+			}
+
+			glTextureParameteri(_Texture, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(_Texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(_Texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(_Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			return nullptr;
+		}
+	}
+
+	ImageData Data;
 	std::string Directory = GetAssetFilepath(AssetType::kTexture, Filename);
+
+	std::vector<std::string> FaceNames{ "posx", "negx", "posy", "negy", "posz", "negz" };
+	std::vector<std::string> Images(6);
 
 	for (const auto& Entry : std::filesystem::directory_iterator(Directory))
 	{
@@ -173,7 +237,7 @@ Texture::ImageData Texture::CreateCubeMap(const std::string& Filename, bool bSrg
 		glTextureParameteri(_Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
-	return Data;
+	return Data.Data;
 }
 
 Texture::ImageData Texture::LoadImage(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath) const
@@ -182,22 +246,12 @@ Texture::ImageData Texture::LoadImage(const std::string& Filename, bool bSrgb, b
 	GLint ImageHeight   = 0;
 	GLint ImageChannels = 0;
 
-	std::string ImageFilepath;
-	if (bAutoFillFilepath)
-	{
-		ImageFilepath = GetAssetFilepath(AssetType::kTexture, Filename);
-	}
-	else
-	{
-		ImageFilepath = Filename;
-	}
-
 	stbi_set_flip_vertically_on_load(bFlipVertically);
-	GLubyte* ImageData = stbi_load(ImageFilepath.c_str(), &ImageWidth, &ImageHeight, &ImageChannels, 0);
+	GLubyte* ImageData = stbi_load(Filename.c_str(), &ImageWidth, &ImageHeight, &ImageChannels, 0);
 
 	if (!ImageData)
 	{
-		std::println("Fatal error: Can not open image file: \"{}\": No such fire or directory.", ImageFilepath);
+		std::println("Fatal error: Can not open image file: \"{}\": No such fire or directory.", Filename);
 		std::system("pause");
 		std::exit(EXIT_FAILURE);
 	}

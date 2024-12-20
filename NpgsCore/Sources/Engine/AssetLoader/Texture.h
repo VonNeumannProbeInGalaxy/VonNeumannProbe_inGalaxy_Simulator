@@ -51,8 +51,8 @@ public:
 	TextureType GetTextureType() const;
 
 private:
-	ImageData Create2dTexture(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath);
-	ImageData CreateCubeMap(const std::string& Filename, bool bSrgb, bool bFlipVertically);
+	GLubyte* Create2dTexture(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath);
+	GLubyte* CreateCubeMap(const std::string& Filename, bool bSrgb, bool bFlipVertically);
 	ImageData LoadImage(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath) const;
 
 private:
