@@ -56,7 +56,7 @@ private:
 	ImageData LoadImage(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath) const;
 
 private:
-	GLuint _Texture;
+	std::vector<GLuint> _Textures;
 	TextureType _Type;
 };
 

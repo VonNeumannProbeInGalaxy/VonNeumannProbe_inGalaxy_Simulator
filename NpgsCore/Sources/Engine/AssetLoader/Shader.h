@@ -53,6 +53,7 @@ public:
 private:
 	void InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros);
 	Source LoadShaderSource(const std::string& Filepath);
+	void PushShaderType(const std::string& Extension);
 	void InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderType, Source& ShaderSource) const;
 	GLuint CompileShader(const Source& ShaderSource, GLenum ShaderType) const;
 	void LinkProgram(const std::vector<GLuint>& Shaders);

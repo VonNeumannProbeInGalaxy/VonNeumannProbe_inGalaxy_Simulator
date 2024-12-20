@@ -249,5 +249,8 @@
     <None Include="Sources\Engine\Utilities\UniformBlockManager.inl">
       <Filter>头文件</Filter>
     </None>
+    <None Include="Assets\Shaders\Point.vert" />
+    <None Include="Assets\Shaders\Point.geom" />
+    <None Include="Assets\Shaders\Point.frag" />
   </ItemGroup>
 </Project>

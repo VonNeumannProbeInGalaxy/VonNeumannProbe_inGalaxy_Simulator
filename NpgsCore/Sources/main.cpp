@@ -98,10 +98,10 @@ int main()
 #include "Vertices.inc"
 
 	auto* AssetManagerInstance = AssetManager::GetInstance();
-	AssetManagerInstance->AddAsset<Texture>("Test", Texture(Texture::TextureType::kCubeMap, "Skybox"));
 	std::vector<std::string> FramebufferShaderFiles{ "Framebuffer.vert", "Framebuffer.frag" };
 	std::vector<std::string> LightingShaderFiles{ "Lighting.vert", "Lighting.frag" };
 	std::vector<std::string> AdvancedShaderFiles{ "Advanced.vert", "Advanced.frag" };
+	std::vector<std::string> PointShaderFiles{ "Point.vert", "Point.geom", "Point.frag" };
 	std::vector<std::string> LampShaderMacros{ "__FRAG_LAMP_CUBE" };
 	std::vector<std::string> BorderShaderMacros{ "__FRAG_BORDER" };
 	AssetManagerInstance->AddAsset<Shader>("Framebuffer", Shader(FramebufferShaderFiles));
@@ -109,6 +109,7 @@ int main()
 	AssetManagerInstance->AddAsset<Shader>("Advanced", Shader(AdvancedShaderFiles));
 	AssetManagerInstance->AddAsset<Shader>("Lamp", Shader(LightingShaderFiles, "", LampShaderMacros));
 	AssetManagerInstance->AddAsset<Shader>("Border", Shader(AdvancedShaderFiles, "", BorderShaderMacros));
+	AssetManagerInstance->AddAsset<Shader>("Point", Shader(PointShaderFiles));
 	AssetManagerInstance->AddAsset<Texture>("Metal", Texture(Texture::TextureType::k2D, "Metal.png"));
 	AssetManagerInstance->AddAsset<Texture>("Marble", Texture(Texture::TextureType::k2D, "Marble.jpg"));
 	AssetManagerInstance->AddAsset<Texture>("RedWindow", Texture(Texture::TextureType::k2D, "RedWindow.png"));
@@ -131,6 +132,10 @@ int main()
 	GLuint QuadVertexBuffer = 0;
 	glCreateBuffers(1, &QuadVertexBuffer);
 	glNamedBufferData(QuadVertexBuffer, QuadVertices.size() * sizeof(GLfloat), QuadVertices.data(), GL_STATIC_DRAW);
+
+	GLuint PointVertexBuffer = 0;
+	glCreateBuffers(1, &PointVertexBuffer);
+	glNamedBufferData(PointVertexBuffer, Points.size() * sizeof(GLfloat), Points.data(), GL_STATIC_DRAW);
 
 	GLuint LampVertexArray = 0;
 	glCreateVertexArrays(1, &LampVertexArray);
@@ -179,6 +184,16 @@ int main()
 	glVertexArrayAttribBinding(QuadVertexArray, 0, 0);
 	glVertexArrayAttribBinding(QuadVertexArray, 1, 0);
 
+	GLuint PointVertexArray = 0;
+	glCreateVertexArrays(1, &PointVertexArray);
+	glVertexArrayVertexBuffer(PointVertexArray, 0, PointVertexBuffer, 0, 5 * sizeof(GLfloat));
+	glEnableVertexArrayAttrib(PointVertexArray, 0);
+	glEnableVertexArrayAttrib(PointVertexArray, 1);
+	glVertexArrayAttribFormat(PointVertexArray, 0, 2, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribFormat(PointVertexArray, 1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat));
+	glVertexArrayAttribBinding(PointVertexArray, 0, 0);
+	glVertexArrayAttribBinding(PointVertexArray, 1, 0);
+
 	glCreateFramebuffers(1, &kMultiSampleFramebuffer);
 	glCreateFramebuffers(1, &kIntermediateFramebuffer);
 	glCreateRenderbuffers(1, &kRenderbuffer);
@@ -199,11 +214,6 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	GLuint UniformBuffer = 0;
-	glCreateBuffers(1, &UniformBuffer);
-	glNamedBufferData(UniformBuffer, 3 * sizeof(glm::mat4x4), nullptr, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, UniformBuffer);
-
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
@@ -222,6 +232,7 @@ int main()
 	auto* AdvancedShader    = AssetManagerInstance->GetAsset<Shader>("Advanced");
 	auto* LampShader        = AssetManagerInstance->GetAsset<Shader>("Lamp");
 	auto* BorderShader      = AssetManagerInstance->GetAsset<Shader>("Border");
+	auto* PointShader       = AssetManagerInstance->GetAsset<Shader>("Point");
 	auto* Metal             = AssetManagerInstance->GetAsset<Texture>("Metal");
 	auto* Marble            = AssetManagerInstance->GetAsset<Texture>("Marble");
 	auto* RedWindow         = AssetManagerInstance->GetAsset<Texture>("RedWindow");
@@ -242,9 +253,6 @@ int main()
 	glm::vec3   LightPos(1.2f, 1.0f, 2.0f);
 
 	std::vector<std::string> MatrixMembers = { "iModel", "iView", "iProjection" };
-	//UniformBlockManager Matrices(AdvancedShader, "Matrices", 0, MatrixMembers, Shader::UniformBlockLayout::kShared);
-	//AdvancedShader->CreateUniformBlock("Matrices", 0, MatrixMembers);
-	//AdvancedShader->VerifyUniformBlockLayout("Matrices");
 
 	auto* UboManagerInstance = UniformBlockManager::GetInstance();
 	UboManagerInstance->CreateSharedBlock(AdvancedShader->GetProgram(), "Matrices", 0, MatrixMembers);
@@ -264,6 +272,10 @@ int main()
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//PointShader->UseProgram();
+		//glBindVertexArray(PointVertexArray);
+		//glDrawArrays(GL_POINTS, 0, 4);
 
 		Model = glm::mat4x4(1.0f);
 		View  = kFreeCamera->GetViewMatrix();

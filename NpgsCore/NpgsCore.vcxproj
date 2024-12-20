@@ -211,6 +211,9 @@
     <None Include="Assets\Shaders\Framebuffer.vert" />
     <None Include="Assets\Shaders\Lighting.frag" />
     <None Include="Assets\Shaders\Lighting.vert" />
+    <None Include="Assets\Shaders\Point.frag" />
+    <None Include="Assets\Shaders\Point.geom" />
+    <None Include="Assets\Shaders\Point.vert" />
     <None Include="Assets\Shaders\Triangle.frag" />
     <None Include="Assets\Shaders\Triangle.vert" />
     <None Include="Sources\Engine\AssetLoader\AssetManager.inl" />

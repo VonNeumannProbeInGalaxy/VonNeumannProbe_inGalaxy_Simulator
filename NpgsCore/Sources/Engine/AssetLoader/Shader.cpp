@@ -2,10 +2,12 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <print>
+#include <utility>
 
 #include "Engine/AssetLoader/GetAssetFilepath.h"
 #include "Engine/Core/Assert.h"
@@ -21,15 +23,6 @@ namespace
 
 Shader::Shader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros)
 	:
-	_ShaderTypes
-	{
-		GL_VERTEX_SHADER,
-		GL_FRAGMENT_SHADER,
-		GL_GEOMETRY_SHADER,
-		GL_COMPUTE_SHADER,
-		GL_TESS_CONTROL_SHADER,
-		GL_TESS_EVALUATION_SHADER,
-	},
 	_Program(0)
 {
 	InitShader(SourceFiles, ProgramName, Macros);
@@ -85,6 +78,11 @@ void Shader::InitShader(const std::vector<std::string>& SourceFiles, const std::
 	for (const auto& SourceFile : SourceFiles)
 	{
 		ShaderSources.emplace_back(LoadShaderSource(GetAssetFilepath(Asset::AssetType::kShader, SourceFile)));
+	}
+
+	for (const auto& SourceFile : SourceFiles)
+	{
+		PushShaderType(std::filesystem::path(SourceFile).extension().string());
 	}
 
 	if (Macros.front() != "NULL")
@@ -159,6 +157,38 @@ Shader::Source Shader::LoadShaderSource(const std::string& Filepath)
 	return { SourceCode, Filepath, bHasInclude, false };
 }
 
+void Shader::PushShaderType(const std::string& Extension)
+{
+	if (Extension == ".comp")
+	{
+		_ShaderTypes.emplace_back(GL_COMPUTE_SHADER);
+	}
+	else if (Extension == ".frag")
+	{
+		_ShaderTypes.emplace_back(GL_FRAGMENT_SHADER);
+	}
+	else if (Extension == ".geom")
+	{
+		_ShaderTypes.emplace_back(GL_GEOMETRY_SHADER);
+	}
+	else if (Extension == ".tesc")
+	{
+		_ShaderTypes.emplace_back(GL_TESS_CONTROL_SHADER);
+	}
+	else if (Extension == ".tese")
+	{
+		_ShaderTypes.emplace_back(GL_TESS_EVALUATION_SHADER);
+	}
+	else if (Extension == ".vert")
+	{
+		_ShaderTypes.emplace_back(GL_VERTEX_SHADER);
+	}
+	else
+	{
+		NpgsAssert(false, "Invalid shader file extension");
+	}
+}
+
 void Shader::InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderType, Source& ShaderSource) const
 {
 	auto TypePrefix = [ShaderType]() -> std::string
@@ -172,9 +202,9 @@ void Shader::InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderT
 		case GL_GEOMETRY_SHADER:
 			return "__GEOM";
 		case GL_TESS_CONTROL_SHADER:
-			return "__TESSC";
+			return "__TESC";
 		case GL_TESS_EVALUATION_SHADER:
-			return "__TESSE";
+			return "__TESE";
 		case GL_VERTEX_SHADER:
 			return "__VERT";
 		default:

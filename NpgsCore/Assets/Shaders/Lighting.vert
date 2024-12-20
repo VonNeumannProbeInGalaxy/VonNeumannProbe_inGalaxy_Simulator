@@ -8,10 +8,6 @@ out vec3 Normal;
 out vec2 TexCoord;
 out vec3 FragPos;
 
-//uniform mat4x4 iModel;
-//uniform mat4x4 iView;
-//uniform mat4x4 iProjection;
-
 layout(shared, binding = 0) uniform Matrices
 {
     mat4 iModel;
