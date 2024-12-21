@@ -6,7 +6,7 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-enum class AssetType
+enum class EAssetType
 {
 	kBinaryShader, // 二进制着色器程序
 	kDataTable,    // 数据表
@@ -16,7 +16,7 @@ enum class AssetType
 	kTexture       // 纹理
 };
 
-std::string GetAssetFullPath(AssetType Type, const std::string& Filename);
+std::string GetAssetFullPath(EAssetType Type, const std::string& Filename);
 
 _ASSET_END
 _NPGS_END

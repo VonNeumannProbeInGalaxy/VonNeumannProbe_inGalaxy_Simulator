@@ -5,12 +5,12 @@
 _NPGS_BEGIN
 _UTIL_BEGIN
 
-NPGS_INLINE std::shared_ptr<spdlog::logger>& Logger::GetCoreLogger()
+NPGS_INLINE std::shared_ptr<spdlog::logger>& FLogger::GetCoreLogger()
 {
 	return _kCoreLogger;
 }
 
-NPGS_INLINE std::shared_ptr<spdlog::logger>& Logger::GetClientLogger()
+NPGS_INLINE std::shared_ptr<spdlog::logger>& FLogger::GetClientLogger()
 {
 	return _kClientLogger;
 }

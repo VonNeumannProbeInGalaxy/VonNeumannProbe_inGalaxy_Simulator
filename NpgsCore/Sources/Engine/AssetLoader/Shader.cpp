@@ -64,7 +64,7 @@ FShader& FShader::operator=(FShader&& Other) noexcept
 void FShader::InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramBinaryName,
 						 const std::vector<std::string>& Macros)
 {
-	std::string ProgramCache = GetAssetFullPath(Asset::AssetType::kBinaryShader, ProgramBinaryName + ".bin");
+	std::string ProgramCache = GetAssetFullPath(Asset::EAssetType::kBinaryShader, ProgramBinaryName + ".bin");
 	if (ProgramBinaryName != "")
 	{
 		std::filesystem::path ProgramCachePath(ProgramCache);
@@ -79,7 +79,7 @@ void FShader::InitShader(const std::vector<std::string>& SourceFiles, const std:
 	std::vector<FSource> ShaderSources;
 	for (const auto& SourceFile : SourceFiles)
 	{
-		ShaderSources.emplace_back(LoadShaderSource(GetAssetFullPath(Asset::AssetType::kShader, SourceFile)));
+		ShaderSources.emplace_back(LoadShaderSource(GetAssetFullPath(Asset::EAssetType::kShader, SourceFile)));
 	}
 
 	for (const auto& SourceFile : SourceFiles)
@@ -357,8 +357,8 @@ namespace
 
 	std::string GetIncludeFilename(const std::string& Statement)
 	{
-		std::string::size_type FirstQuotePosition = Statement.find_first_of("\"");
-		std::string::size_type LastQuotePosition  = Statement.find_last_of("\"");
+		std::size_t FirstQuotePosition = Statement.find_first_of("\"");
+		std::size_t LastQuotePosition  = Statement.find_last_of("\"");
 
 		return Statement.substr(FirstQuotePosition + 1, LastQuotePosition - FirstQuotePosition - 1);
 	}

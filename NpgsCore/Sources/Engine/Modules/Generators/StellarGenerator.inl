@@ -5,109 +5,109 @@
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetLogMassSuggestDistribution(std::unique_ptr<Util::Distribution<>> Distribution)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetLogMassSuggestDistribution(std::unique_ptr<Util::TDistribution<>> Distribution)
 {
 	_LogMassGenerator = std::move(Distribution);
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetUniverseAge(float Age)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetUniverseAge(float Age)
 {
 	_UniverseAge = Age;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetAgeLowerLimit(float Limit)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetAgeLowerLimit(float Limit)
 {
 	_AgeLowerLimit = Limit;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetAgeUpperLimit(float Limit)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetAgeUpperLimit(float Limit)
 {
 	_AgeUpperLimit = Limit;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetFeHLowerLimit(float Limit)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetFeHLowerLimit(float Limit)
 {
 	_FeHLowerLimit = Limit;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetFeHUpperLimit(float Limit)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetFeHUpperLimit(float Limit)
 {
 	_FeHUpperLimit = Limit;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetMassLowerLimit(float Limit)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetMassLowerLimit(float Limit)
 {
 	_MassLowerLimit = Limit;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetMassUpperLimit(float Limit)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetMassUpperLimit(float Limit)
 {
 	_MassUpperLimit = Limit;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetCoilTempLimit(float Limit)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetCoilTempLimit(float Limit)
 {
 	_CoilTemperatureLimit = Limit;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetdEpdM(float dEpdM)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetdEpdM(float dEpdM)
 {
 	_dEpdM = dEpdM;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetAgePdf(const std::function<float(const glm::vec3&, float, float)>& AgePdf)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetAgePdf(const std::function<float(const glm::vec3&, float, float)>& AgePdf)
 {
 	_AgePdf = AgePdf;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetAgeMaxPdf(const glm::vec2& MaxPdf)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetAgeMaxPdf(const glm::vec2& MaxPdf)
 {
 	_AgeMaxPdf = MaxPdf;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetMassPdfs(const std::array<std::function<float(float)>, 2>& MassPdfs)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetMassPdfs(const std::array<std::function<float(float)>, 2>& MassPdfs)
 {
 	_MassPdfs = MassPdfs;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetMassMaxPdfs(const std::array<glm::vec2, 2>& MaxPdfs)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetMassMaxPdfs(const std::array<glm::vec2, 2>& MaxPdfs)
 {
 	_MassMaxPdfs = MaxPdfs;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetAgeDistribution(GenerateDistribution Distribution)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetAgeDistribution(EGenerateDistribution Distribution)
 {
 	_AgeDistribution = Distribution;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetFeHDistribution(GenerateDistribution Distribution)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetFeHDistribution(EGenerateDistribution Distribution)
 {
 	_FeHDistribution = Distribution;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetMassDistribution(GenerateDistribution Distribution)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetMassDistribution(EGenerateDistribution Distribution)
 {
 	_MassDistribution = Distribution;
 	return *this;
 }
 
-NPGS_INLINE StellarGenerator& StellarGenerator::SetGenerateOption(GenerateOption Option)
+NPGS_INLINE FStellarGenerator& FStellarGenerator::SetGenerateOption(EGenerateOption Option)
 {
 	_Option = Option;
 	return *this;

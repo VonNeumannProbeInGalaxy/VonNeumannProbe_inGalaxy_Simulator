@@ -22,14 +22,14 @@
 
 _NPGS_BEGIN
 
-Universe::Universe(std::uint32_t Seed, std::size_t StarCount, std::size_t ExtraGiantCount, std::size_t ExtraMassiveStarCount,
-				   std::size_t ExtraNeutronStarCount, std::size_t ExtraBlackHoleCount, std::size_t ExtraMergeStarCount,
-				   float UniverseAge)
+FUniverse::FUniverse(std::uint32_t Seed, std::size_t StarCount, std::size_t ExtraGiantCount, std::size_t ExtraMassiveStarCount,
+					 std::size_t ExtraNeutronStarCount, std::size_t ExtraBlackHoleCount, std::size_t ExtraMergeStarCount,
+					 float UniverseAge)
 	:
 	_RandomEngine(Seed),
 	_SeedGenerator(0ull, std::numeric_limits<std::uint32_t>::max()),
 	_CommonGenerator(0.0f, 1.0f),
-	_ThreadPool(ThreadPool::GetInstance()),
+	_ThreadPool(FThreadPool::GetInstance()),
 
 	_StarCount(StarCount),
 	_ExtraGiantCount(ExtraGiantCount),
@@ -50,13 +50,13 @@ Universe::Universe(std::uint32_t Seed, std::size_t StarCount, std::size_t ExtraG
 	_RandomEngine.seed(SeedSequence);
 }
 
-Universe::~Universe()
+FUniverse::~FUniverse()
 {
 }
 
-void Universe::FillUniverse()
+void FUniverse::FillUniverse()
 {
-	int MaxThread = _ThreadPool->GetPhysicalCoreCount();
+	int MaxThread = _ThreadPool->GetMaxThreadCount();
 
 	GenerateStars(MaxThread);
 	FillStellarSystem(MaxThread);
@@ -64,7 +64,7 @@ void Universe::FillUniverse()
 	_ThreadPool->Terminate();
 }
 
-void Universe::ReplaceStar(std::size_t DistanceRank, const Astro::Star& StarData)
+void FUniverse::ReplaceStar(std::size_t DistanceRank, const Astro::AStar& StarData)
 {
 	for (auto& System : _StellarSystems)
 	{
@@ -77,12 +77,12 @@ void Universe::ReplaceStar(std::size_t DistanceRank, const Astro::Star& StarData
 			}
 
 			Stars.clear();
-			Stars.emplace_back(std::make_unique<Astro::Star>(StarData));
+			Stars.emplace_back(std::make_unique<Astro::AStar>(StarData));
 		}
 	}
 }
 
-void Universe::CountStars()
+void FUniverse::CountStars()
 {
 	constexpr int kTypeOIndex = 0;
 	constexpr int kTypeBIndex = 1;
@@ -110,37 +110,37 @@ void Universe::CountStars()
 	struct MostLuminous
 	{
 		double LuminositySol{};
-		const Astro::Star* Star = nullptr;
+		const Astro::AStar* Star = nullptr;
 	};
 
 	struct MostMassive
 	{
 		double MassSol{};
-		const Astro::Star* Star = nullptr;
+		const Astro::AStar* Star = nullptr;
 	};
 
 	struct Largest
 	{
 		float RadiusSol{};
-		const Astro::Star* Star = nullptr;
+		const Astro::AStar* Star = nullptr;
 	};
 
 	struct Hottest
 	{
 		float Teff{};
-		const Astro::Star* Star = nullptr;
+		const Astro::AStar* Star = nullptr;
 	};
 
 	struct Oldest
 	{
 		double Age{};
-		const Astro::Star* Star = nullptr;
+		const Astro::AStar* Star = nullptr;
 	};
 
 	struct MostOblateness
 	{
 		float Oblateness{};
-		const Astro::Star* Star = nullptr;
+		const Astro::AStar* Star = nullptr;
 	};
 
 	auto FormatTitle = []() -> std::string
@@ -149,7 +149,7 @@ void Universe::CountStars()
 						   "InMass", "Mass", "Radius", "Age", "Class", "FeH", "Lum", "Teff", "CoreTemp", "CoreDensity", "Mdot", "WindSpeed", "Phase", "Magnetic", "Lifetime", "Oblateness");
 	};
 
-	auto FormatInfo = [](const Astro::Star* Star) -> std::string
+	auto FormatInfo = [](const Astro::AStar* Star) -> std::string
 	{
 		if (Star == nullptr)
 		{
@@ -179,35 +179,35 @@ void Universe::CountStars()
 						   Star->GetOblateness());
 	};
 
-	auto CountClass = [](const Util::StellarClass::SpectralType& SpectralType, std::array<std::size_t, 7>& Type)
+	auto CountClass = [](const Util::FStellarClass::FSpectralType& SpectralType, std::array<std::size_t, 7>& Type)
 	{
 		switch (SpectralType.HSpectralClass)
 		{
-		case Util::StellarClass::SpectralClass::kSpectral_O:
+		case Util::FStellarClass::ESpectralClass::kSpectral_O:
 			++Type[kTypeOIndex];
 			break;
-		case Util::StellarClass::SpectralClass::kSpectral_B:
+		case Util::FStellarClass::ESpectralClass::kSpectral_B:
 			++Type[kTypeBIndex];
 			break;
-		case Util::StellarClass::SpectralClass::kSpectral_A:
+		case Util::FStellarClass::ESpectralClass::kSpectral_A:
 			++Type[kTypeAIndex];
 			break;
-		case Util::StellarClass::SpectralClass::kSpectral_F:
+		case Util::FStellarClass::ESpectralClass::kSpectral_F:
 			++Type[kTypeFIndex];
 			break;
-		case Util::StellarClass::SpectralClass::kSpectral_G:
+		case Util::FStellarClass::ESpectralClass::kSpectral_G:
 			++Type[kTypeGIndex];
 			break;
-		case Util::StellarClass::SpectralClass::kSpectral_K:
+		case Util::FStellarClass::ESpectralClass::kSpectral_K:
 			++Type[kTypeKIndex];
 			break;
-		case Util::StellarClass::SpectralClass::kSpectral_M:
+		case Util::FStellarClass::ESpectralClass::kSpectral_M:
 			++Type[kTypeMIndex];
 			break;
 		}
 	};
 
-	auto CountMostLuminous = [](const std::unique_ptr<Astro::Star>& Star, MostLuminous& MostLuminousStar)
+	auto CountMostLuminous = [](const std::unique_ptr<Astro::AStar>& Star, MostLuminous& MostLuminousStar)
 	{
 		double LuminositySol = 0.0;
 		LuminositySol = Star->GetLuminosity() / kSolarLuminosity;
@@ -218,7 +218,7 @@ void Universe::CountStars()
 		}
 	};
 
-	auto CountMostMassive = [](const std::unique_ptr<Astro::Star>& Star, MostMassive& MostMassiveStar)
+	auto CountMostMassive = [](const std::unique_ptr<Astro::AStar>& Star, MostMassive& MostMassiveStar)
 	{
 		double MassSol = 0.0;
 		MassSol = Star->GetMass() / kSolarMass;
@@ -229,7 +229,7 @@ void Universe::CountStars()
 		}
 	};
 
-	auto CountLargest = [](const std::unique_ptr<Astro::Star>& Star, Largest& LargestStar)
+	auto CountLargest = [](const std::unique_ptr<Astro::AStar>& Star, Largest& LargestStar)
 	{
 		float RadiusSol = 0.0f;
 		RadiusSol = Star->GetRadius() / kSolarRadius;
@@ -240,7 +240,7 @@ void Universe::CountStars()
 		}
 	};
 
-	auto CountHottest = [](const std::unique_ptr<Astro::Star>& Star, Hottest& HottestStar)
+	auto CountHottest = [](const std::unique_ptr<Astro::AStar>& Star, Hottest& HottestStar)
 	{
 		float Teff = 0.0f;
 		Teff = Star->GetTeff();
@@ -251,7 +251,7 @@ void Universe::CountStars()
 		}
 	};
 
-	auto CountOldest = [](const std::unique_ptr<Astro::Star>& Star, Oldest& OldestStar)
+	auto CountOldest = [](const std::unique_ptr<Astro::AStar>& Star, Oldest& OldestStar)
 	{
 		double Age = 0.0;
 		Age = Star->GetAge();
@@ -262,7 +262,7 @@ void Universe::CountStars()
 		}
 	};
 
-	auto CountMostOblateness = [](const std::unique_ptr<Astro::Star>& Star, MostOblateness& MostOblatenessStar)
+	auto CountMostOblateness = [](const std::unique_ptr<Astro::AStar>& Star, MostOblateness& MostOblatenessStar)
 	{
 		float Oblateness = 0.0f;
 		Oblateness = Star->GetOblateness();
@@ -341,18 +341,18 @@ void Universe::CountStars()
 			}
 
 			const auto& Class = Star->GetStellarClass();
-			Util::StellarClass::StarType StarType = Class.GetStarType();
-			if (StarType != Util::StellarClass::StarType::kNormalStar)
+			Util::FStellarClass::EStarType StarType = Class.GetStarType();
+			if (StarType != Util::FStellarClass::EStarType::kNormalStar)
 			{
 				switch (StarType)
 				{
-				case Util::StellarClass::StarType::kBlackHole:
+				case Util::FStellarClass::EStarType::kBlackHole:
 					++BlackHoles;
 					break;
-				case Util::StellarClass::StarType::kNeutronStar:
+				case Util::FStellarClass::EStarType::kNeutronStar:
 					++NeutronStars;
 					break;
-				case Util::StellarClass::StarType::kWhiteDwarf:
+				case Util::FStellarClass::EStarType::kWhiteDwarf:
 					++WhiteDwarfs;
 					break;
 				default:
@@ -362,13 +362,13 @@ void Universe::CountStars()
 				continue;
 			}
 
-			Util::StellarClass::SpectralType SpectralType = Class.Data();
+			Util::FStellarClass::FSpectralType SpectralType = Class.Data();
 
-			if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_Unknown)
+			if (SpectralType.LuminosityClass == Util::FStellarClass::ELuminosityClass::kLuminosity_Unknown)
 			{
-				if (SpectralType.HSpectralClass == Util::StellarClass::SpectralClass::kSpectral_WC ||
-					SpectralType.HSpectralClass == Util::StellarClass::SpectralClass::kSpectral_WN ||
-					SpectralType.HSpectralClass == Util::StellarClass::SpectralClass::kSpectral_WO)
+				if (SpectralType.HSpectralClass == Util::FStellarClass::ESpectralClass::kSpectral_WC ||
+					SpectralType.HSpectralClass == Util::FStellarClass::ESpectralClass::kSpectral_WN ||
+					SpectralType.HSpectralClass == Util::FStellarClass::ESpectralClass::kSpectral_WO)
 				{
 					++WolfRayet;
 					CountMostLuminous(Star, MostLuminousWolfRayet);
@@ -381,8 +381,8 @@ void Universe::CountStars()
 				}
 			}
 
-			if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_0 ||
-				SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_IaPlus)
+			if (SpectralType.LuminosityClass == Util::FStellarClass::ELuminosityClass::kLuminosity_0 ||
+				SpectralType.LuminosityClass == Util::FStellarClass::ELuminosityClass::kLuminosity_IaPlus)
 			{
 				CountClass(SpectralType, Hypergiants);
 				CountMostLuminous(Star, MostLuminousHypergiant);
@@ -394,9 +394,9 @@ void Universe::CountStars()
 				continue;
 			}
 
-			if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_Ia  ||
-				SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_Iab ||
-				SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_Ib)
+			if (SpectralType.LuminosityClass == Util::FStellarClass::ELuminosityClass::kLuminosity_Ia  ||
+				SpectralType.LuminosityClass == Util::FStellarClass::ELuminosityClass::kLuminosity_Iab ||
+				SpectralType.LuminosityClass == Util::FStellarClass::ELuminosityClass::kLuminosity_Ib)
 			{
 				CountClass(SpectralType, Supergiants);
 				CountMostLuminous(Star, MostLuminousSupergiant);
@@ -408,7 +408,7 @@ void Universe::CountStars()
 				continue;
 			}
 
-			if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_II)
+			if (SpectralType.LuminosityClass == Util::FStellarClass::ELuminosityClass::kLuminosity_II)
 			{
 				CountClass(SpectralType, BrightGiants);
 				CountMostLuminous(Star, MostLuminousBrightGiant);
@@ -420,7 +420,7 @@ void Universe::CountStars()
 				continue;
 			}
 
-			if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_III)
+			if (SpectralType.LuminosityClass == Util::FStellarClass::ELuminosityClass::kLuminosity_III)
 			{
 				CountClass(SpectralType, Giants);
 				CountMostLuminous(Star, MostLuminousGiant);
@@ -432,7 +432,7 @@ void Universe::CountStars()
 				continue;
 			}
 
-			if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_IV)
+			if (SpectralType.LuminosityClass == Util::FStellarClass::ELuminosityClass::kLuminosity_IV)
 			{
 				CountClass(SpectralType, Subgiants);
 				CountMostLuminous(Star, MostLuminousSubgiant);
@@ -444,7 +444,7 @@ void Universe::CountStars()
 				continue;
 			}
 
-			if (SpectralType.LuminosityClass == Util::StellarClass::LuminosityClass::kLuminosity_V)
+			if (SpectralType.LuminosityClass == Util::FStellarClass::ELuminosityClass::kLuminosity_V)
 			{
 				CountClass(SpectralType, MainSequence);
 				CountMostLuminous(Star, MostLuminousMainSequence);
@@ -587,7 +587,7 @@ void Universe::CountStars()
 }
 
 template<typename AstroType, typename DataType>
-void Universe::MakeChunks(int MaxThread, std::vector<DataType>& Data, std::vector<std::vector<DataType>>& DataLists,
+void FUniverse::MakeChunks(int MaxThread, std::vector<DataType>& Data, std::vector<std::vector<DataType>>& DataLists,
 						  std::vector<std::promise<std::vector<AstroType>>>& Promises,
 						  std::vector<std::future<std::vector<AstroType>>>& ChunkFutures)
 {
@@ -605,25 +605,25 @@ void Universe::MakeChunks(int MaxThread, std::vector<DataType>& Data, std::vecto
 	}
 }
 
-void Universe::GenerateStars(int MaxThread)
+void FUniverse::GenerateStars(int MaxThread)
 {
 	NpgsCoreInfo("Initializating and generating basic properties...");
-	std::vector<Module::StellarGenerator> Generators;
-	std::vector<Module::StellarGenerator::BasicProperties> BasicProperties;
+	std::vector<Module::FStellarGenerator> Generators;
+	std::vector<Module::FStellarGenerator::FBasicProperties> BasicProperties;
 
-	using enum Module::StellarGenerator::GenerateDistribution;
-	using enum Module::StellarGenerator::GenerateOption;
+	using enum Module::FStellarGenerator::EGenerateDistribution;
+	using enum Module::FStellarGenerator::EGenerateOption;
 	auto CreateGenerators =
-	[&, this](Module::StellarGenerator::GenerateOption Option = kNormal,
+	[&, this](Module::FStellarGenerator::EGenerateOption Option = kNormal,
 			  float MassLowerLimit = 0.1f,
 			  float MassUpperLimit = 300.0f,
-			  Module::StellarGenerator::GenerateDistribution MassDistribution = kFromPdf,
+			  Module::FStellarGenerator::EGenerateDistribution MassDistribution = kFromPdf,
 			  float AgeLowerLimit = 0.0f,
 			  float AgeUpperLimit = 1.26e10f,
-			  Module::StellarGenerator::GenerateDistribution AgeDistribution = kFromPdf,
+			  Module::FStellarGenerator::EGenerateDistribution AgeDistribution = kFromPdf,
 			  float FeHLowerLimit = -4.0f,
 			  float FeHUpperLimit = 0.5f,
-			  Module::StellarGenerator::GenerateDistribution FeHDistribution = kFromPdf) -> void
+			  Module::FStellarGenerator::EGenerateDistribution FeHDistribution = kFromPdf) -> void
 	{
 		for (int i = 0; i != MaxThread; ++i)
 		{
@@ -656,34 +656,34 @@ void Universe::GenerateStars(int MaxThread)
 	if (_ExtraGiantCount != 0)
 	{
 		Generators.clear();
-		CreateGenerators(Module::StellarGenerator::GenerateOption::kGiant, 1.0f, 35.0f);
+		CreateGenerators(Module::FStellarGenerator::EGenerateOption::kGiant, 1.0f, 35.0f);
 		GenerateBasicProperties(_ExtraGiantCount);
 	}
 
 	if (_ExtraMassiveStarCount != 0)
 	{
 		Generators.clear();
-		CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal,
-						 20.0f, 300.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
-						 0.0f,  3.5e6f, Module::StellarGenerator::GenerateDistribution::kUniform);
+		CreateGenerators(Module::FStellarGenerator::EGenerateOption::kNormal,
+						 20.0f, 300.0f, Module::FStellarGenerator::EGenerateDistribution::kUniform,
+						 0.0f,  3.5e6f, Module::FStellarGenerator::EGenerateDistribution::kUniform);
 		GenerateBasicProperties(_ExtraMassiveStarCount);
 	}
 
 	if (_ExtraNeutronStarCount != 0)
 	{
 		Generators.clear();
-		CreateGenerators(Module::StellarGenerator::GenerateOption::kDeathStar,
-						 10.0f, 20.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
-						 1e7f,  1e8f,  Module::StellarGenerator::GenerateDistribution::kUniformByExponent);
+		CreateGenerators(Module::FStellarGenerator::EGenerateOption::kDeathStar,
+						 10.0f, 20.0f, Module::FStellarGenerator::EGenerateDistribution::kUniform,
+						 1e7f,  1e8f,  Module::FStellarGenerator::EGenerateDistribution::kUniformByExponent);
 		GenerateBasicProperties(_ExtraNeutronStarCount);
 	}
 
 	if (_ExtraBlackHoleCount != 0)
 	{
 		Generators.clear();
-		CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal,
-						 35.0f, 300.0f,   Module::StellarGenerator::GenerateDistribution::kUniform,
-						 1e7f,  1.26e10f, Module::StellarGenerator::GenerateDistribution::kFromPdf,
+		CreateGenerators(Module::FStellarGenerator::EGenerateOption::kNormal,
+						 35.0f, 300.0f,   Module::FStellarGenerator::EGenerateDistribution::kUniform,
+						 1e7f,  1.26e10f, Module::FStellarGenerator::EGenerateDistribution::kFromPdf,
 						 -2.0,  0.5);
 		GenerateBasicProperties(_ExtraBlackHoleCount);
 	}
@@ -691,9 +691,9 @@ void Universe::GenerateStars(int MaxThread)
 	if (_ExtraMergeStarCount != 0)
 	{
 		Generators.clear();
-		CreateGenerators(Module::StellarGenerator::GenerateOption::kMergeStar,
-						 0.0f, 0.0f, Module::StellarGenerator::GenerateDistribution::kUniform,
-						 1e6f, 1e8f, Module::StellarGenerator::GenerateDistribution::kUniformByExponent);
+		CreateGenerators(Module::FStellarGenerator::EGenerateOption::kMergeStar,
+						 0.0f, 0.0f, Module::FStellarGenerator::EGenerateDistribution::kUniform,
+						 1e6f, 1e8f, Module::FStellarGenerator::EGenerateDistribution::kUniformByExponent);
 		GenerateBasicProperties(_ExtraMergeStarCount);
 	}
 
@@ -701,12 +701,12 @@ void Universe::GenerateStars(int MaxThread)
 		_StarCount - _ExtraGiantCount - _ExtraMassiveStarCount - _ExtraNeutronStarCount - _ExtraBlackHoleCount - _ExtraMergeStarCount;
 
 	Generators.clear();
-	CreateGenerators(Module::StellarGenerator::GenerateOption::kNormal, 0.075f);
+	CreateGenerators(Module::FStellarGenerator::EGenerateOption::kNormal, 0.075f);
 	GenerateBasicProperties(CommonStarsCount);
 
 	NpgsCoreInfo("Interpolating stellar data as {} physical cores...", MaxThread);
 
-	std::vector<Astro::Star> Stars = InterpolateStars(MaxThread, Generators, BasicProperties);
+	std::vector<Astro::AStar> Stars = InterpolateStars(MaxThread, Generators, BasicProperties);
 
 	NpgsCoreInfo("Building stellar octree in 8 threads...");
 	GenerateSlots(0.1f, _StarCount, 0.004f);
@@ -746,7 +746,7 @@ void Universe::GenerateStars(int MaxThread)
 		if (Stars.size() > 1)
 		{
 			std::sort(Stars.begin(), Stars.end(),
-			[](const std::unique_ptr<Astro::Star>& Star1, std::unique_ptr<Astro::Star>& Star2) -> bool
+			[](const std::unique_ptr<Astro::AStar>& Star1, std::unique_ptr<Astro::AStar>& Star2) -> bool
 			{
 				return Star1->GetMass() > Star2->GetMass();
 			});
@@ -781,7 +781,7 @@ void Universe::GenerateStars(int MaxThread)
 		}
 	});
 
-	auto* HomeSystem = HomeNode->GetLink([](Astro::StellarSystem* System) -> bool
+	auto* HomeSystem = HomeNode->GetLink([](Astro::FStellarSystem* System) -> bool
 	{
 		return System->GetBaryPosition() == glm::vec3(0.0f);
 	});
@@ -797,11 +797,11 @@ void Universe::GenerateStars(int MaxThread)
 	NpgsCoreInfo("Stellar generation completed.");
 }
 
-void Universe::FillStellarSystem(int MaxThread)
+void FUniverse::FillStellarSystem(int MaxThread)
 {
 	NpgsCoreInfo("Generating planets...");
 
-	std::vector<Module::OrbitalGenerator> Generators;
+	std::vector<Module::FOrbitalGenerator> Generators;
 
 	for (int i = 0; i != MaxThread; ++i)
 	{
@@ -818,12 +818,12 @@ void Universe::FillStellarSystem(int MaxThread)
 	}
 }
 
-std::vector<Astro::Star> Universe::InterpolateStars(int MaxThread, std::vector<Module::StellarGenerator>& Generators,
-													std::vector<Module::StellarGenerator::BasicProperties>& BasicProperties)
+std::vector<Astro::AStar> FUniverse::InterpolateStars(int MaxThread, std::vector<Module::FStellarGenerator>& Generators,
+													std::vector<Module::FStellarGenerator::FBasicProperties>& BasicProperties)
 {
-	std::vector<std::vector<Module::StellarGenerator::BasicProperties>> PropertyLists(MaxThread);
-	std::vector<std::promise<std::vector<Astro::Star>>> Promises(MaxThread);
-	std::vector<std::future<std::vector<Astro::Star>>> ChunkFutures;
+	std::vector<std::vector<Module::FStellarGenerator::FBasicProperties>> PropertyLists(MaxThread);
+	std::vector<std::promise<std::vector<Astro::AStar>>> Promises(MaxThread);
+	std::vector<std::future<std::vector<Astro::AStar>>> ChunkFutures;
 
 	MakeChunks(MaxThread, BasicProperties, PropertyLists, Promises, ChunkFutures);
 
@@ -831,7 +831,7 @@ std::vector<Astro::Star> Universe::InterpolateStars(int MaxThread, std::vector<M
 	{
 		_ThreadPool->Commit([&, i]() -> void
 		{
-			std::vector<Astro::Star> Stars;
+			std::vector<Astro::AStar> Stars;
 			for (auto& Properties : PropertyLists[i])
 			{
 				Stars.emplace_back(Generators[i].GenerateStar(std::move(Properties)));
@@ -842,7 +842,7 @@ std::vector<Astro::Star> Universe::InterpolateStars(int MaxThread, std::vector<M
 
 	BasicProperties.clear();
 
-	std::vector<Astro::Star> Stars;
+	std::vector<Astro::AStar> Stars;
 	for (auto& Future : ChunkFutures)
 	{
 		auto Chunk = Future.get();
@@ -852,7 +852,7 @@ std::vector<Astro::Star> Universe::InterpolateStars(int MaxThread, std::vector<M
 	return Stars;
 }
 
-void Universe::GenerateSlots(float MinDistance, std::size_t SampleCount, float Density)
+void FUniverse::GenerateSlots(float MinDistance, std::size_t SampleCount, float Density)
 {
 	float Radius     = std::pow((3.0f * SampleCount / (4 * kPi * Density)), (1.0f / 3.0f));
 	float LeafSize   = std::pow((1.0f / Density), (1.0f / 3.0f));
@@ -860,7 +860,7 @@ void Universe::GenerateSlots(float MinDistance, std::size_t SampleCount, float D
 	float LeafRadius = LeafSize * 0.5f;
 	float RootRadius = LeafSize * static_cast<float>(std::pow(2, Exponent));
 
-	_Octree = std::make_unique<Octree<Astro::StellarSystem>>(glm::vec3(0.0), RootRadius);
+	_Octree = std::make_unique<TOctree<Astro::FStellarSystem>>(glm::vec3(0.0), RootRadius);
 	_Octree->BuildEmptyTree(LeafRadius); // 快速构建一个空树，每个叶子节点作为一个格子，用于生成恒星
 
 	// 遍历八叉树，将距离原点大于半径的叶子节点标记为无效，保证恒星只会在范围内生成
@@ -925,7 +925,7 @@ void Universe::GenerateSlots(float MinDistance, std::size_t SampleCount, float D
 		}
 	}
 
-	Util::UniformRealDistribution Offset(-LeafRadius, LeafRadius - MinDistance); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
+	Util::TUniformRealDistribution Offset(-LeafRadius, LeafRadius - MinDistance); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
 	// 遍历八叉树，为每个有效的叶子节点生成一个恒星
 	_Octree->Traverse([&Offset, LeafRadius, MinDistance, this](NodeType& Node) -> void
 	{
@@ -951,7 +951,7 @@ void Universe::GenerateSlots(float MinDistance, std::size_t SampleCount, float D
 	HomeNode->AddPoint(glm::vec3(0.0f));
 }
 
-void Universe::OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::vector<glm::vec3>& Slots)
+void FUniverse::OctreeLinkToStellarSystems(std::vector<Astro::AStar>& Stars, std::vector<glm::vec3>& Slots)
 {
 	std::size_t Index = 0;
 
@@ -961,9 +961,9 @@ void Universe::OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::
 		{
 			for (const auto& Point : Node.GetPoints())
 			{
-				Astro::BaryCenter NewBary(Point, glm::vec2(0.0f), 0, "");
-				Astro::StellarSystem NewSystem(NewBary);
-				NewSystem.StarsData().emplace_back(std::make_unique<Astro::Star>(Stars.back()));
+				Astro::FBaryCenter NewBary(Point, glm::vec2(0.0f), 0, "");
+				Astro::FStellarSystem NewSystem(NewBary);
+				NewSystem.StarsData().emplace_back(std::make_unique<Astro::AStar>(Stars.back()));
 				NewSystem.SetBaryNormal(NewSystem.StarsData().front()->GetNormal());
 				Stars.pop_back();
 
@@ -977,9 +977,9 @@ void Universe::OctreeLinkToStellarSystems(std::vector<Astro::Star>& Stars, std::
 	});
 }
 
-void Universe::GenerateBinaryStars(int MaxThread)
+void FUniverse::GenerateBinaryStars(int MaxThread)
 {
-	std::vector<Module::StellarGenerator> Generators;
+	std::vector<Module::FStellarGenerator> Generators;
 	for (int i = 0; i != MaxThread; ++i)
 	{
 		std::vector<std::uint32_t> Seeds(32);
@@ -990,10 +990,10 @@ void Universe::GenerateBinaryStars(int MaxThread)
 
 		std::shuffle(Seeds.begin(), Seeds.end(), _RandomEngine);
 		std::seed_seq SeedSequence(Seeds.begin(), Seeds.end());
-		Generators.emplace_back(SeedSequence, Module::StellarGenerator::GenerateOption::kBinarySecondStar);
+		Generators.emplace_back(SeedSequence, Module::FStellarGenerator::EGenerateOption::kBinarySecondStar);
 	}
 
-	std::vector<Astro::StellarSystem*> BinarySystems;
+	std::vector<Astro::FStellarSystem*> BinarySystems;
 	for (auto& System : _StellarSystems)
 	{
 		const auto& Star = System.StarsData().front();
@@ -1003,7 +1003,7 @@ void Universe::GenerateBinaryStars(int MaxThread)
 		}
 	}
 
-	std::vector<Module::StellarGenerator::BasicProperties> BasicProperties;
+	std::vector<Module::FStellarGenerator::FBasicProperties> BasicProperties;
 	for (std::size_t i = 0; i != BinarySystems.size(); ++i)
 	{
 		std::size_t ThreadId = i % MaxThread;
@@ -1017,7 +1017,7 @@ void Universe::GenerateBinaryStars(int MaxThread)
 		SelectedGenerator.SetMassLowerLimit(MassLowerLimit);
 		SelectedGenerator.SetMassUpperLimit(MassUpperLimit);
 		SelectedGenerator.SetLogMassSuggestDistribution(
-			std::make_unique<Util::NormalDistribution<>>(std::log10(FirstStarInitialMassSol), 0.25f));
+			std::make_unique<Util::TNormalDistribution<>>(std::log10(FirstStarInitialMassSol), 0.25f));
 
 		double Age = Star->GetAge();
 		float  FeH = Star->GetFeH();
@@ -1030,11 +1030,11 @@ void Universe::GenerateBinaryStars(int MaxThread)
 		BasicProperties.emplace_back(SelectedGenerator.GenerateBasicProperties(static_cast<float>(Age), FeH));
 	}
 
-	std::vector<Astro::Star> Stars = InterpolateStars(MaxThread, Generators, BasicProperties);
+	std::vector<Astro::AStar> Stars = InterpolateStars(MaxThread, Generators, BasicProperties);
 
 	for (std::size_t i = 0; i != BinarySystems.size(); ++i)
 	{
-		BinarySystems[i]->StarsData().emplace_back(std::make_unique<Astro::Star>(Stars[i]));
+		BinarySystems[i]->StarsData().emplace_back(std::make_unique<Astro::AStar>(Stars[i]));
 	}
 }
 

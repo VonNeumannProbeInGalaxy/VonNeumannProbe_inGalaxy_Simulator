@@ -5,246 +5,246 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-NPGS_INLINE Star& Star::SetExtendedProperties(const ExtendedProperties& StarExtraProperties)
+NPGS_INLINE AStar& AStar::SetExtendedProperties(const FExtendedProperties& ExtraProperties)
 {
-	_StarExtraProperties = StarExtraProperties;
+	_ExtraProperties = ExtraProperties;
 	return *this;
 }
 
-NPGS_INLINE const Star::ExtendedProperties& Star::GetExtendedProperties() const
+NPGS_INLINE const AStar::FExtendedProperties& AStar::GetExtendedProperties() const
 {
-	return _StarExtraProperties;
+	return _ExtraProperties;
 }
 
-NPGS_INLINE Star& Star::SetMass(double Mass)
+NPGS_INLINE AStar& AStar::SetMass(double Mass)
 {
-	_StarExtraProperties.Mass = Mass;
+	_ExtraProperties.Mass = Mass;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetLuminosity(double Luminosity)
+NPGS_INLINE AStar& AStar::SetLuminosity(double Luminosity)
 {
-	_StarExtraProperties.Luminosity = Luminosity;
+	_ExtraProperties.Luminosity = Luminosity;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetLifetime(double Lifetime)
+NPGS_INLINE AStar& AStar::SetLifetime(double Lifetime)
 {
-	_StarExtraProperties.Lifetime = Lifetime;
+	_ExtraProperties.Lifetime = Lifetime;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetEvolutionProgress(double EvolutionProgress)
+NPGS_INLINE AStar& AStar::SetEvolutionProgress(double EvolutionProgress)
 {
-	_StarExtraProperties.EvolutionProgress = EvolutionProgress;
+	_ExtraProperties.EvolutionProgress = EvolutionProgress;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetFeH(float FeH)
+NPGS_INLINE AStar& AStar::SetFeH(float FeH)
 {
-	_StarExtraProperties.FeH = FeH;
+	_ExtraProperties.FeH = FeH;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetInitialMass(float InitialMass)
+NPGS_INLINE AStar& AStar::SetInitialMass(float InitialMass)
 {
-	_StarExtraProperties.InitialMass = InitialMass;
+	_ExtraProperties.InitialMass = InitialMass;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetSurfaceH1(float SurfaceH1)
+NPGS_INLINE AStar& AStar::SetSurfaceH1(float SurfaceH1)
 {
-	_StarExtraProperties.SurfaceH1 = SurfaceH1;
+	_ExtraProperties.SurfaceH1 = SurfaceH1;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetSurfaceZ(float SurfaceZ)
+NPGS_INLINE AStar& AStar::SetSurfaceZ(float SurfaceZ)
 {
-	_StarExtraProperties.SurfaceZ = SurfaceZ;
+	_ExtraProperties.SurfaceZ = SurfaceZ;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetSurfaceEnergeticNuclide(float SurfaceEnergeticNuclide)
+NPGS_INLINE AStar& AStar::SetSurfaceEnergeticNuclide(float SurfaceEnergeticNuclide)
 {
-	_StarExtraProperties.SurfaceEnergeticNuclide = SurfaceEnergeticNuclide;
+	_ExtraProperties.SurfaceEnergeticNuclide = SurfaceEnergeticNuclide;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetSurfaceVolatiles(float SurfaceVolatiles)
+NPGS_INLINE AStar& AStar::SetSurfaceVolatiles(float SurfaceVolatiles)
 {
-	_StarExtraProperties.SurfaceVolatiles = SurfaceVolatiles;
+	_ExtraProperties.SurfaceVolatiles = SurfaceVolatiles;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetTeff(float Teff)
+NPGS_INLINE AStar& AStar::SetTeff(float Teff)
 {
-	_StarExtraProperties.Teff = Teff;
+	_ExtraProperties.Teff = Teff;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetCoreTemp(float CoreTemp)
+NPGS_INLINE AStar& AStar::SetCoreTemp(float CoreTemp)
 {
-	_StarExtraProperties.CoreTemp = CoreTemp;
+	_ExtraProperties.CoreTemp = CoreTemp;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetCoreDensity(float CoreDensity)
+NPGS_INLINE AStar& AStar::SetCoreDensity(float CoreDensity)
 {
-	_StarExtraProperties.CoreDensity = CoreDensity;
+	_ExtraProperties.CoreDensity = CoreDensity;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetStellarWindSpeed(float StellarWindSpeed)
+NPGS_INLINE AStar& AStar::SetStellarWindSpeed(float StellarWindSpeed)
 {
-	_StarExtraProperties.StellarWindSpeed = StellarWindSpeed;
+	_ExtraProperties.StellarWindSpeed = StellarWindSpeed;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetStellarWindMassLossRate(float StellarWindMassLossRate)
+NPGS_INLINE AStar& AStar::SetStellarWindMassLossRate(float StellarWindMassLossRate)
 {
-	_StarExtraProperties.StellarWindMassLossRate = StellarWindMassLossRate;
+	_ExtraProperties.StellarWindMassLossRate = StellarWindMassLossRate;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetMinCoilMass(float MinCoilMass)
+NPGS_INLINE AStar& AStar::SetMinCoilMass(float MinCoilMass)
 {
-	_StarExtraProperties.MinCoilMass = MinCoilMass;
+	_ExtraProperties.MinCoilMass = MinCoilMass;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetIsSingleStar(bool bIsSingleStar)
+NPGS_INLINE AStar& AStar::SetIsSingleStar(bool bIsSingleStar)
 {
-	_StarExtraProperties.bIsSingleStar = bIsSingleStar;
+	_ExtraProperties.bIsSingleStar = bIsSingleStar;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetHasPlanets(bool bHasPlanets)
+NPGS_INLINE AStar& AStar::SetHasPlanets(bool bHasPlanets)
 {
-	_StarExtraProperties.bHasPlanets = bHasPlanets;
+	_ExtraProperties.bHasPlanets = bHasPlanets;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetStarFrom(StarFrom From)
+NPGS_INLINE AStar& AStar::SetStarFrom(EStarFrom From)
 {
-	_StarExtraProperties.From = From;
+	_ExtraProperties.From = From;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetEvolutionPhase(EvolutionPhase Phase)
+NPGS_INLINE AStar& AStar::SetEvolutionPhase(EEvolutionPhase Phase)
 {
-	_StarExtraProperties.Phase = Phase;
+	_ExtraProperties.Phase = Phase;
 	return *this;
 }
 
-NPGS_INLINE Star& Star::SetStellarClass(const Util::StellarClass& StellarClass)
+NPGS_INLINE AStar& AStar::SetStellarClass(const Util::FStellarClass& Class)
 {
-	_StarExtraProperties.StellarClass = StellarClass;
+	_ExtraProperties.Class = Class;
 	return *this;
 }
 
-NPGS_INLINE double Star::GetMass() const
+NPGS_INLINE double AStar::GetMass() const
 {
-	return _StarExtraProperties.Mass;
+	return _ExtraProperties.Mass;
 }
 
-NPGS_INLINE double Star::GetLuminosity() const
+NPGS_INLINE double AStar::GetLuminosity() const
 {
-	return _StarExtraProperties.Luminosity;
+	return _ExtraProperties.Luminosity;
 }
 
-NPGS_INLINE double Star::GetLifetime() const
+NPGS_INLINE double AStar::GetLifetime() const
 {
-	return _StarExtraProperties.Lifetime;
+	return _ExtraProperties.Lifetime;
 }
 
-NPGS_INLINE double Star::GetEvolutionProgress() const
+NPGS_INLINE double AStar::GetEvolutionProgress() const
 {
-	return _StarExtraProperties.EvolutionProgress;
+	return _ExtraProperties.EvolutionProgress;
 }
 
-NPGS_INLINE float Star::GetFeH() const
+NPGS_INLINE float AStar::GetFeH() const
 {
-	return _StarExtraProperties.FeH;
+	return _ExtraProperties.FeH;
 }
 
-NPGS_INLINE float Star::GetInitialMass() const
+NPGS_INLINE float AStar::GetInitialMass() const
 {
-	return _StarExtraProperties.InitialMass;
+	return _ExtraProperties.InitialMass;
 }
 
-NPGS_INLINE float Star::GetSurfaceH1() const
+NPGS_INLINE float AStar::GetSurfaceH1() const
 {
-	return _StarExtraProperties.SurfaceH1;
+	return _ExtraProperties.SurfaceH1;
 }
 
-NPGS_INLINE float Star::GetSurfaceZ() const
+NPGS_INLINE float AStar::GetSurfaceZ() const
 {
-	return _StarExtraProperties.SurfaceZ;
+	return _ExtraProperties.SurfaceZ;
 }
 
-NPGS_INLINE float Star::GetSurfaceEnergeticNuclide() const
+NPGS_INLINE float AStar::GetSurfaceEnergeticNuclide() const
 {
-	return _StarExtraProperties.SurfaceEnergeticNuclide;
+	return _ExtraProperties.SurfaceEnergeticNuclide;
 }
 
-NPGS_INLINE float Star::GetSurfaceVolatiles() const
+NPGS_INLINE float AStar::GetSurfaceVolatiles() const
 {
-	return _StarExtraProperties.SurfaceVolatiles;
+	return _ExtraProperties.SurfaceVolatiles;
 }
 
-NPGS_INLINE float Star::GetTeff() const
+NPGS_INLINE float AStar::GetTeff() const
 {
-	return _StarExtraProperties.Teff;
+	return _ExtraProperties.Teff;
 }
 
-NPGS_INLINE float Star::GetCoreTemp() const
+NPGS_INLINE float AStar::GetCoreTemp() const
 {
-	return _StarExtraProperties.CoreTemp;
+	return _ExtraProperties.CoreTemp;
 }
 
-NPGS_INLINE float Star::GetCoreDensity() const
+NPGS_INLINE float AStar::GetCoreDensity() const
 {
-	return _StarExtraProperties.CoreDensity;
+	return _ExtraProperties.CoreDensity;
 }
 
-NPGS_INLINE float Star::GetStellarWindSpeed() const
+NPGS_INLINE float AStar::GetStellarWindSpeed() const
 {
-	return _StarExtraProperties.StellarWindSpeed;
+	return _ExtraProperties.StellarWindSpeed;
 }
 
-NPGS_INLINE float Star::GetStellarWindMassLossRate() const
+NPGS_INLINE float AStar::GetStellarWindMassLossRate() const
 {
-	return _StarExtraProperties.StellarWindMassLossRate;
+	return _ExtraProperties.StellarWindMassLossRate;
 }
 
-NPGS_INLINE float Star::GetMinCoilMass() const
+NPGS_INLINE float AStar::GetMinCoilMass() const
 {
-	return _StarExtraProperties.MinCoilMass;
+	return _ExtraProperties.MinCoilMass;
 }
 
-NPGS_INLINE bool Star::GetIsSingleStar() const
+NPGS_INLINE bool AStar::GetIsSingleStar() const
 {
-	return _StarExtraProperties.bIsSingleStar;
+	return _ExtraProperties.bIsSingleStar;
 }
 
-NPGS_INLINE bool Star::GetHasPlanets() const
+NPGS_INLINE bool AStar::GetHasPlanets() const
 {
-	return _StarExtraProperties.bHasPlanets;
+	return _ExtraProperties.bHasPlanets;
 }
 
-NPGS_INLINE Star::StarFrom Star::GetStarFrom() const
+NPGS_INLINE AStar::EStarFrom AStar::GetStarFrom() const
 {
-	return _StarExtraProperties.From;
+	return _ExtraProperties.From;
 }
 
-NPGS_INLINE Star::EvolutionPhase Star::GetEvolutionPhase() const
+NPGS_INLINE AStar::EEvolutionPhase AStar::GetEvolutionPhase() const
 {
-	return _StarExtraProperties.Phase;
+	return _ExtraProperties.Phase;
 }
 
-NPGS_INLINE const Util::StellarClass& Star::GetStellarClass() const
+NPGS_INLINE const Util::FStellarClass& AStar::GetStellarClass() const
 {
-	return _StarExtraProperties.StellarClass;
+	return _ExtraProperties.Class;
 }
 
 _ASTRO_END

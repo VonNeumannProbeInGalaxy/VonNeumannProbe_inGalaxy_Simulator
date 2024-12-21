@@ -13,10 +13,10 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-class Star : public CelestialBody
+class AStar : public FCelestialBody
 {
 public:
-	enum class EvolutionPhase : int
+	enum class EEvolutionPhase : int
 	{
 		kPrevMainSequence          = -1,
 		kMainSequence              =  0,
@@ -36,7 +36,7 @@ public:
 		kNull                      =  std::numeric_limits<int>::max()
 	};
 
-	enum class StarFrom : int
+	enum class EStarFrom : int
 	{
 		kNormalFrom                = 0,
 		kWhiteDwarfMerge           = 1,
@@ -49,9 +49,9 @@ public:
 		kPhotondisintegration      = 8,
 	};
 
-	struct ExtendedProperties
+	struct FExtendedProperties
 	{
-		Util::StellarClass StellarClass;
+		Util::FStellarClass Class;
 
 		double Mass{};                    // 质量，单位 kg
 		double Luminosity{};              // 辐射光度，单位 W
@@ -70,45 +70,45 @@ public:
 		float  StellarWindMassLossRate{}; // 恒星风质量损失率，单位 kg/s
 		float  MinCoilMass{};             // 最小举星器赤道偏转线圈质量，单位 kg
 
-		EvolutionPhase Phase{ EvolutionPhase::kPrevMainSequence }; // 演化阶段
-		StarFrom       From{ StarFrom::kNormalFrom };              // 恒星形成方式
+		EEvolutionPhase Phase{ EEvolutionPhase::kPrevMainSequence }; // 演化阶段
+		EStarFrom       From{ EStarFrom::kNormalFrom };              // 恒星形成方式
 
 		bool bIsSingleStar{ true };
 		bool bHasPlanets{ true };
 	};
 
 public:
-	Star() = default;
-	Star(const CelestialBody::BasicProperties& StarBasicProperties, const ExtendedProperties& StarExtraProperties);
-	~Star() = default;
+	AStar() = default;
+	AStar(const FCelestialBody::FBasicProperties& BasicProperties, const FExtendedProperties& ExtraProperties);
+	~AStar() = default;
 
-	Star& SetExtendedProperties(const ExtendedProperties& StarExtraProperties);
-	const ExtendedProperties& GetExtendedProperties() const;
+	AStar& SetExtendedProperties(const FExtendedProperties& ExtraProperties);
+	const FExtendedProperties& GetExtendedProperties() const;
 
 	// Setters
 	// Setters for ExtendedProperties
 	// ------------------------------
-	Star& SetMass(double Mass);
-	Star& SetLuminosity(double Luminosity);
-	Star& SetLifetime(double Lifetime);
-	Star& SetEvolutionProgress(double EvolutionProgress);
-	Star& SetFeH(float FeH);
-	Star& SetInitialMass(float InitialMass);
-	Star& SetSurfaceH1(float SurfaceH1);
-	Star& SetSurfaceZ(float SurfaceZ);
-	Star& SetSurfaceEnergeticNuclide(float SurfaceEnergeticNuclide);
-	Star& SetSurfaceVolatiles(float SurfaceVolatiles);
-	Star& SetTeff(float Teff);
-	Star& SetCoreTemp(float CoreTemp);
-	Star& SetCoreDensity(float CoreDensity);
-	Star& SetStellarWindSpeed(float StellarWindSpeed);
-	Star& SetStellarWindMassLossRate(float StellarWindMassLossRate);
-	Star& SetMinCoilMass(float MinCoilMass);
-	Star& SetIsSingleStar(bool bIsSingleStar);
-	Star& SetHasPlanets(bool bHasPlanets);
-	Star& SetStarFrom(StarFrom From);
-	Star& SetEvolutionPhase(EvolutionPhase Phase);
-	Star& SetStellarClass(const Util::StellarClass& StellarClass);
+	AStar& SetMass(double Mass);
+	AStar& SetLuminosity(double Luminosity);
+	AStar& SetLifetime(double Lifetime);
+	AStar& SetEvolutionProgress(double EvolutionProgress);
+	AStar& SetFeH(float FeH);
+	AStar& SetInitialMass(float InitialMass);
+	AStar& SetSurfaceH1(float SurfaceH1);
+	AStar& SetSurfaceZ(float SurfaceZ);
+	AStar& SetSurfaceEnergeticNuclide(float SurfaceEnergeticNuclide);
+	AStar& SetSurfaceVolatiles(float SurfaceVolatiles);
+	AStar& SetTeff(float Teff);
+	AStar& SetCoreTemp(float CoreTemp);
+	AStar& SetCoreDensity(float CoreDensity);
+	AStar& SetStellarWindSpeed(float StellarWindSpeed);
+	AStar& SetStellarWindMassLossRate(float StellarWindMassLossRate);
+	AStar& SetMinCoilMass(float MinCoilMass);
+	AStar& SetIsSingleStar(bool bIsSingleStar);
+	AStar& SetHasPlanets(bool bHasPlanets);
+	AStar& SetStarFrom(EStarFrom From);
+	AStar& SetEvolutionPhase(EEvolutionPhase Phase);
+	AStar& SetStellarClass(const Util::FStellarClass& Class);
 
 	// Getters
 	// Getters for ExtendedProperties
@@ -131,9 +131,9 @@ public:
 	float GetMinCoilMass() const;
 	bool GetIsSingleStar() const;
 	bool GetHasPlanets() const;
-	StarFrom GetStarFrom() const;
-	EvolutionPhase GetEvolutionPhase() const;
-	const Util::StellarClass& GetStellarClass() const;
+	EStarFrom GetStarFrom() const;
+	EEvolutionPhase GetEvolutionPhase() const;
+	const Util::FStellarClass& GetStellarClass() const;
 
 	static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_O;
 	static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_B;
@@ -151,11 +151,11 @@ public:
 	static const std::vector<std::pair<int, int>> _kSpectralSubclassMap_WNxh;
 	static const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> _kInitialCommonMap;
 	static const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> _kInitialWolfRayetMap;
-	static const std::unordered_map<EvolutionPhase, Npgs::Util::StellarClass::LuminosityClass> _kLuminosityMap;
+	static const std::unordered_map<EEvolutionPhase, Npgs::Util::FStellarClass::ELuminosityClass> _kLuminosityMap;
 	static const std::unordered_map<float, float> _kFeHSurfaceH1Map;
 
 private:
-	ExtendedProperties _StarExtraProperties{};
+	FExtendedProperties _ExtraProperties{};
 };
 
 _ASTRO_END

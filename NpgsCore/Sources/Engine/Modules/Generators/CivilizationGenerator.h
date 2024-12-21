@@ -12,27 +12,27 @@
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-class CivilizationGenerator
+class FCivilizationGenerator
 {
 public:
-	CivilizationGenerator() = delete;
-	explicit CivilizationGenerator(const std::seed_seq& SeedSequence, float LifeOccurrenceProbability,
+	FCivilizationGenerator() = delete;
+	explicit FCivilizationGenerator(const std::seed_seq& SeedSequence, float LifeOccurrenceProbability,
 								   bool bEnableAsiFilter = false, float DestroyedByDisasterProbability = 0.001f);
 
-	~CivilizationGenerator() = default;
+	~FCivilizationGenerator() = default;
 
-	void GenerateCivilization(const Astro::Star* Star, float PoyntingVector, Astro::Planet* Planet);
-
-private:
-	void GenerateLife(double StarAge, float PoyntingVector, Astro::Planet* Planet);
-	void GenerateCivilizationDetails(const Astro::Star* Star, float PoyntingVector, Astro::Planet* Planet);
+	void GenerateCivilization(const Astro::AStar* Star, float PoyntingVector, Astro::APlanet* Planet);
 
 private:
-	std::mt19937                    _RandomEngine;
-	Util::BernoulliDistribution<>   _AsiFiltedProbability;
-	Util::BernoulliDistribution<>   _DestroyedByDisasterProbability;
-	Util::BernoulliDistribution<>   _LifeOccurrenceProbability;
-	Util::UniformRealDistribution<> _CommonGenerator;
+	void GenerateLife(double StarAge, float PoyntingVector, Astro::APlanet* Planet);
+	void GenerateCivilizationDetails(const Astro::AStar* Star, float PoyntingVector, Astro::APlanet* Planet);
+
+private:
+	std::mt19937                     _RandomEngine;
+	Util::TBernoulliDistribution<>   _AsiFiltedProbability;
+	Util::TBernoulliDistribution<>   _DestroyedByDisasterProbability;
+	Util::TBernoulliDistribution<>   _LifeOccurrenceProbability;
+	Util::TUniformRealDistribution<> _CommonGenerator;
 
 	static const std::array<float, 7> _kProbabilityListForCenoziocEra;
 	static const std::array<float, 7> _kProbabilityListForSatTeeTouyButAsi;

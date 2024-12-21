@@ -8,10 +8,10 @@
 _NPGS_BEGIN
 _INTELLI_BEGIN
 
-class Standard : public NpgsObject
+class FStandard : public INpgsObject
 {
 public:
-	enum class LifePhase : int
+	enum class ELifePhase : int
 	{
 		kNull                  = 0,
 		kLuca                  = 1,
@@ -23,14 +23,14 @@ public:
 		kNewCivilization       = 7,
 	};
 
-	struct LifeProperties
+	struct FLifeProperties
 	{
 		boost::multiprecision::uint128_t OrganismBiomass; // 生物量，单位 kg
 		float OrganismUsedPower{};                        // 生物圈使用的总功率，单位 W
-		LifePhase Phase{ LifePhase::kNull };              // 生命阶段
+		ELifePhase Phase{ ELifePhase::kNull };            // 生命阶段
 	};
 
-	struct CivilizationProperties
+	struct FCivilizationProperties
 	{
 		boost::multiprecision::uint128_t AtrificalStructureMass;   // 文明造物总质量，单位 kg
 		boost::multiprecision::uint128_t CitizenBiomass;           // 文明生物生物量，单位 kg
@@ -48,44 +48,44 @@ public:
 	};
 
 public:
-	Standard() = default;
-	Standard(const LifeProperties& LifeProperties, const CivilizationProperties& CivilizationProperties);
-	~Standard() = default;
+	FStandard() = default;
+	FStandard(const FLifeProperties& LifeProperties, const FCivilizationProperties& CivilizationProperties);
+	~FStandard() = default;
 
 	// Setters
 	// Setters for LifeProperties
 	// --------------------------
-	Standard& SetOrganismBiomass(float OrganismBiomass);
-	Standard& SetOrganismBiomass(const boost::multiprecision::uint128_t& OrganismBiomass);
-	Standard& SetOrganismUsedPower(float OrganismUsedPower);
-	Standard& SetLifePhase(LifePhase Phase);
+	FStandard& SetOrganismBiomass(float OrganismBiomass);
+	FStandard& SetOrganismBiomass(const boost::multiprecision::uint128_t& OrganismBiomass);
+	FStandard& SetOrganismUsedPower(float OrganismUsedPower);
+	FStandard& SetLifePhase(ELifePhase Phase);
 
 	// Setters for CivilizationProperties
 	// ----------------------------------
-	Standard& SetAtrificalStructureMass(float AtrificalStructureMass);
-	Standard& SetAtrificalStructureMass(const boost::multiprecision::uint128_t& AtrificalStructureMass);
-	Standard& SetCitizenBiomass(float CitizenBiomass);
-	Standard& SetCitizenBiomass(const boost::multiprecision::uint128_t& CitizenBiomass);
-	Standard& SetUseableEnergeticNuclide(float UseableEnergeticNuclide);
-	Standard& SetUseableEnergeticNuclide(const boost::multiprecision::uint128_t& UseableEnergeticNuclide);
-	Standard& SetOrbitAssetsMass(float OrbitAssetsMass);
-	Standard& SetOrbitAssetsMass(const boost::multiprecision::uint128_t& OrbitAssetsMass);
-	Standard& SetGeneralintelligenceCount(std::uint64_t GeneralintelligenceCount);
-	Standard& SetGeneralIntelligenceAverageSynapseActivationCount(float GeneralIntelligenceAverageSynapseActivationCount);
-	Standard& SetGeneralIntelligenceSynapseCount(float GeneralIntelligenceSynapseCount);
-	Standard& SetGeneralIntelligenceAverageLifetime(float GeneralIntelligenceAverageLifetime);
-	Standard& SetCitizenUsedPower(float CitizenUsedPower);
-	Standard& SetCivilizationProgress(float CivilizationProgress);
-	Standard& SetStoragedHistoryDataSize(float StoragedHistoryDataSize);
-	Standard& SetTeamworkCoefficient(float TeamworkCoefficient);
-	Standard& SetIsIndependentIndividual(bool bIsIndependentIndividual);
+	FStandard& SetAtrificalStructureMass(float AtrificalStructureMass);
+	FStandard& SetAtrificalStructureMass(const boost::multiprecision::uint128_t& AtrificalStructureMass);
+	FStandard& SetCitizenBiomass(float CitizenBiomass);
+	FStandard& SetCitizenBiomass(const boost::multiprecision::uint128_t& CitizenBiomass);
+	FStandard& SetUseableEnergeticNuclide(float UseableEnergeticNuclide);
+	FStandard& SetUseableEnergeticNuclide(const boost::multiprecision::uint128_t& UseableEnergeticNuclide);
+	FStandard& SetOrbitAssetsMass(float OrbitAssetsMass);
+	FStandard& SetOrbitAssetsMass(const boost::multiprecision::uint128_t& OrbitAssetsMass);
+	FStandard& SetGeneralintelligenceCount(std::uint64_t GeneralintelligenceCount);
+	FStandard& SetGeneralIntelligenceAverageSynapseActivationCount(float GeneralIntelligenceAverageSynapseActivationCount);
+	FStandard& SetGeneralIntelligenceSynapseCount(float GeneralIntelligenceSynapseCount);
+	FStandard& SetGeneralIntelligenceAverageLifetime(float GeneralIntelligenceAverageLifetime);
+	FStandard& SetCitizenUsedPower(float CitizenUsedPower);
+	FStandard& SetCivilizationProgress(float CivilizationProgress);
+	FStandard& SetStoragedHistoryDataSize(float StoragedHistoryDataSize);
+	FStandard& SetTeamworkCoefficient(float TeamworkCoefficient);
+	FStandard& SetIsIndependentIndividual(bool bIsIndependentIndividual);
 
 	// Getters
 	// Getters for LifeProperties
 	// --------------------------
 	const boost::multiprecision::uint128_t& GetOrganismBiomass() const;
 	float GetOrganismUsedPower() const;
-	LifePhase GetLifePhase() const;
+	ELifePhase GetLifePhase() const;
 
 	template <typename T>
 	T GetOrganismBiomassDigital() const;
@@ -130,11 +130,11 @@ public:
 	static const float _kEarlyAsiAge;
 
 private:
-	CivilizationProperties _CivilizationProperties;
-	LifeProperties         _LifeProperties;
+	FCivilizationProperties _CivilizationProperties;
+	FLifeProperties         _LifeProperties;
 };
 
-class Advanced : public NpgsObject
+class FAdvanced : public INpgsObject
 {
 };
 

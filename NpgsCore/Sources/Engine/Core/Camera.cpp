@@ -5,7 +5,7 @@
 
 _NPGS_BEGIN
 
-Camera::Camera(const glm::vec3& Position, const glm::vec3& WorldUp, float Sensitivity, float Speed, float Zoom)
+FCamera::FCamera(const glm::vec3& Position, const glm::vec3& WorldUp, float Sensitivity, float Speed, float Zoom)
 	:
 	_Orientation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f)),
 	_Position(Position),
@@ -20,51 +20,51 @@ Camera::Camera(const glm::vec3& Position, const glm::vec3& WorldUp, float Sensit
 	UpdateVectors();
 }
 
-const glm::vec3& Camera::GetCameraVector(VectorType Type) const
+const glm::vec3& FCamera::GetCameraVector(EVectorType Type) const
 {
 	switch (Type)
 	{
-	case VectorType::kPosition:
+	case EVectorType::kPosition:
 		return _Position;
-	case VectorType::kFront:
+	case EVectorType::kFront:
 		return _Front;
-	case VectorType::kUp:
+	case EVectorType::kUp:
 		return _Up;
-	case VectorType::kRight:
+	case EVectorType::kRight:
 		return _Right;
 	default:
 		NpgsAssert(false, "Invalid vector type");
 	}
 }
 
-void Camera::ProcessKeyboard(Movement Direction, double DeltaTime)
+void FCamera::ProcessKeyboard(EMovement Direction, double DeltaTime)
 {
 	float Velocity = static_cast<float>(_Speed * DeltaTime);
 
 	switch (Direction)
 	{
-	case Movement::kForward:
+	case EMovement::kForward:
 		_Position += _Front * Velocity;
 		break;
-	case Movement::kBack:
+	case EMovement::kBack:
 		_Position -= _Front * Velocity;
 		break;
-	case Movement::kLeft:
+	case EMovement::kLeft:
 		_Position -= _Right * Velocity;
 		break;
-	case Movement::kRight:
+	case EMovement::kRight:
 		_Position += _Right * Velocity;
 		break;
-	case Movement::kUp:
+	case EMovement::kUp:
 		_Position += _Up * Velocity;
 		break;
-	case Movement::kDown:
+	case EMovement::kDown:
 		_Position -= _Up * Velocity;
 		break;
-	case Movement::kRollLeft:
+	case EMovement::kRollLeft:
 		ProcessRotation(0.0f, 0.0f, -10.0f * Velocity);
 		break;
-	case Movement::kRollRight:
+	case EMovement::kRollRight:
 		ProcessRotation(0.0f, 0.0f,  10.0f * Velocity);
 		break;
 	}
@@ -72,7 +72,7 @@ void Camera::ProcessKeyboard(Movement Direction, double DeltaTime)
 	UpdateVectors();
 }
 
-void Camera::ProcessMouseMovement(double OffsetX, double OffsetY)
+void FCamera::ProcessMouseMovement(double OffsetX, double OffsetY)
 {
 	static float SmoothCoefficient = 0.1f;
 	float SmoothedX = SmoothCoefficient * static_cast<float>(OffsetX) + (1.0f - SmoothCoefficient) * _PrevOffsetX;
@@ -86,7 +86,7 @@ void Camera::ProcessMouseMovement(double OffsetX, double OffsetY)
     ProcessRotation(HorizontalAngle, VerticalAngle, 0.0f);
 }
 
-void Camera::ProcessRotation(float Yaw, float Pitch, float Roll)
+void FCamera::ProcessRotation(float Yaw, float Pitch, float Roll)
 {
     glm::quat QuatYaw   = glm::angleAxis(glm::radians(Yaw),   glm::vec3(0.0f, 1.0f, 0.0f));
     glm::quat QuatPitch = glm::angleAxis(glm::radians(Pitch), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -97,7 +97,7 @@ void Camera::ProcessRotation(float Yaw, float Pitch, float Roll)
     UpdateVectors();
 }
 
-void Camera::UpdateVectors()
+void FCamera::UpdateVectors()
 {
 	_Orientation = glm::normalize(_Orientation);
 	glm::quat ConjugateOrient = glm::conjugate(_Orientation);

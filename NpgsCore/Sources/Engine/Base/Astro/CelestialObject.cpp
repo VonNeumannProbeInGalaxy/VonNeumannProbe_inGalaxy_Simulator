@@ -3,7 +3,7 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-CelestialBody::CelestialBody(const BasicProperties& Properties)
+FCelestialBody::FCelestialBody(const FBasicProperties& Properties)
 	: _Properties(Properties)
 {
 }

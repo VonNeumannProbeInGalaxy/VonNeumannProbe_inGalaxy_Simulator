@@ -8,17 +8,17 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-class AstroObject : public NpgsObject
+class IAstroObject : public INpgsObject
 {
 public:
-	AstroObject() = default;
-	virtual ~AstroObject() = default;
+	IAstroObject() = default;
+	virtual ~IAstroObject() = default;
 };
 
-class CelestialBody : public AstroObject
+class FCelestialBody : public IAstroObject
 {
 public:
-	struct BasicProperties
+	struct FBasicProperties
 	{
 		std::string Name;              // 名字
 		glm::vec2   Normal{};          // 法向量，球坐标表示，(theta, phi)
@@ -32,24 +32,24 @@ public:
 	};
 
 public:
-	CelestialBody() = default;
-	CelestialBody(const BasicProperties& Properties);
-	virtual ~CelestialBody() = default;
+	FCelestialBody() = default;
+	FCelestialBody(const FBasicProperties& Properties);
+	virtual ~FCelestialBody() = default;
 
-	CelestialBody& SetBasicProperties(const BasicProperties& Properties);
-	const BasicProperties& GetBasicProperties() const;
+	FCelestialBody& SetBasicProperties(const FBasicProperties& Properties);
+	const FBasicProperties& GetBasicProperties() const;
 
 	// Setters
 	// Setters for BasicProperties
 	// ---------------------------
-	CelestialBody& SetNormal(const glm::vec2& Normal);
-	CelestialBody& SetName(const std::string& Name);
-	CelestialBody& SetAge(double Age);
-	CelestialBody& SetRadius(float Radius);
-	CelestialBody& SetSpin(float Spin);
-	CelestialBody& SetOblateness(float Oblateness);
-	CelestialBody& SetEscapeVelocity(float EscapeVelocity);
-	CelestialBody& SetMagneticField(float MagneticField);
+	FCelestialBody& SetNormal(const glm::vec2& Normal);
+	FCelestialBody& SetName(const std::string& Name);
+	FCelestialBody& SetAge(double Age);
+	FCelestialBody& SetRadius(float Radius);
+	FCelestialBody& SetSpin(float Spin);
+	FCelestialBody& SetOblateness(float Oblateness);
+	FCelestialBody& SetEscapeVelocity(float EscapeVelocity);
+	FCelestialBody& SetMagneticField(float MagneticField);
 
 	// Getters
 	// Getters for BasicProperties
@@ -64,7 +64,7 @@ public:
 	float  GetMagneticField() const;
 
 private:
-	BasicProperties _Properties{};
+	FBasicProperties _Properties{};
 };
 
 _ASTRO_END

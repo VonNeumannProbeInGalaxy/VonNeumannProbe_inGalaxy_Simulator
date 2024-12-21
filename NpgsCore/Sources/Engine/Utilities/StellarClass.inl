@@ -5,7 +5,7 @@
 _NPGS_BEGIN
 _UTIL_BEGIN
 
-NPGS_INLINE StellarClass::StarType StellarClass::GetStarType() const
+NPGS_INLINE FStellarClass::EStarType FStellarClass::GetStarType() const
 {
 	return _StarType;
 }

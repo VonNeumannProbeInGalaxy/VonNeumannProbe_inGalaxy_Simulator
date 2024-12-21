@@ -5,7 +5,7 @@
 _NPGS_BEGIN
 _UTIL_BEGIN
 
-void Logger::Init()
+void FLogger::Init()
 {
 	spdlog::set_pattern("%^[%T] %n: %v%$");
 
@@ -16,8 +16,8 @@ void Logger::Init()
 	_kClientLogger->set_level(spdlog::level::trace);
 }
 
-std::shared_ptr<spdlog::logger> Logger::_kCoreLogger   = nullptr;
-std::shared_ptr<spdlog::logger> Logger::_kClientLogger = nullptr;
+std::shared_ptr<spdlog::logger> FLogger::_kCoreLogger   = nullptr;
+std::shared_ptr<spdlog::logger> FLogger::_kClientLogger = nullptr;
 
 _UTIL_END
 _NPGS_END

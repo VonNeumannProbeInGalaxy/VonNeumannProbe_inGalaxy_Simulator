@@ -12,8 +12,10 @@ namespace
 	std::string GetTypeName(GLenum Type);
 }
 
-UniformBlockManager::BlockInfo* UniformBlockManager::CreateSharedBlock(GLuint Program, const std::string& BlockName, GLuint BindingPoint,
-																	   const std::vector<std::string>& MemberNames, BlockLayout Layout)
+FUniformBlockManager::FBlockInfo* FUniformBlockManager::CreateSharedBlock(GLuint Program, const std::string& BlockName,
+																		  GLuint BindingPoint,
+																		  const std::vector<std::string>& MemberNames,
+																		  EBlockLayout Layout)
 {
 	auto it = _SharedBlocks.find(BlockName);
 	if (it != _SharedBlocks.end())
@@ -24,7 +26,7 @@ UniformBlockManager::BlockInfo* UniformBlockManager::CreateSharedBlock(GLuint Pr
 	return CreateBlock(BlockName, BindingPoint, MemberNames, Layout, Program);
 }
 
-void UniformBlockManager::BindShaderToBlock(GLuint Program, const std::string& BlockName) const
+void FUniformBlockManager::BindShaderToBlock(GLuint Program, const std::string& BlockName) const
 {
 	auto it = _SharedBlocks.find(BlockName);
 	if (it != _SharedBlocks.end())
@@ -34,7 +36,7 @@ void UniformBlockManager::BindShaderToBlock(GLuint Program, const std::string& B
 	}
 }
 
-void UniformBlockManager::VerifyBlockLayout(GLuint Program, const std::string& BlockName) const
+void FUniformBlockManager::VerifyBlockLayout(GLuint Program, const std::string& BlockName) const
 {
 	auto it = _SharedBlocks.find(BlockName);
 	if (it == _SharedBlocks.end())
@@ -45,8 +47,8 @@ void UniformBlockManager::VerifyBlockLayout(GLuint Program, const std::string& B
 
 	const auto& Block = it->second;
 	std::println("Uniform block \"{}\" layout ({}):", BlockName,
-				 Block.Layout == BlockLayout::kShared ? "shared" :
-				 Block.Layout == BlockLayout::kStd140 ? "std140" : "std430");
+				 Block.Layout == EBlockLayout::kShared ? "shared" :
+				 Block.Layout == EBlockLayout::kStd140 ? "std140" : "std430");
 
 	std::vector<std::pair<std::string, GLint>> SortedMembers;
 	SortedMembers.reserve(Block.Offsets.size());
@@ -83,13 +85,13 @@ void UniformBlockManager::VerifyBlockLayout(GLuint Program, const std::string& B
 	std::println("Total size: {} bytes", Block.Size);
 }
 
-UniformBlockManager* UniformBlockManager::GetInstance()
+FUniformBlockManager* FUniformBlockManager::GetInstance()
 {
-	static UniformBlockManager Instance;
+	static FUniformBlockManager Instance;
 	return &Instance;
 }
 
-UniformBlockManager::~UniformBlockManager()
+FUniformBlockManager::~FUniformBlockManager()
 {
 	for (auto& [Name, Info] : _SharedBlocks)
 	{
@@ -98,10 +100,11 @@ UniformBlockManager::~UniformBlockManager()
 	_SharedBlocks.clear();
 }
 
-UniformBlockManager::BlockInfo* UniformBlockManager::CreateBlock(const std::string& BlockName, GLuint BindingPoint,
-																 const std::vector<std::string>& MemberNames, BlockLayout Layout, GLuint Program)
+FUniformBlockManager::FBlockInfo* FUniformBlockManager::CreateBlock(const std::string& BlockName, GLuint BindingPoint,
+																	const std::vector<std::string>& MemberNames,
+																	EBlockLayout Layout, GLuint Program)
 {
-	BlockInfo Info;
+	FBlockInfo Info;
 	Info.Layout = Layout;
 	GLuint BlockIndex = GetBlockIndex(BlockName, Program);
 	if (BlockIndex == GL_INVALID_INDEX)
@@ -131,7 +134,7 @@ UniformBlockManager::BlockInfo* UniformBlockManager::CreateBlock(const std::stri
 	return &_SharedBlocks[BlockName];
 }
 
-std::vector<GLint> UniformBlockManager::GetBlockOffsets(const std::string& BlockName, const std::vector<std::string>& Names, GLuint Program) const
+std::vector<GLint> FUniformBlockManager::GetBlockOffsets(const std::string& BlockName, const std::vector<std::string>& Names, GLuint Program) const
 {
 	std::vector<GLint> Offsets(Names.size(), -1);
 

@@ -4,7 +4,7 @@
 
 _NPGS_BEGIN
 
-NPGS_INLINE void Camera::ProcessMouseScroll(double OffsetY)
+NPGS_INLINE void FCamera::ProcessMouseScroll(double OffsetY)
 {
 	_Speed += static_cast<float>(OffsetY * 0.1);
 
@@ -14,22 +14,22 @@ NPGS_INLINE void Camera::ProcessMouseScroll(double OffsetY)
 	}
 }
 
-NPGS_INLINE float Camera::GetCameraZoom() const
+NPGS_INLINE float FCamera::GetCameraZoom() const
 {
 	return _Zoom;
 }
 
-NPGS_INLINE glm::mat4x4 Camera::GetViewMatrix() const
+NPGS_INLINE glm::mat4x4 FCamera::GetViewMatrix() const
 {
 	return glm::mat4_cast(_Orientation) * glm::translate(glm::mat4(1.0f), -_Position);
 }
 
-NPGS_INLINE void Camera::SetOrientation(const glm::quat& Orientation)
+NPGS_INLINE void FCamera::SetOrientation(const glm::quat& Orientation)
 {
 	_Orientation = Orientation;
 }
 
-NPGS_INLINE const glm::quat& Camera::GetOrientation() const
+NPGS_INLINE const glm::quat& FCamera::GetOrientation() const
 {
 	return _Orientation;
 }

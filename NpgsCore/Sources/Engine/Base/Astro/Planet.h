@@ -9,17 +9,17 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-struct ComplexMass
+struct FComplexMass
 {
 	boost::multiprecision::uint128_t Z;
 	boost::multiprecision::uint128_t Volatiles;
 	boost::multiprecision::uint128_t EnergeticNuclide;
 };
 
-class Planet : public CelestialBody
+class APlanet : public FCelestialBody
 {
 public:
-	enum class PlanetType : int
+	enum class EPlanetType : int
 	{
 		kRocky                            = 0,
 		kTerra                            = 1,
@@ -37,78 +37,78 @@ public:
 		kArtificalOrbitalStructureCluster = 13
 	};
 
-	struct ExtendedProperties
+	struct FExtendedProperties
 	{
-		ComplexMass AtmosphereMass;                          // 大气层质量，单位 kg
-		ComplexMass CoreMass;                                // 核心质量，单位 kg
-		ComplexMass OceanMass;                               // 海洋质量，单位 kg
-		boost::multiprecision::uint128_t CrustMineralMass;   // 地壳矿脉质量，单位 kg
-		std::unique_ptr<Intelli::Standard> CivilizationData; // 文明数据
-		PlanetType Type{ PlanetType::kRocky };               // 行星类型
-		float BalanceTemperature{};                          // 平衡温度，单位 K
-		bool  bIsMigrated{ false };                          // 是否为迁移行星
+		FComplexMass AtmosphereMass;                          // 大气层质量，单位 kg
+		FComplexMass CoreMass;                                // 核心质量，单位 kg
+		FComplexMass OceanMass;                               // 海洋质量，单位 kg
+		boost::multiprecision::uint128_t CrustMineralMass;    // 地壳矿脉质量，单位 kg
+		std::unique_ptr<Intelli::FStandard> CivilizationData; // 文明数据
+		EPlanetType Type{ EPlanetType::kRocky };              // 行星类型
+		float BalanceTemperature{};                           // 平衡温度，单位 K
+		bool  bIsMigrated{ false };                           // 是否为迁移行星
 	};
 
 public:
-	Planet() = default;
-	Planet(const CelestialBody::BasicProperties& PlanetBasicProperties, ExtendedProperties&& PlanetExtraProperties);
-	Planet(const Planet&) = delete;
-	Planet(Planet&&) = default;
-	~Planet() = default;
+	APlanet() = default;
+	APlanet(const FCelestialBody::FBasicProperties& BasicProperties, FExtendedProperties&& ExtraProperties);
+	APlanet(const APlanet&) = delete;
+	APlanet(APlanet&&) = default;
+	~APlanet() = default;
 
-	Planet& operator=(const Planet&) = delete;
-	Planet& operator=(Planet&&) = default;
+	APlanet& operator=(const APlanet&) = delete;
+	APlanet& operator=(APlanet&&) = default;
 
-	Planet& SetExtendedProperties(ExtendedProperties&& PlanetExtraProperties);
-	const ExtendedProperties& GetExtendedProperties() const;
+	APlanet& SetExtendedProperties(FExtendedProperties&& ExtraProperties);
+	const FExtendedProperties& GetExtendedProperties() const;
 
 	// Setters
 	// Setters for ExtendedProperties
 	// ------------------------------
-	Planet& SetAtmosphereMass(const ComplexMass& AtmosphereMass);
-	Planet& SetCoreMass(const ComplexMass& CoreMass);
-	Planet& SetOceanMass(const ComplexMass& OceanMass);
-	Planet& SetCrustMineralMass(float CrustMineralMass);
-	Planet& SetCrustMineralMass(const boost::multiprecision::uint128_t& CrustMineralMass);
-	Planet& SetBalanceTemperature(float BalanceTemperature);
-	Planet& SetMigration(bool bIsMigrated);
-	Planet& SetPlanetType(PlanetType Type);
+	APlanet& SetAtmosphereMass(const FComplexMass& AtmosphereMass);
+	APlanet& SetCoreMass(const FComplexMass& CoreMass);
+	APlanet& SetOceanMass(const FComplexMass& OceanMass);
+	APlanet& SetCrustMineralMass(float CrustMineralMass);
+	APlanet& SetCrustMineralMass(const boost::multiprecision::uint128_t& CrustMineralMass);
+	APlanet& SetBalanceTemperature(float BalanceTemperature);
+	APlanet& SetMigration(bool bIsMigrated);
+	APlanet& SetPlanetType(EPlanetType Type);
 
 	// Setters for every mass property
 	// -------------------------------
-	Planet& SetAtmosphereMassZ(float AtmosphereMassZ);
-	Planet& SetAtmosphereMassZ(const boost::multiprecision::uint128_t& AtmosphereMassZ);
-	Planet& SetAtmosphereMassVolatiles(float AtmosphereMassVolatiles);
-	Planet& SetAtmosphereMassVolatiles(const boost::multiprecision::uint128_t& AtmosphereMassVolatiles);
-	Planet& SetAtmosphereMassEnergeticNuclide(float AtmosphereMassEnergeticNuclide);
-	Planet& SetAtmosphereMassEnergeticNuclide(const boost::multiprecision::uint128_t& AtmosphereMassEnergeticNuclide);
-	Planet& SetCoreMassZ(float CoreMassZ);
-	Planet& SetCoreMassZ(const boost::multiprecision::uint128_t& CoreMassZ);
-	Planet& SetCoreMassVolatiles(float CoreMassVolatiles);
-	Planet& SetCoreMassVolatiles(const boost::multiprecision::uint128_t& CoreMassVolatiles);
-	Planet& SetCoreMassEnergeticNuclide(float CoreMassEnergeticNuclide);
-	Planet& SetCoreMassEnergeticNuclide(const boost::multiprecision::uint128_t& CoreMassEnergeticNuclide);
-	Planet& SetOceanMassZ(float OceanMassZ);
-	Planet& SetOceanMassZ(const boost::multiprecision::uint128_t& OceanMassZ);
-	Planet& SetOceanMassVolatiles(float OceanMassVolatiles);
-	Planet& SetOceanMassVolatiles(const boost::multiprecision::uint128_t& OceanMassVolatiles);
-	Planet& SetOceanMassEnergeticNuclide(float OceanMassEnergeticNuclide);
-	Planet& SetOceanMassEnergeticNuclide(const boost::multiprecision::uint128_t& OceanMassEnergeticNuclide);
+	APlanet& SetAtmosphereMassZ(float AtmosphereMassZ);
+	APlanet& SetAtmosphereMassZ(const boost::multiprecision::uint128_t& AtmosphereMassZ);
+	APlanet& SetAtmosphereMassVolatiles(float AtmosphereMassVolatiles);
+	APlanet& SetAtmosphereMassVolatiles(const boost::multiprecision::uint128_t& AtmosphereMassVolatiles);
+	APlanet& SetAtmosphereMassEnergeticNuclide(float AtmosphereMassEnergeticNuclide);
+	APlanet& SetAtmosphereMassEnergeticNuclide(const boost::multiprecision::uint128_t& AtmosphereMassEnergeticNuclide);
+	APlanet& SetCoreMassZ(float CoreMassZ);
+	APlanet& SetCoreMassZ(const boost::multiprecision::uint128_t& CoreMassZ);
+	APlanet& SetCoreMassVolatiles(float CoreMassVolatiles);
+	APlanet& SetCoreMassVolatiles(const boost::multiprecision::uint128_t& CoreMassVolatiles);
+	APlanet& SetCoreMassEnergeticNuclide(float CoreMassEnergeticNuclide);
+	APlanet& SetCoreMassEnergeticNuclide(const boost::multiprecision::uint128_t& CoreMassEnergeticNuclide);
+	APlanet& SetOceanMassZ(float OceanMassZ);
+	APlanet& SetOceanMassZ(const boost::multiprecision::uint128_t& OceanMassZ);
+	APlanet& SetOceanMassVolatiles(float OceanMassVolatiles);
+	APlanet& SetOceanMassVolatiles(const boost::multiprecision::uint128_t& OceanMassVolatiles);
+	APlanet& SetOceanMassEnergeticNuclide(float OceanMassEnergeticNuclide);
+	APlanet& SetOceanMassEnergeticNuclide(const boost::multiprecision::uint128_t& OceanMassEnergeticNuclide);
 
 	// Getters
 	// Getters for ExtendedProperties
 	// ------------------------------
-	const ComplexMass& GetAtmosphereMassStruct() const;
+	const FComplexMass& GetAtmosphereMassStruct() const;
 	const boost::multiprecision::uint128_t  GetAtmosphereMass() const;
 	const boost::multiprecision::uint128_t& GetAtmosphereMassZ() const;
 	const boost::multiprecision::uint128_t& GetAtmosphereMassVolatiles() const;
 	const boost::multiprecision::uint128_t& GetAtmosphereMassEnergeticNuclide() const;
-	const ComplexMass& GetCoreMassStruct() const;
+	const FComplexMass& GetCoreMassStruct() const;
 	const boost::multiprecision::uint128_t  GetCoreMass() const;
 	const boost::multiprecision::uint128_t& GetCoreMassZ() const;
 	const boost::multiprecision::uint128_t& GetCoreMassVolatiles() const;
 	const boost::multiprecision::uint128_t& GetCoreMassEnergeticNuclide() const;
-	const ComplexMass& GetOceanMassStruct() const;
+	const FComplexMass& GetOceanMassStruct() const;
 	const boost::multiprecision::uint128_t  GetOceanMass() const;
 	const boost::multiprecision::uint128_t& GetOceanMassZ() const;
 	const boost::multiprecision::uint128_t& GetOceanMassVolatiles() const;
@@ -117,91 +117,91 @@ public:
 	const boost::multiprecision::uint128_t& GetCrustMineralMass() const;
 	float GetBalanceTemperature() const;
 	bool  GetMigration() const;
-	PlanetType GetPlanetType() const;
+	EPlanetType GetPlanetType() const;
 
-	template <typename T>
-	T GetAtmosphereMassDigital() const;
+	template <typename DigitalType>
+	DigitalType GetAtmosphereMassDigital() const;
 
-	template <typename T>
-	T GetAtmosphereMassZDigital() const;
+	template <typename DigitalType>
+	DigitalType GetAtmosphereMassZDigital() const;
 	
-	template <typename T>
-	T GetAtmosphereMassVolatilesDigital() const;
+	template <typename DigitalType>
+	DigitalType GetAtmosphereMassVolatilesDigital() const;
 	
-	template <typename T>
-	T GetAtmosphereMassEnergeticNuclideDigital() const;
+	template <typename DigitalType>
+	DigitalType GetAtmosphereMassEnergeticNuclideDigital() const;
 	
-	template <typename T>
-	T GetCoreMassDigital() const;
+	template <typename DigitalType>
+	DigitalType GetCoreMassDigital() const;
 	
-	template <typename T>
-	T GetCoreMassZDigital() const;
+	template <typename DigitalType>
+	DigitalType GetCoreMassZDigital() const;
 	
-	template <typename T>
-	T GetCoreMassVolatilesDigital() const;
+	template <typename DigitalType>
+	DigitalType GetCoreMassVolatilesDigital() const;
 	
-	template <typename T>
-	T GetCoreMassEnergeticNuclideDigital() const;
+	template <typename DigitalType>
+	DigitalType GetCoreMassEnergeticNuclideDigital() const;
 	
-	template <typename T>
-	T GetOceanMassDigital() const;
+	template <typename DigitalType>
+	DigitalType GetOceanMassDigital() const;
 	
-	template <typename T>
-	T GetOceanMassZDigital() const;
+	template <typename DigitalType>
+	DigitalType GetOceanMassZDigital() const;
 	
-	template <typename T>
-	T GetOceanMassVolatilesDigital() const;
+	template <typename DigitalType>
+	DigitalType GetOceanMassVolatilesDigital() const;
 	
-	template <typename T>
-	T GetOceanMassEnergeticNuclideDigital() const;
+	template <typename DigitalType>
+	DigitalType GetOceanMassEnergeticNuclideDigital() const;
 	
-	template <typename T>
-	T GetMassDigital() const;
+	template <typename DigitalType>
+	DigitalType GetMassDigital() const;
 	
-	template <typename T>
-	T GetCrustMineralMassDigital() const;
+	template <typename DigitalType>
+	DigitalType GetCrustMineralMassDigital() const;
 
-	std::unique_ptr<Intelli::Standard>& CivilizationData();
+	std::unique_ptr<Intelli::FStandard>& CivilizationData();
 
 private:
-	ExtendedProperties _PlanetExtraProperties{};
+	FExtendedProperties _ExtraProperties{};
 };
 
-class AsteroidCluster : public AstroObject
+class AAsteroidCluster : public IAstroObject
 {
 public:
-	enum class AsteroidType : int
+	enum class EAsteroidType : int
 	{
 		kRocky                     = 0,
 		kRockyIce                  = 1,
 		kArtificalOrbitalStructure = 2
 	};
 
-	struct BasicProperties
+	struct FBasicProperties
 	{
-		ComplexMass  Mass;
-		AsteroidType Type{ AsteroidType::kRocky };
+		FComplexMass  Mass;
+		EAsteroidType Type{ EAsteroidType::kRocky };
 	};
 
 public:
-	AsteroidCluster() = default;
-	AsteroidCluster(const BasicProperties& Properties);
-	~AsteroidCluster() = default;
+	AAsteroidCluster() = default;
+	AAsteroidCluster(const FBasicProperties& Properties);
+	~AAsteroidCluster() = default;
 
 	// Setters
 	// Setters for BasicProperties
 	// ---------------------------
-	AsteroidCluster& SetMass(const ComplexMass& Mass);
+	AAsteroidCluster& SetMass(const FComplexMass& Mass);
 
 	// Setters for every mass property
 	// -------------------------------
-	AsteroidCluster& SetMassZ(float MassZ);
-	AsteroidCluster& SetMassZ(const boost::multiprecision::uint128_t& MassZ);
-	AsteroidCluster& SetMassVolatiles(float MassVolatiles);
-	AsteroidCluster& SetMassVolatiles(const boost::multiprecision::uint128_t& MassVolatiles);
-	AsteroidCluster& SetMassEnergeticNuclide(float MassEnergeticNuclide);
-	AsteroidCluster& SetMassEnergeticNuclide(const boost::multiprecision::uint128_t& MassEnergeticNuclide);
-	AsteroidCluster& SetAsteroidType(AsteroidType Type);
+	AAsteroidCluster& SetMassZ(float MassZ);
+	AAsteroidCluster& SetMassZ(const boost::multiprecision::uint128_t& MassZ);
+	AAsteroidCluster& SetMassVolatiles(float MassVolatiles);
+	AAsteroidCluster& SetMassVolatiles(const boost::multiprecision::uint128_t& MassVolatiles);
+	AAsteroidCluster& SetMassEnergeticNuclide(float MassEnergeticNuclide);
+	AAsteroidCluster& SetMassEnergeticNuclide(const boost::multiprecision::uint128_t& MassEnergeticNuclide);
+	AAsteroidCluster& SetAsteroidType(EAsteroidType Type);
 
 	// Getters
 	// Getters for BasicProperties
@@ -210,22 +210,22 @@ public:
 	const boost::multiprecision::uint128_t& GetMassZ() const;
 	const boost::multiprecision::uint128_t& GetMassVolatiles() const;
 	const boost::multiprecision::uint128_t& GetMassEnergeticNuclide() const;
-	AsteroidType GetAsteroidType() const;
+	EAsteroidType GetAsteroidType() const;
 
-	template <typename T>
-	T GetMassDigital() const;
+	template <typename DigitalType>
+	DigitalType GetMassDigital() const;
 
-	template <typename T>
-	T GetMassZDigital() const;
+	template <typename DigitalType>
+	DigitalType GetMassZDigital() const;
 	
-	template <typename T>
-	T GetMassVolatilesDigital() const;
+	template <typename DigitalType>
+	DigitalType GetMassVolatilesDigital() const;
 	
-	template <typename T>
-	T GetMassEnergeticNuclideDigital() const;
+	template <typename DigitalType>
+	DigitalType GetMassEnergeticNuclideDigital() const;
 
 private:
-	BasicProperties _Properties{};
+	FBasicProperties _Properties{};
 };
 
 _ASTRO_END

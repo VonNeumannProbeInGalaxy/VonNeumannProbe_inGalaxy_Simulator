@@ -12,34 +12,34 @@
 _NPGS_BEGIN
 _UTIL_BEGIN
 
-class UniformBlockManager
+class FUniformBlockManager
 {
 public:
-	enum class BlockLayout
+	enum class EBlockLayout
 	{
 		kShared,
 		kStd140,
 		kStd430
 	};
 
-	template <typename T>
-	class Updater
+	template <typename DataType>
+	class TUpdater
 	{
 	public:
-		Updater(GLuint Buffer, GLint Offset)
+		TUpdater(GLuint Buffer, GLint Offset)
 			: _Buffer(Buffer), _Offset(Offset)
 		{
 		}
 
-		Updater& operator<<(const T& Data)
+		TUpdater& operator<<(const DataType& Data)
 		{
 			Commit(Data);
 			return *this;
 		}
 
-		void Commit(const T& Data) const
+		void Commit(const DataType& Data) const
 		{
-			glNamedBufferSubData(_Buffer, _Offset, sizeof(T), &Data);
+			glNamedBufferSubData(_Buffer, _Offset, sizeof(DataType), &Data);
 		}
 
 	private:
@@ -47,48 +47,48 @@ public:
 		GLint  _Offset;
 	};
 
-	struct BlockInfo
+	struct FBlockInfo
 	{
 		GLuint Buffer{};
 		GLuint BindingPoint{};
 		GLint  Size{};
 		std::unordered_map<std::string, GLint> Offsets{};
-		BlockLayout Layout{ BlockLayout::kShared };
+		EBlockLayout Layout{ EBlockLayout::kShared };
 	};
 
 public:
-	BlockInfo* CreateSharedBlock(GLuint Program, const std::string& BlockName, GLuint BindingPoint,
-								 const std::vector<std::string>& MemberNames, BlockLayout Layout = BlockLayout::kShared);
+	FBlockInfo* CreateSharedBlock(GLuint Program, const std::string& BlockName, GLuint BindingPoint,
+								  const std::vector<std::string>& MemberNames, EBlockLayout Layout = EBlockLayout::kShared);
 
 	void BindShaderToBlock(GLuint Program, const std::string& BlockName) const;
 	void VerifyBlockLayout(GLuint Program, const std::string& BlockName) const;
 
-	template <typename T>
-	void UpdateEntrieBlock(const std::string& BlockName, const T& Data) const;
+	template <typename DataType>
+	void UpdateEntrieBlock(const std::string& BlockName, const DataType& Data) const;
 
-	template <typename T>
-	Updater<T> GetBlockUpdater(const std::string& BlockName, const std::string& MemberName) const;
+	template <typename DataType>
+	TUpdater<DataType> GetBlockUpdater(const std::string& BlockName, const std::string& MemberName) const;
 
-	static UniformBlockManager* GetInstance();
+	static FUniformBlockManager* GetInstance();
 
 private:
-	explicit UniformBlockManager()                  = default;
-	UniformBlockManager(const UniformBlockManager&) = delete;
-	UniformBlockManager(UniformBlockManager&&)      = delete;
-	~UniformBlockManager();
+	explicit FUniformBlockManager()                   = default;
+	FUniformBlockManager(const FUniformBlockManager&) = delete;
+	FUniformBlockManager(FUniformBlockManager&&)      = delete;
+	~FUniformBlockManager();
 
-	UniformBlockManager& operator=(const UniformBlockManager&) = delete;
-	UniformBlockManager& operator=(UniformBlockManager&&)      = delete;
+	FUniformBlockManager& operator=(const FUniformBlockManager&) = delete;
+	FUniformBlockManager& operator=(FUniformBlockManager&&)      = delete;
 
-	BlockInfo* CreateBlock(const std::string& BlockName, GLuint BindingPoint,
-						   const std::vector<std::string>& MemberNames, BlockLayout Layout, GLuint Program);
+	FBlockInfo* CreateBlock(const std::string& BlockName, GLuint BindingPoint,
+							const std::vector<std::string>& MemberNames, EBlockLayout Layout, GLuint Program);
 
 	GLuint GetBlockIndex(const std::string& BlockName, GLuint Program) const;
 	GLint GetBlockSize(const std::string& BlockName, GLuint BlockIndex, GLuint Program) const;
 	std::vector<GLint> GetBlockOffsets(const std::string& BlockName, const std::vector<std::string>& Names, GLuint Program) const;
 
 private:
-	std::unordered_map<std::string, BlockInfo> _SharedBlocks;
+	std::unordered_map<std::string, FBlockInfo> _SharedBlocks;
 };
 
 _UTIL_END

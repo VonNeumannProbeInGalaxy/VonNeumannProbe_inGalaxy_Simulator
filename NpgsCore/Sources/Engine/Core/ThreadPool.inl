@@ -5,7 +5,7 @@
 _NPGS_BEGIN
 
 template <typename Func, typename... Args>
-inline auto ThreadPool::Commit(Func&& Pred, Args&&... Params)
+inline auto FThreadPool::Commit(Func&& Pred, Args&&... Params)
 {
 	using ReturnType = std::invoke_result_t<Func, Args...>;
 	auto Task = std::make_shared<std::packaged_task<ReturnType()>>(
@@ -19,19 +19,14 @@ inline auto ThreadPool::Commit(Func&& Pred, Args&&... Params)
 	return Future;
 }
 
-NPGS_INLINE void ThreadPool::ChangeHyperThread()
+NPGS_INLINE void FThreadPool::ChangeHyperThread()
 {
 	_kHyperThreadIndex = 1 - _kHyperThreadIndex;
 }
 
-NPGS_INLINE int ThreadPool::GetMaxThreadCount() const
+NPGS_INLINE int FThreadPool::GetMaxThreadCount() const
 {
 	return _kMaxThreadCount;
-}
-
-NPGS_INLINE int ThreadPool::GetPhysicalCoreCount() const
-{
-	return _kPhysicalCoreCount;
 }
 
 _NPGS_END

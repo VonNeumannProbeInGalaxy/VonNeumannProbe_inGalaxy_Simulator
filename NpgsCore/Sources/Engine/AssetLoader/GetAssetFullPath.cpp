@@ -7,9 +7,9 @@ _ASSET_BEGIN
 
 #pragma warning(push)
 #pragma warning(disable : 4715)
-std::string GetAssetFullPath(AssetType Type, const std::string& Filename)
+std::string GetAssetFullPath(EAssetType Type, const std::string& Filename)
 {
-	std::string RootFolderName = Type == AssetType::kBinaryShader ? "" : "Assets/";
+	std::string RootFolderName = Type == EAssetType::kBinaryShader ? "" : "Assets/";
 #ifdef _RELEASE
 	RootFolderName = std::string("../") + RootFolderName;
 #endif // _RELEASE
@@ -18,17 +18,17 @@ std::string GetAssetFullPath(AssetType Type, const std::string& Filename)
 	{
 		switch (Type)
 		{
-		case AssetType::kBinaryShader:
+		case EAssetType::kBinaryShader:
 			return "Cache/Shaders/";
-		case AssetType::kDataTable:
+		case EAssetType::kDataTable:
 			return "DataTables/";
-		case AssetType::kFont:
+		case EAssetType::kFont:
 			return "Fonts/";
-		case AssetType::kModel:
+		case EAssetType::kModel:
 			return "Models/";
-		case AssetType::kShader:
+		case EAssetType::kShader:
 			return "Shaders/";
-		case AssetType::kTexture:
+		case EAssetType::kTexture:
 			return "Textures/";
 		default:
 			NpgsAssert(false, "Invalid asset type");

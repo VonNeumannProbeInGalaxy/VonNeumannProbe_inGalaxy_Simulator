@@ -15,7 +15,7 @@
 
 _NPGS_BEGIN
 
-class ThreadPool
+class FThreadPool
 {
 public:
 	template <typename Func, typename... Args>
@@ -24,18 +24,17 @@ public:
 	void Terminate();
 	void ChangeHyperThread();
 	int GetMaxThreadCount() const;
-	int GetPhysicalCoreCount() const;
 
-	static ThreadPool* GetInstance();
+	static FThreadPool* GetInstance();
 
 private:
-	explicit ThreadPool();
-	ThreadPool(const ThreadPool&) = delete;
-	ThreadPool(ThreadPool&&)      = delete;
-	~ThreadPool();
+	explicit FThreadPool();
+	FThreadPool(const FThreadPool&) = delete;
+	FThreadPool(FThreadPool&&)      = delete;
+	~FThreadPool();
 
-	ThreadPool& operator=(const ThreadPool&) = delete;
-	ThreadPool& operator=(ThreadPool&&)      = delete;
+	FThreadPool& operator=(const FThreadPool&) = delete;
+	FThreadPool& operator=(FThreadPool&&)      = delete;
 
 	void SetThreadAffinity(std::thread& Thread, std::size_t CoreId) const;
 

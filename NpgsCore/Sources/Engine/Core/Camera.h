@@ -16,10 +16,10 @@ constexpr float     kSensitivity = 0.05f;
 constexpr float     kSpeed       = 2.5f;
 constexpr float     kZoom        = 45.0f;
 
-class Camera
+class FCamera
 {
 public:
-	enum class Movement
+	enum class EMovement
 	{
 		kForward,
 		kBack,
@@ -31,7 +31,7 @@ public:
 		kRollRight
 	};
 
-	enum class VectorType
+	enum class EVectorType
 	{
 		kPosition,
 		kFront,
@@ -40,13 +40,13 @@ public:
 	};
 
 public:
-	Camera(const glm::vec3& Position = kPosition, const glm::vec3& WorldUp = kWorldUp, float Sensitivity = kSensitivity,
-		   float Speed = kSpeed, float Zoom = kZoom);
+	FCamera(const glm::vec3& Position = kPosition, const glm::vec3& WorldUp = kWorldUp, float Sensitivity = kSensitivity,
+			float Speed = kSpeed, float Zoom = kZoom);
 
-	~Camera() = default;
+	~FCamera() = default;
 
-	const glm::vec3& GetCameraVector(VectorType Type) const;
-	void ProcessKeyboard(Movement Direction, double DeltaTime);
+	const glm::vec3& GetCameraVector(EVectorType Type) const;
+	void ProcessKeyboard(EMovement Direction, double DeltaTime);
 	void ProcessMouseMovement(double OffsetX, double OffsetY);
 	void ProcessMouseScroll(double OffsetY);
 	float GetCameraZoom() const;

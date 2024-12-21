@@ -3,57 +3,57 @@
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
-BaryCenter::BaryCenter(const glm::vec3& Position, const glm::vec2& Normal, std::size_t DistanceRank, const std::string& Name)
+FBaryCenter::FBaryCenter(const glm::vec3& Position, const glm::vec2& Normal, std::size_t DistanceRank, const std::string& Name)
 	: Position(Position), Normal(Normal), DistanceRank(DistanceRank), Name(Name)
 {
 }
 
-Orbit::OrbitalObject::OrbitalObject(NpgsObject* Object, ObjectType Type)
+FOrbit::FOrbitalObject::FOrbitalObject(INpgsObject* Object, EObjectType Type)
 	: _Type(Type)
 {
 	switch (Type)
 	{
-	case ObjectType::kBaryCenter:
-		_Object.SystemBary = static_cast<BaryCenter*>(Object);
+	case EObjectType::kBaryCenter:
+		_Object.SystemBary = static_cast<FBaryCenter*>(Object);
 		break;
-	case ObjectType::kStar:
-		_Object.Star = static_cast<Star*>(Object);
+	case EObjectType::kStar:
+		_Object.Star = static_cast<AStar*>(Object);
 		break;
-	case ObjectType::kPlanet:
-		_Object.Planet = static_cast<Planet*>(Object);
+	case EObjectType::kPlanet:
+		_Object.Planet = static_cast<APlanet*>(Object);
 		break;
-	case ObjectType::kAsteroidCluster:
-		_Object.Asteroids = static_cast<AsteroidCluster*>(Object);
+	case EObjectType::kAsteroidCluster:
+		_Object.Asteroids = static_cast<AAsteroidCluster*>(Object);
 		break;
-	case ObjectType::kArtifactCluster:
-		_Object.Artifacts = static_cast<Intelli::Artifact*>(Object);
+	case EObjectType::kArtifactCluster:
+		_Object.Artifacts = static_cast<Intelli::AArtifact*>(Object);
 		break;
 	}
 }
 
-Orbit::OrbitalDetails::OrbitalDetails(NpgsObject* Object, ObjectType Type, Orbit* HostOrbit, float InitialTrueAnomaly)
-	: _Object{ OrbitalObject(Object, Type) }, _HostOrbit(HostOrbit), _InitialTrueAnomaly(InitialTrueAnomaly)
+FOrbit::FOrbitalDetails::FOrbitalDetails(INpgsObject* Object, EObjectType Type, FOrbit* HostOrbit, float InitialTrueAnomaly)
+	: _Object(FOrbitalObject(Object, Type)), _HostOrbit(HostOrbit), _InitialTrueAnomaly(InitialTrueAnomaly)
 {
 }
 
-Orbit::OrbitalDetails& Orbit::OrbitalDetails::SetOrbitalObject(NpgsObject* Object, ObjectType Type)
+FOrbit::FOrbitalDetails& FOrbit::FOrbitalDetails::SetOrbitalObject(INpgsObject* Object, EObjectType Type)
 {
 	switch (Type)
 	{
-	case ObjectType::kBaryCenter:
-		_Object.SetObject(static_cast<BaryCenter*>(Object));
+	case EObjectType::kBaryCenter:
+		_Object.SetObject(static_cast<FBaryCenter*>(Object));
 		break;
-	case ObjectType::kStar:
-		_Object.SetObject(static_cast<Star*>(Object));
+	case EObjectType::kStar:
+		_Object.SetObject(static_cast<AStar*>(Object));
 		break;
-	case ObjectType::kPlanet:
-		_Object.SetObject(static_cast<Planet*>(Object));
+	case EObjectType::kPlanet:
+		_Object.SetObject(static_cast<APlanet*>(Object));
 		break;
-	case ObjectType::kAsteroidCluster:
-		_Object.SetObject(static_cast<AsteroidCluster*>(Object));
+	case EObjectType::kAsteroidCluster:
+		_Object.SetObject(static_cast<AAsteroidCluster*>(Object));
 		break;
-	case ObjectType::kArtifactCluster:
-		_Object.SetObject(static_cast<Intelli::Artifact*>(Object));
+	case EObjectType::kArtifactCluster:
+		_Object.SetObject(static_cast<Intelli::AArtifact*>(Object));
 		break;
 	default:
 		break;
@@ -62,24 +62,24 @@ Orbit::OrbitalDetails& Orbit::OrbitalDetails::SetOrbitalObject(NpgsObject* Objec
 	return *this;
 }
 
-Orbit& Orbit::SetParent(NpgsObject* Object, ObjectType Type)
+FOrbit& FOrbit::SetParent(INpgsObject* Object, EObjectType Type)
 {
 	switch (Type)
 	{
-	case ObjectType::kBaryCenter:
-		_Parent.SetObject(static_cast<BaryCenter*>(Object));
+	case EObjectType::kBaryCenter:
+		_Parent.SetObject(static_cast<FBaryCenter*>(Object));
 		break;
-	case ObjectType::kStar:
-		_Parent.SetObject(static_cast<Star*>(Object));
+	case EObjectType::kStar:
+		_Parent.SetObject(static_cast<AStar*>(Object));
 		break;
-	case ObjectType::kPlanet:
-		_Parent.SetObject(static_cast<Planet*>(Object));
+	case EObjectType::kPlanet:
+		_Parent.SetObject(static_cast<APlanet*>(Object));
 		break;
-	case ObjectType::kAsteroidCluster:
-		_Parent.SetObject(static_cast<AsteroidCluster*>(Object));
+	case EObjectType::kAsteroidCluster:
+		_Parent.SetObject(static_cast<AAsteroidCluster*>(Object));
 		break;
-	case ObjectType::kArtifactCluster:
-		_Parent.SetObject(static_cast<Intelli::Artifact*>(Object));
+	case EObjectType::kArtifactCluster:
+		_Parent.SetObject(static_cast<Intelli::AArtifact*>(Object));
 		break;
 	default:
 		break;
@@ -88,7 +88,7 @@ Orbit& Orbit::SetParent(NpgsObject* Object, ObjectType Type)
 	return *this;
 }
 
-StellarSystem::StellarSystem(const BaryCenter& SystemBary)
+FStellarSystem::FStellarSystem(const FBaryCenter& SystemBary)
 	: _SystemBary(SystemBary)
 {
 }

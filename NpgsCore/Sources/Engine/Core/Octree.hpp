@@ -16,10 +16,10 @@
 _NPGS_BEGIN
 
 template <typename LinkTarget>
-class OctreeNode
+class TOctreeNode
 {
 public:
-	OctreeNode(const glm::vec3& Center, float Radius, OctreeNode* Previous)
+	TOctreeNode(const glm::vec3& Center, float Radius, TOctreeNode* Previous)
 		: _Center(Center), _Previous(Previous), _Radius(Radius), _bIsValid(true)
 	{
 	}
@@ -63,12 +63,12 @@ public:
 		return _Center;
 	}
 
-	const OctreeNode* GetPrevious() const
+	const TOctreeNode* GetPrevious() const
 	{
 		return _Previous;
 	}
 
-	OctreeNode* GetPreviousMutable()
+	TOctreeNode* GetPreviousMutable()
 	{
 		return _Previous;
 	}
@@ -78,12 +78,12 @@ public:
 		return _Radius;
 	}
 
-	std::unique_ptr<OctreeNode>& GetNextMutable(int Index)
+	std::unique_ptr<TOctreeNode>& GetNextMutable(int Index)
 	{
 		return _Next[Index];
 	}
 
-	const std::unique_ptr<OctreeNode>& GetNext(int Index) const
+	const std::unique_ptr<TOctreeNode>& GetNext(int Index) const
 	{
 		return _Next[Index];
 	}
@@ -160,27 +160,27 @@ public:
 	}
 
 private:
-	glm::vec3   _Center;
-	OctreeNode* _Previous;
-	float       _Radius;
-	bool        _bIsValid;
+	glm::vec3    _Center;
+	TOctreeNode* _Previous;
+	float        _Radius;
+	bool         _bIsValid;
 
-	std::array<std::unique_ptr<OctreeNode>, 8> _Next;
+	std::array<std::unique_ptr<TOctreeNode>, 8> _Next;
 	std::vector<glm::vec3>   _Points;
 	std::vector<LinkTarget*> _DataLink;
 };
 
 template <typename LinkTarget>
-class Octree
+class TOctree
 {
 public:
-	using NodeType = OctreeNode<LinkTarget>;
+	using FNodeType = TOctreeNode<LinkTarget>;
 
 public:
-	Octree(const glm::vec3& Center, float Radius, int MaxDepth = 8)
+	TOctree(const glm::vec3& Center, float Radius, int MaxDepth = 8)
 		:
-		_Root(std::make_unique<NodeType>(Center, Radius, nullptr)),
-		_ThreadPool(ThreadPool::GetInstance()), _MaxDepth(MaxDepth)
+		_Root(std::make_unique<FNodeType>(Center, Radius, nullptr)),
+		_ThreadPool(FThreadPool::GetInstance()), _MaxDepth(MaxDepth)
 	{
 	}
 
@@ -205,8 +205,8 @@ public:
 		QueryImpl(_Root.get(), Point, Radius, Results);
 	}
 
-	template <typename Func = std::function<bool(const NodeType&)>>
-	NodeType* Find(const glm::vec3& Point, Func&& Pred = [](const NodeType&) -> bool { return true; }) const
+	template <typename Func = std::function<bool(const FNodeType&)>>
+	FNodeType* Find(const glm::vec3& Point, Func&& Pred = [](const FNodeType&) -> bool { return true; }) const
 	{
 		return FindImpl(_Root.get(), Point, std::forward<Func>(Pred));
 	}
@@ -227,13 +227,13 @@ public:
 		return GetSizeImpl(_Root.get());
 	}
 
-	const NodeType* const GetRoot() const
+	const FNodeType* const GetRoot() const
 	{
 		return _Root.get();
 	}
 
 private:
-	void BuildEmptyTreeImpl(NodeType* Node, float LeafRadius, int Depth)
+	void BuildEmptyTreeImpl(FNodeType* Node, float LeafRadius, int Depth)
 	{
 		if (Node->GetRadius() <= LeafRadius || Depth == 0)
 		{
@@ -248,11 +248,11 @@ private:
 							 (i & 2 ? 1 : -1) * NextRadius,
 							 (i & 4 ? 1 : -1) * NextRadius);
 
-			Node->GetNextMutable(i) = std::make_unique<NodeType>(Node->GetCenter() + Offset, NextRadius, Node);
+			Node->GetNextMutable(i) = std::make_unique<FNodeType>(Node->GetCenter() + Offset, NextRadius, Node);
 			if (Depth == static_cast<int>(std::ceil(std::log2(_Root->GetRadius() / LeafRadius))))
 			{
 				Futures.emplace_back(_ThreadPool->Commit(
-					&Octree::BuildEmptyTreeImpl, this, Node->GetNextMutable(i).get(), LeafRadius, Depth - 1));
+					&TOctree::BuildEmptyTreeImpl, this, Node->GetNextMutable(i).get(), LeafRadius, Depth - 1));
 			}
 			else
 			{
@@ -266,7 +266,7 @@ private:
 		}
 	}
 
-	void InsertImpl(NodeType* Node, const glm::vec3& Point, int Depth)
+	void InsertImpl(FNodeType* Node, const glm::vec3& Point, int Depth)
 	{
 		if (!Node->Contains(Point) || Depth > _MaxDepth)
 		{
@@ -282,7 +282,7 @@ private:
 				NewCenter.x += (i & 4) ? Radius * 0.5f : -Radius * 0.5f;
 				NewCenter.y += (i & 2) ? Radius * 0.5f : -Radius * 0.5f;
 				NewCenter.z += (i & 1) ? Radius * 0.5f : -Radius * 0.5f;
-				Node->GetNextMutable(i) = std::make_unique<NodeType>(NewCenter, Radius * 0.5f, Node);
+				Node->GetNextMutable(i) = std::make_unique<FNodeType>(NewCenter, Radius * 0.5f, Node);
 			}
 		}
 
@@ -297,7 +297,7 @@ private:
 		}
 	}
 
-	void DeleteImpl(NodeType* Node, const glm::vec3& Point)
+	void DeleteImpl(FNodeType* Node, const glm::vec3& Point)
 	{
 		if (Node == nullptr)
 		{
@@ -332,7 +332,7 @@ private:
 		}
 	}
 
-	void QueryImpl(NodeType* Node, const glm::vec3& Point, float Radius, std::vector<glm::vec3>& Results) const
+	void QueryImpl(FNodeType* Node, const glm::vec3& Point, float Radius, std::vector<glm::vec3>& Results) const
 	{
 		if (Node == nullptr || Node->GetNext(0) == nullptr)
 		{
@@ -349,7 +349,7 @@ private:
 
 		for (int i = 0; i != 8; ++i)
 		{
-			NodeType* NextNode = Node->GetNext(i).get();
+			FNodeType* NextNode = Node->GetNext(i).get();
 			if (NextNode != nullptr && NextNode->IntersectSphere(Point, Radius))
 			{
 				QueryImpl(NextNode, Point, Radius, Results);
@@ -358,7 +358,7 @@ private:
 	}
 
 	template <typename Func>
-	NodeType* FindImpl(NodeType* Node, const glm::vec3& Point, Func&& Pred) const
+	FNodeType* FindImpl(FNodeType* Node, const glm::vec3& Point, Func&& Pred) const
 	{
 		if (Node == nullptr)
 		{
@@ -375,7 +375,7 @@ private:
 
 		for (int i = 0; i != 8; ++i)
 		{
-			NodeType* ResultNode = FindImpl(Node->GetNext(i).get(), Point, Pred);
+			FNodeType* ResultNode = FindImpl(Node->GetNext(i).get(), Point, Pred);
 			if (ResultNode != nullptr)
 			{
 				return ResultNode;
@@ -386,7 +386,7 @@ private:
 	}
 
 	template <typename Func>
-	void TraverseImpl(NodeType* Node, Func&& Pred) const
+	void TraverseImpl(FNodeType* Node, Func&& Pred) const
 	{
 		if (Node == nullptr)
 		{
@@ -401,7 +401,7 @@ private:
 		}
 	}
 
-	std::size_t GetCapacityImpl(const NodeType* Node) const
+	std::size_t GetCapacityImpl(const FNodeType* Node) const
 	{
 		if (Node == nullptr)
 		{
@@ -422,7 +422,7 @@ private:
 		return Capacity;
 	}
 
-	std::size_t GetSizeImpl(const NodeType* Node) const
+	std::size_t GetSizeImpl(const FNodeType* Node) const
 	{
 		if (Node == nullptr)
 		{
@@ -439,9 +439,9 @@ private:
 	}
 
 private:
-	std::unique_ptr<NodeType> _Root;
-	ThreadPool*               _ThreadPool;
-	int                       _MaxDepth;
+	std::unique_ptr<FNodeType> _Root;
+	FThreadPool*               _ThreadPool;
+	int                        _MaxDepth;
 };
 
 _NPGS_END

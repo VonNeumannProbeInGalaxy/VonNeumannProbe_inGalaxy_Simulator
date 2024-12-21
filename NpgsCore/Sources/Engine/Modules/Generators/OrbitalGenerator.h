@@ -14,16 +14,16 @@
 _NPGS_BEGIN
 _MODULE_BEGIN
 
-class OrbitalGenerator
+class FOrbitalGenerator
 {
 public:
-	enum class GenerateOption
+	enum class EGenerateOption
 	{
 		kStars,
 		kPlanets
 	};
 
-	struct PlanetaryDisk
+	struct FPlanetaryDisk
 	{
 		float InterRadiusAu{};
 		float OuterRadiusAu{};
@@ -32,72 +32,72 @@ public:
 	};
 
 public:
-	OrbitalGenerator() = delete;
-	explicit OrbitalGenerator(const std::seed_seq& SeedSequence, float UniverseAge = 1.38e10f,
-							  float BinaryPeriodMean = 5.03f, float BinaryPeriodSigma = 2.28f,
-							  float CoilTemperatureLimit = 1514.114f, float AsteroidUpperLimit = 1e21f,
-							  float RingsParentLowerLimit = 1e23f, float LifeOccurrenceProbability = 0.0114514f,
-							  bool bContainUltravioletHabitableZone = false, bool bEnableAsiFilter = true);
+	FOrbitalGenerator() = delete;
+	explicit FOrbitalGenerator(const std::seed_seq& SeedSequence, float UniverseAge = 1.38e10f,
+							   float BinaryPeriodMean = 5.03f, float BinaryPeriodSigma = 2.28f,
+							   float CoilTemperatureLimit = 1514.114f, float AsteroidUpperLimit = 1e21f,
+							   float RingsParentLowerLimit = 1e23f, float LifeOccurrenceProbability = 0.0114514f,
+							   bool bContainUltravioletHabitableZone = false, bool bEnableAsiFilter = true);
 
-	OrbitalGenerator(const OrbitalGenerator&) = delete;
-	OrbitalGenerator(OrbitalGenerator&&) noexcept = default;
-	~OrbitalGenerator() = default;
+	FOrbitalGenerator(const FOrbitalGenerator&) = delete;
+	FOrbitalGenerator(FOrbitalGenerator&&) noexcept = default;
+	~FOrbitalGenerator() = default;
 
-	OrbitalGenerator& operator=(const OrbitalGenerator&) = delete;
-	OrbitalGenerator& operator=(OrbitalGenerator&&) noexcept = default;
+	FOrbitalGenerator& operator=(const FOrbitalGenerator&) = delete;
+	FOrbitalGenerator& operator=(FOrbitalGenerator&&) noexcept = default;
 
-	void GenerateOrbitals(Astro::StellarSystem& System);
+	void GenerateOrbitals(Astro::FStellarSystem& System);
 
 private:
-	void GenerateBinaryOrbit(Astro::StellarSystem& System);
-	void GeneratePlanets(std::size_t StarIndex, Astro::Orbit::OrbitalDetails& ParentStar, Astro::StellarSystem& System);
-	void GenerateOrbitElements(Astro::Orbit& Orbit);
+	void GenerateBinaryOrbit(Astro::FStellarSystem& System);
+	void GeneratePlanets(std::size_t StarIndex, Astro::FOrbit::FOrbitalDetails& ParentStar, Astro::FStellarSystem& System);
+	void GenerateOrbitElements(Astro::FOrbit& Orbit);
 
-	std::size_t JudgeLargePlanets(std::size_t StarIndex, const std::vector<std::unique_ptr<Astro::Star>>& StarData,
+	std::size_t JudgeLargePlanets(std::size_t StarIndex, const std::vector<std::unique_ptr<Astro::AStar>>& StarData,
 								  float BinarySemiMajorAxis, float InterHabitableZoneRadiusAu, float FrostLineAu,
 								  std::vector<float>& CoreMassesSol, std::vector<float>& NewCoreMassesSol,
-								  std::vector<std::unique_ptr<Astro::Orbit>>& Orbits,
-								  std::vector<std::unique_ptr<Astro::Planet>>& Planets);
+								  std::vector<std::unique_ptr<Astro::FOrbit>>& Orbits,
+								  std::vector<std::unique_ptr<Astro::APlanet>>& Planets);
 
 	float CalculatePlanetMass(float CoreMass, float NewCoreMass, float SemiMajorAxisAu,
-							  const PlanetaryDisk& PlanetaryDiskTempData, const Astro::Star* Star, Astro::Planet* Planet);
+							  const FPlanetaryDisk& PlanetaryDiskTempData, const Astro::AStar* Star, Astro::APlanet* Planet);
 
-	void CalculatePlanetRadius(float MassEarth, Astro::Planet* Planet);
-	void GenerateSpin(float SemiMajorAxis, const Astro::Orbit::OrbitalObject& Parent, Astro::Planet* Planet);
-	void CalculateTemperature(const Astro::Orbit::ObjectType ParentType, float PoyntingVector, Astro::Planet* Planet);
+	void CalculatePlanetRadius(float MassEarth, Astro::APlanet* Planet);
+	void GenerateSpin(float SemiMajorAxis, const Astro::FOrbit::FOrbitalObject& Parent, Astro::APlanet* Planet);
+	void CalculateTemperature(const Astro::FOrbit::EObjectType ParentType, float PoyntingVector, Astro::APlanet* Planet);
 
-	void GenerateMoons(std::size_t PlanetIndex, float FrostLineAu, const Astro::Star* Star, float PoyntingVector,
-					   const std::pair<float, float>& HabitableZoneAu, Astro::Orbit::OrbitalDetails& ParentPlanet,
-					   std::vector<std::unique_ptr<Astro::Orbit>>& Orbits,
-					   std::vector<std::unique_ptr<Astro::Planet>>& Planets);
+	void GenerateMoons(std::size_t PlanetIndex, float FrostLineAu, const Astro::AStar* Star, float PoyntingVector,
+					   const std::pair<float, float>& HabitableZoneAu, Astro::FOrbit::FOrbitalDetails& ParentPlanet,
+					   std::vector<std::unique_ptr<Astro::FOrbit>>& Orbits,
+					   std::vector<std::unique_ptr<Astro::APlanet>>& Planets);
 
-	void GenerateRings(std::size_t PlanetIndex, float FrostLineAu, const Astro::Star* Star,
-					   Astro::Orbit::OrbitalDetails& ParentPlanet, std::vector<std::unique_ptr<Astro::Orbit>>& Orbits,
-					   std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters);
+	void GenerateRings(std::size_t PlanetIndex, float FrostLineAu, const Astro::AStar* Star,
+					   Astro::FOrbit::FOrbitalDetails& ParentPlanet, std::vector<std::unique_ptr<Astro::FOrbit>>& Orbits,
+					   std::vector<std::unique_ptr<Astro::AAsteroidCluster>>& AsteroidClusters);
 
-	void GenerateTerra(const Astro::Star* Star, float PoyntingVector, const std::pair<float, float>& HabitableZoneAu,
-					   const Astro::Orbit* Orbit, Astro::Planet* Planet);
+	void GenerateTerra(const Astro::AStar* Star, float PoyntingVector, const std::pair<float, float>& HabitableZoneAu,
+					   const Astro::FOrbit* Orbit, Astro::APlanet* Planet);
 
-	void GenerateTrojan(const Astro::Star* Star, float FrostLineAu, Astro::Orbit* Orbit,
-						Astro::Orbit::OrbitalDetails& ParentPlanet,
-						std::vector<std::unique_ptr<Astro::AsteroidCluster>>& AsteroidClusters);
+	void GenerateTrojan(const Astro::AStar* Star, float FrostLineAu, Astro::FOrbit* Orbit,
+						Astro::FOrbit::FOrbitalDetails& ParentPlanet,
+						std::vector<std::unique_ptr<Astro::AAsteroidCluster>>& AsteroidClusters);
 
-	void GenerateCivilization(const Astro::Star* Star, float PoyntingVector, const std::pair<float, float>& HabitableZoneAu,
-							  const Astro::Orbit* Orbit, Astro::Planet* Planet);
+	void GenerateCivilization(const Astro::AStar* Star, float PoyntingVector, const std::pair<float, float>& HabitableZoneAu,
+							  const Astro::FOrbit* Orbit, Astro::APlanet* Planet);
 
-	void CalculateOrbitalPeriods(std::vector<std::unique_ptr<Astro::Orbit>>& Orbits);
+	void CalculateOrbitalPeriods(std::vector<std::unique_ptr<Astro::FOrbit>>& Orbits);
 
 private:
-	std::mt19937                                 _RandomEngine;
-	std::array<Util::BernoulliDistribution<>, 2> _RingsProbabilities;
-	Util::BernoulliDistribution<>                _AsteroidBeltProbability;
-	Util::BernoulliDistribution<>                _MigrationProbability;
-	Util::BernoulliDistribution<>                _ScatteringProbability;
-	Util::BernoulliDistribution<>                _WalkInProbability;
-	Util::NormalDistribution<>                   _BinaryPeriodDistribution;
-	Util::UniformRealDistribution<>              _CommonGenerator;
+	std::mt19937                                  _RandomEngine;
+	std::array<Util::TBernoulliDistribution<>, 2> _RingsProbabilities;
+	Util::TBernoulliDistribution<>                _AsteroidBeltProbability;
+	Util::TBernoulliDistribution<>                _MigrationProbability;
+	Util::TBernoulliDistribution<>                _ScatteringProbability;
+	Util::TBernoulliDistribution<>                _WalkInProbability;
+	Util::TNormalDistribution<>                   _BinaryPeriodDistribution;
+	Util::TUniformRealDistribution<>              _CommonGenerator;
 
-	std::unique_ptr<CivilizationGenerator> _CivilizationGenerator;
+	std::unique_ptr<FCivilizationGenerator> _CivilizationGenerator;
 
 	float _AsteroidUpperLimit;
 	float _CoilTemperatureLimit;

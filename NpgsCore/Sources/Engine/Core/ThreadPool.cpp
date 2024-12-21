@@ -13,7 +13,7 @@ namespace
 
 // ThreadPool implementations
 // --------------------------
-void ThreadPool::Terminate()
+void FThreadPool::Terminate()
 {
 	{
 		std::unique_lock<std::mutex> Mutex(_Mutex);
@@ -29,14 +29,14 @@ void ThreadPool::Terminate()
 	}
 }
 
-ThreadPool* ThreadPool::GetInstance()
+FThreadPool* FThreadPool::GetInstance()
 {
-	static ThreadPool Instance;
+	static FThreadPool Instance;
 	return &Instance;
 }
 
-ThreadPool::ThreadPool()
-	: _Terminate(false), _kMaxThreadCount(std::thread::hardware_concurrency()), _kPhysicalCoreCount(GetPhysicalCoreCount())
+FThreadPool::FThreadPool()
+	: _Terminate(false), _kMaxThreadCount(GetPhysicalCoreCount()), _kPhysicalCoreCount(GetPhysicalCoreCount())
 {
 	for (std::size_t i = 0; i != _kPhysicalCoreCount; ++i)
 	{
@@ -65,12 +65,12 @@ ThreadPool::ThreadPool()
 	}
 }
 
-ThreadPool::~ThreadPool()
+FThreadPool::~FThreadPool()
 {
 	Terminate();
 }
 
-void ThreadPool::SetThreadAffinity(std::thread& Thread, std::size_t CoreId) const
+void FThreadPool::SetThreadAffinity(std::thread& Thread, std::size_t CoreId) const
 {
 	HANDLE Handle = Thread.native_handle();
 	DWORD_PTR Mask = 0;

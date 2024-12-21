@@ -22,9 +22,9 @@ _ASSET_BEGIN
 class FTypeErasedDeleter
 {
 public:
-	template <typename T>
-	FTypeErasedDeleter(T*)
-		: _Deleter([](void* Ptr) -> void { delete static_cast<T*>(Ptr); })
+	template <typename OriginalType>
+	FTypeErasedDeleter(OriginalType*)
+		: _Deleter([](void* Ptr) -> void { delete static_cast<OriginalType*>(Ptr); })
 	{
 	}
 
@@ -61,7 +61,7 @@ public:
 	static FAssetManager* GetInstance();
 
 private:
-	explicit FAssetManager()           = default;
+	explicit FAssetManager()            = default;
 	FAssetManager(const FAssetManager&) = delete;
 	FAssetManager(FAssetManager&&)      = delete;
 	~FAssetManager();

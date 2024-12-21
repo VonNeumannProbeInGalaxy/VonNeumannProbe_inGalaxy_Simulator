@@ -7,12 +7,12 @@
 _NPGS_BEGIN
 _UTIL_BEGIN
 
-class StellarClass
+class FStellarClass
 {
 public:
-	using SpecialMarkDigital = std::uint32_t;
+	using FSpecialMarkDigital = std::uint32_t;
 
-	enum class StarType : std::uint32_t
+	enum class EStarType : std::uint32_t
 	{
 		kNormalStar           = 0,
 		kWhiteDwarf           = 1,
@@ -21,7 +21,7 @@ public:
 		kDeathStarPlaceholder = 4
 	};
 
-	enum class SpectralClass : std::uint32_t
+	enum class ESpectralClass : std::uint32_t
 	{
 		kSpectral_Unknown     = 0,
 		// 常规光谱型
@@ -61,7 +61,7 @@ public:
 		kSpectral_X           = 27  // 黑洞
 	};
 
-	enum class LuminosityClass : std::uint32_t
+	enum class ELuminosityClass : std::uint32_t
 	{
 		kLuminosity_Unknown   = 0,
 		kLuminosity_0         = 1,
@@ -77,72 +77,72 @@ public:
 		kLuminosity_VI        = 11
 	};
 
-	enum class SpecialMark : std::uint32_t
+	enum class ESpecialMark : std::uint32_t
 	{
-		kCode_Null            = 0,         // 无
-		kCode_f               = Bit(1),    // N III 和 He II 发射线
-		kCode_h               = Bit(2),    // WR 星，带有氢发射线
-		kCode_m               = Bit(3),    // 增强的金属特征
-		kCode_p               = Bit(4)     // 未指定的特殊性，特殊星
+		kCode_Null            = 0,      // 无
+		kCode_f               = Bit(1), // N III 和 He II 发射线
+		kCode_h               = Bit(2), // WR 星，带有氢发射线
+		kCode_m               = Bit(3), // 增强的金属特征
+		kCode_p               = Bit(4)  // 未指定的特殊性，特殊星
 		// Unused
 		// ------
-		// kCode_Colon,                     // 不确定的光谱值
-		// kCode_Ellipsis,                  // 未描述的光谱特殊性
-		// kCode_ExclamationMark,           // 特殊特殊性
-		// kCode_comp,                      // 复合光谱
-		// kCode_e,                         // 存在发射线
-		// kCode_eForbidden,                // 存在禁制发射线
-		// kCode_er,                        // “反向”发射线中心弱于边缘
-		// kCode_eq,                        // 带有 P Cygni 轮廓的发射线
-		// kCode_fStar,                     // N IV 4058Å 比 N III 4634Å, 4640Å 和 4642Å 线更强
-		// kCode_fPlus,                     // 除了 N III 线外，还发射 Si IV 4089Å 和 4116Å
-		// kCode_fQuestion,                 // C III 4647–4650–4652Å 发射线与 N III 线强度相当
-		// kCode_fParentheses,              // N III 发射，He II 吸收弱或缺失
-		// kCode_fParenthesesPlus,          // 
-		// kCode_fDoubleParentheses,        // 显示强烈的 He II 吸收伴随着弱 N III 发射
-		// kCode_fDoubleParenthesesStar,    // 
-		// kCode_ha,                        // WR 星，氢在吸收和发射中都可见
-		// kCode_HeWk,                      // 弱氦线
-		// kCode_k,                         // 带有星际吸收特征的光谱
-		// kCode_n,                         // 由于旋转导致的广泛（“星云状”）吸收
-		// kCode_nn,                        // 非常宽的吸收特征
-		// kCode_neb,                       // 混入了星云的光谱
-		// kCode_pq,                        // 特殊光谱，类似于新星的光谱
-		// kCode_q,                         // P Cygni 轮廓
-		// kCode_s,                         // 狭窄（“锐利”）的吸收线
-		// kCode_ss,                        // 非常狭窄的线
-		// kCode_sh,                        // 壳层星特征
-		// kCode_var,                       // 变量光谱特征
-		// kCode_wl,                        // 弱线
-		// kCode_ElementSymbol,             // 指定元素的异常强光谱线
-		// kCode_z,                         // 表示在 468.6 nm 处异常强的电离氦线
+		// kCode_Colon,                    // 不确定的光谱值
+		// kCode_Ellipsis,                 // 未描述的光谱特殊性
+		// kCode_ExclamationMark,          // 特殊特殊性
+		// kCode_comp,                     // 复合光谱
+		// kCode_e,                        // 存在发射线
+		// kCode_eForbidden,               // 存在禁制发射线
+		// kCode_er,                       // “反向”发射线中心弱于边缘
+		// kCode_eq,                       // 带有 P Cygni 轮廓的发射线
+		// kCode_fStar,                    // N IV 4058Å 比 N III 4634Å, 4640Å 和 4642Å 线更强
+		// kCode_fPlus,                    // 除了 N III 线外，还发射 Si IV 4089Å 和 4116Å
+		// kCode_fQuestion,                // C III 4647–4650–4652Å 发射线与 N III 线强度相当
+		// kCode_fParentheses,             // N III 发射，He II 吸收弱或缺失
+		// kCode_fParenthesesPlus,         // 
+		// kCode_fDoubleParentheses,       // 显示强烈的 He II 吸收伴随着弱 N III 发射
+		// kCode_fDoubleParenthesesStar,   // 
+		// kCode_ha,                       // WR 星，氢在吸收和发射中都可见
+		// kCode_HeWk,                     // 弱氦线
+		// kCode_k,                        // 带有星际吸收特征的光谱
+		// kCode_n,                        // 由于旋转导致的广泛（“星云状”）吸收
+		// kCode_nn,                       // 非常宽的吸收特征
+		// kCode_neb,                      // 混入了星云的光谱
+		// kCode_pq,                       // 特殊光谱，类似于新星的光谱
+		// kCode_q,                        // P Cygni 轮廓
+		// kCode_s,                        // 狭窄（“锐利”）的吸收线
+		// kCode_ss,                       // 非常狭窄的线
+		// kCode_sh,                       // 壳层星特征
+		// kCode_var,                      // 变量光谱特征
+		// kCode_wl,                       // 弱线
+		// kCode_ElementSymbol,            // 指定元素的异常强光谱线
+		// kCode_z,                        // 表示在 468.6 nm 处异常强的电离氦线
 	};
 
-	struct SpectralType
+	struct FSpectralType
 	{
-		SpectralClass      HSpectralClass{ SpectralClass::kSpectral_Unknown };
-		SpectralClass      MSpectralClass{ SpectralClass::kSpectral_Unknown };
-		LuminosityClass    LuminosityClass{ LuminosityClass::kLuminosity_Unknown };
-		SpecialMarkDigital SpecialMark;
-		float              Subclass{};
-		float              AmSubclass{};
-		bool               bIsAmStar{ false };
+		ESpectralClass HSpectralClass{ ESpectralClass::kSpectral_Unknown };
+		ESpectralClass MSpectralClass{ ESpectralClass::kSpectral_Unknown };
+		ELuminosityClass LuminosityClass{ ELuminosityClass::kLuminosity_Unknown };
+		FSpecialMarkDigital SpecialMark;
+		float Subclass{};
+		float AmSubclass{};
+		bool  bIsAmStar{ false };
 	};
 
 public:
-	StellarClass();
-	StellarClass(StarType StarType, const SpectralType& SpectralType);
-	~StellarClass() = default;
+	FStellarClass();
+	FStellarClass(EStarType StarType, const FSpectralType& SpectralType);
+	~FStellarClass() = default;
 
-	SpectralType Data() const;
-	bool Load(const SpectralType& SpectralType);
+	FSpectralType Data() const;
+	bool Load(const FSpectralType& SpectralType);
 	std::string ToString() const;
-	StarType GetStarType() const;
+	EStarType GetStarType() const;
 
-	static StellarClass Parse(const std::string& StellarClassStr);
+	static FStellarClass Parse(const std::string& StellarClassStr);
 
 private:
-	enum class ParseState
+	enum class EParseState
 	{
 		kBegin,
 		kEnd,
@@ -167,24 +167,24 @@ private:
 	};
 
 private:
-	static ParseState ParseStarType(unsigned char Char, StellarClass::StarType& StarType, StellarClass::SpectralClass& HSpectralClass, std::size_t& Index);
-	static ParseState ParseSpectralClass(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index);
-	static ParseState ParseWolfRayetStar(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index);
-	static ParseState ParseWhiteDwarf(unsigned char Char, StellarClass::SpectralClass& SpectralClass, std::size_t& Index);
-	static ParseState ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, StellarClass::SpectralClass& SpectralClass, std::size_t& Index);
-	static ParseState ParseLuminosityClass(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass, std::size_t& Index);
-	static ParseState ParseLuminosityClassI(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass, std::size_t& Index);
-	static ParseState ParseLuminosityClassIa(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass);
-	static ParseState ParseLuminosityClassII(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass);
-	static ParseState ParseLuminosityClassV(unsigned char Char, StellarClass::LuminosityClass& LuminosityClass);
-	static ParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, StellarClass::SpecialMarkDigital& SpecialMark, std::size_t& Index);
-	static std::string SpectralToString(StellarClass::SpectralClass Spectral, float Subclass);
-	static std::string LuminosityClassToString(StellarClass::LuminosityClass Luminosity);
-	static std::string SpecialMarkToString(StellarClass::SpecialMark SpecialMark);
+	static EParseState ParseStarType(unsigned char Char, FStellarClass::EStarType& StarType, FStellarClass::ESpectralClass& HSpectralClass, std::size_t& Index);
+	static EParseState ParseSpectralClass(unsigned char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
+	static EParseState ParseWolfRayetStar(unsigned char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
+	static EParseState ParseWhiteDwarf(unsigned char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
+	static EParseState ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
+	static EParseState ParseLuminosityClass(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass, std::size_t& Index);
+	static EParseState ParseLuminosityClassI(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass, std::size_t& Index);
+	static EParseState ParseLuminosityClassIa(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass);
+	static EParseState ParseLuminosityClassII(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass);
+	static EParseState ParseLuminosityClassV(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass);
+	static EParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, FStellarClass::FSpecialMarkDigital& SpecialMark, std::size_t& Index);
+	static std::string SpectralClassToString(FStellarClass::ESpectralClass SpectralClass, float Subclass);
+	static std::string LuminosityClassToString(FStellarClass::ELuminosityClass LuminosityClass);
+	static std::string SpecialMarkToString(FStellarClass::ESpecialMark SpecialMark);
 
 private:
 	std::uint64_t _SpectralType;
-	StarType      _StarType;
+	EStarType     _StarType;
 };
 
 _UTIL_END

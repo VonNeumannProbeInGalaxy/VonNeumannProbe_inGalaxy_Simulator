@@ -7,20 +7,20 @@ _NPGS_BEGIN
 _UTIL_BEGIN
 
 template <typename Ty = float, typename RandomEngine = std::mt19937>
-class Distribution
+class TDistribution
 {
 public:
-	virtual ~Distribution() = default;
+	virtual ~TDistribution() = default;
 	virtual Ty operator()(RandomEngine& Engine) = 0;
 	virtual Ty Generate(RandomEngine& Engine) = 0;
 };
 
 template <typename Ty = int, typename RandomEngine = std::mt19937>
-class UniformIntDistribution : public Distribution<Ty>
+class TUniformIntDistribution : public TDistribution<Ty>
 {
 public:
-	UniformIntDistribution() = default;
-	UniformIntDistribution(Ty Min, Ty Max) : _Distribution(Min, Max) {}
+	TUniformIntDistribution() = default;
+	TUniformIntDistribution(Ty Min, Ty Max) : _Distribution(Min, Max) {}
 
 	Ty operator()(RandomEngine& Engine) override
 	{
@@ -37,11 +37,11 @@ private:
 };
 
 template <typename Ty = float, typename RandomEngine = std::mt19937>
-class UniformRealDistribution : public Distribution<Ty, RandomEngine>
+class TUniformRealDistribution : public TDistribution<Ty, RandomEngine>
 {
 public:
-	UniformRealDistribution() = default;
-	UniformRealDistribution(Ty Min, Ty Max) : _Distribution(Min, Max) {}
+	TUniformRealDistribution() = default;
+	TUniformRealDistribution(Ty Min, Ty Max) : _Distribution(Min, Max) {}
 
 	Ty operator()(RandomEngine& Engine) override
 	{
@@ -58,11 +58,11 @@ private:
 };
 
 template <typename Ty = float, typename RandomEngine = std::mt19937>
-class NormalDistribution : public Distribution<Ty, RandomEngine>
+class TNormalDistribution : public TDistribution<Ty, RandomEngine>
 {
 public:
-	NormalDistribution() = default;
-	NormalDistribution(Ty Mean, Ty Sigma) : _Distribution(Mean, Sigma) {}
+	TNormalDistribution() = default;
+	TNormalDistribution(Ty Mean, Ty Sigma) : _Distribution(Mean, Sigma) {}
 
 	Ty operator()(RandomEngine& Engine) override
 	{
@@ -79,11 +79,11 @@ private:
 };
 
 template <typename Ty = float, typename RandomEngine = std::mt19937>
-class LogNormalDistribution : public Distribution<Ty, RandomEngine>
+class TLogNormalDistribution : public TDistribution<Ty, RandomEngine>
 {
 public:
-	LogNormalDistribution() = default;
-	LogNormalDistribution(Ty Mean, Ty Sigma) : _Distribution(Mean, Sigma) {}
+	TLogNormalDistribution() = default;
+	TLogNormalDistribution(Ty Mean, Ty Sigma) : _Distribution(Mean, Sigma) {}
 
 	Ty operator()(RandomEngine& Engine) override
 	{
@@ -100,11 +100,11 @@ private:
 };
 
 template <typename RandomEngine = std::mt19937>
-class BernoulliDistribution : public Distribution<double, RandomEngine>
+class TBernoulliDistribution : public TDistribution<double, RandomEngine>
 {
 public:
-	BernoulliDistribution() = default;
-	BernoulliDistribution(double Probability) : _Distribution(Probability) {}
+	TBernoulliDistribution() = default;
+	TBernoulliDistribution(double Probability) : _Distribution(Probability) {}
 
 	double operator()(RandomEngine& Engine) override
 	{

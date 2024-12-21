@@ -19,15 +19,15 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-template <std::size_t Size>
-concept CCsvConcept = Size > 1;
+template <std::size_t ColSize>
+concept CValidFormat = ColSize > 1;
 
-template <typename BasicType, std::size_t Size>
-requires CCsvConcept<Size>
+template <typename BasicType, std::size_t ColSize>
+requires CValidFormat<ColSize>
 class TCsv
 {
 public:
-	using RowArray = std::vector<BasicType>;
+	using FRowArray = std::vector<BasicType>;
 
 public:
 	TCsv(const std::string& Filename, const std::vector<std::string>& ColNames)
@@ -63,7 +63,7 @@ public:
 		return *this;
 	}
 
-	RowArray FindFirstDataArray(const std::string& DataHeader, const BasicType& DataValue) const
+	FRowArray FindFirstDataArray(const std::string& DataHeader, const BasicType& DataValue) const
 	{
 		std::size_t DataIndex = GetHeaderIndex(DataHeader);
 		for (const auto& Row : _Data)
@@ -93,8 +93,8 @@ public:
 	}
 
 	template <typename Func = std::less<>>
-	std::pair<RowArray, RowArray> FindSurroundingValues(const std::string& DataHeader, const BasicType& TargetValue,
-														bool bSorted = true, Func&& Pred = Func())
+	std::pair<FRowArray, FRowArray> FindSurroundingValues(const std::string& DataHeader, const BasicType& TargetValue,
+														  bool bSorted = true, Func&& Pred = Func())
 	{
 		std::size_t DataIndex = GetHeaderIndex(DataHeader);
 
@@ -106,14 +106,14 @@ public:
 
 		if (!bSorted)
 		{
-			std::sort(_Data.begin(), _Data.end(), [&](const RowArray& Lhs, const RowArray& Rhs) -> bool
+			std::sort(_Data.begin(), _Data.end(), [&](const FRowArray& Lhs, const FRowArray& Rhs) -> bool
 			{
 				return Comparator(Lhs[DataIndex], Rhs[DataIndex]);
 			});
 		}
 
 		auto it = std::lower_bound(_Data.begin(), _Data.end(), TargetValue,
-		[&](const RowArray& Row, const BasicType& Value) -> bool
+		[&](const FRowArray& Row, const BasicType& Value) -> bool
 		{
 			return Comparator(Row[DataIndex], Value);
 		});
@@ -123,8 +123,8 @@ public:
 			throw std::out_of_range("Target value is out of range of the data.");
 		}
 
-		typename std::vector<RowArray>::iterator LowerRow;
-		typename std::vector<RowArray>::iterator UpperRow;
+		typename std::vector<FRowArray>::iterator LowerRow;
+		typename std::vector<FRowArray>::iterator UpperRow;
 
 		if ((*it)[DataIndex] == TargetValue)
 		{
@@ -139,7 +139,7 @@ public:
 		return { *LowerRow, *UpperRow };
 	}
 
-	const std::vector<RowArray>* Data() const
+	const std::vector<FRowArray>* Data() const
 	{
 		return &_Data;
 	}
@@ -223,7 +223,7 @@ private:
 	std::string                                  _Filename;
 	std::vector<std::string>                     _ColNames;
 	std::unordered_map<std::string, std::size_t> _HeaderMap;
-	std::vector<RowArray>                        _Data;
+	std::vector<FRowArray>                       _Data;
 };
 
 _ASSET_END

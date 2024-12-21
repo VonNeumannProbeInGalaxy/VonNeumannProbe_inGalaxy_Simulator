@@ -62,7 +62,7 @@ void FModel::DynamicDraw(const FShader& ModelShader) const
 void FModel::InitModel(const std::string& Filename)
 {
 	Assimp::Importer Loader;
-	std::string FilePath = GetAssetFullPath(Asset::AssetType::kModel, Filename);
+	std::string FilePath = GetAssetFullPath(Asset::EAssetType::kModel, Filename);
 	const aiScene* Scene = Loader.ReadFile(FilePath, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
 										   aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	if (!Scene || Scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode)
@@ -105,29 +105,29 @@ std::unique_ptr<FMesh> FModel::ProcessMesh(const aiMesh* Mesh, const aiScene* Sc
 	std::vector<std::uint32_t>       Indices;
 	std::vector<FMesh::FTextureData> Textures;
 	std::vector<FMesh::FVertex>      Vertices;
-	FMesh::FVertex                   MeshVertex;
+	FMesh::FVertex                   Vertex;
 
 	for (std::uint32_t i = 0; i != Mesh->mNumVertices; ++i)
 	{
-		MeshVertex.Position = glm::vec3(Mesh->mVertices[i].x, Mesh->mVertices[i].y, Mesh->mVertices[i].z);
+		Vertex.Position = glm::vec3(Mesh->mVertices[i].x, Mesh->mVertices[i].y, Mesh->mVertices[i].z);
 
 		if (Mesh->HasNormals())
 		{
-			MeshVertex.Normal = glm::vec3(Mesh->mNormals[i].x, Mesh->mNormals[i].y, Mesh->mNormals[i].z);
+			Vertex.Normal = glm::vec3(Mesh->mNormals[i].x, Mesh->mNormals[i].y, Mesh->mNormals[i].z);
 		}
 
 		if (Mesh->HasTextureCoords(0u))
 		{
-			MeshVertex.TexCoords = glm::vec2(Mesh->mTextureCoords[0][i].x, Mesh->mTextureCoords[0][i].y);
-			MeshVertex.Tangent   = glm::vec3(Mesh->mTangents[i].x, Mesh->mTangents[i].y, Mesh->mTangents[i].z);
-			MeshVertex.Bitangent = glm::vec3(Mesh->mBitangents[i].x, Mesh->mBitangents[i].y, Mesh->mBitangents[i].z);
+			Vertex.TexCoords = glm::vec2(Mesh->mTextureCoords[0][i].x, Mesh->mTextureCoords[0][i].y);
+			Vertex.Tangent   = glm::vec3(Mesh->mTangents[i].x, Mesh->mTangents[i].y, Mesh->mTangents[i].z);
+			Vertex.Bitangent = glm::vec3(Mesh->mBitangents[i].x, Mesh->mBitangents[i].y, Mesh->mBitangents[i].z);
 		}
 		else
 		{
-			MeshVertex.TexCoords = glm::vec2(0.0f);
+			Vertex.TexCoords = glm::vec2(0.0f);
 		}
 
-		Vertices.emplace_back(MeshVertex);
+		Vertices.emplace_back(Vertex);
 	}
 
 	aiFace Face;
