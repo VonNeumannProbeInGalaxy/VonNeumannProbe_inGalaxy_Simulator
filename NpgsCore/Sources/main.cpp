@@ -31,8 +31,8 @@ namespace
 	GLuint kMultiSampleFramebuffer  = 0;
 	GLuint kIntermediateFramebuffer = 0;
 	GLuint kRenderbuffer            = 0;
-	Texture* kTexColorBuffer        = nullptr;
-	Texture* kTexMultiSampleBuffer  = nullptr;
+	FTexture* kTexColorBuffer       = nullptr;
+	FTexture* kTexMultiSampleBuffer = nullptr;
 
 	Camera* kFreeCamera = nullptr;
 	bool   kbFirstMouse = true;
@@ -97,23 +97,23 @@ int main()
 
 #include "Vertices.inc"
 
-	auto* AssetManagerInstance = AssetManager::GetInstance();
+	auto* AssetManagerInstance = FAssetManager::GetInstance();
 	std::vector<std::string> FramebufferShaderFiles{ "Framebuffer.vert", "Framebuffer.frag" };
 	std::vector<std::string> LightingShaderFiles{ "Lighting.vert", "Lighting.frag" };
 	std::vector<std::string> AdvancedShaderFiles{ "Advanced.vert", "Advanced.frag" };
 	std::vector<std::string> PointShaderFiles{ "Point.vert", "Point.geom", "Point.frag" };
 	std::vector<std::string> LampShaderMacros{ "__FRAG_LAMP_CUBE" };
 	std::vector<std::string> BorderShaderMacros{ "__FRAG_BORDER" };
-	AssetManagerInstance->AddAsset<Shader>("Framebuffer", Shader(FramebufferShaderFiles));
-	AssetManagerInstance->AddAsset<Shader>("Lighting", Shader(LightingShaderFiles));
-	AssetManagerInstance->AddAsset<Shader>("Advanced", Shader(AdvancedShaderFiles));
-	AssetManagerInstance->AddAsset<Shader>("Lamp", Shader(LightingShaderFiles, "", LampShaderMacros));
-	AssetManagerInstance->AddAsset<Shader>("Border", Shader(AdvancedShaderFiles, "", BorderShaderMacros));
-	AssetManagerInstance->AddAsset<Shader>("Point", Shader(PointShaderFiles));
-	AssetManagerInstance->AddAsset<Texture>("Metal", Texture(Texture::TextureType::k2D, "Metal.png"));
-	AssetManagerInstance->AddAsset<Texture>("Marble", Texture(Texture::TextureType::k2D, "Marble.jpg"));
-	AssetManagerInstance->AddAsset<Texture>("RedWindow", Texture(Texture::TextureType::k2D, "RedWindow.png"));
-	AssetManagerInstance->AddAsset<Texture>("Grass", Texture(Texture::TextureType::k2D, "Grass.png", false, false));
+	AssetManagerInstance->AddAsset<FShader>("Framebuffer", FShader(FramebufferShaderFiles));
+	AssetManagerInstance->AddAsset<FShader>("Lighting", FShader(LightingShaderFiles));
+	AssetManagerInstance->AddAsset<FShader>("Advanced", FShader(AdvancedShaderFiles));
+	AssetManagerInstance->AddAsset<FShader>("Lamp", FShader(LightingShaderFiles, "", LampShaderMacros));
+	AssetManagerInstance->AddAsset<FShader>("Border", FShader(AdvancedShaderFiles, "", BorderShaderMacros));
+	AssetManagerInstance->AddAsset<FShader>("Point", FShader(PointShaderFiles));
+	AssetManagerInstance->AddAsset<FTexture>("Metal", FTexture(FTexture::ETextureType::k2D, "Metal.png"));
+	AssetManagerInstance->AddAsset<FTexture>("Marble", FTexture(FTexture::ETextureType::k2D, "Marble.jpg"));
+	AssetManagerInstance->AddAsset<FTexture>("RedWindow", FTexture(FTexture::ETextureType::k2D, "RedWindow.png"));
+	AssetManagerInstance->AddAsset<FTexture>("Grass", FTexture(FTexture::ETextureType::k2D, "Grass.png", false, false));
 	//AssetManagerInstance->AddAsset<Model>("Backpack", Model("Backpack/backpack.obj", "Lighting"));
 	//AssetManagerInstance->AddAsset<Model>("Nanosuit", Model("Nanosuit/nanosuit.obj", "Lighting"));
 
@@ -198,8 +198,8 @@ int main()
 	glCreateFramebuffers(1, &kIntermediateFramebuffer);
 	glCreateRenderbuffers(1, &kRenderbuffer);
 
-	kTexMultiSampleBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kMultiSamples, GL_TRUE, kMultiSampleFramebuffer);
-	kTexColorBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kIntermediateFramebuffer);
+	kTexMultiSampleBuffer = new FTexture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kMultiSamples, GL_TRUE, kMultiSampleFramebuffer);
+	kTexColorBuffer = new FTexture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kIntermediateFramebuffer);
 
 	glNamedRenderbufferStorageMultisample(kRenderbuffer, kMultiSamples, GL_DEPTH24_STENCIL8, kWindowWidth, kWindowHeight);
 	glNamedFramebufferRenderbuffer(kMultiSampleFramebuffer, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, kRenderbuffer);
@@ -227,18 +227,18 @@ int main()
 	double DeltaTime     = 0.0;
 	int    FrameCount    = 0;
 
-	auto* FramebufferShader = AssetManagerInstance->GetAsset<Shader>("Framebuffer");
-	auto* LightingShader    = AssetManagerInstance->GetAsset<Shader>("Lighting");
-	auto* AdvancedShader    = AssetManagerInstance->GetAsset<Shader>("Advanced");
-	auto* LampShader        = AssetManagerInstance->GetAsset<Shader>("Lamp");
-	auto* BorderShader      = AssetManagerInstance->GetAsset<Shader>("Border");
-	auto* PointShader       = AssetManagerInstance->GetAsset<Shader>("Point");
-	auto* Metal             = AssetManagerInstance->GetAsset<Texture>("Metal");
-	auto* Marble            = AssetManagerInstance->GetAsset<Texture>("Marble");
-	auto* RedWindow         = AssetManagerInstance->GetAsset<Texture>("RedWindow");
-	auto* Grass             = AssetManagerInstance->GetAsset<Texture>("Grass");
-	auto* Backpack          = AssetManagerInstance->GetAsset<Model>("Backpack");
-	auto* Nanosuit          = AssetManagerInstance->GetAsset<Model>("Nanosuit");
+	auto* FramebufferShader = AssetManagerInstance->GetAsset<FShader>("Framebuffer");
+	auto* LightingShader    = AssetManagerInstance->GetAsset<FShader>("Lighting");
+	auto* AdvancedShader    = AssetManagerInstance->GetAsset<FShader>("Advanced");
+	auto* LampShader        = AssetManagerInstance->GetAsset<FShader>("Lamp");
+	auto* BorderShader      = AssetManagerInstance->GetAsset<FShader>("Border");
+	auto* PointShader       = AssetManagerInstance->GetAsset<FShader>("Point");
+	auto* Metal             = AssetManagerInstance->GetAsset<FTexture>("Metal");
+	auto* Marble            = AssetManagerInstance->GetAsset<FTexture>("Marble");
+	auto* RedWindow         = AssetManagerInstance->GetAsset<FTexture>("RedWindow");
+	auto* Grass             = AssetManagerInstance->GetAsset<FTexture>("Grass");
+	auto* Backpack          = AssetManagerInstance->GetAsset<FModel>("Backpack");
+	auto* Nanosuit          = AssetManagerInstance->GetAsset<FModel>("Nanosuit");
 
 	Metal->BindTextureUnit(0);
 	Marble->BindTextureUnit(1);
@@ -404,9 +404,9 @@ namespace
 			glNamedFramebufferRenderbuffer(kMultiSampleFramebuffer, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, kRenderbuffer);
 
 			delete kTexMultiSampleBuffer;
-			kTexMultiSampleBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kMultiSamples, GL_TRUE, kMultiSampleFramebuffer);
+			kTexMultiSampleBuffer = new FTexture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kMultiSamples, GL_TRUE, kMultiSampleFramebuffer);
 			delete kTexColorBuffer;
-			kTexColorBuffer = new Texture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kIntermediateFramebuffer);
+			kTexColorBuffer = new FTexture(kWindowWidth, kWindowHeight, GL_RGBA16, GL_COLOR_ATTACHMENT0, kIntermediateFramebuffer);
 			kTexColorBuffer->BindTextureUnit(4);
 		}
 	}

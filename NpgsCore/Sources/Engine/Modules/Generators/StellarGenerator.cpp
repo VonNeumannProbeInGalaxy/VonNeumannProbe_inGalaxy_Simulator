@@ -486,11 +486,11 @@ void StellarGenerator::InitMistData()
 
 			if (PrefixDirectory.find("WhiteDwarfs") != std::string::npos)
 			{
-				LoadCsvAsset<WdMistData>(PrefixDirectory + "/" + Filename, _kWdMistHeaders);
+				LoadCsvAsset<FWdMistData>(PrefixDirectory + "/" + Filename, _kWdMistHeaders);
 			}
 			else
 			{
-				LoadCsvAsset<MistData>(PrefixDirectory + "/" + Filename, _kMistHeaders);
+				LoadCsvAsset<FMistData>(PrefixDirectory + "/" + Filename, _kMistHeaders);
 			}
 		}
 
@@ -668,8 +668,8 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 	{
 		if (Files.first != Files.second) [[likely]]
 		{
-			MistData* LowerData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
-			MistData* UpperData = LoadCsvAsset<MistData>(Files.second, _kMistHeaders);
+			FMistData* LowerData = LoadCsvAsset<FMistData>(Files.first, _kMistHeaders);
+			FMistData* UpperData = LoadCsvAsset<FMistData>(Files.second, _kMistHeaders);
 
 			auto LowerPhaseChanges = FindPhaseChanges(LowerData);
 			auto UpperPhaseChanges = FindPhaseChanges(UpperData);
@@ -703,7 +703,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 		}
 		else [[unlikely]]
 		{
-			MistData* StarData = LoadCsvAsset<MistData>(Files.first, _kMistHeaders);
+			FMistData* StarData = LoadCsvAsset<FMistData>(Files.first, _kMistHeaders);
 			auto PhaseChanges = FindPhaseChanges(StarData);
 
 			if (Util::Equal(TargetAge, -1.0))
@@ -752,8 +752,8 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 	{
 		if (Files.first != Files.second) [[likely]]
 		{
-			WdMistData* LowerData = LoadCsvAsset<WdMistData>(Files.first,  _kWdMistHeaders);
-			WdMistData* UpperData = LoadCsvAsset<WdMistData>(Files.second, _kWdMistHeaders);
+			FWdMistData* LowerData = LoadCsvAsset<FWdMistData>(Files.first,  _kWdMistHeaders);
+			FWdMistData* UpperData = LoadCsvAsset<FWdMistData>(Files.second, _kWdMistHeaders);
 
 			std::vector<double> LowerRows = InterpolateStarData(LowerData, TargetAge);
 			std::vector<double> UpperRows = InterpolateStarData(UpperData, TargetAge);
@@ -762,7 +762,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 		}
 		else [[unlikely]]
 		{
-			WdMistData* StarData = LoadCsvAsset<WdMistData>(Files.first, _kWdMistHeaders);
+			FWdMistData* StarData = LoadCsvAsset<FWdMistData>(Files.first, _kWdMistHeaders);
 			Result = InterpolateStarData(StarData, TargetAge);
 		}
 	}
@@ -770,7 +770,7 @@ std::vector<double> StellarGenerator::InterpolateMistData(const std::pair<std::s
 	return Result;
 }
 
-std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const MistData* DataCsv)
+std::vector<std::vector<double>> StellarGenerator::FindPhaseChanges(const FMistData* DataCsv)
 {
 	std::vector<std::vector<double>> Result;
 
@@ -1040,7 +1040,7 @@ void StellarGenerator::AlignArrays(std::pair<std::vector<std::vector<double>>, s
 	}
 }
 
-std::vector<double> StellarGenerator::InterpolateHrDiagram(StellarGenerator::HrDiagram* Data, double BvColorIndex)
+std::vector<double> StellarGenerator::InterpolateHrDiagram(StellarGenerator::FHrDiagram* Data, double BvColorIndex)
 {
 	std::vector<double> Result;
 
@@ -1070,12 +1070,12 @@ std::vector<double> StellarGenerator::InterpolateHrDiagram(StellarGenerator::HrD
 	return Result;
 }
 
-std::vector<double> StellarGenerator::InterpolateStarData(StellarGenerator::MistData* Data, double EvolutionProgress)
+std::vector<double> StellarGenerator::InterpolateStarData(StellarGenerator::FMistData* Data, double EvolutionProgress)
 {
 	return InterpolateStarData(Data, EvolutionProgress, "x", StellarGenerator::_kXIndex, false);
 }
 
-std::vector<double> StellarGenerator::InterpolateStarData(StellarGenerator::WdMistData* Data, double TargetAge)
+std::vector<double> StellarGenerator::InterpolateStarData(StellarGenerator::FWdMistData* Data, double TargetAge)
 {
 	return InterpolateStarData(Data, TargetAge, "star_age", StellarGenerator::_kWdStarAgeIndex, true);
 }
@@ -1428,8 +1428,8 @@ Util::StellarClass::LuminosityClass StellarGenerator::CalculateLuminosityClass(c
 		return LuminosityClass;
 	}
 
-	std::string HrDiagramDataFilepath = Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/H-R Diagram/H-R Diagram.csv");
-	HrDiagram* HrDiagramData = LoadCsvAsset<HrDiagram>(HrDiagramDataFilepath, _kHrDiagramHeaders);
+	std::string HrDiagramDataFilePath = Asset::GetAssetFullPath(Asset::AssetType::kDataTable, "StellarParameters/H-R Diagram/H-R Diagram.csv");
+	FHrDiagram* HrDiagramData = LoadCsvAsset<FHrDiagram>(HrDiagramDataFilePath, _kHrDiagramHeaders);
 
 	float Teff = StarData.GetTeff();
 	float BvColorIndex = 0.0f;
@@ -2078,7 +2078,7 @@ void StellarGenerator::ExpandMistData(double TargetMass, std::vector<double>& St
 template<typename CsvType>
 CsvType* StellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers)
 {
-	auto* AssetManagerInstance = Asset::AssetManager::GetInstance();
+	auto* AssetManagerInstance = Asset::FAssetManager::GetInstance();
 	{
 		std::shared_lock Lock(_kCacheMutex);
 		auto* Asset = AssetManagerInstance->GetAsset<CsvType>(Filename);
@@ -2127,7 +2127,7 @@ const std::vector<std::string> StellarGenerator::_kWdMistHeaders
 
 const std::vector<std::string> StellarGenerator::_kHrDiagramHeaders{ "B-V", "Ia", "Ib", "II", "III", "IV", "V" };
 std::unordered_map<std::string, std::vector<float>> StellarGenerator::_kMassFilesCache;
-std::unordered_map<const StellarGenerator::MistData*, std::vector<std::vector<double>>> StellarGenerator::_kPhaseChangesCache;
+std::unordered_map<const StellarGenerator::FMistData*, std::vector<std::vector<double>>> StellarGenerator::_kPhaseChangesCache;
 std::shared_mutex StellarGenerator::_kCacheMutex;
 bool StellarGenerator::_kbMistDataInitiated = false;
 

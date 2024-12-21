@@ -5,13 +5,13 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-Mesh::Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices, const std::vector<Texture>& Textures)
+FMesh::FMesh(const std::vector<FVertex>& Vertices, const std::vector<GLuint>& Indices, const std::vector<FTextureData>& Textures)
 	: _Indices(Indices), _Textures(Textures), _VertexArray(0)
 {
 	InitStaticVertexArray(Vertices);
 }
 
-Mesh::Mesh(Mesh&& Other) noexcept
+FMesh::FMesh(FMesh&& Other) noexcept
 	:
 	_Indices(std::move(Other._Indices)),
 	_Textures(std::move(Other._Textures)),
@@ -20,12 +20,12 @@ Mesh::Mesh(Mesh&& Other) noexcept
 	Other._VertexArray = 0;
 }
 
-Mesh::~Mesh()
+FMesh::~FMesh()
 {
 	glDeleteVertexArrays(1, &_VertexArray);
 }
 
-Mesh& Mesh::operator=(Mesh&& Other) noexcept
+FMesh& FMesh::operator=(FMesh&& Other) noexcept
 {
 	if (this != &Other)
 	{
@@ -40,12 +40,12 @@ Mesh& Mesh::operator=(Mesh&& Other) noexcept
 	return *this;
 }
 
-void Mesh::InitTextures(const Shader& ModelShader)
+void FMesh::InitTextures(const FShader& ModelShader)
 {
 	GLuint TextureUnit = 0;
 	for (auto& Texture : _Textures)
 	{
-		TextureInfo Info;
+		FTextureInfo Info;
 		Info.Handle          = &Texture;
 		Info.Unit            = TextureUnit++;
 		Info.UniformLocation =
@@ -56,7 +56,7 @@ void Mesh::InitTextures(const Shader& ModelShader)
 	}
 }
 
-void Mesh::StaticDraw(const Shader& ModelShader) const
+void FMesh::StaticDraw(const FShader& ModelShader) const
 {
 	for (const auto& Info : _TextureInfos)
 	{
@@ -68,7 +68,7 @@ void Mesh::StaticDraw(const Shader& ModelShader) const
 	glBindVertexArray(0);
 }
 
-void Mesh::DynamicDraw(const Shader& ModelShader) const
+void FMesh::DynamicDraw(const FShader& ModelShader) const
 {
 	for (const auto& Info : _TextureInfos)
 	{
@@ -81,7 +81,7 @@ void Mesh::DynamicDraw(const Shader& ModelShader) const
 	glBindVertexArray(0);
 }
 
-void Mesh::InitStaticVertexArray(const std::vector<Vertex>& Vertices)
+void FMesh::InitStaticVertexArray(const std::vector<FVertex>& Vertices)
 {
 	GLuint VertexBuffer  = 0;
 	GLuint ElementBuffer = 0;
@@ -90,10 +90,10 @@ void Mesh::InitStaticVertexArray(const std::vector<Vertex>& Vertices)
 	glCreateBuffers(1, &VertexBuffer);
 	glCreateBuffers(1, &ElementBuffer);
 
-	glNamedBufferData(VertexBuffer,  Vertices.size() * sizeof(Vertex), Vertices.data(), GL_STATIC_DRAW);
+	glNamedBufferData(VertexBuffer, Vertices.size() * sizeof(FVertex), Vertices.data(), GL_STATIC_DRAW);
 	glNamedBufferData(ElementBuffer, _Indices.size() * sizeof(GLuint), _Indices.data(), GL_STATIC_DRAW);
 
-	glVertexArrayVertexBuffer(_VertexArray, 0, VertexBuffer, 0, sizeof(Vertex));
+	glVertexArrayVertexBuffer(_VertexArray, 0, VertexBuffer, 0, sizeof(FVertex));
 	glVertexArrayElementBuffer(_VertexArray, ElementBuffer);
 
 	for (GLuint i = 0; i <= 6; ++i)
@@ -101,13 +101,13 @@ void Mesh::InitStaticVertexArray(const std::vector<Vertex>& Vertices)
 		glEnableVertexArrayAttrib(_VertexArray, i);
 	}
 
-	glVertexArrayAttribFormat(_VertexArray, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position));
-	glVertexArrayAttribFormat(_VertexArray, 1, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal));
-	glVertexArrayAttribFormat(_VertexArray, 2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoords));
-	glVertexArrayAttribFormat(_VertexArray, 3, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Tangent));
-	glVertexArrayAttribFormat(_VertexArray, 4, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Bitangent));
-	glVertexArrayAttribFormat(_VertexArray, 5, 4, GL_INT,   GL_FALSE, offsetof(Vertex, BoneIds));
-	glVertexArrayAttribFormat(_VertexArray, 6, 4, GL_FLOAT, GL_FALSE, offsetof(Vertex, Weigths));
+	glVertexArrayAttribFormat(_VertexArray, 0, 3, GL_FLOAT, GL_FALSE, offsetof(FVertex, Position));
+	glVertexArrayAttribFormat(_VertexArray, 1, 3, GL_FLOAT, GL_FALSE, offsetof(FVertex, Normal));
+	glVertexArrayAttribFormat(_VertexArray, 2, 2, GL_FLOAT, GL_FALSE, offsetof(FVertex, TexCoords));
+	glVertexArrayAttribFormat(_VertexArray, 3, 3, GL_FLOAT, GL_FALSE, offsetof(FVertex, Tangent));
+	glVertexArrayAttribFormat(_VertexArray, 4, 3, GL_FLOAT, GL_FALSE, offsetof(FVertex, Bitangent));
+	glVertexArrayAttribFormat(_VertexArray, 5, 4, GL_INT,   GL_FALSE, offsetof(FVertex, BoneIds));
+	glVertexArrayAttribFormat(_VertexArray, 6, 4, GL_FLOAT, GL_FALSE, offsetof(FVertex, Weigths));
 
 	for (GLuint i = 0; i <= 6; ++i)
 	{

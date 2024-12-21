@@ -19,11 +19,11 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-class TypeErasedDeleter
+class FTypeErasedDeleter
 {
 public:
 	template <typename T>
-	TypeErasedDeleter(T*)
+	FTypeErasedDeleter(T*)
 		: _Deleter([](void* Ptr) -> void { delete static_cast<T*>(Ptr); })
 	{
 	}
@@ -38,40 +38,40 @@ private:
 };
 
 template <typename AssetType>
-concept MoveOnlyType = std::movable<AssetType> && !std::copyable<AssetType>;
+concept CMoveOnlyType = std::movable<AssetType> && !std::copyable<AssetType>;
 
-class AssetManager
+class FAssetManager
 {
 public:
 	template<typename AssetType>
-	requires MoveOnlyType<AssetType>
+	requires CMoveOnlyType<AssetType>
 	void AddAsset(const std::string& Name, AssetType&& Asset);
 
 	template<typename AssetType>
-	requires MoveOnlyType<AssetType>
+	requires CMoveOnlyType<AssetType>
 	AssetType* GetAsset(const std::string& Name);
 
 	template<typename AssetType>
-	requires MoveOnlyType<AssetType>
+	requires CMoveOnlyType<AssetType>
 	std::vector<AssetType*> GetAssets();
 
 	void RemoveAsset(const std::string& Name);
 	void ClearAssets();
 
-	static AssetManager* GetInstance();
+	static FAssetManager* GetInstance();
 
 private:
-	explicit AssetManager()           = default;
-	AssetManager(const AssetManager&) = delete;
-	AssetManager(AssetManager&&)      = delete;
-	~AssetManager();
+	explicit FAssetManager()           = default;
+	FAssetManager(const FAssetManager&) = delete;
+	FAssetManager(FAssetManager&&)      = delete;
+	~FAssetManager();
 
-	AssetManager& operator=(const AssetManager&) = delete;
-	AssetManager& operator=(AssetManager&&)      = delete;
+	FAssetManager& operator=(const FAssetManager&) = delete;
+	FAssetManager& operator=(FAssetManager&&)      = delete;
 
 private:
-	using ManagedAsset = std::unique_ptr<void, TypeErasedDeleter>;
-	std::unordered_map<std::string, ManagedAsset> _Assets;
+	using FManagedAsset = std::unique_ptr<void, FTypeErasedDeleter>;
+	std::unordered_map<std::string, FManagedAsset> _Assets;
 };
 
 _ASSET_END

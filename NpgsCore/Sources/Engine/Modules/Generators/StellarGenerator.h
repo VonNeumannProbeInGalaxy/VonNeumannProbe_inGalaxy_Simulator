@@ -23,9 +23,9 @@ _MODULE_BEGIN
 class StellarGenerator
 {
 public:
-	using MistData   = Asset::Csv<double, 12>;
-	using WdMistData = Asset::Csv<double, 5>;
-	using HrDiagram  = Asset::Csv<double, 7>;
+	using FMistData   = Asset::TCsv<double, 12>;
+	using FWdMistData = Asset::TCsv<double, 5>;
+	using FHrDiagram  = Asset::TCsv<double, 7>;
 
 	enum class GenerateDistribution
 	{
@@ -123,14 +123,14 @@ private:
 	float GenerateMass(float MaxPdf, auto& LogMassPdf);
 	std::vector<double> GetFullMistData(const BasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWhiteDwarf);
 	std::vector<double> InterpolateMistData(const std::pair<std::string, std::string>& Files, double TargetAge, double TargetMass, double MassCoefficient);
-	std::vector<std::vector<double>> FindPhaseChanges(const MistData* DataCsv);
+	std::vector<std::vector<double>> FindPhaseChanges(const FMistData* DataCsv);
 	double CalculateEvolutionProgress(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
 	std::pair<double, std::pair<double, double>> FindSurroundingTimePoints(const std::vector<std::vector<double>>& PhaseChanges, double TargetAge);
 	std::pair<double, std::size_t> FindSurroundingTimePoints(const std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& PhaseChanges, double TargetAge, double MassCoefficient);
 	void AlignArrays(std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>& Arrays);
-	std::vector<double> InterpolateHrDiagram(HrDiagram* Data, double BvColorIndex);
-	std::vector<double> InterpolateStarData(MistData* Data, double EvolutionProgress);
-	std::vector<double> InterpolateStarData(WdMistData* Data, double TargetAge);
+	std::vector<double> InterpolateHrDiagram(FHrDiagram* Data, double BvColorIndex);
+	std::vector<double> InterpolateStarData(FMistData* Data, double EvolutionProgress);
+	std::vector<double> InterpolateStarData(FWdMistData* Data, double TargetAge);
 	std::vector<double> InterpolateStarData(auto* Data, double Target, const std::string& Header, int Index, bool bIsWhiteDwarf);
 	std::vector<double> InterpolateArray(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient);
 	std::vector<double> InterpolateFinalData(const std::pair<std::vector<double>, std::vector<double>>& DataArrays, double Coefficient, bool bIsWhiteDwarf);
@@ -199,7 +199,7 @@ private:
 	static const std::vector<std::string> _kWdMistHeaders;
 	static const std::vector<std::string> _kHrDiagramHeaders;
 	static std::unordered_map<std::string, std::vector<float>> _kMassFilesCache;
-	static std::unordered_map<const MistData*, std::vector<std::vector<double>>> _kPhaseChangesCache;
+	static std::unordered_map<const FMistData*, std::vector<std::vector<double>>> _kPhaseChangesCache;
 	static std::shared_mutex _kCacheMutex;
 	static bool _kbMistDataInitiated;
 };

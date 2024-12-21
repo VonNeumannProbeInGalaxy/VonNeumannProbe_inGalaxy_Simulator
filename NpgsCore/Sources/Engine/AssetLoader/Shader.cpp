@@ -17,18 +17,19 @@ _ASSET_BEGIN
 
 namespace
 {
-	std::string GetIncludeDirectory(const std::string& Filepath);
+	std::string GetIncludeDirectory(const std::string& FilePath);
 	std::string GetIncludeFilename(const std::string& Statement);
 }
 
-Shader::Shader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros)
+FShader::FShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramBinaryName,
+				 const std::vector<std::string>& Macros)
 	:
 	_Program(0)
 {
-	InitShader(SourceFiles, ProgramName, Macros);
+	InitShader(SourceFiles, ProgramBinaryName, Macros);
 }
 
-Shader::Shader(Shader&& Other) noexcept
+FShader::FShader(FShader&& Other) noexcept
 	:
 	_IncludedFiles(std::move(Other._IncludedFiles)),
 	_ShaderTypes(std::move(Other._ShaderTypes)),
@@ -37,12 +38,12 @@ Shader::Shader(Shader&& Other) noexcept
 	Other._Program = 0;
 }
 
-Shader::~Shader()
+FShader::~FShader()
 {
 	glDeleteProgram(_Program);
 }
 
-Shader& Shader::operator=(Shader&& Other) noexcept
+FShader& FShader::operator=(FShader&& Other) noexcept
 {
 	if (this != &Other)
 	{
@@ -60,10 +61,11 @@ Shader& Shader::operator=(Shader&& Other) noexcept
 	return *this;
 }
 
-void Shader::InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros)
+void FShader::InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramBinaryName,
+						 const std::vector<std::string>& Macros)
 {
-	std::string ProgramCache = GetAssetFullPath(Asset::AssetType::kBinaryShader, ProgramName + ".bin");
-	if (ProgramName != "")
+	std::string ProgramCache = GetAssetFullPath(Asset::AssetType::kBinaryShader, ProgramBinaryName + ".bin");
+	if (ProgramBinaryName != "")
 	{
 		std::filesystem::path ProgramCachePath(ProgramCache);
 
@@ -74,7 +76,7 @@ void Shader::InitShader(const std::vector<std::string>& SourceFiles, const std::
 		}
 	}
 
-	std::vector<Source> ShaderSources;
+	std::vector<FSource> ShaderSources;
 	for (const auto& SourceFile : SourceFiles)
 	{
 		ShaderSources.emplace_back(LoadShaderSource(GetAssetFullPath(Asset::AssetType::kShader, SourceFile)));
@@ -101,7 +103,7 @@ void Shader::InitShader(const std::vector<std::string>& SourceFiles, const std::
 
 	LinkProgram(Shaders);
 
-	if (ProgramName != "")
+	if (ProgramBinaryName != "")
 	{
 		SaveProgramBinary(ProgramCache);
 	}
@@ -113,9 +115,9 @@ void Shader::InitShader(const std::vector<std::string>& SourceFiles, const std::
 	}
 }
 
-Shader::Source Shader::LoadShaderSource(const std::string& Filepath)
+FShader::FSource FShader::LoadShaderSource(const std::string& Filename)
 {
-	std::ifstream SourceFile(Filepath);
+	std::ifstream SourceFile(Filename);
 	std::string   SourceCode;
 	std::string   Statement;
 
@@ -123,7 +125,7 @@ Shader::Source Shader::LoadShaderSource(const std::string& Filepath)
 
 	if (!SourceFile.is_open())
 	{
-		std::println("Fatal error: Can not open shader source file: \"{}\": No such file or directory.", Filepath);
+		std::println("Fatal error: Can not open shader source file: \"{}\": No such file or directory.", Filename);
 		std::system("pause");
 		std::exit(EXIT_FAILURE);
 	}
@@ -134,12 +136,13 @@ Shader::Source Shader::LoadShaderSource(const std::string& Filepath)
 		if (Statement.find("#include") != std::string::npos)
 		{
 			bHasInclude = true;
-			std::string IncludedFile = GetIncludeDirectory(Filepath) + GetIncludeFilename(Statement);
+			std::string IncludedFile = GetIncludeDirectory(Filename) + GetIncludeFilename(Statement);
 			if (_IncludedFiles.find(IncludedFile) == _IncludedFiles.end())
 			{
 				_IncludedFiles.insert(IncludedFile);
 				Statement = LoadShaderSource(IncludedFile).Data;
-				SourceCode += "#line 1 \"" + IncludedFile + "\"\n" + Statement + "\n#line " + std::to_string(LineNumber + 1) + " \"" + Filepath + "\"\n";
+				SourceCode += "#line 1 \"" + IncludedFile + "\"\n" + Statement + "\n#line " +
+					std::to_string(LineNumber + 1) + " \"" + Filename + "\"\n";
 			}
 			else
 			{
@@ -154,10 +157,10 @@ Shader::Source Shader::LoadShaderSource(const std::string& Filepath)
 
 	SourceFile.close();
 
-	return { SourceCode, Filepath, bHasInclude, false };
+	return { SourceCode, Filename, bHasInclude, false };
 }
 
-void Shader::PushShaderType(const std::string& Extension)
+void FShader::PushShaderType(const std::string& Extension)
 {
 	if (Extension == ".comp")
 	{
@@ -189,7 +192,7 @@ void Shader::PushShaderType(const std::string& Extension)
 	}
 }
 
-void Shader::InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderType, Source& ShaderSource) const
+void FShader::InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderType, FSource& ShaderSource) const
 {
 	auto TypePrefix = [ShaderType]() -> std::string
 	{
@@ -234,7 +237,7 @@ void Shader::InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderT
 	}
 }
 
-GLuint Shader::CompileShader(const Source& ShaderSource, GLenum ShaderType) const
+GLuint FShader::CompileShader(const FSource& ShaderSource, GLenum ShaderType) const
 {
 	GLuint Shader = glCreateShader(ShaderType);
 	const GLchar* SourceCodePointer = ShaderSource.Data.c_str();
@@ -266,7 +269,7 @@ GLuint Shader::CompileShader(const Source& ShaderSource, GLenum ShaderType) cons
 	return Shader;
 }
 
-void Shader::LinkProgram(const std::vector<GLuint>& Shaders)
+void FShader::LinkProgram(const std::vector<GLuint>& Shaders)
 {
 	_Program = glCreateProgram();
 
@@ -279,10 +282,10 @@ void Shader::LinkProgram(const std::vector<GLuint>& Shaders)
 	CheckLinkError();
 }
 
-void Shader::SaveProgramBinary(const std::string& Filename) const
+void FShader::SaveProgramBinary(const std::string& Filename) const
 {
-	std::filesystem::path Filepath(Filename);
-	std::filesystem::path Directory(Filepath.parent_path());
+	std::filesystem::path FilePath(Filename);
+	std::filesystem::path Directory(FilePath.parent_path());
 	if (!std::filesystem::exists(Directory))
 	{
 		std::filesystem::create_directories(Directory);
@@ -307,7 +310,7 @@ void Shader::SaveProgramBinary(const std::string& Filename) const
 	BinaryFile.close();
 }
 
-void Shader::LoadProgramBinary(const std::string& Filename)
+void FShader::LoadProgramBinary(const std::string& Filename)
 {
 	std::ifstream BinaryFile(Filename, std::ios::binary);
 	if (!BinaryFile.is_open())
@@ -327,7 +330,7 @@ void Shader::LoadProgramBinary(const std::string& Filename)
 	CheckLinkError();
 }
 
-void Shader::CheckLinkError() const
+void FShader::CheckLinkError() const
 {
 	GLint LinkStatus = 0;
 
@@ -347,9 +350,9 @@ void Shader::CheckLinkError() const
 
 namespace
 {
-	std::string GetIncludeDirectory(const std::string& Filepath)
+	std::string GetIncludeDirectory(const std::string& FilePath)
 	{
-		return (std::filesystem::path(Filepath).parent_path().string() + '/');
+		return (std::filesystem::path(FilePath).parent_path().string() + '/');
 	}
 
 	std::string GetIncludeFilename(const std::string& Statement)

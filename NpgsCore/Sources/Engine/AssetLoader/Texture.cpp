@@ -15,17 +15,17 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-Texture::Texture(TextureType CreateType, const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
+FTexture::FTexture(ETextureType CreateType, const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilePath)
 	: _Type(CreateType)
 {
 	GLubyte* Data = nullptr;
 
 	switch (_Type)
 	{
-	case TextureType::k2D:
-		Data = Create2dTexture(Filename, bSrgb, bFlipVertically, bAutoFillFilepath);
+	case ETextureType::k2D:
+		Data = Create2dTexture(Filename, bSrgb, bFlipVertically, bAutoFillFilePath);
 		break;
-	case TextureType::kCubeMap:
+	case ETextureType::kCubeMap:
 		Data = CreateCubeMap(Filename, bSrgb, bFlipVertically);
 		break;
 	default:
@@ -38,13 +38,14 @@ Texture::Texture(TextureType CreateType, const std::string& Filename, bool bSrgb
 	}
 }
 
-Texture::Texture(const FT_Face& Face)
-	: _Type(TextureType::kCharacter)
+FTexture::FTexture(const FT_Face& Face)
+	: _Type(ETextureType::kCharacter)
 {
 	GLuint MyTexture = 0;
 	glCreateTextures(GL_TEXTURE_2D, 1, &MyTexture);
 	glTextureStorage2D(MyTexture, 1, GL_R8, Face->glyph->bitmap.width, Face->glyph->bitmap.rows);
-	glTextureSubImage2D(MyTexture, 0, 0, 0, Face->glyph->bitmap.width, Face->glyph->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, Face->glyph->bitmap.buffer);
+	glTextureSubImage2D(MyTexture, 0, 0, 0, Face->glyph->bitmap.width, Face->glyph->bitmap.rows,
+						GL_RED, GL_UNSIGNED_BYTE, Face->glyph->bitmap.buffer);
 
 	glTextureParameteri(MyTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(MyTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -54,8 +55,8 @@ Texture::Texture(const FT_Face& Face)
 	_Textures.emplace_back(MyTexture);
 }
 
-Texture::Texture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer)
-	: _Type(TextureType::kAttachment)
+FTexture::FTexture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer)
+	: _Type(ETextureType::kAttachment)
 {
 	GLuint MyTexture = 0;
 	glCreateTextures(GL_TEXTURE_2D, 1, &MyTexture);
@@ -67,8 +68,9 @@ Texture::Texture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum At
 	_Textures.emplace_back(MyTexture);
 }
 
-Texture::Texture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLsizei Samples, GLboolean bFixedSampleLocations, GLuint Framebuffer)
-	: _Type(TextureType::kAttachment)
+FTexture::FTexture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment,
+				   GLsizei Samples, GLboolean bFixedSampleLocations, GLuint Framebuffer)
+	: _Type(ETextureType::kAttachment)
 {
 	GLuint MyTexture = 0;
 	glCreateTextures(GL_TEXTURE_2D_MULTISAMPLE, 1, &MyTexture);
@@ -78,8 +80,8 @@ Texture::Texture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum At
 	_Textures.emplace_back(MyTexture);
 }
 
-Texture::Texture(GLsizei Width, GLsizei Height)
-	: _Type(TextureType::kDepthMap)
+FTexture::FTexture(GLsizei Width, GLsizei Height)
+	: _Type(ETextureType::kDepthMap)
 {
 	GLuint MyTexture = 0;
 	glCreateTextures(GL_TEXTURE_2D, 1, &MyTexture);
@@ -95,19 +97,19 @@ Texture::Texture(GLsizei Width, GLsizei Height)
 	_Textures.emplace_back(MyTexture);
 }
 
-Texture::Texture(Texture&& Other) noexcept
+FTexture::FTexture(FTexture&& Other) noexcept
 	:
 	_Textures(std::move(Other._Textures)),
 	_Type(Other._Type)
 {
 }
 
-Texture::~Texture()
+FTexture::~FTexture()
 {
 	glDeleteTextures(static_cast<GLsizei>(_Textures.size()), _Textures.data());
 }
 
-Texture& Texture::operator=(Texture&& Other) noexcept
+FTexture& FTexture::operator=(FTexture&& Other) noexcept
 {
 	if (this != &Other)
 	{
@@ -124,9 +126,9 @@ Texture& Texture::operator=(Texture&& Other) noexcept
 	return *this;
 }
 
-GLubyte* Texture::Create2dTexture(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath)
+GLubyte* FTexture::Create2dTexture(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilePath)
 {
-	std::string ImageFilepath = bAutoFillFilepath ? GetAssetFullPath(AssetType::kTexture, Filename) : Filename;
+	std::string ImageFilePath = bAutoFillFilePath ? GetAssetFullPath(AssetType::kTexture, Filename) : Filename;
 
 	GLenum MyTexture = 0;
 	glCreateTextures(GL_TEXTURE_2D, 1, &MyTexture);
@@ -134,7 +136,7 @@ GLubyte* Texture::Create2dTexture(const std::string& Filename, bool bSrgb, bool 
 	if (std::filesystem::path(Filename).extension().string() == ".ddx" ||
 		std::filesystem::path(Filename).extension().string() == ".ktx")
 	{
-		gli::texture2d Texture2D(gli::load(ImageFilepath));
+		gli::texture2d Texture2D(gli::load(ImageFilePath));
 		if (!Texture2D.empty())
 		{
 			gli::gl Converter(gli::gl::PROFILE_GL33);
@@ -161,7 +163,7 @@ GLubyte* Texture::Create2dTexture(const std::string& Filename, bool bSrgb, bool 
 		}
 	}
 
-	ImageData Data = LoadImage(ImageFilepath, bSrgb, bFlipVertically, bAutoFillFilepath);
+	FImageData Data = LoadImage(ImageFilePath, bSrgb, bFlipVertically);
 
 	glTextureStorage2D(MyTexture, 1, Data.InternalFormat, Data.Width, Data.Height);
 	glTextureSubImage2D(MyTexture, 0, 0, 0, Data.Width, Data.Height, Data.Format, GL_UNSIGNED_BYTE, Data.Data);
@@ -177,7 +179,7 @@ GLubyte* Texture::Create2dTexture(const std::string& Filename, bool bSrgb, bool 
 	return Data.Data;
 }
 
-GLubyte* Texture::CreateCubeMap(const std::string& Filename, bool bSrgb, bool bFlipVertically)
+GLubyte* FTexture::CreateCubeMap(const std::string& Filename, bool bSrgb, bool bFlipVertically)
 {
 	GLuint MyTexture = 0;
 	glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &MyTexture);
@@ -215,7 +217,7 @@ GLubyte* Texture::CreateCubeMap(const std::string& Filename, bool bSrgb, bool bF
 		}
 	}
 
-	ImageData Data;
+	FImageData Data;
 	std::string Directory = GetAssetFullPath(AssetType::kTexture, Filename);
 
 	std::vector<std::string> FaceNames{ "posx", "negx", "posy", "negy", "posz", "negz" };
@@ -241,7 +243,7 @@ GLubyte* Texture::CreateCubeMap(const std::string& Filename, bool bSrgb, bool bF
 
 	for (GLuint i = 0; i != Images.size(); ++i)
 	{
-		Data = LoadImage(Directory + '/' + Images[i], bSrgb, bFlipVertically, GL_FALSE);
+		Data = LoadImage(Directory + '/' + Images[i], bSrgb, bFlipVertically);
 
 		if (i == 0)
 		{
@@ -262,7 +264,7 @@ GLubyte* Texture::CreateCubeMap(const std::string& Filename, bool bSrgb, bool bF
 	return Data.Data;
 }
 
-Texture::ImageData Texture::LoadImage(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath) const
+FTexture::FImageData FTexture::LoadImage(const std::string& Filename, bool bSrgb, bool bFlipVertically) const
 {
 	GLint ImageWidth    = 0;
 	GLint ImageHeight   = 0;

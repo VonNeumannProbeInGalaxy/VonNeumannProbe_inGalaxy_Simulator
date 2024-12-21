@@ -17,13 +17,13 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-Model::Model(const std::string& Filename, const std::string& ShaderName)
+FModel::FModel(const std::string& Filename, const std::string& ShaderName)
 {
 	InitModel(Filename);
-	InitModelTexture(*AssetManager::GetInstance()->GetAsset<Shader>(ShaderName));
+	InitModelTexture(*FAssetManager::GetInstance()->GetAsset<FShader>(ShaderName));
 }
 
-Model::Model(Model&& Other) noexcept
+FModel::FModel(FModel&& Other) noexcept
 	:
 	_TexturesCache(std::move(Other._TexturesCache)),
 	_Meshes(std::move(Other._Meshes)),
@@ -31,7 +31,7 @@ Model::Model(Model&& Other) noexcept
 {
 }
 
-Model& Model::operator=(Model&& Other) noexcept
+FModel& FModel::operator=(FModel&& Other) noexcept
 {
 	if (this != &Other)
 	{
@@ -43,7 +43,7 @@ Model& Model::operator=(Model&& Other) noexcept
 	return *this;
 }
 
-void Model::StaticDraw(const Shader& ModelShader) const
+void FModel::StaticDraw(const FShader& ModelShader) const
 {
 	for (const auto& Mesh : _Meshes)
 	{
@@ -51,7 +51,7 @@ void Model::StaticDraw(const Shader& ModelShader) const
 	}
 }
 
-void Model::DynamicDraw(const Shader& ModelShader) const
+void FModel::DynamicDraw(const FShader& ModelShader) const
 {
 	for (const auto& Mesh : _Meshes)
 	{
@@ -59,11 +59,11 @@ void Model::DynamicDraw(const Shader& ModelShader) const
 	}
 }
 
-void Model::InitModel(const std::string& Filename)
+void FModel::InitModel(const std::string& Filename)
 {
 	Assimp::Importer Loader;
-	std::string Filepath = GetAssetFullPath(Asset::AssetType::kModel, Filename);
-	const aiScene* Scene = Loader.ReadFile(Filepath, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
+	std::string FilePath = GetAssetFullPath(Asset::AssetType::kModel, Filename);
+	const aiScene* Scene = Loader.ReadFile(FilePath, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
 										   aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	if (!Scene || Scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode)
 	{
@@ -72,12 +72,12 @@ void Model::InitModel(const std::string& Filename)
 		std::exit(EXIT_FAILURE);
 	}
 
-	_Directory = std::filesystem::path(Filepath).parent_path().string();
+	_Directory = std::filesystem::path(FilePath).parent_path().string();
 
 	ProcessNode(Scene->mRootNode, Scene);
 }
 
-void Model::InitModelTexture(const Shader& ModelShader)
+void FModel::InitModelTexture(const FShader& ModelShader)
 {
 	for (auto& Mesh : _Meshes)
 	{
@@ -85,7 +85,7 @@ void Model::InitModelTexture(const Shader& ModelShader)
 	}
 }
 
-void Model::ProcessNode(const aiNode* Node, const aiScene* Scene)
+void FModel::ProcessNode(const aiNode* Node, const aiScene* Scene)
 {
 	aiMesh* Mesh = nullptr;
 	for (std::uint32_t i = 0; i != Node->mNumMeshes; ++i)
@@ -100,12 +100,12 @@ void Model::ProcessNode(const aiNode* Node, const aiScene* Scene)
 	}
 }
 
-std::unique_ptr<Mesh> Model::ProcessMesh(const aiMesh* Mesh, const aiScene* Scene)
+std::unique_ptr<FMesh> FModel::ProcessMesh(const aiMesh* Mesh, const aiScene* Scene)
 {
-	std::vector<std::uint32_t> Indices;
-	std::vector<Mesh::Texture> Textures;
-	std::vector<Mesh::Vertex>  Vertices;
-	Mesh::Vertex               MeshVertex{};
+	std::vector<std::uint32_t>       Indices;
+	std::vector<FMesh::FTextureData> Textures;
+	std::vector<FMesh::FVertex>      Vertices;
+	FMesh::FVertex                   MeshVertex;
 
 	for (std::uint32_t i = 0; i != Mesh->mNumVertices; ++i)
 	{
@@ -142,25 +142,25 @@ std::unique_ptr<Mesh> Model::ProcessMesh(const aiMesh* Mesh, const aiScene* Scen
 
 	aiMaterial* Material = Scene->mMaterials[Mesh->mMaterialIndex];
 
-	std::vector<Mesh::Texture> DiffuseMaps = LoadMaterialTextures(Material, aiTextureType_DIFFUSE, "iDiffuseTex");
+	std::vector<FMesh::FTextureData> DiffuseMaps = LoadMaterialTextures(Material, aiTextureType_DIFFUSE, "iDiffuseTex");
 	Textures.insert(Textures.end(), std::make_move_iterator(DiffuseMaps.begin()), std::make_move_iterator(DiffuseMaps.end()));
-	std::vector<Mesh::Texture> SpecularMaps = LoadMaterialTextures(Material, aiTextureType_SPECULAR, "iSpecularTex");
+	std::vector<FMesh::FTextureData> SpecularMaps = LoadMaterialTextures(Material, aiTextureType_SPECULAR, "iSpecularTex");
 	Textures.insert(Textures.end(), std::make_move_iterator(SpecularMaps.begin()), std::make_move_iterator(SpecularMaps.end()));
-	std::vector<Mesh::Texture> NormalMaps = LoadMaterialTextures(Material, aiTextureType_NORMALS, "iNormalTex");
+	std::vector<FMesh::FTextureData> NormalMaps = LoadMaterialTextures(Material, aiTextureType_NORMALS, "iNormalTex");
 	Textures.insert(Textures.end(), std::make_move_iterator(NormalMaps.begin()), std::make_move_iterator(NormalMaps.end()));
-	std::vector<Mesh::Texture> HeightMaps = LoadMaterialTextures(Material, aiTextureType_AMBIENT, "iHeightTex");
+	std::vector<FMesh::FTextureData> HeightMaps = LoadMaterialTextures(Material, aiTextureType_AMBIENT, "iHeightTex");
 	Textures.insert(Textures.end(), std::make_move_iterator(HeightMaps.begin()), std::make_move_iterator(HeightMaps.end()));
 
-	return std::make_unique<Asset::Mesh>(Vertices, Indices, Textures);
+	return std::make_unique<FMesh>(Vertices, Indices, Textures);
 }
 
 #pragma warning(push)
 #pragma warning(disable : 26800) // For disable a IntelliSense bug
-std::vector<Mesh::Texture> Model::LoadMaterialTextures(const aiMaterial* Material, const aiTextureType& TextureType, const std::string& TypeName)
+std::vector<FMesh::FTextureData> FModel::LoadMaterialTextures(const aiMaterial* Material, const aiTextureType& TextureType, const std::string& TypeName)
 {
-	std::vector<Mesh::Texture> Textures;
-	aiString                   ImageFilename;
-	Mesh::Texture              MaterialTexture;
+	std::vector<FMesh::FTextureData> Textures;
+	aiString                         ImageFilename;
+	FMesh::FTextureData              MaterialTexture;
 
 	for (std::uint32_t i = 0; i != Material->GetTextureCount(TextureType); ++i)
 	{
@@ -179,9 +179,9 @@ std::vector<Mesh::Texture> Model::LoadMaterialTextures(const aiMaterial* Materia
 
 		if (!bSkipLoading)
 		{
-			std::string ImageFilepath = _Directory + '/' + ImageFilename.C_Str();
+			std::string ImageFilePath = _Directory + '/' + ImageFilename.C_Str();
 			MaterialTexture.Data =
-				std::make_shared<Asset::Texture>(Asset::Texture::TextureType::k2D, ImageFilepath, true, true, false);
+				std::make_shared<FTexture>(FTexture::ETextureType::k2D, ImageFilePath, true, true, false);
 			MaterialTexture.TypeName = TypeName;
 			MaterialTexture.ImageFilename = ImageFilename.C_Str();
 			_TexturesCache.emplace_back(std::move(MaterialTexture));

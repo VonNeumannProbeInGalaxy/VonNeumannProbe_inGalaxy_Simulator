@@ -6,13 +6,13 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-AssetManager* AssetManager::GetInstance()
+FAssetManager* FAssetManager::GetInstance()
 {
-	static AssetManager Instance;
+	static FAssetManager Instance;
 	return &Instance;
 }
 
-AssetManager::~AssetManager()
+FAssetManager::~FAssetManager()
 {
 	ClearAssets();
 }

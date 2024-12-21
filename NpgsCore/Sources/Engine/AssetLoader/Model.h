@@ -15,33 +15,33 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-class Model
+class FModel
 {
 public:
-	Model(const std::string& Filename, const std::string& ShaderName);
-	Model(const Model&) = delete;
-	Model(Model&& Other) noexcept;
-	~Model() = default;
+	FModel(const std::string& Filename, const std::string& ShaderName);
+	FModel(const FModel&) = delete;
+	FModel(FModel&& Other) noexcept;
+	~FModel() = default;
 
-	Model& operator=(const Model&) = delete;
-	Model& operator=(Model&& Other) noexcept;
+	FModel& operator=(const FModel&) = delete;
+	FModel& operator=(FModel&& Other) noexcept;
 
-	void StaticDraw(const Shader& ModelShader) const;
-	void DynamicDraw(const Shader& ModelShader) const;
-	const std::vector<std::unique_ptr<Mesh>>& GetMeshes() const;
+	void StaticDraw(const FShader& ModelShader) const;
+	void DynamicDraw(const FShader& ModelShader) const;
+	const std::vector<std::unique_ptr<FMesh>>& GetMeshes() const;
 
 private:
 	void InitModel(const std::string& Filename);
-	void InitModelTexture(const Shader& ModelShader);
+	void InitModelTexture(const FShader& ModelShader);
 	void ProcessNode(const aiNode* Node, const aiScene* Scene);
-	std::unique_ptr<Mesh> ProcessMesh(const aiMesh* Mesh, const aiScene* Scene);
-	std::vector<Mesh::Texture> LoadMaterialTextures(const aiMaterial* Material, const aiTextureType& TextureType,
-													const std::string& TypeName);
+	std::unique_ptr<FMesh> ProcessMesh(const aiMesh* Mesh, const aiScene* Scene);
+	std::vector<FMesh::FTextureData> LoadMaterialTextures(const aiMaterial* Material, const aiTextureType& TextureType,
+														  const std::string& TypeName);
 
 private:
-	std::vector<Mesh::Texture>         _TexturesCache;
-	std::vector<std::unique_ptr<Mesh>> _Meshes;
-	std::string                        _Directory;
+	std::vector<FMesh::FTextureData>    _TexturesCache;
+	std::vector<std::unique_ptr<FMesh>> _Meshes;
+	std::string                         _Directory;
 };
 
 _ASSET_END

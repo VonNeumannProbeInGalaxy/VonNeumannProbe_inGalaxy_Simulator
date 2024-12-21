@@ -11,15 +11,15 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-class Texture
+class FTexture
 {
 public:
-	enum class TextureType
+	enum class ETextureType
 	{
 		k2D, kAttachment, kDepthMap, kCharacter, kCubeMap
 	};
 
-	struct ImageData
+	struct FImageData
 	{
 		GLubyte* Data{};
 		GLsizei Width{};
@@ -31,33 +31,37 @@ public:
 	};
 
 public:
-	Texture(TextureType CreateType, const std::string& Filename, bool bSrgb = false, bool bFlipVertically = true, bool bAutoFillFilepath = true);
-	Texture(const FT_Face& Face);
-	Texture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer);
-	Texture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLsizei Samples,
-			GLboolean bFixedSampleLocations, GLuint Framebuffer);
-	Texture(GLsizei Width, GLsizei Height);
-	Texture(const Texture&) = delete;
-	Texture(Texture&& Other) noexcept;
+	FTexture(ETextureType CreateType, const std::string& Filename, bool bSrgb = false,
+			 bool bFlipVertically = true, bool bAutoFillFilePath = true);
 
-	~Texture();
+	FTexture(const FT_Face& Face);
+	FTexture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer);
 
-	Texture& operator=(const Texture&) = delete;
-	Texture& operator=(Texture&& Other) noexcept;
+	FTexture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment,
+			 GLsizei Samples, GLboolean bFixedSampleLocations, GLuint Framebuffer);
+
+	FTexture(GLsizei Width, GLsizei Height);
+	FTexture(const FTexture&) = delete;
+	FTexture(FTexture&& Other) noexcept;
+
+	~FTexture();
+
+	FTexture& operator=(const FTexture&) = delete;
+	FTexture& operator=(FTexture&& Other) noexcept;
 
 	void BindTextureUnit(GLuint Unit) const;
-	void BindTextureUnit(const Shader& DrawShader, const std::string& UniformName, GLuint Unit) const;
+	void BindTextureUnit(const FShader& DrawShader, const std::string& UniformName, GLuint Unit) const;
 	GLuint GetTexture() const;
-	TextureType GetTextureType() const;
+	ETextureType GetTextureType() const;
 
 private:
-	GLubyte* Create2dTexture(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath);
+	GLubyte* Create2dTexture(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilePath);
 	GLubyte* CreateCubeMap(const std::string& Filename, bool bSrgb, bool bFlipVertically);
-	ImageData LoadImage(const std::string& Filename, bool bSrgb, bool bFlipVertically, bool bAutoFillFilepath) const;
+	FImageData LoadImage(const std::string& Filename, bool bSrgb, bool bFlipVertically) const;
 
 private:
 	std::vector<GLuint> _Textures;
-	TextureType _Type;
+	ETextureType        _Type;
 };
 
 _ASSET_END

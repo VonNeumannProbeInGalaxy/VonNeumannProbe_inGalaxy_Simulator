@@ -12,10 +12,10 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-class Shader
+class FShader
 {
 private:
-	struct Source
+	struct FSource
 	{
 		std::string Data;
 		std::string Filename;
@@ -24,13 +24,15 @@ private:
 	};
 
 public:
-	Shader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName = "", const std::vector<std::string>& Macros = { "NULL" });
-	Shader(const Shader&) = delete;
-	Shader(Shader&& Other) noexcept;
-	~Shader();
+	FShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramBinaryName = "",
+			const std::vector<std::string>& Macros = { "NULL" });
 
-	Shader& operator=(const Shader&) = delete;
-	Shader& operator=(Shader&& Other) noexcept;
+	FShader(const FShader&) = delete;
+	FShader(FShader&& Other) noexcept;
+	~FShader();
+
+	FShader& operator=(const FShader&) = delete;
+	FShader& operator=(FShader&& Other) noexcept;
 
 	GLuint GetProgram() const;
 	GLint GetUniformLocation(const std::string& Name) const;
@@ -51,11 +53,13 @@ public:
 	void SetUniformMatrix4fv(const std::string& Name, const glm::mat4x4& Matrix) const;
 
 private:
-	void InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramName, const std::vector<std::string>& Macros);
-	Source LoadShaderSource(const std::string& Filepath);
+	void InitShader(const std::vector<std::string>& SourceFiles, const std::string& ProgramBinaryName,
+					const std::vector<std::string>& Macros);
+
+	FSource LoadShaderSource(const std::string& Filename);
 	void PushShaderType(const std::string& Extension);
-	void InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderType, Source& ShaderSource) const;
-	GLuint CompileShader(const Source& ShaderSource, GLenum ShaderType) const;
+	void InsertMacros(const std::vector<std::string>& Macros, GLenum ShaderType, FSource& ShaderSource) const;
+	GLuint CompileShader(const FSource& ShaderSource, GLenum ShaderType) const;
 	void LinkProgram(const std::vector<GLuint>& Shaders);
 	void SaveProgramBinary(const std::string& Filename) const;
 	void LoadProgramBinary(const std::string& Filename);

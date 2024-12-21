@@ -20,25 +20,25 @@ _NPGS_BEGIN
 _ASSET_BEGIN
 
 template <std::size_t Size>
-concept CsvConcept = Size > 0;
+concept CCsvConcept = Size > 1;
 
 template <typename BasicType, std::size_t Size>
-requires CsvConcept<Size>
-class Csv
+requires CCsvConcept<Size>
+class TCsv
 {
 public:
 	using RowArray = std::vector<BasicType>;
 
 public:
-	Csv(const std::string& Filename, const std::vector<std::string>& ColNames)
+	TCsv(const std::string& Filename, const std::vector<std::string>& ColNames)
 		: _Filename(Filename), _ColNames(ColNames)
 	{
 		InitHeaderMap();
 		ReadData(io::ignore_extra_column);
 	}
 
-	Csv(const Csv&) = delete;
-	Csv(Csv&& Other) noexcept
+	TCsv(const TCsv&) = delete;
+	TCsv(TCsv&& Other) noexcept
 		:
 		_Filename(std::move(Other._Filename)),
 		_ColNames(std::move(Other._ColNames)),
@@ -47,10 +47,10 @@ public:
 	{
 	}
 
-	~Csv() = default;
+	~TCsv() = default;
 
-	Csv& operator=(const Csv&) = delete;
-	Csv& operator=(Csv&& Other) noexcept
+	TCsv& operator=(const TCsv&) = delete;
+	TCsv& operator=(TCsv&& Other) noexcept
 	{
 		if (this != &Other)
 		{
@@ -101,7 +101,7 @@ public:
 		std::function<bool(const BasicType&, const BasicType&)> Comparator = Pred;
 		if constexpr (std::is_same_v<Func, std::less<>> && std::is_same_v<BasicType, std::string>)
 		{
-			Comparator = &Csv::StrLessThan;
+			Comparator = &TCsv::StrLessThan;
 		}
 
 		if (!bSorted)

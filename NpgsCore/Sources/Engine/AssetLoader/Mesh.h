@@ -17,24 +17,24 @@ _ASSET_BEGIN
 
 constexpr int kMaxBoneInfluence = 4;
 
-class Mesh
+class FMesh
 {
 public:
-	struct Texture
+	struct FTextureData
 	{
-		std::shared_ptr<const Asset::Texture> Data;
+		std::shared_ptr<const FTexture> Data;
 		std::string TypeName;
 		std::string ImageFilename;
 	};
 
-	struct TextureInfo
+	struct FTextureInfo
 	{
-		Texture* Handle{};
-		GLuint   Unit{};
-		GLint    UniformLocation{};
+		FTextureData* Handle{};
+		GLuint Unit{};
+		GLint  UniformLocation{};
 	};
 
-	struct Vertex
+	struct FVertex
 	{
 		glm::vec3 Position{};
 		glm::vec3 Normal{};
@@ -47,29 +47,29 @@ public:
 	};
 
 public:
-	Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices, const std::vector<Texture>& Textures);
-	Mesh(const Mesh&) = delete;
-	Mesh(Mesh&& Other) noexcept;
-	~Mesh();
+	FMesh(const std::vector<FVertex>& Vertices, const std::vector<GLuint>& Indices, const std::vector<FTextureData>& Textures);
+	FMesh(const FMesh&) = delete;
+	FMesh(FMesh&& Other) noexcept;
+	~FMesh();
 
-	Mesh& operator=(const Mesh&) = delete;
-	Mesh& operator=(Mesh&& Other) noexcept;
+	FMesh& operator=(const FMesh&) = delete;
+	FMesh& operator=(FMesh&& Other) noexcept;
 
-	void InitTextures(const Shader& ModelShader);
-	void StaticDraw(const Shader& ModelShader) const;
-	void DynamicDraw(const Shader& ModelShader) const;
+	void InitTextures(const FShader& ModelShader);
+	void StaticDraw(const FShader& ModelShader) const;
+	void DynamicDraw(const FShader& ModelShader) const;
 	GLuint GetVertexArray() const;
 	const std::vector<GLuint>& GetIndices() const;
 
 private:
-	void InitStaticVertexArray(const std::vector<Vertex>& Vertices);
+	void InitStaticVertexArray(const std::vector<FVertex>& Vertices);
 	std::ptrdiff_t GetTextureCount(const std::string& typeName) const;
 
 private:
-	std::vector<GLuint>      _Indices;
-	std::vector<Texture>     _Textures;
-	std::vector<TextureInfo> _TextureInfos;
-	GLuint                   _VertexArray;
+	std::vector<GLuint>       _Indices;
+	std::vector<FTextureData> _Textures;
+	std::vector<FTextureInfo> _TextureInfos;
+	GLuint                    _VertexArray;
 };
 
 _ASSET_END
