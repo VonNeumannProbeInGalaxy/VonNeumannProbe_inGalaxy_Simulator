@@ -175,7 +175,7 @@ private:
 
 	void ReadData(io::ignore_column IgnoreColumn)
 	{
-		io::CSVReader<Size> Reader(_Filename);
+		io::CSVReader<ColSize> Reader(_Filename);
 		ReadHeader(Reader, IgnoreColumn);
 		std::vector<BasicType> Row(_ColNames.size());
 		while (ReadRow(Reader, Row))
@@ -187,7 +187,7 @@ private:
 	template <typename ReaderType>
 	bool ReadRow(ReaderType& Reader, std::vector<BasicType>& Row)
 	{
-		return ReadRowImpl(Reader, Row, std::make_index_sequence<Size>{});
+		return ReadRowImpl(Reader, Row, std::make_index_sequence<ColSize>{});
 	}
 
 	template <typename ReaderType, std::size_t... Indices>
@@ -199,7 +199,7 @@ private:
 	template <typename ElemType>
 	auto VectorToTuple(const std::vector<ElemType>& Vector)
 	{
-		return VectorToTupleImpl(Vector, std::make_index_sequence<Size>{});
+		return VectorToTupleImpl(Vector, std::make_index_sequence<ColSize>{});
 	}
 
 	template <typename ElemType, std::size_t... Indices>
