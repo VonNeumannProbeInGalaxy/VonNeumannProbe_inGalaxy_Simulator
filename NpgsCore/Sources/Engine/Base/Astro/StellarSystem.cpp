@@ -8,6 +8,11 @@ FBaryCenter::FBaryCenter(const glm::vec3& Position, const glm::vec2& Normal, std
 {
 }
 
+FOrbit::FOrbitalObject::FOrbitalObject()
+	: _Object{}, _Type(EObjectType::kBaryCenter)
+{
+}
+
 FOrbit::FOrbitalObject::FOrbitalObject(INpgsObject* Object, EObjectType Type)
 	: _Type(Type)
 {
@@ -29,6 +34,11 @@ FOrbit::FOrbitalObject::FOrbitalObject(INpgsObject* Object, EObjectType Type)
 		_Object.Artifacts = static_cast<Intelli::AArtifact*>(Object);
 		break;
 	}
+}
+
+FOrbit::FOrbitalDetails::FOrbitalDetails()
+	: _HostOrbit(nullptr), _Object{}, _InitialTrueAnomaly(0.0f)
+{
 }
 
 FOrbit::FOrbitalDetails::FOrbitalDetails(INpgsObject* Object, EObjectType Type, FOrbit* HostOrbit, float InitialTrueAnomaly)
@@ -60,6 +70,11 @@ FOrbit::FOrbitalDetails& FOrbit::FOrbitalDetails::SetOrbitalObject(INpgsObject* 
 	}
 
 	return *this;
+}
+
+FOrbit::FOrbit()
+	: _Parent{}, _Normal(), _Period(0.0f)
+{
 }
 
 FOrbit& FOrbit::SetParent(INpgsObject* Object, EObjectType Type)

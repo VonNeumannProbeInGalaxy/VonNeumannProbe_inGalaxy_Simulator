@@ -440,7 +440,7 @@ private:
 
 private:
 	std::unique_ptr<FNodeType> _Root;
-	FThreadPool*               _ThreadPool;
+	FThreadPool*			   _ThreadPool;
 	int                        _MaxDepth;
 };
 

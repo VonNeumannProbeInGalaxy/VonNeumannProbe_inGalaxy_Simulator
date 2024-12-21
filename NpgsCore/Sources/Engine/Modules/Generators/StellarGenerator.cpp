@@ -442,7 +442,7 @@ Astro::AStar FStellarGenerator::GenerateStar(FBasicProperties&& Properties)
 
 	float MinCoilMass = static_cast<float>(std::max(
 		6.6156e14  * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 1.5) * std::pow(_CoilTemperatureLimit, -6.0f) * std::pow(_dEpdM, -1.0f),
-		2.34865e29 * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 2.0) * std::pow(_CoilTemperatureLimit, -8.0f) * std::pow(Mass,   -1.0)
+		2.34865e29 * std::pow(MagneticField, 2.0f) * std::pow(Luminosity, 2.0) * std::pow(_CoilTemperatureLimit, -8.0f) * std::pow(Mass, -1.0)
 	));
 
 	Star.SetMinCoilMass(MinCoilMass);
@@ -1570,9 +1570,9 @@ void FStellarGenerator::ProcessDeathStar(Astro::AStar& DeathStar, EGenerateOptio
 	else if (InputFeH <= -2.0f && InputMassSol >= 250)
 	{
 		EvolutionPhase = Astro::AStar::EEvolutionPhase::kStellarBlackHole;
-		DeathStarFrom   = Astro::AStar::EStarFrom::kPhotondisintegration;
-		DeathStarType   = Util::FStellarClass::EStarType::kBlackHole;
-		DeathStarClass  =
+		DeathStarFrom  = Astro::AStar::EStarFrom::kPhotondisintegration;
+		DeathStarType  = Util::FStellarClass::EStarType::kBlackHole;
+		DeathStarClass =
 		{
 			Util::FStellarClass::ESpectralClass::kSpectral_X,
 			Util::FStellarClass::ESpectralClass::kSpectral_Unknown,

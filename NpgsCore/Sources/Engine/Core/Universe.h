@@ -47,14 +47,14 @@ private:
 	void GenerateBinaryStars(int MaxThread);
 
 private:
-	using NodeType = TOctree<Astro::FStellarSystem>::FNodeType;
+	using FNodeType = TOctree<Astro::FStellarSystem>::FNodeType;
 
 private:
 	std::mt19937                                    _RandomEngine;
 	Util::TUniformIntDistribution<std::uint32_t>    _SeedGenerator;
 	Util::TUniformRealDistribution<>                _CommonGenerator;
 	std::unique_ptr<TOctree<Astro::FStellarSystem>> _Octree;
-	FThreadPool*                                    _ThreadPool;
+	FThreadPool*									_ThreadPool;
 
 	std::size_t _StarCount;
 	std::size_t _ExtraGiantCount;

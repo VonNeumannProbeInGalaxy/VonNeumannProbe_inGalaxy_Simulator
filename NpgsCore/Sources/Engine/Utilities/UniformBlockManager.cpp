@@ -67,8 +67,10 @@ void FUniformBlockManager::VerifyBlockLayout(GLuint Program, const std::string& 
 
 	for (const auto& [Name, Offset] : SortedMembers)
 	{
-		GLint Size = 0, ArrayStride = 0, Type = 0;
-		GLuint Index = 0;
+		GLint  Size        = 0;
+		GLint  ArrayStride = 0;
+		GLint  Type        = 0;
+		GLuint Index       = 0;
 		const GLchar* NameStr = Name.c_str();
 		glGetUniformIndices(Program, 1, &NameStr, &Index);
 		if (Index != GL_INVALID_INDEX)

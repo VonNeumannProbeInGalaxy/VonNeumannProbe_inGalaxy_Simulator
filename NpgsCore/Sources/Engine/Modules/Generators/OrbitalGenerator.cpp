@@ -365,9 +365,8 @@ void FOrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::FOrbit::FO
 	auto  StarType = Star->GetStellarClass().GetStarType();
 	if (StarType != Util::FStellarClass::EStarType::kNeutronStar && StarType != Util::FStellarClass::EStarType::kBlackHole)
 	{
-		float DiskMassSol =
-			DiskBase * StarInitialMassSol * std::pow(10.0f, -2.05f + 0.1214f * StarInitialMassSol -
-			0.02669f * std::pow(StarInitialMassSol, 2.0f) - 0.2274f * std::log(StarInitialMassSol));
+		float DiskMassSol = DiskBase * StarInitialMassSol * std::pow(10.0f, -2.05f + 0.1214f * StarInitialMassSol - 0.02669f *
+							std::pow(StarInitialMassSol, 2.0f) - 0.2274f * std::log(StarInitialMassSol));
 		float DustMassSol = DiskMassSol * 0.0142f * 0.4f * std::pow(10.0f, Star->GetFeH());
 		float OuterRadiusAu = StarInitialMassSol >= 1 ? 45.0f * StarInitialMassSol : 45.0f * std::pow(StarInitialMassSol, 2.0f);
 		float InterRadiusAu = 0.0f;
@@ -621,10 +620,10 @@ void FOrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::FOrbit::FO
 			float CurrentLuminosity  = static_cast<float>(Current->GetLuminosity());
 			float TheOtherLuminoisty = static_cast<float>(TheOther->GetLuminosity());
 
-			HabitableZoneAu.first  = std::sqrt(CurrentLuminosity / 
-				(4 * kPi * (3000 - TheOtherLuminoisty / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
-			HabitableZoneAu.second = std::sqrt(CurrentLuminosity /
-				(4 * kPi * (600  - TheOtherLuminoisty / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
+			HabitableZoneAu.first  = std::sqrt(CurrentLuminosity / (4 * kPi * (3000 - TheOtherLuminoisty /
+											  (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
+			HabitableZoneAu.second = std::sqrt(CurrentLuminosity / (4 * kPi * (600  - TheOtherLuminoisty /
+											  (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
 		}
 		else
 		{
@@ -1428,7 +1427,7 @@ float FOrbitalGenerator::CalculatePlanetMass(float CoreMass, float NewCoreMass, 
 		Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
 
 		float CommonCoefficient = (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDisk.InterRadiusAu) /
-			(PlanetaryDisk.OuterRadiusAu - PlanetaryDisk.InterRadiusAu)) * Random1;
+								  (PlanetaryDisk.OuterRadiusAu - PlanetaryDisk.InterRadiusAu)) * Random1;
 
 		AtmosphereMassVolatiles = (NewCoreMass - CoreMass) / 9.0f + CoreMass * CommonCoefficient / 6.0f;
 		AtmosphereMassEnergeticNuclide = 5e-5f * AtmosphereMassVolatiles;
@@ -1464,7 +1463,7 @@ float FOrbitalGenerator::CalculatePlanetMass(float CoreMass, float NewCoreMass, 
 		Random3 = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
 
 		float CommonCoefficient = (0.5f + 0.5f * (SemiMajorAxisAu - PlanetaryDisk.InterRadiusAu) /
-			(PlanetaryDisk.OuterRadiusAu - PlanetaryDisk.InterRadiusAu)) * Random1;
+								  (PlanetaryDisk.OuterRadiusAu - PlanetaryDisk.InterRadiusAu)) * Random1;
 
 		AtmosphereMassZ = (0.0142f * std::pow(10.0f, Star->GetFeH())) * CoreMass *
 			CommonCoefficient + (1.0f - (1.0f + 5e-5f) / 9.0f) * (NewCoreMass - CoreMass);
@@ -1805,7 +1804,7 @@ void FOrbitalGenerator::GenerateMoons(std::size_t PlanetIndex, float FrostLineAu
 	float PlanetMassEarth   = PlanetMass / kEarthMass;
 	float LiquidRocheRadius = 2.02373e7f * std::pow(PlanetMassEarth, 1.0f / 3.0f);
 	float HillSphereRadius  = Orbits[PlanetIndex]->GetSemiMajorAxis() *
-		std::pow(3 * PlanetMass / static_cast<float>(Star->GetMass()), 1.0f / 3.0f);
+							  std::pow(3 * PlanetMass / static_cast<float>(Star->GetMass()), 1.0f / 3.0f);
 
 	std::size_t MoonCount = 0;
 	if (std::to_underlying(Star->GetEvolutionPhase()) < 1)
@@ -1840,7 +1839,7 @@ void FOrbitalGenerator::GenerateMoons(std::size_t PlanetIndex, float FrostLineAu
 		Astro::FOrbit MoonOrbitData;
 		MoonOrbitData.SetParent(Planet, Astro::FOrbit::EObjectType::kPlanet);
 		MoonOrbitData.SetSemiMajorAxis(2 * LiquidRocheRadius + _CommonGenerator(_RandomEngine) *
-			(std::min(1e9f, HillSphereRadius / 3 - 1e8f) - 2 * LiquidRocheRadius));
+									  (std::min(1e9f, HillSphereRadius / 3 - 1e8f) - 2 * LiquidRocheRadius));
 		GenerateOrbitElements(MoonOrbitData);
 
 		glm::vec2 MoonNormal(Planet->GetNormal() + glm::vec2(
@@ -1874,7 +1873,7 @@ void FOrbitalGenerator::GenerateMoons(std::size_t PlanetIndex, float FrostLineAu
 	{
 		std::array<Astro::FOrbit, 2> MoonOrbitData;
 		MoonOrbitData[0].SetSemiMajorAxis(2 * LiquidRocheRadius + _CommonGenerator(_RandomEngine) *
-			(7e8f - 2 * LiquidRocheRadius));
+										 (7e8f - 2 * LiquidRocheRadius));
 		GenerateOrbitElements(MoonOrbitData[0]);
 
 		float Probability = _CommonGenerator(_RandomEngine);
@@ -1889,7 +1888,7 @@ void FOrbitalGenerator::GenerateMoons(std::size_t PlanetIndex, float FrostLineAu
 		else
 		{
 			MoonOrbitData[1].SetSemiMajorAxis(MoonOrbitData[0].GetSemiMajorAxis() + 2e8f + _CommonGenerator(_RandomEngine) *
-				(std::min(2e9f, HillSphereRadius / 3 - 1e8f) - (MoonOrbitData[0].GetSemiMajorAxis() + 2e8f)));
+											 (std::min(2e9f, HillSphereRadius / 3 - 1e8f) - (MoonOrbitData[0].GetSemiMajorAxis() + 2e8f)));
 		}
 
 		GenerateOrbitElements(MoonOrbitData[1]);
@@ -2071,7 +2070,7 @@ void FOrbitalGenerator::GenerateRings(std::size_t PlanetIndex, float FrostLineAu
 	float PlanetMassEarth   = PlanetMass / kEarthMass;
 	float LiquidRocheRadius = 2.02373e7f * std::pow(PlanetMassEarth, 1.0f / 3.0f);
 	float HillSphereRadius  = Orbits[PlanetIndex]->GetSemiMajorAxis() *
-		std::pow(3.0f * PlanetMass / static_cast<float>(Star->GetMass()), 1.0f / 3.0f);
+							  std::pow(3.0f * PlanetMass / static_cast<float>(Star->GetMass()), 1.0f / 3.0f);
 
 	Util::TDistribution<double>* RingsProbability = nullptr;
 	if (LiquidRocheRadius < HillSphereRadius / 3.0f && LiquidRocheRadius > Planet->GetRadius())
@@ -2139,9 +2138,9 @@ void FOrbitalGenerator::GenerateRings(std::size_t PlanetIndex, float FrostLineAu
 	std::println("Rings generated, details:");
 	std::println("parent planet: {}", PlanetIndex + 1);
 	std::println("semi-major axis: {} km, mass: {} kg, type: {}",
-					SemiMajorAxis / 1000, RingsMass, std::to_underlying(RingsPtr->GetAsteroidType()));
+				 SemiMajorAxis / 1000, RingsMass, std::to_underlying(RingsPtr->GetAsteroidType()));
 	std::println("mass z: {:.2E} kg, mass vol: {:.2E} kg, mass nuc: {:.2E} kg",
-					RingsMassZ, RingsMassVolatiles, RingsMassEnergeticNuclide);
+				 RingsMassZ, RingsMassVolatiles, RingsMassEnergeticNuclide);
 	std::println("");
 #endif // DEBUG_OUTPUT
 }
@@ -2154,7 +2153,8 @@ void FOrbitalGenerator::GenerateTerra(const Astro::AStar* Star, float PoyntingVe
 	float PlanetMass        = Planet->GetMassDigital<float>();
 	float PlanetMassEarth   = Planet->GetMassDigital<float>() / kEarthMass;
 	float CoreMass          = Planet->GetCoreMassDigital<float>();
-	float Term1             = 1.6567e15f * static_cast<float>(std::pow(Star->GetLuminosity() / (4.0 * kPi * kStefanBoltzmann * std::pow(Orbit->GetSemiMajorAxis(), 2.0f)), 0.25));
+	float Term1             = 1.6567e15f * static_cast<float>(std::pow(Star->GetLuminosity() /
+							  (4.0 * kPi * kStefanBoltzmann * std::pow(Orbit->GetSemiMajorAxis(), 2.0f)), 0.25));
 	float Term2             = PlanetMass / Planet->GetRadius();
 	float MaxTerm           = std::max(1.0f, Term1 / Term2);
 	float EscapeCoefficient = std::pow(10.0f, 1.0f - MaxTerm);
@@ -2257,7 +2257,7 @@ void FOrbitalGenerator::GenerateTrojan(const Astro::AStar* Star, float FrostLine
 	float PlanetMassEarth   = PlanetMass / kEarthMass;
 	float LiquidRocheRadius = 2.02373e7f * std::pow(PlanetMassEarth, 1.0f / 3.0f);
 	float HillSphereRadius  = Orbit->GetSemiMajorAxis() *
-		std::pow(3.0f * PlanetMass / static_cast<float>(Star->GetMass()), 1.0f / 3.0f);
+							  std::pow(3.0f * PlanetMass / static_cast<float>(Star->GetMass()), 1.0f / 3.0f);
 
 	float Random     = 1.0f + _CommonGenerator(_RandomEngine);
 	float Term1      = 1e-9f * PlanetMassEarth * (HillSphereRadius / 3.11e9f);

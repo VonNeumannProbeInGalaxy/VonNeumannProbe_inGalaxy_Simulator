@@ -32,19 +32,19 @@ public:
 
 	struct FCivilizationProperties
 	{
-		boost::multiprecision::uint128_t AtrificalStructureMass;   // 文明造物总质量，单位 kg
-		boost::multiprecision::uint128_t CitizenBiomass;           // 文明生物生物量，单位 kg
-		boost::multiprecision::uint128_t UseableEnergeticNuclide;  // 可用含能核素总质量，单位 kg
-		boost::multiprecision::uint128_t OrbitAssetsMass;          // 轨道资产总质量，单位 kg
-		std::uint64_t GeneralintelligenceCount{};                  // 通用智能个体的数量
-		float GeneralIntelligenceAverageSynapseActivationCount{};  // 通用智能个体的智力活动，单位 o/s
-		float GeneralIntelligenceSynapseCount{};                   // 通用智能个体的突触数
-		float GeneralIntelligenceAverageLifetime{};                // 通用智能个体的平均寿命，单位 yr
-		float CitizenUsedPower{};                                  // 文明使用的总功率，单位 W
-		float CivilizationProgress{};                              // 文明演化进度
-		float StoragedHistoryDataSize{};                           // 存储的历史数据总大小，单位 bit
-		float TeamworkCoefficient{};                               // 合作系数
-		bool  bIsIndependentIndividual{ false };                   // 是否为独立个体
+		boost::multiprecision::uint128_t AtrificalStructureMass;  // 文明造物总质量，单位 kg
+		boost::multiprecision::uint128_t CitizenBiomass;          // 文明生物生物量，单位 kg
+		boost::multiprecision::uint128_t UseableEnergeticNuclide; // 可用含能核素总质量，单位 kg
+		boost::multiprecision::uint128_t OrbitAssetsMass;         // 轨道资产总质量，单位 kg
+		std::uint64_t GeneralintelligenceCount{};                 // 通用智能个体的数量
+		float GeneralIntelligenceAverageSynapseActivationCount{}; // 通用智能个体的智力活动，单位 o/s
+		float GeneralIntelligenceSynapseCount{};                  // 通用智能个体的突触数
+		float GeneralIntelligenceAverageLifetime{};               // 通用智能个体的平均寿命，单位 yr
+		float CitizenUsedPower{};                                 // 文明使用的总功率，单位 W
+		float CivilizationProgress{};                             // 文明演化进度
+		float StoragedHistoryDataSize{};                          // 存储的历史数据总大小，单位 bit
+		float TeamworkCoefficient{};                              // 合作系数
+		bool  bIsIndependentIndividual{ false };                  // 是否为独立个体
 	};
 
 public:
@@ -106,17 +106,17 @@ public:
 	float GetTeamworkCoefficient() const;
 	bool  IsIndependentIndividual() const;
 
-	template <typename T>
-	T GetAtrificalStructureMassDigital() const;
+	template <typename DigitalType>
+	DigitalType GetAtrificalStructureMassDigital() const;
 
-	template <typename T>
-	T GetCitizenBiomassDigital() const;
+	template <typename DigitalType>
+	DigitalType GetCitizenBiomassDigital() const;
 
-	template <typename T>
-	T GetUseableEnergeticNuclideDigital() const;
+	template <typename DigitalType>
+	DigitalType GetUseableEnergeticNuclideDigital() const;
 
-	template <typename T>
-	T GetOrbitAssetsMassDigital() const;
+	template <typename DigitalType>
+	DigitalType GetOrbitAssetsMassDigital() const;
 
 public:
 	static const float _kNull;

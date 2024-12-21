@@ -174,11 +174,11 @@ private:
 	Util::TUniformRealDistribution<>                      _AgeGenerator;
 	Util::TUniformRealDistribution<>                      _CommonGenerator;
 
-	std::array<std::function<float(float)>, 2>     _MassPdfs;
-	std::array<glm::vec2, 2>                       _MassMaxPdfs;
+	std::array<std::function<float(float)>, 2>    _MassPdfs;
+	std::array<glm::vec2, 2>                      _MassMaxPdfs;
 
-	std::function<float(glm::vec3, float, float)>  _AgePdf;
-	glm::vec2                                      _AgeMaxPdf;
+	std::function<float(glm::vec3, float, float)> _AgePdf;
+	glm::vec2                                     _AgeMaxPdf;
 
 	float _UniverseAge;
 	float _AgeLowerLimit;

@@ -124,40 +124,40 @@ public:
 
 	template <typename DigitalType>
 	DigitalType GetAtmosphereMassZDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetAtmosphereMassVolatilesDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetAtmosphereMassEnergeticNuclideDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetCoreMassDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetCoreMassZDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetCoreMassVolatilesDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetCoreMassEnergeticNuclideDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetOceanMassDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetOceanMassZDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetOceanMassVolatilesDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetOceanMassEnergeticNuclideDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetMassDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetCrustMineralMassDigital() const;
 
@@ -217,10 +217,10 @@ public:
 
 	template <typename DigitalType>
 	DigitalType GetMassZDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetMassVolatilesDigital() const;
-	
+
 	template <typename DigitalType>
 	DigitalType GetMassEnergeticNuclideDigital() const;
 

@@ -63,7 +63,7 @@ public:
 	class FOrbitalObject
 	{
 	public:
-		FOrbitalObject() = default;
+		FOrbitalObject();
 		FOrbitalObject(INpgsObject* Object, EObjectType Type);
 		~FOrbitalObject() = default;
 
@@ -79,14 +79,14 @@ public:
 		ObjectType* GetObject() const;
 
 	private:
-		FObjectPointer _Object{};
-		EObjectType    _Type{ EObjectType::kBaryCenter };
+		FObjectPointer _Object;
+		EObjectType    _Type;
 	};
 
 	class FOrbitalDetails
 	{
 	public:
-		FOrbitalDetails() = default;
+		FOrbitalDetails();
 		FOrbitalDetails(INpgsObject* Object, EObjectType Type, FOrbit* HostOrbit, float InitialTrueAnomaly = 0.0f);
 		~FOrbitalDetails() = default;
 
@@ -101,14 +101,14 @@ public:
 		std::vector<FOrbit*>& DirectOrbitsData();
 
 	private:
-		std::vector<FOrbit*> _DirectOrbits;         // 直接下级轨道
-		FOrbit*              _HostOrbit{};          // 所在轨道
-		FOrbitalObject       _Object;               // 天体
-		float                _InitialTrueAnomaly{}; // 初始真近点角，单位 rad
+		std::vector<FOrbit*> _DirectOrbits;       // 直接下级轨道
+		FOrbit*              _HostOrbit;          // 所在轨道
+		FOrbitalObject       _Object;             // 天体
+		float                _InitialTrueAnomaly; // 初始真近点角，单位 rad
 	};
 
 public:
-	FOrbit() = default;
+	FOrbit();
 	~FOrbit() = default;
 
 	FOrbit& SetSemiMajorAxis(float SemiMajorAxis);
@@ -130,15 +130,15 @@ public:
 	const FOrbitalObject& GetParent() const;
 	const glm::vec2& GetNormal() const;
 	float GetPeriod() const;
-	
+
 	std::vector<FOrbitalDetails>& ObjectsData();
 
 private:
 	FKeplerElements              _OrbitElements;
-	std::vector<FOrbitalDetails> _Objects;  // 轨道上的天体
-	FOrbitalObject               _Parent;   // 上级天体
-	glm::vec2                    _Normal{}; // 轨道法向量 (theta, phi)
-	float                        _Period{}; // 轨道周期，单位 s
+	std::vector<FOrbitalDetails> _Objects; // 轨道上的天体
+	FOrbitalObject               _Parent;  // 上级天体
+	glm::vec2                    _Normal;  // 轨道法向量 (theta, phi)
+	float                        _Period;  // 轨道周期，单位 s
 };
 
 class FStellarSystem : public INpgsObject
@@ -146,11 +146,11 @@ class FStellarSystem : public INpgsObject
 public:
 	FStellarSystem() = default;
 	FStellarSystem(const FBaryCenter& SystemBary);
-	FStellarSystem(const FStellarSystem&) = delete;
+	FStellarSystem(const FStellarSystem&)     = delete;
 	FStellarSystem(FStellarSystem&&) noexcept = default;
 	~FStellarSystem() = default;
 
-	FStellarSystem& operator=(const FStellarSystem&) = delete;
+	FStellarSystem& operator=(const FStellarSystem&)     = delete;
 	FStellarSystem& operator=(FStellarSystem&&) noexcept = default;
 
 	FStellarSystem& SetBaryPosition(const glm::vec3& Poisition);

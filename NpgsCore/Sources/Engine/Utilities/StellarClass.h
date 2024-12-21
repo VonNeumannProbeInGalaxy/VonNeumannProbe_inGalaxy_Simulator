@@ -167,17 +167,17 @@ private:
 	};
 
 private:
-	static EParseState ParseStarType(unsigned char Char, FStellarClass::EStarType& StarType, FStellarClass::ESpectralClass& HSpectralClass, std::size_t& Index);
-	static EParseState ParseSpectralClass(unsigned char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
-	static EParseState ParseWolfRayetStar(unsigned char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
-	static EParseState ParseWhiteDwarf(unsigned char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
-	static EParseState ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
-	static EParseState ParseLuminosityClass(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass, std::size_t& Index);
-	static EParseState ParseLuminosityClassI(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass, std::size_t& Index);
-	static EParseState ParseLuminosityClassIa(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass);
-	static EParseState ParseLuminosityClassII(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass);
-	static EParseState ParseLuminosityClassV(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass);
-	static EParseState ParseSpecialMark(unsigned char Char, unsigned char NextChar, FStellarClass::FSpecialMarkDigital& SpecialMark, std::size_t& Index);
+	static EParseState ParseStarType(char Char, FStellarClass::EStarType& StarType, FStellarClass::ESpectralClass& HSpectralClass, std::size_t& Index);
+	static EParseState ParseSpectralClass(char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
+	static EParseState ParseWolfRayetStar(char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
+	static EParseState ParseWhiteDwarf(char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
+	static EParseState ParseWhiteDwarfEx(char Char, char PrevChar, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index);
+	static EParseState ParseLuminosityClass(char Char, FStellarClass::ELuminosityClass& LuminosityClass, std::size_t& Index);
+	static EParseState ParseLuminosityClassI(char Char, FStellarClass::ELuminosityClass& LuminosityClass, std::size_t& Index);
+	static EParseState ParseLuminosityClassIa(char Char, FStellarClass::ELuminosityClass& LuminosityClass);
+	static EParseState ParseLuminosityClassII(char Char, FStellarClass::ELuminosityClass& LuminosityClass);
+	static EParseState ParseLuminosityClassV(char Char, FStellarClass::ELuminosityClass& LuminosityClass);
+	static EParseState ParseSpecialMark(char Char, char NextChar, FStellarClass::FSpecialMarkDigital& SpecialMark, std::size_t& Index);
 	static std::string SpectralClassToString(FStellarClass::ESpectralClass SpectralClass, float Subclass);
 	static std::string LuminosityClassToString(FStellarClass::ELuminosityClass LuminosityClass);
 	static std::string SpecialMarkToString(FStellarClass::ESpecialMark SpecialMark);

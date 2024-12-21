@@ -4,7 +4,7 @@ _NPGS_BEGIN
 _ASTRO_BEGIN
 
 AStar::AStar(const FCelestialBody::FBasicProperties& BasicProperties, const FExtendedProperties& ExtraProperties)
-	: FCelestialBody(BasicProperties), _ExtraProperties(ExtraProperties)
+	: FCelestialBody(BasicProperties), _ExtraProperties(std::move(ExtraProperties))
 {
 }
 

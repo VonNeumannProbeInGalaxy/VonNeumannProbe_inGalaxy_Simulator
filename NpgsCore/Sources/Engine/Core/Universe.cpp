@@ -588,8 +588,8 @@ void FUniverse::CountStars()
 
 template<typename AstroType, typename DataType>
 void FUniverse::MakeChunks(int MaxThread, std::vector<DataType>& Data, std::vector<std::vector<DataType>>& DataLists,
-						  std::vector<std::promise<std::vector<AstroType>>>& Promises,
-						  std::vector<std::future<std::vector<AstroType>>>& ChunkFutures)
+						   std::vector<std::promise<std::vector<AstroType>>>& Promises,
+						   std::vector<std::future<std::vector<AstroType>>>& ChunkFutures)
 {
 	for (std::size_t i = 0; i != Data.size(); ++i)
 	{
@@ -615,14 +615,11 @@ void FUniverse::GenerateStars(int MaxThread)
 	using enum Module::FStellarGenerator::EGenerateOption;
 	auto CreateGenerators =
 	[&, this](Module::FStellarGenerator::EGenerateOption Option = kNormal,
-			  float MassLowerLimit = 0.1f,
-			  float MassUpperLimit = 300.0f,
+			  float MassLowerLimit = 0.1f, float MassUpperLimit = 300.0f,
 			  Module::FStellarGenerator::EGenerateDistribution MassDistribution = kFromPdf,
-			  float AgeLowerLimit = 0.0f,
-			  float AgeUpperLimit = 1.26e10f,
+			  float AgeLowerLimit = 0.0f, float AgeUpperLimit = 1.26e10f,
 			  Module::FStellarGenerator::EGenerateDistribution AgeDistribution = kFromPdf,
-			  float FeHLowerLimit = -4.0f,
-			  float FeHUpperLimit = 0.5f,
+			  float FeHLowerLimit = -4.0f, float FeHUpperLimit = 0.5f,
 			  Module::FStellarGenerator::EGenerateDistribution FeHDistribution = kFromPdf) -> void
 	{
 		for (int i = 0; i != MaxThread; ++i)
@@ -682,9 +679,9 @@ void FUniverse::GenerateStars(int MaxThread)
 	{
 		Generators.clear();
 		CreateGenerators(Module::FStellarGenerator::EGenerateOption::kNormal,
-						 35.0f, 300.0f,   Module::FStellarGenerator::EGenerateDistribution::kUniform,
-						 1e7f,  1.26e10f, Module::FStellarGenerator::EGenerateDistribution::kFromPdf,
-						 -2.0,  0.5);
+						 35.0f,  300.0f, Module::FStellarGenerator::EGenerateDistribution::kUniform,
+						 1e7f, 1.26e10f, Module::FStellarGenerator::EGenerateDistribution::kFromPdf,
+						 -2.0, 0.5);
 		GenerateBasicProperties(_ExtraBlackHoleCount);
 	}
 
@@ -746,7 +743,7 @@ void FUniverse::GenerateStars(int MaxThread)
 		if (Stars.size() > 1)
 		{
 			std::sort(Stars.begin(), Stars.end(),
-			[](const std::unique_ptr<Astro::AStar>& Star1, std::unique_ptr<Astro::AStar>& Star2) -> bool
+					  [](const std::unique_ptr<Astro::AStar>& Star1, std::unique_ptr<Astro::AStar>& Star2) -> bool
 			{
 				return Star1->GetMass() > Star2->GetMass();
 			});
@@ -768,7 +765,7 @@ void FUniverse::GenerateStars(int MaxThread)
 	}
 
 	NpgsCoreInfo("Reset home stellar system...");
-	NodeType* HomeNode = _Octree->Find(glm::vec3(0.0f), [](const NodeType& Node) -> bool
+	FNodeType* HomeNode = _Octree->Find(glm::vec3(0.0f), [](const FNodeType& Node) -> bool
 	{
 		if (Node.IsLeafNode())
 		{
@@ -819,7 +816,7 @@ void FUniverse::FillStellarSystem(int MaxThread)
 }
 
 std::vector<Astro::AStar> FUniverse::InterpolateStars(int MaxThread, std::vector<Module::FStellarGenerator>& Generators,
-													std::vector<Module::FStellarGenerator::FBasicProperties>& BasicProperties)
+													  std::vector<Module::FStellarGenerator::FBasicProperties>& BasicProperties)
 {
 	std::vector<std::vector<Module::FStellarGenerator::FBasicProperties>> PropertyLists(MaxThread);
 	std::vector<std::promise<std::vector<Astro::AStar>>> Promises(MaxThread);
@@ -864,7 +861,7 @@ void FUniverse::GenerateSlots(float MinDistance, std::size_t SampleCount, float 
 	_Octree->BuildEmptyTree(LeafRadius); // 快速构建一个空树，每个叶子节点作为一个格子，用于生成恒星
 
 	// 遍历八叉树，将距离原点大于半径的叶子节点标记为无效，保证恒星只会在范围内生成
-	_Octree->Traverse([Radius](NodeType& Node) -> void
+	_Octree->Traverse([Radius](FNodeType& Node) -> void
 	{
 		if (Node.IsLeafNode() && glm::length(Node.GetCenter()) > Radius)
 		{
@@ -873,9 +870,9 @@ void FUniverse::GenerateSlots(float MinDistance, std::size_t SampleCount, float 
 	});
 
 	std::size_t ValidLeafCount = _Octree->GetCapacity();
-	std::vector<NodeType*> LeafNodes;
+	std::vector<FNodeType*> LeafNodes;
 
-	auto CollectLeafNodes = [&LeafNodes](NodeType& Node) -> void
+	auto CollectLeafNodes = [&LeafNodes](FNodeType& Node) -> void
 	{
 		if (Node.IsLeafNode())
 		{
@@ -927,7 +924,7 @@ void FUniverse::GenerateSlots(float MinDistance, std::size_t SampleCount, float 
 
 	Util::TUniformRealDistribution Offset(-LeafRadius, LeafRadius - MinDistance); // 用于随机生成恒星位置相对于叶子节点中心点的偏移量
 	// 遍历八叉树，为每个有效的叶子节点生成一个恒星
-	_Octree->Traverse([&Offset, LeafRadius, MinDistance, this](NodeType& Node) -> void
+	_Octree->Traverse([&Offset, LeafRadius, MinDistance, this](FNodeType& Node) -> void
 	{
 		if (Node.IsLeafNode() && Node.GetValidation())
 		{
@@ -941,7 +938,7 @@ void FUniverse::GenerateSlots(float MinDistance, std::size_t SampleCount, float 
 
 	// 为了保证恒星系统的唯一性，将原点附近所在的叶子节点作为存储初始恒星系统的结点
 	// 寻找包含了 (LeafRadius, LeafRadius, LeafRadius) 的叶子节点，将这个格子存储的位置修改为原点
-	NodeType* HomeNode = _Octree->Find(glm::vec3(LeafRadius), [](const NodeType& Node) -> bool
+	FNodeType* HomeNode = _Octree->Find(glm::vec3(LeafRadius), [](const FNodeType& Node) -> bool
 	{
 		return Node.IsLeafNode();
 	});
@@ -955,7 +952,7 @@ void FUniverse::OctreeLinkToStellarSystems(std::vector<Astro::AStar>& Stars, std
 {
 	std::size_t Index = 0;
 
-	_Octree->Traverse([&](NodeType& Node) -> void
+	_Octree->Traverse([&](FNodeType& Node) -> void
 	{
 		if (Node.IsLeafNode() && Node.GetValidation())
 		{

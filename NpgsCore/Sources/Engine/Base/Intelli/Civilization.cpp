@@ -1,10 +1,12 @@
 #include "Civilization.h"
 
+#include <utility>
+
 _NPGS_BEGIN
 _INTELLI_BEGIN
 
 FStandard::FStandard(const FLifeProperties& LifeProperties, const FCivilizationProperties& CivilizationProperties)
-	: _LifeProperties(LifeProperties), _CivilizationProperties(CivilizationProperties)
+	: _LifeProperties(std::move(LifeProperties)), _CivilizationProperties(std::move(CivilizationProperties))
 {
 }
 

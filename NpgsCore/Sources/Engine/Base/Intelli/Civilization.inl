@@ -217,28 +217,28 @@ NPGS_INLINE bool FStandard::IsIndependentIndividual() const
 	return _CivilizationProperties.bIsIndependentIndividual;
 }
 
-template <typename T>
-NPGS_INLINE T FStandard::GetAtrificalStructureMassDigital() const
+template <typename DigitalType>
+NPGS_INLINE DigitalType FStandard::GetAtrificalStructureMassDigital() const
 {
-	return _CivilizationProperties.AtrificalStructureMass.convert_to<T>();
+	return _CivilizationProperties.AtrificalStructureMass.convert_to<DigitalType>();
 }
 
-template <typename T>
-NPGS_INLINE T FStandard::GetCitizenBiomassDigital() const
+template <typename DigitalType>
+NPGS_INLINE DigitalType FStandard::GetCitizenBiomassDigital() const
 {
-	return _CivilizationProperties.CitizenBiomass.convert_to<T>();
+	return _CivilizationProperties.CitizenBiomass.convert_to<DigitalType>();
 }
 
-template <typename T>
-NPGS_INLINE T FStandard::GetUseableEnergeticNuclideDigital() const
+template <typename DigitalType>
+NPGS_INLINE DigitalType FStandard::GetUseableEnergeticNuclideDigital() const
 {
-	return _CivilizationProperties.UseableEnergeticNuclide.convert_to<T>();
+	return _CivilizationProperties.UseableEnergeticNuclide.convert_to<DigitalType>();
 }
 
-template<typename T>
-NPGS_INLINE T FStandard::GetOrbitAssetsMassDigital() const
+template<typename DigitalType>
+NPGS_INLINE DigitalType FStandard::GetOrbitAssetsMassDigital() const
 {
-	return _CivilizationProperties.OrbitAssetsMass.convert_to<T>();
+	return _CivilizationProperties.OrbitAssetsMass.convert_to<DigitalType>();
 }
 
 _INTELLI_END

@@ -80,28 +80,28 @@ void FCamera::ProcessMouseMovement(double OffsetX, double OffsetY)
 	_PrevOffsetX = SmoothedX;
 	_PrevOffsetY = SmoothedY;
 
-    float HorizontalAngle = static_cast<float>(_Sensitivity *  SmoothedX);
-    float VerticalAngle   = static_cast<float>(_Sensitivity * -SmoothedY);
+	float HorizontalAngle = static_cast<float>(_Sensitivity *  SmoothedX);
+	float VerticalAngle   = static_cast<float>(_Sensitivity * -SmoothedY);
 
-    ProcessRotation(HorizontalAngle, VerticalAngle, 0.0f);
+	ProcessRotation(HorizontalAngle, VerticalAngle, 0.0f);
 }
 
 void FCamera::ProcessRotation(float Yaw, float Pitch, float Roll)
 {
-    glm::quat QuatYaw   = glm::angleAxis(glm::radians(Yaw),   glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::quat QuatPitch = glm::angleAxis(glm::radians(Pitch), glm::vec3(1.0f, 0.0f, 0.0f));
-    glm::quat QuatRoll  = glm::angleAxis(glm::radians(Roll),  glm::vec3(0.0f, 0.0f, 1.0f));
-    
+	glm::quat QuatYaw   = glm::angleAxis(glm::radians(Yaw),   glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::quat QuatPitch = glm::angleAxis(glm::radians(Pitch), glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::quat QuatRoll  = glm::angleAxis(glm::radians(Roll),  glm::vec3(0.0f, 0.0f, 1.0f));
+
 	_Orientation = glm::normalize(QuatYaw * QuatPitch * QuatRoll * _Orientation);
-    
-    UpdateVectors();
+
+	UpdateVectors();
 }
 
 void FCamera::UpdateVectors()
 {
 	_Orientation = glm::normalize(_Orientation);
 	glm::quat ConjugateOrient = glm::conjugate(_Orientation);
-	
+
 	_Front = glm::normalize(ConjugateOrient * glm::vec3(0.0f, 0.0f, -1.0f));
 	_Right = glm::normalize(ConjugateOrient * glm::vec3(1.0f, 0.0f,  0.0f));
 	_Up    = glm::normalize(ConjugateOrient * glm::vec3(0.0f, 1.0f,  0.0f));

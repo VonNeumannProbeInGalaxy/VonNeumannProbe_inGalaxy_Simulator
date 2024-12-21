@@ -110,23 +110,23 @@ FStellarClass FStellarClass::Parse(const std::string& StellarClassStr)
 {
 	NpgsAssert(!StellarClassStr.empty(), "StellarClassStr is empty.");
 
-	EStarType StarType               = EStarType::kNormalStar;
-	ESpectralClass HSpectralClass    = ESpectralClass::kSpectral_Unknown;
-	ESpectralClass MSpectralClass    = ESpectralClass::kSpectral_Unknown;
+	EStarType StarType = EStarType::kNormalStar;
+	ESpectralClass HSpectralClass = ESpectralClass::kSpectral_Unknown;
+	ESpectralClass MSpectralClass = ESpectralClass::kSpectral_Unknown;
 	ELuminosityClass LuminosityClass = ELuminosityClass::kLuminosity_Unknown;
-	FSpecialMarkDigital SpecialMark  = std::to_underlying(ESpecialMark::kCode_Null);
-	float Subclass                   = 0.0f;
-	float AmSubclass                 = 0.0f;
-	bool bIsAmStar                   = false;
+	FSpecialMarkDigital SpecialMark = std::to_underlying(ESpecialMark::kCode_Null);
+	float Subclass = 0.0f;
+	float AmSubclass = 0.0f;
+	bool bIsAmStar = false;
 
-	EParseState State   = EParseState::kBegin;
-	std::size_t Index   = 0;
+	EParseState State = EParseState::kBegin;
+	std::size_t Index = 0;
 	bool bParsingAmStar = false;
 
 	while (State != EParseState::kEnd)
 	{
-		unsigned char Char = 0;
-		unsigned char NextChar = Index + 1 >= StellarClassStr.size() ? '\0' : StellarClassStr[Index + 1];
+		char Char = 0;
+		char NextChar = Index + 1 >= StellarClassStr.size() ? '\0' : StellarClassStr[Index + 1];
 		if (Index == StellarClassStr.size())
 		{
 			Char = '\0';
@@ -269,7 +269,7 @@ FStellarClass FStellarClass::Parse(const std::string& StellarClassStr)
 
 // Processor functions implementations
 // -----------------------------------
-FStellarClass::EParseState FStellarClass::ParseStarType(unsigned char Char, FStellarClass::EStarType& StarType, FStellarClass::ESpectralClass& HSpectralClass, std::size_t& Index)
+FStellarClass::EParseState FStellarClass::ParseStarType(char Char, FStellarClass::EStarType& StarType, FStellarClass::ESpectralClass& HSpectralClass, std::size_t& Index)
 {
 	switch (Char)
 	{
@@ -296,7 +296,7 @@ FStellarClass::EParseState FStellarClass::ParseStarType(unsigned char Char, FSte
 	}
 }
 
-FStellarClass::EParseState FStellarClass::ParseSpectralClass(unsigned char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index)
+FStellarClass::EParseState FStellarClass::ParseSpectralClass(char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index)
 {
 	switch (Char)
 	{
@@ -364,7 +364,7 @@ FStellarClass::EParseState FStellarClass::ParseSpectralClass(unsigned char Char,
 	}
 }
 
-FStellarClass::EParseState FStellarClass::ParseWolfRayetStar(unsigned char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index)
+FStellarClass::EParseState FStellarClass::ParseWolfRayetStar(char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index)
 {
 	switch (Char)
 	{
@@ -385,7 +385,7 @@ FStellarClass::EParseState FStellarClass::ParseWolfRayetStar(unsigned char Char,
 	}
 }
 
-FStellarClass::EParseState FStellarClass::ParseWhiteDwarf(unsigned char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index)
+FStellarClass::EParseState FStellarClass::ParseWhiteDwarf(char Char, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index)
 {
 	++Index;
 
@@ -418,7 +418,7 @@ FStellarClass::EParseState FStellarClass::ParseWhiteDwarf(unsigned char Char, FS
 	}
 }
 
-FStellarClass::EParseState FStellarClass::ParseWhiteDwarfEx(unsigned char Char, unsigned char PrevChar, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index)
+FStellarClass::EParseState FStellarClass::ParseWhiteDwarfEx(char Char, char PrevChar, FStellarClass::ESpectralClass& SpectralClass, std::size_t& Index)
 {
 	if (Char == PrevChar)
 	{
@@ -455,7 +455,7 @@ FStellarClass::EParseState FStellarClass::ParseWhiteDwarfEx(unsigned char Char, 
 	return EParseState::kSubclass;
 }
 
-FStellarClass::EParseState FStellarClass::ParseLuminosityClass(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass, std::size_t& Index)
+FStellarClass::EParseState FStellarClass::ParseLuminosityClass(char Char, FStellarClass::ELuminosityClass& LuminosityClass, std::size_t& Index)
 {
 	switch (Char)
 	{
@@ -483,7 +483,7 @@ FStellarClass::EParseState FStellarClass::ParseLuminosityClass(unsigned char Cha
 	}
 }
 
-FStellarClass::EParseState FStellarClass::ParseLuminosityClassI(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass, std::size_t& Index)
+FStellarClass::EParseState FStellarClass::ParseLuminosityClassI(char Char, FStellarClass::ELuminosityClass& LuminosityClass, std::size_t& Index)
 {
 	switch (Char)
 	{
@@ -507,7 +507,7 @@ FStellarClass::EParseState FStellarClass::ParseLuminosityClassI(unsigned char Ch
 	}
 }
 
-FStellarClass::EParseState FStellarClass::ParseLuminosityClassIa(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass)
+FStellarClass::EParseState FStellarClass::ParseLuminosityClassIa(char Char, FStellarClass::ELuminosityClass& LuminosityClass)
 {
 	switch (Char)
 	{
@@ -523,7 +523,7 @@ FStellarClass::EParseState FStellarClass::ParseLuminosityClassIa(unsigned char C
 	}
 }
 
-FStellarClass::EParseState FStellarClass::ParseLuminosityClassII(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass)
+FStellarClass::EParseState FStellarClass::ParseLuminosityClassII(char Char, FStellarClass::ELuminosityClass& LuminosityClass)
 {
 	switch (Char)
 	{
@@ -536,7 +536,7 @@ FStellarClass::EParseState FStellarClass::ParseLuminosityClassII(unsigned char C
 	}
 }
 
-FStellarClass::EParseState FStellarClass::ParseLuminosityClassV(unsigned char Char, FStellarClass::ELuminosityClass& LuminosityClass)
+FStellarClass::EParseState FStellarClass::ParseLuminosityClassV(char Char, FStellarClass::ELuminosityClass& LuminosityClass)
 {
 	switch (Char)
 	{
@@ -549,7 +549,7 @@ FStellarClass::EParseState FStellarClass::ParseLuminosityClassV(unsigned char Ch
 	}
 }
 
-FStellarClass::EParseState FStellarClass::ParseSpecialMark(unsigned char Char, unsigned char NextChar, FStellarClass::FSpecialMarkDigital& SpecialMark, std::size_t& Index)
+FStellarClass::EParseState FStellarClass::ParseSpecialMark(char Char, char NextChar, FStellarClass::FSpecialMarkDigital& SpecialMark, std::size_t& Index)
 {
 	switch (Char)
 	{

@@ -17,7 +17,7 @@ class FCivilizationGenerator
 public:
 	FCivilizationGenerator() = delete;
 	explicit FCivilizationGenerator(const std::seed_seq& SeedSequence, float LifeOccurrenceProbability,
-								   bool bEnableAsiFilter = false, float DestroyedByDisasterProbability = 0.001f);
+									bool bEnableAsiFilter = false, float DestroyedByDisasterProbability = 0.001f);
 
 	~FCivilizationGenerator() = default;
 

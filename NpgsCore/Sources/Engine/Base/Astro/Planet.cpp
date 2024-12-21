@@ -1,5 +1,7 @@
 #include "Planet.h"
 
+#include <utility>
+
 _NPGS_BEGIN
 _ASTRO_BEGIN
 
