@@ -8,7 +8,7 @@ _ASSET_BEGIN
 Mesh::Mesh(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices, const std::vector<Texture>& Textures)
 	: _Indices(Indices), _Textures(Textures), _VertexArray(0)
 {
-	InitStaticVertexArray(Vertices, Indices);
+	InitStaticVertexArray(Vertices);
 }
 
 Mesh::Mesh(Mesh&& Other) noexcept
@@ -46,7 +46,7 @@ void Mesh::InitTextures(const Shader& ModelShader)
 	for (auto& Texture : _Textures)
 	{
 		TextureInfo Info;
-		Info.Texture         = &Texture;
+		Info.Handle          = &Texture;
 		Info.Unit            = TextureUnit++;
 		Info.UniformLocation =
 			ModelShader.GetUniformLocation(Texture.TypeName + std::to_string(GetTextureCount(Texture.TypeName)));
@@ -72,7 +72,7 @@ void Mesh::DynamicDraw(const Shader& ModelShader) const
 {
 	for (const auto& Info : _TextureInfos)
 	{
-		Info.Texture->Data->BindTextureUnit(ModelShader, Info.Texture->TypeName, Info.Unit);
+		Info.Handle->Data->BindTextureUnit(ModelShader, Info.Handle->TypeName, Info.Unit);
 		glUniform1i(Info.UniformLocation, Info.Unit);
 	}
 
@@ -81,7 +81,7 @@ void Mesh::DynamicDraw(const Shader& ModelShader) const
 	glBindVertexArray(0);
 }
 
-void Mesh::InitStaticVertexArray(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices)
+void Mesh::InitStaticVertexArray(const std::vector<Vertex>& Vertices)
 {
 	GLuint VertexBuffer  = 0;
 	GLuint ElementBuffer = 0;

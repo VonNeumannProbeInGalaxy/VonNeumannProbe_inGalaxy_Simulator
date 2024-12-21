@@ -21,7 +21,7 @@ NPGS_INLINE std::ptrdiff_t Mesh::GetTextureCount(const std::string& TypeName) co
 {
 	return std::count_if(_TextureInfos.begin(), _TextureInfos.end(), [&TypeName](const TextureInfo& Info) -> bool
 	{
-		return Info.Texture->TypeName == TypeName;
+		return Info.Handle->TypeName == TypeName;
 	});
 }
 

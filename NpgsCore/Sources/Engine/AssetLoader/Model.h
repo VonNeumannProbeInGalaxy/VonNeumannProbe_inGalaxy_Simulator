@@ -35,7 +35,8 @@ private:
 	void InitModelTexture(const Shader& ModelShader);
 	void ProcessNode(const aiNode* Node, const aiScene* Scene);
 	std::unique_ptr<Mesh> ProcessMesh(const aiMesh* Mesh, const aiScene* Scene);
-	std::vector<Mesh::Texture> LoadMaterialTextures(const aiMaterial* Material, const aiTextureType& TextureType, const std::string& TypeName);
+	std::vector<Mesh::Texture> LoadMaterialTextures(const aiMaterial* Material, const aiTextureType& TextureType,
+													const std::string& TypeName);
 
 private:
 	std::vector<Mesh::Texture>         _TexturesCache;

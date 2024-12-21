@@ -15,7 +15,7 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-const int kMaxBoneInfluence = 4;
+constexpr int kMaxBoneInfluence = 4;
 
 class Mesh
 {
@@ -29,9 +29,9 @@ public:
 
 	struct TextureInfo
 	{
-		Texture* Texture{};
-		GLuint   Unit;
-		GLint    UniformLocation;
+		Texture* Handle{};
+		GLuint   Unit{};
+		GLint    UniformLocation{};
 	};
 
 	struct Vertex
@@ -62,7 +62,7 @@ public:
 	const std::vector<GLuint>& GetIndices() const;
 
 private:
-	void InitStaticVertexArray(const std::vector<Vertex>& Vertices, const std::vector<GLuint>& Indices);
+	void InitStaticVertexArray(const std::vector<Vertex>& Vertices);
 	std::ptrdiff_t GetTextureCount(const std::string& typeName) const;
 
 private:
