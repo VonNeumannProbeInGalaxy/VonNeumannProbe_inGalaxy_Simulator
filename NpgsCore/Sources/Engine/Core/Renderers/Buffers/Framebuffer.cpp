@@ -116,8 +116,21 @@ void FFramebuffer::Blit() const
 		return;
 	}
 
-	glBlitNamedFramebuffer(_Framebuffers[1], _Framebuffers[0], 0, 0, _Width, _Height,
-						   0, 0, _Width, _Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	for (int i = 0; i < _AttachmentCount; ++i)
+	{
+		glNamedFramebufferReadBuffer(_Framebuffers[1], GL_COLOR_ATTACHMENT0 + i);
+		glNamedFramebufferDrawBuffer(_Framebuffers[0], GL_COLOR_ATTACHMENT0 + i);
+		glBlitNamedFramebuffer(_Framebuffers[1], _Framebuffers[0], 0, 0, _Width, _Height,
+							   0, 0, _Width, _Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	}
+
+	std::vector<GLenum> DrawBuffers;
+	for (int i = 0; i < _AttachmentCount; ++i)
+	{
+		DrawBuffers.emplace_back(GL_COLOR_ATTACHMENT0 + i);
+	}
+
+	glNamedFramebufferDrawBuffers(_Framebuffers[0], static_cast<GLsizei>(DrawBuffers.size()), DrawBuffers.data());
 }
 
 void FFramebuffer::Resize(GLsizei Width, GLsizei Height)
@@ -157,8 +170,6 @@ void FFramebuffer::InitConfig()
 		_Framebuffers.resize(1);
 	}
 
-	glCreateFramebuffers(static_cast<GLsizei>(_Framebuffers.size()), _Framebuffers.data());
-
 	std::size_t TextureCount = 0;
 	if (_bHasColorAttachment)
 	{
@@ -172,6 +183,8 @@ void FFramebuffer::CreateFramebuffers()
 {
 	std::size_t TextureIndex = 0;
 	std::vector<GLenum> DrawBuffers;
+
+	glCreateFramebuffers(static_cast<GLsizei>(_Framebuffers.size()), _Framebuffers.data());
 
 	if (_bEnableMsaa)
 	{

@@ -191,7 +191,7 @@
     <ClInclude Include="Sources\Engine\Base\Astro\StellarSystem.h" />
     <ClInclude Include="Sources\Engine\Core\Assert.h" />
     <ClInclude Include="Sources\Engine\AssetLoader\AssetManager.h" />
-    <ClInclude Include="Sources\Engine\AssetLoader\Csv.hpp" />
+    <ClInclude Include="Sources\Engine\AssetLoader\CommaSeparatedValues.hpp" />
     <ClInclude Include="Sources\Engine\Core\Base.h" />
     <ClInclude Include="Sources\Engine\Core\Constants.h" />
     <ClInclude Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.h" />

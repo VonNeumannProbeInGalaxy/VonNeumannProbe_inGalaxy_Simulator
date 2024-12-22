@@ -24,21 +24,21 @@ concept CValidFormat = ColSize > 1;
 
 template <typename BasicType, std::size_t ColSize>
 requires CValidFormat<ColSize>
-class TCsv
+class TCommaSeparatedValues
 {
 public:
 	using FRowArray = std::vector<BasicType>;
 
 public:
-	TCsv(const std::string& Filename, const std::vector<std::string>& ColNames)
+	TCommaSeparatedValues(const std::string& Filename, const std::vector<std::string>& ColNames)
 		: _Filename(Filename), _ColNames(ColNames)
 	{
 		InitHeaderMap();
 		ReadData(io::ignore_extra_column);
 	}
 
-	TCsv(const TCsv&) = delete;
-	TCsv(TCsv&& Other) noexcept
+	TCommaSeparatedValues(const TCommaSeparatedValues&) = delete;
+	TCommaSeparatedValues(TCommaSeparatedValues&& Other) noexcept
 		:
 		_Filename(std::move(Other._Filename)),
 		_ColNames(std::move(Other._ColNames)),
@@ -47,10 +47,10 @@ public:
 	{
 	}
 
-	~TCsv() = default;
+	~TCommaSeparatedValues() = default;
 
-	TCsv& operator=(const TCsv&) = delete;
-	TCsv& operator=(TCsv&& Other) noexcept
+	TCommaSeparatedValues& operator=(const TCommaSeparatedValues&) = delete;
+	TCommaSeparatedValues& operator=(TCommaSeparatedValues&& Other) noexcept
 	{
 		if (this != &Other)
 		{
@@ -101,7 +101,7 @@ public:
 		std::function<bool(const BasicType&, const BasicType&)> Comparator = Pred;
 		if constexpr (std::is_same_v<Func, std::less<>> && std::is_same_v<BasicType, std::string>)
 		{
-			Comparator = &TCsv::StrLessThan;
+			Comparator = &TCommaSeparatedValues::StrLessThan;
 		}
 
 		if (!bSorted)

@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "Engine/AssetLoader/Csv.hpp"
+#include "Engine/AssetLoader/CommaSeparatedValues.hpp"
 #include "Engine/AssetLoader/GetAssetFullPath.h"
 #include "Engine/AssetLoader/Mesh.h"
 #include "Engine/AssetLoader/Model.h"

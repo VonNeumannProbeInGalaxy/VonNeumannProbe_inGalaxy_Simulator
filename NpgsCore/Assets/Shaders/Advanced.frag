@@ -1,7 +1,9 @@
 #version 460 core
 
 layout(location = 0) out vec4 FragColor;
-in vec2 TexCoord;
+layout(location = 1) out vec4 LayerColor;
+
+layout(location = 0) in vec2 TexCoord;
 
 uniform sampler2D iTex;
 
@@ -13,4 +15,5 @@ void main()
 #endif
 	vec4 Color = texture(iTex, TexCoord);
 	FragColor = Color;
+	LayerColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

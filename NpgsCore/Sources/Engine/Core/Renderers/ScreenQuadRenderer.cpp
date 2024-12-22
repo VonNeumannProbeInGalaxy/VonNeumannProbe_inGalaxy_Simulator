@@ -36,7 +36,8 @@ void FScreenQuadRenderer::SetTexturesFromFramebuffer(const FFramebuffer& Framebu
 	SetTextures(Targets);
 }
 
-void FScreenQuadRenderer::Draw(const Asset::FShader& ScreenShader, const std::vector<std::pair<std::string, GLuint>>& Uniforms) const
+void FScreenQuadRenderer::Draw(const Asset::FShader& ScreenShader,
+							   const std::vector<std::tuple<std::string, GLuint, std::size_t>>& Uniforms) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDisable(GL_DEPTH_TEST);
@@ -44,9 +45,9 @@ void FScreenQuadRenderer::Draw(const Asset::FShader& ScreenShader, const std::ve
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	ScreenShader.UseProgram();
-	for (const auto& [UniformName, UniformValue] : Uniforms)
+	for (const auto& [UniformName, UniformValue, AttachmentIndex] : Uniforms)
 	{
-		glBindTextureUnit(UniformValue, _Textures[UniformValue]);
+		glBindTextureUnit(UniformValue, _Textures[AttachmentIndex]);
 		ScreenShader.SetUniform1i(UniformName, static_cast<GLint>(UniformValue));
 	}
 

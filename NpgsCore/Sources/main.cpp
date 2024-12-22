@@ -91,25 +91,25 @@ int main()
 
 #include "Vertices.inc"
 
-	auto* AssetManagerInstance = FAssetManager::GetInstance();
+	auto* AssetManager = FAssetManager::GetInstance();
 	std::vector<std::string> FramebufferShaderFiles{ "Framebuffer.vert", "Framebuffer.frag" };
 	std::vector<std::string> LightingShaderFiles{ "Lighting.vert", "Lighting.frag" };
 	std::vector<std::string> AdvancedShaderFiles{ "Advanced.vert", "Advanced.frag" };
 	std::vector<std::string> PointShaderFiles{ "Point.vert", "Point.geom", "Point.frag" };
 	std::vector<std::string> LampShaderMacros{ "__FRAG_LAMP_CUBE" };
 	std::vector<std::string> BorderShaderMacros{ "__FRAG_BORDER" };
-	AssetManagerInstance->AddAsset<FShader>("Framebuffer", FShader(FramebufferShaderFiles));
-	AssetManagerInstance->AddAsset<FShader>("Lighting", FShader(LightingShaderFiles));
-	AssetManagerInstance->AddAsset<FShader>("Advanced", FShader(AdvancedShaderFiles));
-	AssetManagerInstance->AddAsset<FShader>("Lamp", FShader(LightingShaderFiles, "", LampShaderMacros));
-	AssetManagerInstance->AddAsset<FShader>("Border", FShader(AdvancedShaderFiles, "", BorderShaderMacros));
-	AssetManagerInstance->AddAsset<FShader>("Point", FShader(PointShaderFiles));
-	AssetManagerInstance->AddAsset<FTexture>("Metal", FTexture(FTexture::ETextureType::k2D, "Metal.png"));
-	AssetManagerInstance->AddAsset<FTexture>("Marble", FTexture(FTexture::ETextureType::k2D, "Marble.jpg"));
-	AssetManagerInstance->AddAsset<FTexture>("RedWindow", FTexture(FTexture::ETextureType::k2D, "RedWindow.png"));
-	AssetManagerInstance->AddAsset<FTexture>("Grass", FTexture(FTexture::ETextureType::k2D, "Grass.png", false, false));
-	//AssetManagerInstance->AddAsset<Model>("Backpack", Model("Backpack/backpack.obj", "Lighting"));
-	//AssetManagerInstance->AddAsset<Model>("Nanosuit", Model("Nanosuit/nanosuit.obj", "Lighting"));
+	AssetManager->AddAsset<FShader>("Framebuffer", FShader(FramebufferShaderFiles));
+	AssetManager->AddAsset<FShader>("Lighting", FShader(LightingShaderFiles));
+	AssetManager->AddAsset<FShader>("Advanced", FShader(AdvancedShaderFiles));
+	AssetManager->AddAsset<FShader>("Lamp", FShader(LightingShaderFiles, "", LampShaderMacros));
+	AssetManager->AddAsset<FShader>("Border", FShader(AdvancedShaderFiles, "", BorderShaderMacros));
+	AssetManager->AddAsset<FShader>("Point", FShader(PointShaderFiles));
+	AssetManager->AddAsset<FTexture>("Metal", FTexture(FTexture::ETextureType::k2D, "Metal.png"));
+	AssetManager->AddAsset<FTexture>("Marble", FTexture(FTexture::ETextureType::k2D, "Marble.jpg"));
+	AssetManager->AddAsset<FTexture>("RedWindow", FTexture(FTexture::ETextureType::k2D, "RedWindow.png"));
+	AssetManager->AddAsset<FTexture>("Grass", FTexture(FTexture::ETextureType::k2D, "Grass.png", false, false));
+	//AssetManager->AddAsset<FModel>("Backpack", FModel("Backpack/backpack.obj", "Lighting"));
+	//AssetManager->AddAsset<FModel>("Nanosuit", FModel("Nanosuit/nanosuit.obj", "Lighting"));
 
 	GLuint CubeVertexBuffer = 0;
 	glCreateBuffers(1, &CubeVertexBuffer);
@@ -189,10 +189,10 @@ int main()
 	glVertexArrayAttribBinding(PointVertexArray, 1, 0);
 
 	kFramebuffer = new FFramebuffer(FFramebuffer::EAttachmentType::kColor | FFramebuffer::EAttachmentType::kDepthStencil,
-									kWindowWidth, kWindowHeight, GL_RGBA16, kMultiSamples, 1);
+									kWindowWidth, kWindowHeight, GL_RGBA16F, kMultiSamples, 2);
 
 	FScreenQuadRenderer QuadRenderer;
-	QuadRenderer.SetTexturesFromFramebuffer(*kFramebuffer, { 0 });
+	QuadRenderer.SetTexturesFromFramebuffer(*kFramebuffer, { 0, 1 });
 
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -207,20 +207,20 @@ int main()
 	double DeltaTime     = 0.0;
 	int    FrameCount    = 0;
 
-	auto* FramebufferShader = AssetManagerInstance->GetAsset<FShader>("Framebuffer");
-	auto* LightingShader    = AssetManagerInstance->GetAsset<FShader>("Lighting");
-	auto* AdvancedShader    = AssetManagerInstance->GetAsset<FShader>("Advanced");
-	auto* LampShader        = AssetManagerInstance->GetAsset<FShader>("Lamp");
-	auto* BorderShader      = AssetManagerInstance->GetAsset<FShader>("Border");
-	auto* PointShader       = AssetManagerInstance->GetAsset<FShader>("Point");
-	auto* Metal             = AssetManagerInstance->GetAsset<FTexture>("Metal");
-	auto* Marble            = AssetManagerInstance->GetAsset<FTexture>("Marble");
-	auto* RedWindow         = AssetManagerInstance->GetAsset<FTexture>("RedWindow");
-	auto* Grass             = AssetManagerInstance->GetAsset<FTexture>("Grass");
-	auto* Backpack          = AssetManagerInstance->GetAsset<FModel>("Backpack");
-	auto* Nanosuit          = AssetManagerInstance->GetAsset<FModel>("Nanosuit");
+	auto* FramebufferShader = AssetManager->GetAsset<FShader>("Framebuffer");
+	auto* LightingShader    = AssetManager->GetAsset<FShader>("Lighting");
+	auto* AdvancedShader    = AssetManager->GetAsset<FShader>("Advanced");
+	auto* LampShader        = AssetManager->GetAsset<FShader>("Lamp");
+	auto* BorderShader      = AssetManager->GetAsset<FShader>("Border");
+	auto* PointShader       = AssetManager->GetAsset<FShader>("Point");
+	auto* Metal             = AssetManager->GetAsset<FTexture>("Metal");
+	auto* Marble            = AssetManager->GetAsset<FTexture>("Marble");
+	auto* RedWindow         = AssetManager->GetAsset<FTexture>("RedWindow");
+	auto* Grass             = AssetManager->GetAsset<FTexture>("Grass");
+	auto* Backpack          = AssetManager->GetAsset<FModel>("Backpack");
+	auto* Nanosuit          = AssetManager->GetAsset<FModel>("Nanosuit");
 
-	Metal->BindTextureUnit(4);
+	Metal->BindTextureUnit(0);
 	Marble->BindTextureUnit(1);
 	Grass->BindTextureUnit(2);
 	RedWindow->BindTextureUnit(3);
@@ -265,7 +265,7 @@ int main()
 
 		Model = glm::mat4x4(1.0f);
 		AdvancedShader->UseProgram();
-		AdvancedShader->SetUniform1i("iTex", 4);
+		AdvancedShader->SetUniform1i("iTex", 0);
 		UboManagerInstance->UpdateEntrieBlock("Matrices", MvpMatrices);
 		glBindVertexArray(PlaneVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -284,43 +284,40 @@ int main()
 		//Model = glm::translate(Model, glm::vec3(0.0f));
 		//Model = glm::scale(Model, glm::vec3(1.0f));
 		//NormalMatrix = glm::transpose(glm::inverse(Model));
+
 		//LightingShader->UseProgram();
-		////LightingShader->SetUniformMatrix4fv("iModel", Model);
-		////LightingShader->SetUniformMatrix4fv("iView", View);
-		////LightingShader->SetUniformMatrix4fv("iProjection", Projection);
-		//ModelUpdater = Model;
-		//ViewUpdater = View;
-		//ProjectionUpdater = Projection;
+		//ModelUpdater      << Model;
+		//ViewUpdater       << View;
+		//ProjectionUpdater << Projection;
+
 		//LightingShader->SetUniformMatrix3fv("iNormalMatrix", NormalMatrix);
 		//LightingShader->SetUniform1f("iShininess", 64.0f);
-		//LightingShader->SetUniform3fv("iViewPos", kFreeCamera->GetCameraVector(Camera::VectorType::kPosition));
+		//LightingShader->SetUniform3fv("iViewPos", kFreeCamera->GetCameraVector(FCamera::EVectorType::kPosition));
 		//LightingShader->SetUniform3fv("iLight.Position", LightPos);
 		//LightingShader->SetUniform3fv("iLight.AmbientColor", glm::vec3(0.2f));
 		//LightingShader->SetUniform3fv("iLight.DiffuseColor", glm::vec3(1.0f));
 		//LightingShader->SetUniform3fv("iLight.SpecularColor", glm::vec3(1.0f));
 		//Backpack->DynamicDraw(*LightingShader);
+
 		//Model = glm::mat4x4(1.0f);
 		//Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
 		//Model = glm::scale(Model, glm::vec3(0.2f));
-		////LightingShader->SetUniformMatrix4fv("iModel", Model);
-		//ModelUpdater = Model;
+		//ModelUpdater << Model;
 		//Nanosuit->DynamicDraw(*LightingShader);
 
+		//LampShader->UseProgram();
 		//Model = glm::mat4x4(1.0f);
 		//Model = glm::translate(Model, LightPos);
 		//Model = glm::scale(Model, glm::vec3(0.2f));
-		//LampShader->UseProgram();
-		////LampShader->SetUniformMatrix4fv("iModel", Model);
-		////LampShader->SetUniformMatrix4fv("iView", View);
-		////LampShader->SetUniformMatrix4fv("iProjection", Projection);
-		//ModelUpdater = Model;
-		//ViewUpdater = View;
-		//ProjectionUpdater = Projection;
+		//ModelUpdater      << Model;
+		//ViewUpdater       << View;
+		//ProjectionUpdater << Projection;
+
 		//glBindVertexArray(LampVertexArray);
 		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		kFramebuffer->Blit();
-		QuadRenderer.Draw(*FramebufferShader, { { "iTexColorBuffer", 0 } });
+		QuadRenderer.Draw(*FramebufferShader, { { "iTexColorBuffer", 4, 0 }, { "iLayerBuffer", 5, 1 } });
 
 		glfwSwapBuffers(Window);
 		glfwPollEvents();

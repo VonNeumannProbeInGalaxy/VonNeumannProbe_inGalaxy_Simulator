@@ -134,7 +134,7 @@
     <ClInclude Include="Sources\Engine\AssetLoader\AssetManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\AssetLoader\Csv.hpp">
+    <ClInclude Include="Sources\Engine\AssetLoader\CommaSeparatedValues.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Utilities\Logger.h">

@@ -11,7 +11,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Engine/AssetLoader/Csv.hpp"
+#include "Engine/AssetLoader/CommaSeparatedValues.hpp"
 #include "Engine/Base/Astro/Star.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Utilities/Random.hpp"
@@ -23,9 +23,9 @@ _MODULE_BEGIN
 class FStellarGenerator
 {
 public:
-	using FMistData   = Asset::TCsv<double, 12>;
-	using FWdMistData = Asset::TCsv<double, 5>;
-	using FHrDiagram  = Asset::TCsv<double, 7>;
+	using FMistData   = Asset::TCommaSeparatedValues<double, 12>;
+	using FWdMistData = Asset::TCommaSeparatedValues<double, 5>;
+	using FHrDiagram  = Asset::TCommaSeparatedValues<double, 7>;
 
 	enum class EGenerateDistribution
 	{
@@ -116,9 +116,11 @@ public:
 	FStellarGenerator& SetGenerateOption(EGenerateOption Option);
 
 private:
+	template <typename CsvType>
+	CsvType* LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
+
 	void InitMistData();
 	void InitPdfs();
-
 	float GenerateAge(float MaxPdf);
 	float GenerateMass(float MaxPdf, auto& LogMassPdf);
 	std::vector<double> GetFullMistData(const FBasicProperties& Properties, bool bIsWhiteDwarf, bool bIsSingleWhiteDwarf);
@@ -140,9 +142,6 @@ private:
 	void GenerateMagnetic(Astro::AStar& StarData);
 	void GenerateSpin(Astro::AStar& StarData);
 	void ExpandMistData(double TargetMass, std::vector<double>& StarData);
-
-	template <typename CsvType>
-	static CsvType* LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers);
 
 public:
 	static const int _kStarAgeIndex;

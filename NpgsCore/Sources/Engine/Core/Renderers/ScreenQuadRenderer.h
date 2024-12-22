@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -19,7 +20,7 @@ public:
 
 	void SetTextures(const std::vector<std::pair<GLuint, GLuint>>& Targets);
 	void SetTexturesFromFramebuffer(const FFramebuffer& Framebuffer, const std::vector<GLuint>& Locations);
-	void Draw(const Asset::FShader& ScreenShader, const std::vector<std::pair<std::string, GLuint>>& Uniforms) const;
+	void Draw(const Asset::FShader& ScreenShader, const std::vector<std::tuple<std::string, GLuint, std::size_t>>& Uniforms) const;
 
 private:
 	void CreateQuadVertexArray();

@@ -450,6 +450,25 @@ Astro::AStar FStellarGenerator::GenerateStar(FBasicProperties&& Properties)
 	return Star;
 }
 
+template<typename CsvType>
+CsvType* FStellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers)
+{
+	auto* AssetManager = Asset::FAssetManager::GetInstance();
+	{
+		std::shared_lock Lock(_kCacheMutex);
+		auto* Asset = AssetManager->GetAsset<CsvType>(Filename);
+		if (Asset != nullptr)
+		{
+			return Asset;
+		}
+	}
+
+	std::unique_lock Lock(_kCacheMutex);
+	AssetManager->AddAsset<CsvType>(Filename, CsvType(Filename, Headers));
+
+	return AssetManager->GetAsset<CsvType>(Filename);
+}
+
 void FStellarGenerator::InitMistData()
 {
 	if (_kbMistDataInitiated)
@@ -2073,25 +2092,6 @@ void FStellarGenerator::ExpandMistData(double TargetMass, std::vector<double>& S
 	LogTeff = std::log10(Teff);
 
 	LogR = std::log10(RadiusSol);
-}
-
-template<typename CsvType>
-CsvType* FStellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers)
-{
-	auto* AssetManagerInstance = Asset::FAssetManager::GetInstance();
-	{
-		std::shared_lock Lock(_kCacheMutex);
-		auto* Asset = AssetManagerInstance->GetAsset<CsvType>(Filename);
-		if (Asset != nullptr)
-		{
-			return Asset;
-		}
-	}
-
-	std::unique_lock Lock(_kCacheMutex);
-	AssetManagerInstance->AddAsset<CsvType>(Filename, CsvType(Filename, Headers));
-
-	return AssetManagerInstance->GetAsset<CsvType>(Filename);
 }
 
 const int FStellarGenerator::_kStarAgeIndex        = 0;
