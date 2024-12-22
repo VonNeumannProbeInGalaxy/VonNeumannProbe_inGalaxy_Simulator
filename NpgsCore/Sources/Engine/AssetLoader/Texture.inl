@@ -7,18 +7,18 @@ _ASSET_BEGIN
 
 NPGS_INLINE void FTexture::BindTextureUnit(GLuint Unit) const
 {
-	glBindTextureUnit(Unit, _Textures[0]);
+	glBindTextureUnit(Unit, _Texture);
 }
 
 NPGS_INLINE void FTexture::BindTextureUnit(const FShader& DrawShader, const std::string& UniformName, GLuint Unit) const
 {
-	glBindTextureUnit(Unit, _Textures[0]);
+	glBindTextureUnit(Unit, _Texture);
 	DrawShader.SetUniform1i(UniformName, static_cast<GLint>(Unit));
 }
 
 NPGS_INLINE GLuint FTexture::GetTexture() const
 {
-	return _Textures[0];
+	return _Texture;
 }
 
 NPGS_INLINE FTexture::ETextureType FTexture::GetTextureType() const

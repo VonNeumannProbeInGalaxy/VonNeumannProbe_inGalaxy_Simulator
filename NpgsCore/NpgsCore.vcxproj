@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\GetAssetFullPath.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\Mesh.cpp" />
     <ClCompile Include="Sources\Engine\AssetLoader\Model.cpp" />
@@ -156,6 +157,7 @@
     <ClCompile Include="Sources\Engine\AssetLoader\AssetManager.cpp" />
     <ClCompile Include="Sources\Engine\Base\NpgsObject.cpp" />
     <ClCompile Include="Sources\Engine\Core\Camera.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.cpp" />
     <ClCompile Include="Sources\Engine\Utilities\Logger.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\CivilizationGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\OrbitalGenerator.cpp" />
@@ -172,6 +174,7 @@
     <ClCompile Include="Sources\Engine\Utilities\UniformBlockManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.h" />
     <ClInclude Include="Sources\Engine\AssetLoader\GetAssetFullPath.h" />
     <ClInclude Include="Sources\Engine\AssetLoader\Mesh.h" />
     <ClInclude Include="Sources\Engine\AssetLoader\Model.h" />
@@ -191,6 +194,7 @@
     <ClInclude Include="Sources\Engine\AssetLoader\Csv.hpp" />
     <ClInclude Include="Sources\Engine\Core\Base.h" />
     <ClInclude Include="Sources\Engine\Core\Constants.h" />
+    <ClInclude Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.h" />
     <ClInclude Include="Sources\Engine\Utilities\Logger.h" />
     <ClInclude Include="Sources\Engine\Modules\Generators\CivilizationGenerator.h" />
     <ClInclude Include="Sources\Engine\Modules\Generators\OrbitalGenerator.h" />
@@ -227,11 +231,13 @@
     <None Include="Sources\Engine\Base\Intelli\Civilization.inl" />
     <None Include="Sources\Engine\Base\Astro\StellarSystem.inl" />
     <None Include="Sources\Engine\Core\Camera.inl" />
+    <None Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.inl" />
     <None Include="Sources\Engine\Core\ThreadPool.inl" />
     <None Include="Sources\Engine\Utilities\Logger.inl" />
     <None Include="Sources\Engine\Utilities\StellarClass.inl" />
     <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />
     <None Include="Sources\Engine\Utilities\UniformBlockManager.inl" />
+    <None Include="Sources\Engine\Utilities\Utilities.inl" />
     <None Include="Sources\Vertices.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

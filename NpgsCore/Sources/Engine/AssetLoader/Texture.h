@@ -16,7 +16,10 @@ class FTexture
 public:
 	enum class ETextureType
 	{
-		k2D, kAttachment, kDepthMap, kCharacter, kCubeMap
+		k2D,
+		kDepthMap,
+		kCharacter,
+		kCubeMap
 	};
 
 	struct FImageData
@@ -35,11 +38,6 @@ public:
 			 bool bFlipVertically = true, bool bAutoFillFilePath = true);
 
 	FTexture(const FT_Face& Face);
-	FTexture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment, GLuint Framebuffer);
-
-	FTexture(GLsizei Width, GLsizei Height, GLenum InternalFormat, GLenum Attachment,
-			 GLsizei Samples, GLboolean bFixedSampleLocations, GLuint Framebuffer);
-
 	FTexture(GLsizei Width, GLsizei Height);
 	FTexture(const FTexture&) = delete;
 	FTexture(FTexture&& Other) noexcept;
@@ -60,8 +58,8 @@ private:
 	FImageData LoadImage(const std::string& Filename, bool bSrgb, bool bFlipVertically) const;
 
 private:
-	std::vector<GLuint> _Textures;
-	ETextureType        _Type;
+	GLuint       _Texture;
+	ETextureType _Type;
 };
 
 _ASSET_END

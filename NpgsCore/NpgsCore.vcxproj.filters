@@ -93,6 +93,12 @@
     <ClCompile Include="Sources\Engine\Utilities\UniformBlockManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Core\Assert.h">
@@ -188,6 +194,12 @@
     <ClInclude Include="Sources\Engine\Utilities\UniformBlockManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\Astro\CelestialObject.inl">
@@ -252,5 +264,11 @@
     <None Include="Assets\Shaders\Point.vert" />
     <None Include="Assets\Shaders\Point.geom" />
     <None Include="Assets\Shaders\Point.frag" />
+    <None Include="Sources\Engine\Utilities\Utilities.inl">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.inl">
+      <Filter>头文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -55,6 +55,7 @@ FShader& FShader::operator=(FShader&& Other) noexcept
 		_IncludedFiles = std::move(Other._IncludedFiles);
 		_ShaderTypes   = std::move(Other._ShaderTypes);
 		_Program       = Other._Program;
+
 		Other._Program = 0;
 	}
 
