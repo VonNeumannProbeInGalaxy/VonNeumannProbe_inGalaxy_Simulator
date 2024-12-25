@@ -1,5 +1,5 @@
-#ifndef HASH_GLSL_
-#define HASH_GLSL_ 1
+#ifndef RANDOM_HASH_GLSL_
+#define RANDOM_HASH_GLSL_
 
 // 1D -> 1D hash
 float Hash11(float Base, float FractMultipler, float BaseAddend)
@@ -93,4 +93,4 @@ vec4 Hash44(vec4 Base)
     return Hash44(Base, vec4(0.1031, 0.1030, 0.0973, 0.1099), 33.33);
 }
 
-#endif // !HASH_GLSL_
+#endif // !RANDOM_HASH_GLSL_

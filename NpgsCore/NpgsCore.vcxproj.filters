@@ -107,9 +107,6 @@
     <ClInclude Include="Sources\Engine\Core\Base.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Constants.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Sources\Engine\Base\Astro\CelestialObject.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -200,6 +197,9 @@
     <ClInclude Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Engine\Math\NumericConstants.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\Astro\CelestialObject.inl">
@@ -271,8 +271,9 @@
       <Filter>头文件</Filter>
     </None>
     <None Include="Assets\Shaders\Advanced.geom" />
-    <None Include="Assets\Shaders\Random\Hash.glsl" />
+    <None Include="Assets\Shaders\Common\Random\Hash.glsl" />
     <None Include="Assets\Shaders\Shadow.vert" />
     <None Include="Assets\Shaders\Shadow.frag" />
+    <None Include="Assets\Shaders\Common\NumericConstants.glsl" />
   </ItemGroup>
 </Project>

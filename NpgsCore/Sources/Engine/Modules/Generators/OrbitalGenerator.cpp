@@ -13,7 +13,7 @@
 
 #include "Engine/Core/Assert.h"
 #include "Engine/Core/Base.h"
-#include "Engine/Core/Constants.h"
+#include "Engine/Math/NumericConstants.h"
 #include "Engine/Utilities/Utilities.h"
 
 #define DEBUG_OUTPUT
@@ -134,7 +134,7 @@ void FOrbitalGenerator::GenerateOrbitals(Astro::FStellarSystem& System)
 		System.OrbitsData().emplace_back(std::move(ZeroOrbit));
 
 		float NearStarSemiMajorAxis = static_cast<float>(
-			std::sqrt(Star->GetLuminosity() / (4 * kPi * kStefanBoltzmann * std::pow(_CoilTemperatureLimit, 4))));
+			std::sqrt(Star->GetLuminosity() / (4 * Math::kPi * kStefanBoltzmann * std::pow(_CoilTemperatureLimit, 4))));
 		auto NearStarOrbit = std::make_unique<Astro::FOrbit>();
 
 		NearStarOrbit->SetParent(System.GetBaryCenter(), Astro::FOrbit::EObjectType::kBaryCenter);
@@ -200,7 +200,7 @@ void FOrbitalGenerator::GenerateBinaryOrbit(Astro::FStellarSystem& System)
 
 	float Period = std::pow(10.0f, LogPeriodDays) * kDayToSecond;
 	float BinarySemiMajorAxis = static_cast<float>(std::pow(
-		(kGravityConstant * kSolarMass * (MassSol1 + MassSol2) * std::pow(Period, 2)) / (4 * std::pow(kPi, 2)),
+		(kGravityConstant * kSolarMass * (MassSol1 + MassSol2) * std::pow(Period, 2)) / (4 * std::pow(Math::kPi, 2)),
 		1.0 / 3.0
 	));
 
@@ -241,53 +241,53 @@ void FOrbitalGenerator::GenerateBinaryOrbit(Astro::FStellarSystem& System)
 			-0.09f + _CommonGenerator(_RandomEngine) * 0.18f
 		));
 
-		if (StarNormals[i].x > 2 * kPi)
+		if (StarNormals[i].x > 2 * Math::kPi)
 		{
-			StarNormals[i].x -= 2 * kPi;
+			StarNormals[i].x -= 2 * Math::kPi;
 		}
 		else if (StarNormals[i].x < 0.0f)
 		{
-			StarNormals[i].x += 2 * kPi;
+			StarNormals[i].x += 2 * Math::kPi;
 		}
 
-		if (StarNormals[i].y > kPi)
+		if (StarNormals[i].y > Math::kPi)
 		{
-			StarNormals[i].y -= kPi;
+			StarNormals[i].y -= Math::kPi;
 		}
 		else if (StarNormals[i].y < 0.0f)
 		{
-			StarNormals[i].y += kPi;
+			StarNormals[i].y += Math::kPi;
 		}
 	}
 
 	System.StarsData().front()->SetNormal(StarNormals[0]);
 	System.StarsData().back()->SetNormal(StarNormals[1]);
 
-	Random = _CommonGenerator(_RandomEngine) * 2.0f * kPi;
+	Random = _CommonGenerator(_RandomEngine) * 2.0f * Math::kPi;
 	float ArgumentOfPeriapsis1 = Random;
 	float ArgumentOfPeriapsis2 = 0.0f;
-	if (ArgumentOfPeriapsis1 >= kPi)
+	if (ArgumentOfPeriapsis1 >= Math::kPi)
 	{
-		ArgumentOfPeriapsis2 = ArgumentOfPeriapsis1 - kPi;
+		ArgumentOfPeriapsis2 = ArgumentOfPeriapsis1 - Math::kPi;
 	}
 	else
 	{
-		ArgumentOfPeriapsis2 = ArgumentOfPeriapsis1 + kPi;
+		ArgumentOfPeriapsis2 = ArgumentOfPeriapsis1 + Math::kPi;
 	}
 
 	OrbitData[0].SetArgumentOfPeriapsis(ArgumentOfPeriapsis1);
 	OrbitData[1].SetArgumentOfPeriapsis(ArgumentOfPeriapsis2);
 
-	Random = _CommonGenerator(_RandomEngine) * 2 * kPi;
+	Random = _CommonGenerator(_RandomEngine) * 2 * Math::kPi;
 	float InitialTrueAnomaly1 = Random;
 	float InitialTrueAnomaly2 = 0.0f;
-	if (InitialTrueAnomaly1 >= kPi)
+	if (InitialTrueAnomaly1 >= Math::kPi)
 	{
-		InitialTrueAnomaly2 = InitialTrueAnomaly1 - kPi;
+		InitialTrueAnomaly2 = InitialTrueAnomaly1 - Math::kPi;
 	}
 	else
 	{
-		InitialTrueAnomaly2 = InitialTrueAnomaly1 + kPi;
+		InitialTrueAnomaly2 = InitialTrueAnomaly1 + Math::kPi;
 	}
 
 	auto Orbit1 = std::make_unique<Astro::FOrbit>(OrbitData[0]);
@@ -312,8 +312,8 @@ void FOrbitalGenerator::GenerateBinaryOrbit(Astro::FStellarSystem& System)
 		Astro::AStar* TheOther = System.StarsData()[1 - i].get();
 
 		float NearStarSemiMajorAxis = static_cast<float>(
-			std::sqrt(Current->GetLuminosity()  / (4 * kPi * ((kStefanBoltzmann * std::pow(_CoilTemperatureLimit, 4)) -
-					  TheOther->GetLuminosity() / (4 * kPi * std::pow(BinarySemiMajorAxis, 2))))));
+			std::sqrt(Current->GetLuminosity()  / (4 * Math::kPi * ((kStefanBoltzmann * std::pow(_CoilTemperatureLimit, 4)) -
+					  TheOther->GetLuminosity() / (4 * Math::kPi * std::pow(BinarySemiMajorAxis, 2))))));
 
 		std::unique_ptr<Astro::FOrbit> NearStarOrbit = std::make_unique<Astro::FOrbit>();
 		NearStarOrbit->SetParent(Current, Astro::FOrbit::EObjectType::kStar);
@@ -386,7 +386,7 @@ void FOrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::FOrbit::FO
 
 		float CommonCoefficient =
 			(std::pow(10.0f, 2.0f - StarInitialMassSol) + 1.0f) *
-			(static_cast<float>(kSolarLuminosity) / (4 * kPi * kStefanBoltzmann * std::pow(DiskCoefficient, 4.0f)));
+			(static_cast<float>(kSolarLuminosity) / (4 * Math::kPi * kStefanBoltzmann * std::pow(DiskCoefficient, 4.0f)));
 
 		float InterRadiusAuSquared = 0.0f;
 		if (StarInitialMassSol >= 0.075f && StarInitialMassSol < 0.43f)
@@ -620,16 +620,16 @@ void FOrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::FOrbit::FO
 			float CurrentLuminosity  = static_cast<float>(Current->GetLuminosity());
 			float TheOtherLuminoisty = static_cast<float>(TheOther->GetLuminosity());
 
-			HabitableZoneAu.first  = std::sqrt(CurrentLuminosity / (4 * kPi * (3000 - TheOtherLuminoisty /
-											  (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
-			HabitableZoneAu.second = std::sqrt(CurrentLuminosity / (4 * kPi * (600  - TheOtherLuminoisty /
-											  (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
+			HabitableZoneAu.first  = std::sqrt(CurrentLuminosity / (4 * Math::kPi * (3000 - TheOtherLuminoisty /
+											  (4 * Math::kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
+			HabitableZoneAu.second = std::sqrt(CurrentLuminosity / (4 * Math::kPi * (600  - TheOtherLuminoisty /
+											  (4 * Math::kPi * std::pow(BinarySemiMajorAxis, 2.0f))))) / kAuToMeter;
 		}
 		else
 		{
 			float StarLuminosity   = static_cast<float>(Star->GetLuminosity());
-			HabitableZoneAu.first  = std::sqrt(StarLuminosity / (4 * kPi * 3000)) / kAuToMeter;
-			HabitableZoneAu.second = std::sqrt(StarLuminosity / (4 * kPi * 600))  / kAuToMeter;
+			HabitableZoneAu.first  = std::sqrt(StarLuminosity / (4 * Math::kPi * 3000)) / kAuToMeter;
+			HabitableZoneAu.second = std::sqrt(StarLuminosity / (4 * Math::kPi * 600))  / kAuToMeter;
 		}
 
 #ifdef DEBUG_OUTPUT
@@ -651,13 +651,13 @@ void FOrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::FOrbit::FO
 				CalculatePrevMainSequenceLuminosity(TheOther->GetInitialMass() / kSolarMass);
 
 			FrostLineAuSquared =
-				(CurrentPrevMainSequenceLuminosity  / (4 * kPi * ((kStefanBoltzmann * std::pow(270.0f, 4.0f)) -
-				 TheOtherPrevMainSequenceLuminosity / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f)))));
+				(CurrentPrevMainSequenceLuminosity  / (4 * Math::kPi * ((kStefanBoltzmann * std::pow(270.0f, 4.0f)) -
+				 TheOtherPrevMainSequenceLuminosity / (4 * Math::kPi * std::pow(BinarySemiMajorAxis, 2.0f)))));
 		}
 		else
 		{
 			float PrevMainSequenceLuminosity = CalculatePrevMainSequenceLuminosity(StarInitialMassSol);
-			FrostLineAuSquared = (PrevMainSequenceLuminosity / (4 * kPi * kStefanBoltzmann * std::pow(270.0f, 4.0f)));
+			FrostLineAuSquared = (PrevMainSequenceLuminosity / (4 * Math::kPi * kStefanBoltzmann * std::pow(270.0f, 4.0f)));
 		}
 
 		FrostLineAu = std::sqrt(FrostLineAuSquared) / kAuToMeter;
@@ -842,13 +842,13 @@ void FOrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::FOrbit::FO
 				const Astro::AStar* Current = System.StarsData()[StarIndex].get();
 				const Astro::AStar* TheOther = System.StarsData()[1 - StarIndex].get();
 				PoyntingVector =
-					static_cast<float>(Current->GetLuminosity())  / (4 * kPi * std::pow(Orbits[i]->GetSemiMajorAxis(), 2.0f)) +
-					static_cast<float>(TheOther->GetLuminosity()) / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f));
+					static_cast<float>(Current->GetLuminosity())  / (4 * Math::kPi * std::pow(Orbits[i]->GetSemiMajorAxis(), 2.0f)) +
+					static_cast<float>(TheOther->GetLuminosity()) / (4 * Math::kPi * std::pow(BinarySemiMajorAxis, 2.0f));
 			}
 			else
 			{
 				PoyntingVector =
-					static_cast<float>(Star->GetLuminosity()) / (4 * kPi * std::pow(Orbits[i]->GetSemiMajorAxis(), 2.0f));
+					static_cast<float>(Star->GetLuminosity()) / (4 * Math::kPi * std::pow(Orbits[i]->GetSemiMajorAxis(), 2.0f));
 			}
 
 #ifdef DEBUG_OUTPUT
@@ -1007,7 +1007,7 @@ void FOrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::FOrbit::FO
 			GenerateSpin(Orbits[i]->GetSemiMajorAxis(), Parent.GetOrbitalObject(), Planets[i].get());
 
 			float PoyntingVector = static_cast<float>(Star->GetLuminosity()) /
-				(4 * kPi * std::pow(Orbits[i]->GetSemiMajorAxis(), 2.0f));
+				(4 * Math::kPi * std::pow(Orbits[i]->GetSemiMajorAxis(), 2.0f));
 			CalculateTemperature(Astro::FOrbit::EObjectType::kStar, PoyntingVector, Planets[i].get());
 			float BalanceTemperature = Planets[i]->GetBalanceTemperature();
 			// 判断有没有被烧似
@@ -1085,7 +1085,7 @@ void FOrbitalGenerator::GeneratePlanets(std::size_t StarIndex, Astro::FOrbit::FO
 		float OceanMassVolatiles             = Planet->GetOceanMassVolatilesDigital<float>();
 		float OceanMassEnergeticNuclide      = Planet->GetOceanMassEnergeticNuclideDigital<float>();
 		float CrustMineralMass               = Planet->GetCrustMineralMassDigital<float>();
-		float AtmospherePressure             = (kGravityConstant * PlanetMass * (AtmosphereMassZ + AtmosphereMassVolatiles + AtmosphereMassEnergeticNuclide)) / (4 * kPi * std::pow(Planets[i]->GetRadius(), 4.0f));
+		float AtmospherePressure             = (kGravityConstant * PlanetMass * (AtmosphereMassZ + AtmosphereMassVolatiles + AtmosphereMassEnergeticNuclide)) / (4 * Math::kPi * std::pow(Planets[i]->GetRadius(), 4.0f));
 		float Oblateness                     = Planet->GetOblateness();
 		float Spin                           = Planet->GetSpin();
 		float BalanceTemperature             = Planet->GetBalanceTemperature();
@@ -1169,17 +1169,17 @@ void FOrbitalGenerator::GenerateOrbitElements(Astro::FOrbit& Orbit)
 
 	if (!Orbit.GetLongitudeOfAscendingNode())
 	{
-		Orbit.SetLongitudeOfAscendingNode(_CommonGenerator(_RandomEngine) * 2 * kPi);
+		Orbit.SetLongitudeOfAscendingNode(_CommonGenerator(_RandomEngine) * 2 * Math::kPi);
 	}
 
 	if (!Orbit.GetArgumentOfPeriapsis())
 	{
-		Orbit.SetArgumentOfPeriapsis(_CommonGenerator(_RandomEngine) * 2 * kPi);
+		Orbit.SetArgumentOfPeriapsis(_CommonGenerator(_RandomEngine) * 2 * Math::kPi);
 	}
 
 	if (!Orbit.GetTrueAnomaly())
 	{
-		Orbit.SetTrueAnomaly(_CommonGenerator(_RandomEngine) * 2 * kPi);
+		Orbit.SetTrueAnomaly(_CommonGenerator(_RandomEngine) * 2 * Math::kPi);
 	}
 }
 
@@ -1207,7 +1207,7 @@ std::size_t FOrbitalGenerator::JudgeLargePlanets(std::size_t StarIndex, const st
 		{
 			float PrevMainSequenceLuminosity = CalculatePrevMainSequenceLuminosity(Star->GetInitialMass() / kSolarMass);
 			PlanetBalanceTemperatureWhenStarAtPrevMainSequenceQuadraticed =
-				PrevMainSequenceLuminosity / (4 * kPi * std::pow(Orbits[i]->GetSemiMajorAxis(), 2.0f)) / kStefanBoltzmann;
+				PrevMainSequenceLuminosity / (4 * Math::kPi * std::pow(Orbits[i]->GetSemiMajorAxis(), 2.0f)) / kStefanBoltzmann;
 		}
 		else
 		{
@@ -1220,8 +1220,8 @@ std::size_t FOrbitalGenerator::JudgeLargePlanets(std::size_t StarIndex, const st
 				CalculatePrevMainSequenceLuminosity(TheOther->GetInitialMass() / kSolarMass);
 
 			PlanetBalanceTemperatureWhenStarAtPrevMainSequenceQuadraticed =
-				(CurrentPrevMainSequenceLuminosity  / (4 * kPi * std::pow(Orbits[i]->GetSemiMajorAxis(), 2.0f)) +
-				 TheOtherPrevMainSequenceLuminosity / (4 * kPi * std::pow(BinarySemiMajorAxis, 2.0f))) / kStefanBoltzmann;
+				(CurrentPrevMainSequenceLuminosity  / (4 * Math::kPi * std::pow(Orbits[i]->GetSemiMajorAxis(), 2.0f)) +
+				 TheOtherPrevMainSequenceLuminosity / (4 * Math::kPi * std::pow(BinarySemiMajorAxis, 2.0f))) / kStefanBoltzmann;
 		}
 
 		PlanetBalanceTemperatureWhenStarAtPrevMainSequence =
@@ -1662,7 +1662,7 @@ void FOrbitalGenerator::GenerateSpin(float SemiMajorAxis, const Astro::FOrbit::F
 	// 计算自转
 	if (Spin != -1.0f)
 	{
-		float OrbitalPeriod = 2.0f * kPi * std::sqrt(std::pow(SemiMajorAxis, 3.0f) / (kGravityConstant * ParentMass));
+		float OrbitalPeriod = 2.0f * Math::kPi * std::sqrt(std::pow(SemiMajorAxis, 3.0f) / (kGravityConstant * ParentMass));
 		float InitialSpin = 0.0f;
 		if (PlanetType == Astro::APlanet::EPlanetType::kGasGiant ||
 			PlanetType == Astro::APlanet::EPlanetType::kHotGasGiant)
@@ -1675,7 +1675,7 @@ void FOrbitalGenerator::GenerateSpin(float SemiMajorAxis, const Astro::FOrbit::F
 		}
 		Spin = InitialSpin + (OrbitalPeriod - InitialSpin) * static_cast<float>(std::pow(ParentAge / TimeToTidalLock, 2.35));
 
-		float Oblateness = 4.0f * std::pow(kPi, 2.0f) * std::pow(PlanetRadius, 3.0f);
+		float Oblateness = 4.0f * std::pow(Math::kPi, 2.0f) * std::pow(PlanetRadius, 3.0f);
 		Oblateness /= (std::pow(Spin, 2.0f) * kGravityConstant * PlanetMass);
 		Planet->SetOblateness(Oblateness);
 	}
@@ -1740,7 +1740,7 @@ void FOrbitalGenerator::CalculateTemperature(const Astro::FOrbit::EObjectType Pa
 	else if (!Util::Equal(Planet->GetAtmosphereMassDigital<float>(), 0.0f))
 	{
 		float AtmospherePressureAtm = (kGravityConstant * PlanetMass * Planet->GetAtmosphereMassDigital<float>()) /
-			(4 * kPi * std::pow(Planet->GetRadius(), 4.0f)) / kPascalToAtm;
+			(4 * Math::kPi * std::pow(Planet->GetRadius(), 4.0f)) / kPascalToAtm;
 		float Random = 0.9f + _CommonGenerator(_RandomEngine) * 0.2f;
 		float TidalLockCoefficient = 0.0f;
 		if (ParentType == Astro::FOrbit::EObjectType::kStar)
@@ -1847,22 +1847,22 @@ void FOrbitalGenerator::GenerateMoons(std::size_t PlanetIndex, float FrostLineAu
 			-0.09f + _CommonGenerator(_RandomEngine) * 0.18f
 		));
 
-		if (MoonNormal.x > 2 * kPi)
+		if (MoonNormal.x > 2 * Math::kPi)
 		{
-			MoonNormal.x -= 2 * kPi;
+			MoonNormal.x -= 2 * Math::kPi;
 		}
 		else if (MoonNormal.x < 0.0f)
 		{
-			MoonNormal.x += 2 * kPi;
+			MoonNormal.x += 2 * Math::kPi;
 		}
 
-		if (MoonNormal.y > kPi)
+		if (MoonNormal.y > Math::kPi)
 		{
-			MoonNormal.y -= kPi;
+			MoonNormal.y -= Math::kPi;
 		}
 		else if (MoonNormal.y < 0.0f)
 		{
-			MoonNormal.y += kPi;
+			MoonNormal.y += Math::kPi;
 		}
 
 		MoonOrbitData.SetNormal(MoonNormal);
@@ -1903,22 +1903,22 @@ void FOrbitalGenerator::GenerateMoons(std::size_t PlanetIndex, float FrostLineAu
 				-0.09f + _CommonGenerator(_RandomEngine) * 0.18f
 			));
 
-			if (MoonNormals[i].x > 2.0f * kPi)
+			if (MoonNormals[i].x > 2 * Math::kPi)
 			{
-				MoonNormals[i].x -= 2.0f * kPi;
+				MoonNormals[i].x -= 2 * Math::kPi;
 			}
 			else if (MoonNormals[i].x < 0.0f)
 			{
-				MoonNormals[i].x += 2.0f * kPi;
+				MoonNormals[i].x += 2 * Math::kPi;
 			}
 
-			if (MoonNormals[i].y > kPi)
+			if (MoonNormals[i].y > Math::kPi)
 			{
-				MoonNormals[i].y -= kPi;
+				MoonNormals[i].y -= Math::kPi;
 			}
 			else if (MoonNormals[i].y < 0.0f)
 			{
-				MoonNormals[i].y += kPi;
+				MoonNormals[i].y += Math::kPi;
 			}
 		}
 
@@ -2019,7 +2019,7 @@ void FOrbitalGenerator::GenerateMoons(std::size_t PlanetIndex, float FrostLineAu
 		float OceanMassVolatiles             = Moon->GetOceanMassVolatilesDigital<float>();
 		float OceanMassEnergeticNuclide      = Moon->GetOceanMassEnergeticNuclideDigital<float>();
 		float CrustMineralMass               = Moon->GetCrustMineralMassDigital<float>();
-		float AtmospherePressure             = (kGravityConstant * MoonMass * (AtmosphereMassZ + AtmosphereMassVolatiles + AtmosphereMassEnergeticNuclide)) / (4 * kPi * std::pow(Moons[i]->GetRadius(), 4.0f));
+		float AtmospherePressure             = (kGravityConstant * MoonMass * (AtmosphereMassZ + AtmosphereMassVolatiles + AtmosphereMassEnergeticNuclide)) / (4 * Math::kPi * std::pow(Moons[i]->GetRadius(), 4.0f));
 		float Oblateness                     = Moon->GetOblateness();
 		float Spin                           = Moon->GetSpin();
 		float BalanceTemperature             = Moon->GetBalanceTemperature();
@@ -2044,7 +2044,7 @@ void FOrbitalGenerator::GenerateMoons(std::size_t PlanetIndex, float FrostLineAu
 	for (std::size_t i = 0; i != MoonCount; ++i)
 	{
 		Astro::FOrbit::FOrbitalDetails Moon(
-			Moons[i].get(), Astro::FOrbit::EObjectType::kPlanet, MoonOrbits[i].get(), _CommonGenerator(_RandomEngine) * 2 * kPi);
+			Moons[i].get(), Astro::FOrbit::EObjectType::kPlanet, MoonOrbits[i].get(), _CommonGenerator(_RandomEngine) * 2 * Math::kPi);
 		MoonOrbits[i]->ObjectsData().emplace_back(Moon);
 	}
 
@@ -2154,7 +2154,7 @@ void FOrbitalGenerator::GenerateTerra(const Astro::AStar* Star, float PoyntingVe
 	float PlanetMassEarth   = Planet->GetMassDigital<float>() / kEarthMass;
 	float CoreMass          = Planet->GetCoreMassDigital<float>();
 	float Term1             = 1.6567e15f * static_cast<float>(std::pow(Star->GetLuminosity() /
-							  (4.0 * kPi * kStefanBoltzmann * std::pow(Orbit->GetSemiMajorAxis(), 2.0f)), 0.25));
+							  (4.0 * Math::kPi * kStefanBoltzmann * std::pow(Orbit->GetSemiMajorAxis(), 2.0f)), 0.25));
 	float Term2             = PlanetMass / Planet->GetRadius();
 	float MaxTerm           = std::max(1.0f, Term1 / Term2);
 	float EscapeCoefficient = std::pow(10.0f, 1.0f - MaxTerm);
@@ -2385,7 +2385,7 @@ void FOrbitalGenerator::CalculateOrbitalPeriods(std::vector<std::unique_ptr<Astr
 			CenterMass = Orbit->GetParent().GetObject<Astro::APlanet>()->GetMassDigital<float>();
 		}
 
-		Orbit->SetPeriod(std::sqrt(4.0f * std::pow(kPi, 2.0f) * std::pow(SemiMajorAxis, 3.0f) / (kGravityConstant * CenterMass)));
+		Orbit->SetPeriod(std::sqrt(4.0f * std::pow(Math::kPi, 2.0f) * std::pow(SemiMajorAxis, 3.0f) / (kGravityConstant * CenterMass)));
 
 		for (auto& Object : Orbit->ObjectsData())
 		{

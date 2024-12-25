@@ -15,10 +15,11 @@
 #include "Engine/Core/Assert.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Camera.h"
-#include "Engine/Core/Constants.h"
 #include "Engine/Core/Octree.hpp"
 #include "Engine/Core/ThreadPool.h"
 #include "Engine/Core/Universe.h"
+
+#include "Engine/Math/NumericConstants.h"
 
 #include "Engine/Modules/Generators/CivilizationGenerator.h"
 #include "Engine/Modules/Generators/OrbitalGenerator.h"

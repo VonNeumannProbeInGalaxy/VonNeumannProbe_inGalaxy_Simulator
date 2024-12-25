@@ -193,8 +193,8 @@
     <ClInclude Include="Sources\Engine\AssetLoader\AssetManager.h" />
     <ClInclude Include="Sources\Engine\AssetLoader\CommaSeparatedValues.hpp" />
     <ClInclude Include="Sources\Engine\Core\Base.h" />
-    <ClInclude Include="Sources\Engine\Core\Constants.h" />
     <ClInclude Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.h" />
+    <ClInclude Include="Sources\Engine\Math\NumericConstants.h" />
     <ClInclude Include="Sources\Engine\Utilities\Logger.h" />
     <ClInclude Include="Sources\Engine\Modules\Generators\CivilizationGenerator.h" />
     <ClInclude Include="Sources\Engine\Modules\Generators\OrbitalGenerator.h" />
@@ -212,6 +212,7 @@
     <None Include="Assets\Shaders\Advanced.frag" />
     <None Include="Assets\Shaders\Advanced.geom" />
     <None Include="Assets\Shaders\Advanced.vert" />
+    <None Include="Assets\Shaders\Common\NumericConstants.glsl" />
     <None Include="Assets\Shaders\Framebuffer.frag" />
     <None Include="Assets\Shaders\Framebuffer.vert" />
     <None Include="Assets\Shaders\Lighting.frag" />
@@ -219,7 +220,7 @@
     <None Include="Assets\Shaders\Point.frag" />
     <None Include="Assets\Shaders\Point.geom" />
     <None Include="Assets\Shaders\Point.vert" />
-    <None Include="Assets\Shaders\Random\Hash.glsl" />
+    <None Include="Assets\Shaders\Common\Random\Hash.glsl" />
     <None Include="Assets\Shaders\Shadow.frag" />
     <None Include="Assets\Shaders\Shadow.vert" />
     <None Include="Assets\Shaders\Triangle.frag" />

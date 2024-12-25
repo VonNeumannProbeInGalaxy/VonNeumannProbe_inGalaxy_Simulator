@@ -19,7 +19,7 @@
 #define ENABLE_CONSOLE_LOGGER
 #include "Engine/AssetLoader/AssetManager.h"
 #include "Engine/Core/Base.h"
-#include "Engine/Core/Constants.h"
+#include "Engine/Math/NumericConstants.h"
 #include "Engine/Utilities/Logger.h"
 #include <Engine/Utilities/Utilities.h>
 
@@ -405,8 +405,8 @@ Astro::AStar FStellarGenerator::GenerateStar(FBasicProperties&& Properties)
 	float SurfaceEnergeticNuclide = (SurfaceH1 * 0.00002f + SurfaceHe3);
 	float SurfaceVolatiles = 1.0f - SurfaceZ - SurfaceEnergeticNuclide;
 
-	float Theta = _CommonGenerator(_RandomEngine) * 2.0f * kPi;
-	float Phi   = _CommonGenerator(_RandomEngine) * kPi;
+	float Theta = _CommonGenerator(_RandomEngine) * 2.0f * Math::kPi;
+	float Phi   = _CommonGenerator(_RandomEngine) * Math::kPi;
 
 	Astro::AStar::EEvolutionPhase EvolutionPhase = static_cast<Astro::AStar::EEvolutionPhase>(StarData[_kPhaseIndex]);
 
@@ -1882,8 +1882,8 @@ void FStellarGenerator::ProcessDeathStar(Astro::AStar& DeathStar, EGenerateOptio
 	float LuminositySol  = std::pow(RadiusSol, 2.0f) * std::pow((Teff / kSolarTeff), 4.0f);
 	float EscapeVelocity = std::sqrt((2.0f * kGravityConstant * MassSol * kSolarMass) / (RadiusSol * kSolarRadius));
 
-	float Theta = _CommonGenerator(_RandomEngine) * 2.0f * kPi;
-	float Phi   = _CommonGenerator(_RandomEngine) * kPi;
+	float Theta = _CommonGenerator(_RandomEngine) * 2.0f * Math::kPi;
+	float Phi   = _CommonGenerator(_RandomEngine) * Math::kPi;
 
 	DeathStar.SetInitialMass(InputMassSol * kSolarMass);
 	DeathStar.SetAge(Age);
@@ -2061,7 +2061,7 @@ void FStellarGenerator::GenerateSpin(Astro::AStar& StarData)
 
 	if (StarType != Util::FStellarClass::EStarType::kBlackHole)
 	{
-		float Oblateness = 4.0f * std::pow(kPi, 2.0f) * std::pow(StarData.GetRadius(), 3.0f);
+		float Oblateness = 4.0f * std::pow(Math::kPi, 2.0f) * std::pow(StarData.GetRadius(), 3.0f);
 		Oblateness /= (std::pow(Spin, 2.0f) * kGravityConstant * static_cast<float>(StarData.GetMass()));
 		StarData.SetOblateness(Oblateness);
 	}

@@ -21,9 +21,7 @@ void FBlockManagerBase::VerifyBlockLayout(GLuint Program, const std::string& Blo
 		return;
 	}
 
-	std::println("{} block \"{}\" layout ({}):",
-				 GetBlockTypeName(),  // 虚函数："Uniform" 或 "Storage"
-				 BlockName,
+	std::println("{} block \"{}\" layout ({}):", GetBlockTypeName(), BlockName,
 				 Block->Layout == EBlockLayout::kShared ? "shared" :
 				 Block->Layout == EBlockLayout::kStd140 ? "std140" : "std430");
 

@@ -16,7 +16,7 @@
 
 #define ENABLE_CONSOLE_LOGGER
 #include "Engine/Core/Base.h"
-#include "Engine/Core/Constants.h"
+#include "Engine/Math/NumericConstants.h"
 #include "Engine/Modules/Generators/OrbitalGenerator.h"
 #include "Engine/Utilities/Logger.h"
 
@@ -851,7 +851,7 @@ std::vector<Astro::AStar> FUniverse::InterpolateStars(int MaxThread, std::vector
 
 void FUniverse::GenerateSlots(float MinDistance, std::size_t SampleCount, float Density)
 {
-	float Radius     = std::pow((3.0f * SampleCount / (4 * kPi * Density)), (1.0f / 3.0f));
+	float Radius     = std::pow((3.0f * SampleCount / (4 * Math::kPi * Density)), (1.0f / 3.0f));
 	float LeafSize   = std::pow((1.0f / Density), (1.0f / 3.0f));
 	int   Exponent   = static_cast<int>(std::ceil(std::log2(Radius / LeafSize)));
 	float LeafRadius = LeafSize * 0.5f;

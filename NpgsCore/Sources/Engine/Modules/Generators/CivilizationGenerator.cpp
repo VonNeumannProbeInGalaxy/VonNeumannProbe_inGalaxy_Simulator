@@ -4,7 +4,7 @@
 #include <print>
 #include <utility>
 #include "Engine/Base/Intelli/Civilization.h"
-#include "Engine/Core/Constants.h"
+#include "Engine/Math/NumericConstants.h"
 
 #define DEBUG_OUTPUT
 
@@ -348,9 +348,9 @@ void FCivilizationGenerator::GenerateCivilizationDetails(const Astro::AStar* Sta
 		float Base          = Random1 * 1e13f;
 		float Coefficient   = std::pow(1000.0f, LevelProgress);
 		float Result        = Base * Coefficient;
-		float Pcivilization = std::max(Result, 0.1f * PoyntingVector * kPi * std::pow(Planet->GetRadius(), 2.0f));
+		float CitizenPower  = std::max(Result, 0.1f * PoyntingVector * Math::kPi * std::pow(Planet->GetRadius(), 2.0f));
 		float Random        = 0.9f + 0.2f * _CommonGenerator(_RandomEngine);
-		CitizenUsedPower    = Pcivilization * Random;
+		CitizenUsedPower    = CitizenPower * Random;
 	}
 	else if (CivilizationLevel >= Intelli::FStandard::_kAtomicAge && CivilizationLevel < Intelli::FStandard::_kDigitalAge)
 	{
