@@ -171,7 +171,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Utilities\UniformBlockManager.cpp" />
+    <ClCompile Include="Sources\Engine\Utilities\ShaderBlockManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.h" />
@@ -206,10 +206,11 @@
     <ClInclude Include="Sources\Engine\Utilities\Utilities.h" />
     <ClInclude Include="Sources\Npgs.h" />
     <ClInclude Include="Sources\stdafx.h" />
-    <ClInclude Include="Sources\Engine\Utilities\UniformBlockManager.h" />
+    <ClInclude Include="Sources\Engine\Utilities\ShaderBlockManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Advanced.frag" />
+    <None Include="Assets\Shaders\Advanced.geom" />
     <None Include="Assets\Shaders\Advanced.vert" />
     <None Include="Assets\Shaders\Framebuffer.frag" />
     <None Include="Assets\Shaders\Framebuffer.vert" />
@@ -218,6 +219,9 @@
     <None Include="Assets\Shaders\Point.frag" />
     <None Include="Assets\Shaders\Point.geom" />
     <None Include="Assets\Shaders\Point.vert" />
+    <None Include="Assets\Shaders\Random\Hash.glsl" />
+    <None Include="Assets\Shaders\Shadow.frag" />
+    <None Include="Assets\Shaders\Shadow.vert" />
     <None Include="Assets\Shaders\Triangle.frag" />
     <None Include="Assets\Shaders\Triangle.vert" />
     <None Include="Sources\Engine\AssetLoader\AssetManager.inl" />
@@ -236,7 +240,7 @@
     <None Include="Sources\Engine\Utilities\Logger.inl" />
     <None Include="Sources\Engine\Utilities\StellarClass.inl" />
     <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />
-    <None Include="Sources\Engine\Utilities\UniformBlockManager.inl" />
+    <None Include="Sources\Engine\Utilities\ShaderBlockManager.inl" />
     <None Include="Sources\Engine\Utilities\Utilities.inl" />
     <None Include="Sources\Vertices.inc" />
   </ItemGroup>

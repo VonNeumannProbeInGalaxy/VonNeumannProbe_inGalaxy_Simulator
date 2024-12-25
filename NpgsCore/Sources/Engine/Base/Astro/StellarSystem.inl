@@ -47,7 +47,7 @@ NPGS_INLINE FOrbit::EObjectType FOrbit::FOrbitalObject::GetObjectType() const
 	return _Type;
 }
 
-template<typename ObjectType>
+template <typename ObjectType>
 NPGS_INLINE ObjectType* FOrbit::FOrbitalObject::GetObject() const
 {
 	if constexpr (std::is_same_v<ObjectType, FBaryCenter>)

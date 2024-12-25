@@ -104,16 +104,17 @@ int main()
 	AssetManager->AddAsset<FShader>("Lamp", FShader(LightingShaderFiles, "", LampShaderMacros));
 	AssetManager->AddAsset<FShader>("Border", FShader(AdvancedShaderFiles, "", BorderShaderMacros));
 	AssetManager->AddAsset<FShader>("Point", FShader(PointShaderFiles));
-	AssetManager->AddAsset<FTexture>("Metal", FTexture(FTexture::ETextureType::k2D, "Metal.png"));
-	AssetManager->AddAsset<FTexture>("Marble", FTexture(FTexture::ETextureType::k2D, "Marble.jpg"));
-	AssetManager->AddAsset<FTexture>("RedWindow", FTexture(FTexture::ETextureType::k2D, "RedWindow.png"));
-	AssetManager->AddAsset<FTexture>("Grass", FTexture(FTexture::ETextureType::k2D, "Grass.png", false, false));
+	AssetManager->AddAsset<FTexture>("Metal", FTexture(FTexture::ETextureType::k2D, "Metal.png", false));
+	AssetManager->AddAsset<FTexture>("Marble", FTexture(FTexture::ETextureType::k2D, "Marble.jpg", false));
+	AssetManager->AddAsset<FTexture>("RedWindow", FTexture(FTexture::ETextureType::k2D, "RedWindow.png", true));
+	AssetManager->AddAsset<FTexture>("Grass", FTexture(FTexture::ETextureType::k2D, "Grass.png", true, false));
+	AssetManager->AddAsset<FTexture>("Wood", FTexture(FTexture::ETextureType::k2D, "Wood.png"));
 	//AssetManager->AddAsset<FModel>("Backpack", FModel("Backpack/backpack.obj", "Lighting"));
 	//AssetManager->AddAsset<FModel>("Nanosuit", FModel("Nanosuit/nanosuit.obj", "Lighting"));
 
 	GLuint CubeVertexBuffer = 0;
 	glCreateBuffers(1, &CubeVertexBuffer);
-	glNamedBufferData(CubeVertexBuffer, CubeVertices.size() * sizeof(GLfloat), CubeVertices.data(), GL_STATIC_DRAW);
+	glNamedBufferData(CubeVertexBuffer, ContainerVertices.size() * sizeof(GLfloat), ContainerVertices.data(), GL_STATIC_DRAW);
 
 	GLuint PlaneVertexBuffer = 0;
 	glCreateBuffers(1, &PlaneVertexBuffer);
@@ -140,13 +141,16 @@ int main()
 
 	GLuint CubeVertexArray = 0;
 	glCreateVertexArrays(1, &CubeVertexArray);
-	glVertexArrayVertexBuffer(CubeVertexArray, 0, CubeVertexBuffer, 0, 5 * sizeof(GLfloat));
+	glVertexArrayVertexBuffer(CubeVertexArray, 0, CubeVertexBuffer, 0, 8 * sizeof(GLfloat));
 	glEnableVertexArrayAttrib(CubeVertexArray, 0);
 	glEnableVertexArrayAttrib(CubeVertexArray, 1);
+	glEnableVertexArrayAttrib(CubeVertexArray, 2);
 	glVertexArrayAttribFormat(CubeVertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
-	glVertexArrayAttribFormat(CubeVertexArray, 1, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat));
+	glVertexArrayAttribFormat(CubeVertexArray, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat));
+	glVertexArrayAttribFormat(CubeVertexArray, 2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat));
 	glVertexArrayAttribBinding(CubeVertexArray, 0, 0);
 	glVertexArrayAttribBinding(CubeVertexArray, 1, 0);
+	glVertexArrayAttribBinding(CubeVertexArray, 2, 0);
 
 	GLuint PlaneVertexArray = 0;
 	glCreateVertexArrays(1, &PlaneVertexArray);
@@ -189,10 +193,24 @@ int main()
 	glVertexArrayAttribBinding(PointVertexArray, 1, 0);
 
 	kFramebuffer = new FFramebuffer(FFramebuffer::EAttachmentType::kColor | FFramebuffer::EAttachmentType::kDepthStencil,
-									kWindowWidth, kWindowHeight, GL_RGBA16F, kMultiSamples, 2);
+									kWindowWidth, kWindowHeight, GL_RGBA16F, kMultiSamples, 1);
 
 	FScreenQuadRenderer QuadRenderer;
-	QuadRenderer.SetTexturesFromFramebuffer(*kFramebuffer, { 0, 1 });
+	QuadRenderer.SetTexturesFromFramebuffer(*kFramebuffer, { 0 });
+
+	//GLuint DepthMap = 0;
+	//glCreateTextures(GL_TEXTURE_2D, 1, &DepthMap);
+	//glTextureStorage2D(DepthMap, 1, GL_DEPTH_COMPONENT, 1024, 1024);
+	//glTextureParameteri(DepthMap, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTextureParameteri(DepthMap, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTextureParameteri(DepthMap, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTextureParameteri(DepthMap, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	//GLuint DepthMapFramebuffer = 0;
+	//glCreateFramebuffers(1, &DepthMapFramebuffer);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, DepthMap, 0);
+	//glDrawBuffer(GL_NONE);
+	//glReadBuffer(GL_NONE);
 
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -233,13 +251,21 @@ int main()
 
 	std::vector<std::string> MatrixMembers = { "iModel", "iView", "iProjection" };
 
-	auto* UboManagerInstance = FUniformBlockManager::GetInstance();
-	UboManagerInstance->CreateSharedBlock(AdvancedShader->GetProgram(), "Matrices", 0, MatrixMembers);
-	UboManagerInstance->VerifyBlockLayout(AdvancedShader->GetProgram(), "Matrices");
+	//auto* UboManager = FUniformBlockManager::GetInstance();
+	//UboManager->CreateSharedBlock(AdvancedShader->GetProgram(), "Matrices", 0, MatrixMembers);
+	//UboManager->VerifyBlockLayout(AdvancedShader->GetProgram(), "Matrices");
 
-	auto ModelUpdater      = UboManagerInstance->GetBlockUpdater<glm::mat4x4>("Matrices", "iModel");
-	auto ViewUpdater       = UboManagerInstance->GetBlockUpdater<glm::mat4x4>("Matrices", "iView");
-	auto ProjectionUpdater = UboManagerInstance->GetBlockUpdater<glm::mat4x4>("Matrices", "iProjection");
+	//auto ModelUpdater      = UboManager->GetBlockUpdater<glm::mat4x4>("Matrices", "iModel");
+	//auto ViewUpdater       = UboManager->GetBlockUpdater<glm::mat4x4>("Matrices", "iView");
+	//auto ProjectionUpdater = UboManager->GetBlockUpdater<glm::mat4x4>("Matrices", "iProjection");
+
+	auto* SsboManager = FStorageBlockManager::GetInstance();
+	SsboManager->CreateSharedBlock(AdvancedShader->GetProgram(), "Matrices", 0, MatrixMembers);
+	SsboManager->VerifyBlockLayout(AdvancedShader->GetProgram(), "Matrices");
+
+	auto ModelUpdater      = SsboManager->GetBlockUpdater<glm::mat4x4>("Matrices", "iModel");
+	auto ViewUpdater       = SsboManager->GetBlockUpdater<glm::mat4x4>("Matrices", "iView");
+	auto ProjectionUpdater = SsboManager->GetBlockUpdater<glm::mat4x4>("Matrices", "iProjection");
 
 	VertMatrices MvpMatrices;
 
@@ -257,6 +283,13 @@ int main()
 		//glBindVertexArray(PointVertexArray);
 		//glDrawArrays(GL_POINTS, 0, 4);
 
+		//GLfloat NearPlane = 1.0f;
+		//GLfloat FarPlane  = 7.5f;
+
+		//glm::mat4x4 LightProjection  = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, NearPlane, FarPlane);
+		//glm::mat4x4 LightView        = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//glm::mat4x4 LightSpaceMatrix = LightProjection * LightView;
+
 		Model = glm::mat4x4(1.0f);
 		View  = kFreeCamera->GetViewMatrix();
 		Projection = glm::perspective(glm::radians(kFreeCamera->GetCameraZoom()), kWindowAspect, 0.1f, 10000.0f);
@@ -266,18 +299,22 @@ int main()
 		Model = glm::mat4x4(1.0f);
 		AdvancedShader->UseProgram();
 		AdvancedShader->SetUniform1i("iTex", 0);
-		UboManagerInstance->UpdateEntrieBlock("Matrices", MvpMatrices);
+		
+		//UboManager->UpdateEntrieBlock("Matrices", MvpMatrices);
+		SsboManager->UpdateEntrieBlock("Matrices", MvpMatrices);
 		glBindVertexArray(PlaneVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		AdvancedShader->SetUniform1i("iTex", 1);
 		glBindVertexArray(CubeVertexArray);
 		Model = glm::translate(Model, glm::vec3(-1.0f, 0.0f, -1.0f));
-		ModelUpdater << Model;
+		//ModelUpdater << Model;
+		ModelUpdater.CommitAt(Model, 0);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		Model = glm::mat4x4(1.0f);
 		Model = glm::translate(Model, glm::vec3(2.0f, 0.0f, 0.0f));
-		ModelUpdater << Model;
+		//ModelUpdater << Model;
+		ModelUpdater.CommitAt(Model, 1);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		//Model = glm::mat4x4(1.0f);
@@ -317,7 +354,7 @@ int main()
 		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		kFramebuffer->Blit();
-		QuadRenderer.Draw(*FramebufferShader, { { "iTexColorBuffer", 4, 0 }, { "iLayerBuffer", 5, 1 } });
+		QuadRenderer.Draw(*FramebufferShader, { { "iTexColorBuffer", 4, 0 } });
 
 		glfwSwapBuffers(Window);
 		glfwPollEvents();

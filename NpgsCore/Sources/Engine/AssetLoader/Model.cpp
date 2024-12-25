@@ -180,8 +180,9 @@ std::vector<FMesh::FTextureData> FModel::LoadMaterialTextures(const aiMaterial* 
 		if (!bSkipLoading)
 		{
 			std::string ImageFilePath = _Directory + '/' + ImageFilename.C_Str();
+			bool bEnableSrgb = TextureType == aiTextureType_DIFFUSE;
 			MaterialTexture.Data =
-				std::make_shared<FTexture>(FTexture::ETextureType::k2D, ImageFilePath, true, true, false);
+				std::make_shared<FTexture>(FTexture::ETextureType::k2D, ImageFilePath, bEnableSrgb, true, false);
 			MaterialTexture.TypeName = TypeName;
 			MaterialTexture.ImageFilename = ImageFilename.C_Str();
 			_TexturesCache.emplace_back(std::move(MaterialTexture));

@@ -586,7 +586,7 @@ void FUniverse::CountStars()
 	std::println("");
 }
 
-template<typename AstroType, typename DataType>
+template <typename AstroType, typename DataType>
 void FUniverse::MakeChunks(int MaxThread, std::vector<DataType>& Data, std::vector<std::vector<DataType>>& DataLists,
 						   std::vector<std::promise<std::vector<AstroType>>>& Promises,
 						   std::vector<std::future<std::vector<AstroType>>>& ChunkFutures)

@@ -450,7 +450,7 @@ Astro::AStar FStellarGenerator::GenerateStar(FBasicProperties&& Properties)
 	return Star;
 }
 
-template<typename CsvType>
+template <typename CsvType>
 CsvType* FStellarGenerator::LoadCsvAsset(const std::string& Filename, const std::vector<std::string>& Headers)
 {
 	auto* AssetManager = Asset::FAssetManager::GetInstance();

@@ -43,15 +43,15 @@ concept CMoveOnlyType = std::movable<AssetType> && !std::copyable<AssetType>;
 class FAssetManager
 {
 public:
-	template<typename AssetType>
+	template <typename AssetType>
 	requires CMoveOnlyType<AssetType>
 	void AddAsset(const std::string& Name, AssetType&& Asset);
 
-	template<typename AssetType>
+	template <typename AssetType>
 	requires CMoveOnlyType<AssetType>
 	AssetType* GetAsset(const std::string& Name);
 
-	template<typename AssetType>
+	template <typename AssetType>
 	requires CMoveOnlyType<AssetType>
 	std::vector<AssetType*> GetAssets();
 

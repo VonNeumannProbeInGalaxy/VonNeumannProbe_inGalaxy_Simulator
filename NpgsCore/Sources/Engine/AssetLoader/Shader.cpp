@@ -27,11 +27,13 @@ FShader::FShader(const std::vector<std::string>& SourceFiles, const std::string&
 	_Program(0)
 {
 	InitShader(SourceFiles, ProgramBinaryName, Macros);
+	InitUniformLocationsCache();
 }
 
 FShader::FShader(FShader&& Other) noexcept
 	:
 	_IncludedFiles(std::move(Other._IncludedFiles)),
+	_UniformLocationsCache(std::move(Other._UniformLocationsCache)),
 	_ShaderTypes(std::move(Other._ShaderTypes)),
 	_Program(Other._Program)
 {
@@ -52,9 +54,10 @@ FShader& FShader::operator=(FShader&& Other) noexcept
 			glDeleteProgram(_Program);
 		}
 
-		_IncludedFiles = std::move(Other._IncludedFiles);
-		_ShaderTypes   = std::move(Other._ShaderTypes);
-		_Program       = Other._Program;
+		_IncludedFiles         = std::move(Other._IncludedFiles);
+		_UniformLocationsCache = std::move(Other._UniformLocationsCache);
+		_ShaderTypes           = std::move(Other._ShaderTypes);
+		_Program               = Other._Program;
 
 		Other._Program = 0;
 	}
@@ -346,6 +349,26 @@ void FShader::CheckLinkError() const
 
 		std::system("pause");
 		std::exit(EXIT_FAILURE);
+	}
+}
+
+void FShader::InitUniformLocationsCache()
+{
+	GLint UniformCount = 0;
+	glGetProgramiv(_Program, GL_ACTIVE_UNIFORMS, &UniformCount);
+
+	_UniformLocationsCache.reserve(UniformCount);
+
+	for (GLint i = 0; i != UniformCount; ++i)
+	{
+		GLint  Size = 0;
+		GLenum Type = 0;
+		GLchar Name[256];
+		glGetActiveUniform(_Program, i, sizeof(Name), nullptr, &Size, &Type, Name);
+		_UniformLocationsCache[Name] = glGetUniformLocation(_Program, Name);
+
+		static_cast<void>(Size);
+		static_cast<void>(Type);
 	}
 }
 

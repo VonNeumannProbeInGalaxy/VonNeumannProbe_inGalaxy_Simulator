@@ -90,7 +90,7 @@
     <ClCompile Include="Sources\Engine\AssetLoader\stb_image.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Utilities\UniformBlockManager.cpp">
+    <ClCompile Include="Sources\Engine\Utilities\ShaderBlockManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.cpp">
@@ -191,7 +191,7 @@
     <ClInclude Include="Sources\Engine\Core\Camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Utilities\UniformBlockManager.h">
+    <ClInclude Include="Sources\Engine\Utilities\ShaderBlockManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.h">
@@ -258,7 +258,7 @@
     <None Include="Assets\Shaders\Advanced.frag" />
     <None Include="Assets\Shaders\Framebuffer.vert" />
     <None Include="Assets\Shaders\Framebuffer.frag" />
-    <None Include="Sources\Engine\Utilities\UniformBlockManager.inl">
+    <None Include="Sources\Engine\Utilities\ShaderBlockManager.inl">
       <Filter>头文件</Filter>
     </None>
     <None Include="Assets\Shaders\Point.vert" />
@@ -270,5 +270,9 @@
     <None Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.inl">
       <Filter>头文件</Filter>
     </None>
+    <None Include="Assets\Shaders\Advanced.geom" />
+    <None Include="Assets\Shaders\Random\Hash.glsl" />
+    <None Include="Assets\Shaders\Shadow.vert" />
+    <None Include="Assets\Shaders\Shadow.frag" />
   </ItemGroup>
 </Project>

@@ -87,8 +87,8 @@ public:
 	float GetOrganismUsedPower() const;
 	ELifePhase GetLifePhase() const;
 
-	template <typename T>
-	T GetOrganismBiomassDigital() const;
+	template <typename DigitalType>
+	DigitalType GetOrganismBiomassDigital() const;
 
 	// Getters for CivilizationProperties
 	// ----------------------------------

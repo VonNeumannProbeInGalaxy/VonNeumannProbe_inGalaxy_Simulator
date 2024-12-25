@@ -5,7 +5,7 @@
 _NPGS_BEGIN
 _ASSET_BEGIN
 
-template<typename AssetType>
+template <typename AssetType>
 requires CMoveOnlyType<AssetType>
 inline void FAssetManager::AddAsset(const std::string& Name, AssetType&& Asset)
 {
@@ -15,7 +15,7 @@ inline void FAssetManager::AddAsset(const std::string& Name, AssetType&& Asset)
 	));
 }
 
-template<typename AssetType>
+template <typename AssetType>
 requires CMoveOnlyType<AssetType>
 inline AssetType* FAssetManager::GetAsset(const std::string& Name)
 {
@@ -28,7 +28,7 @@ inline AssetType* FAssetManager::GetAsset(const std::string& Name)
 	return nullptr;
 }
 
-template<typename AssetType>
+template <typename AssetType>
 requires CMoveOnlyType<AssetType>
 inline std::vector<AssetType*> FAssetManager::GetAssets()
 {

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <set>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include <glad/glad.h>
@@ -64,11 +65,13 @@ private:
 	void SaveProgramBinary(const std::string& Filename) const;
 	void LoadProgramBinary(const std::string& Filename);
 	void CheckLinkError() const;
+	void InitUniformLocationsCache();
 
 private:
-	std::vector<GLenum>   _ShaderTypes;
-	std::set<std::string> _IncludedFiles;
-	GLuint                _Program;
+	std::unordered_set<std::string>        _IncludedFiles;
+	std::unordered_map<std::string, GLint> _UniformLocationsCache;
+	std::vector<GLenum>                    _ShaderTypes;
+	GLuint                                 _Program;
 };
 
 _ASSET_END

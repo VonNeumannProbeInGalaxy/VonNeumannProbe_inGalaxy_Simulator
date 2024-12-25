@@ -146,10 +146,10 @@ NPGS_INLINE FStandard::ELifePhase FStandard::GetLifePhase() const
 	return _LifeProperties.Phase;
 }
 
-template <typename T>
-NPGS_INLINE T FStandard::GetOrganismBiomassDigital() const
+template <typename DigitalType>
+NPGS_INLINE DigitalType FStandard::GetOrganismBiomassDigital() const
 {
-	return _LifeProperties.OrganismBiomass.convert_to<T>();
+	return _LifeProperties.OrganismBiomass.convert_to<DigitalType>();
 }
 
 NPGS_INLINE const boost::multiprecision::uint128_t& FStandard::GetAtrificalStructureMass() const
@@ -235,7 +235,7 @@ NPGS_INLINE DigitalType FStandard::GetUseableEnergeticNuclideDigital() const
 	return _CivilizationProperties.UseableEnergeticNuclide.convert_to<DigitalType>();
 }
 
-template<typename DigitalType>
+template <typename DigitalType>
 NPGS_INLINE DigitalType FStandard::GetOrbitAssetsMassDigital() const
 {
 	return _CivilizationProperties.OrbitAssetsMass.convert_to<DigitalType>();

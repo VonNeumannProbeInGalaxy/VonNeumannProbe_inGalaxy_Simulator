@@ -124,6 +124,12 @@ void FFramebuffer::Blit() const
 							   0, 0, _Width, _Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
 
+	if (_bHasDepthStencilAttachment)
+	{
+		glBlitNamedFramebuffer(_Framebuffers[1], _Framebuffers[0], 0, 0, _Width, _Height,
+							   0, 0, _Width, _Height, GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+	}
+
 	std::vector<GLenum> DrawBuffers;
 	for (int i = 0; i < _AttachmentCount; ++i)
 	{
@@ -155,7 +161,7 @@ void FFramebuffer::Resize(GLsizei Width, GLsizei Height)
 
 void FFramebuffer::InitConfig()
 {
-	_bEnableMsaa = _Samples > 0;
+	_bEnableMsaa = _Samples > 1;
 	_bHasColorAttachment =
 		static_cast<std::uint32_t>(_AttachmentType) & static_cast<std::uint32_t>(EAttachmentType::kColor);
 	_bHasDepthStencilAttachment =

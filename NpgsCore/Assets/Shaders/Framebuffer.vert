@@ -3,7 +3,7 @@
 layout(location = 0) in vec2 InputPosition;
 layout(location = 1) in vec2 InputTexCoord;
 
-out vec2 TexCoord;
+layout(location = 0) out vec2 TexCoord;
 
 void main()
 {

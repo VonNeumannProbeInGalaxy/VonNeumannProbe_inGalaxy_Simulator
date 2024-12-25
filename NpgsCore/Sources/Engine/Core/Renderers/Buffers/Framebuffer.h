@@ -40,7 +40,6 @@ public:
 	void Resize(GLsizei Width, GLsizei Height);
 	GLuint GetColorAttachment(std::size_t Index) const;
 	GLuint GetDepthStencilAttachment() const;
-	void BindColorAttachment(std::size_t Index, GLuint BindUnit) const;
 
 private:
 	void InitConfig();

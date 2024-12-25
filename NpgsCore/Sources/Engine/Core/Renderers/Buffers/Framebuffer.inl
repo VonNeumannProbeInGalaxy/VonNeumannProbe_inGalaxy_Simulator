@@ -24,12 +24,4 @@ NPGS_INLINE GLuint FFramebuffer::GetDepthStencilAttachment() const
 	return BlitRenderbufferToTexture(_Width, _Height);
 }
 
-NPGS_INLINE void FFramebuffer::BindColorAttachment(std::size_t Index, GLuint BindUnit) const
-{
-	if (GLuint Texture = GetColorAttachment(Index))
-	{
-		glBindTextureUnit(BindUnit, Texture);
-	}
-}
-
 _NPGS_END
