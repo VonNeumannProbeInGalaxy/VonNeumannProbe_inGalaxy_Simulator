@@ -70,6 +70,16 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)\$(ProjectName)\Sources;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>$(VULKAN_SDK)\Include;$(SolutionDir)\$(ProjectName)\Externals;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>$(VULKAN_SDK)\Lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)\$(ProjectName)\Sources;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>$(VULKAN_SDK)\Include;$(SolutionDir)\$(ProjectName)\Externals;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>$(VULKAN_SDK)\Lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -102,18 +112,18 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NPGS_DLL_EXPORT_BUILD_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;VULKAN;NPGS_DLL_EXPORT_BUILD_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\$(ProjectName)\Sources</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -122,7 +132,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NPGS_DLL_EXPORT_BUILDNDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;VULKAN;NPGS_DLL_EXPORT_BUILDNDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
@@ -130,7 +140,6 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/FI "stdafx.h" /utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\$(ProjectName)\Sources</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,6 +147,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <Profile>true</Profile>
+      <AdditionalDependencies>vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -158,6 +168,9 @@
     <ClCompile Include="Sources\Engine\Base\NpgsObject.cpp" />
     <ClCompile Include="Sources\Engine\Core\Camera.cpp" />
     <ClCompile Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Application.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanBase.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanExtFunctionsImpl.cpp" />
     <ClCompile Include="Sources\Engine\Utilities\Logger.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\CivilizationGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\OrbitalGenerator.cpp" />
@@ -194,6 +207,9 @@
     <ClInclude Include="Sources\Engine\AssetLoader\CommaSeparatedValues.hpp" />
     <ClInclude Include="Sources\Engine\Core\Base.h" />
     <ClInclude Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.h" />
+    <ClInclude Include="Sources\Engine\Core\Application.h" />
+    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanBase.h" />
+    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanExtFunctionsImpl.h" />
     <ClInclude Include="Sources\Engine\Math\NumericConstants.h" />
     <ClInclude Include="Sources\Engine\Utilities\Logger.h" />
     <ClInclude Include="Sources\Engine\Modules\Generators\CivilizationGenerator.h" />
@@ -238,6 +254,7 @@
     <None Include="Sources\Engine\Core\Camera.inl" />
     <None Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.inl" />
     <None Include="Sources\Engine\Core\ThreadPool.inl" />
+    <None Include="Sources\Engine\Core\Vulkan\VulkanBase.inl" />
     <None Include="Sources\Engine\Utilities\Logger.inl" />
     <None Include="Sources\Engine\Utilities\StellarClass.inl" />
     <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />

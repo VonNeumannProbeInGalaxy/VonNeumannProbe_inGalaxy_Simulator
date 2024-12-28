@@ -12,6 +12,8 @@
 
 #include "Engine/Core/Renderers/Buffers/Framebuffer.h"
 #include "Engine/Core/Renderers/ScreenQuadRenderer.h"
+#include "Engine/Core/Vulkan/VulkanBase.h"
+#include "Engine/Core/Application.h"
 #include "Engine/Core/Assert.h"
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Camera.h"

@@ -1,6 +1,7 @@
 #include "ShaderBlockManager.h"
 
 #include <algorithm>
+#include <array>
 #include <print>
 #include <utility>
 
@@ -251,9 +252,9 @@ FStorageBlockManager::FBlockInfo* FStorageBlockManager::CreateBlock(const std::s
 	{
 		Info.Offsets[MemberNames[i]] = Offsets[i];
 
-		static const GLenum Properties[] = { GL_TOP_LEVEL_ARRAY_SIZE, GL_ARRAY_STRIDE };
+		static const std::array<GLenum, 2> Properties{ GL_TOP_LEVEL_ARRAY_SIZE, GL_ARRAY_STRIDE };
 		GLint Results[2];
-		glGetProgramResourceiv(Program, GL_BUFFER_VARIABLE, BlockIndex, 2, Properties, 2, nullptr, Results);
+		glGetProgramResourceiv(Program, GL_BUFFER_VARIABLE, BlockIndex, 2, Properties.data(), 2, nullptr, Results);
 		Info.bIsDynamicArray = (Results[0] == 0);
 		Info.ArrayStride     = Results[1];
 	}
@@ -278,9 +279,9 @@ std::vector<GLint> FStorageBlockManager::GetBlockOffsets(const std::string& Bloc
 		GLuint Index = glGetProgramResourceIndex(Program, GL_BUFFER_VARIABLE, Names[i].c_str());
 		if (Index != GL_INVALID_INDEX)
 		{
-			const static GLenum Properties[]{ GL_OFFSET };
+			const static std::array<GLenum, 1> Properties{ GL_OFFSET };
 			GLint Offset = 0;
-			glGetProgramResourceiv(Program, GL_BUFFER_VARIABLE, Index, 1, Properties, 1, nullptr, &Offset);
+			glGetProgramResourceiv(Program, GL_BUFFER_VARIABLE, Index, 1, Properties.data(), 1, nullptr, &Offset);
 			Offsets.emplace_back(Offset);
 		}
 		else
@@ -302,10 +303,10 @@ FStorageBlockManager::GetMemberInfos(GLuint Program, const std::string& BlockNam
 		return MemberInfos;
 	}
 
-	static const GLenum MemberGetProperties[]{ GL_NUM_ACTIVE_VARIABLES, GL_ACTIVE_VARIABLES };
+	static const std::array<GLenum, 2> MemberGetProperties{ GL_NUM_ACTIVE_VARIABLES, GL_ACTIVE_VARIABLES };
 	GLint MemberCount = 0;
 	glGetProgramResourceiv(Program, GL_SHADER_STORAGE_BLOCK, BlockIndex,
-						   1, MemberGetProperties, 1, nullptr, &MemberCount);
+						   1, MemberGetProperties.data(), 1, nullptr, &MemberCount);
 
 	std::vector<GLint> MemberIndices(MemberCount);
 	glGetProgramResourceiv(Program, GL_SHADER_STORAGE_BLOCK, BlockIndex,
@@ -316,12 +317,12 @@ FStorageBlockManager::GetMemberInfos(GLuint Program, const std::string& BlockNam
 		FMemberInfo Info;
 
 		GLint NameLength = 0;
-		static const GLenum Properties[]
+		static const std::array<GLenum, 5> Properties
 		{
 			GL_NAME_LENGTH, GL_TYPE, GL_OFFSET, GL_ARRAY_SIZE, GL_ARRAY_STRIDE
 		};
 		GLint Results[5];
-		glGetProgramResourceiv(Program, GL_BUFFER_VARIABLE, Index, 5, Properties, 5, nullptr, Results);
+		glGetProgramResourceiv(Program, GL_BUFFER_VARIABLE, Index, 5, Properties.data(), 5, nullptr, Results);
 
 		std::vector<GLchar> NameBuffer(Results[0]);
 		glGetProgramResourceName(Program, GL_BUFFER_VARIABLE, Index, Results[0], nullptr, NameBuffer.data());

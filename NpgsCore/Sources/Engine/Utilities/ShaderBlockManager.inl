@@ -2,6 +2,7 @@
 
 #include "ShaderBlockManager.h"
 
+#include <array>
 #include <print>
 
 _NPGS_BEGIN
@@ -108,8 +109,8 @@ NPGS_INLINE GLuint FStorageBlockManager::GetBlockIndex(const std::string& BlockN
 NPGS_INLINE GLint FStorageBlockManager::GetBlockSize(const std::string& BlockName, GLuint BlockIndex, GLuint Program) const
 {
 	GLint BlockSize = 0;
-	static const GLenum Properties[]{ GL_BUFFER_DATA_SIZE };
-	glGetProgramResourceiv(Program, GL_SHADER_STORAGE_BLOCK, BlockIndex, 1, Properties, 1, nullptr, &BlockSize);
+	static const std::array<GLenum, 1> Properties{ GL_BUFFER_DATA_SIZE };
+	glGetProgramResourceiv(Program, GL_SHADER_STORAGE_BLOCK, BlockIndex, 1, Properties.data(), 1, nullptr, &BlockSize);
 	return BlockSize;
 }
 

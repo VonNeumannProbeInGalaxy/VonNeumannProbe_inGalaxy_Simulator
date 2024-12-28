@@ -5,7 +5,6 @@
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
-
 _MATH_BEGIN
 
 // Math constants
