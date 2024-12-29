@@ -8,6 +8,7 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "Engine/Core/Vulkan/VulkanWrappers.h"
 #include "Engine/Core/Base.h"
 
 _NPGS_BEGIN
@@ -33,14 +34,33 @@ public:
 	vk::Result CheckInstanceExtensions(const std::string& LayerName);
 	vk::Result CheckDeviceExtensions();
 
-	vk::Result CreateInstance(const vk::InstanceCreateFlags& Flags);
-	vk::Result CreateDevice(const vk::DeviceCreateFlags& Flags, std::uint32_t PhysicalDeviceIndex);
-	vk::Result RecreateDevice(const vk::DeviceCreateFlags& Flags, std::uint32_t PhysicalDeviceIndex);
-	void       SetSurface(const vk::SurfaceKHR& Surface);
+	vk::Result CreateInstance(const vk::InstanceCreateFlags& Flags = {});
+	vk::Result CreateDevice(std::uint32_t PhysicalDeviceIndex = 0, const vk::DeviceCreateFlags& Flags = {});
+	vk::Result RecreateDevice(std::uint32_t PhysicalDeviceIndex = 0, const vk::DeviceCreateFlags& Flags = {});
+	void	   SetSurface(const vk::SurfaceKHR& Surface);
 	vk::Result SetSurfaceFormat(const vk::SurfaceFormatKHR& SurfaceFormat);
-	vk::Result CreateSwapchain(const vk::Extent2D& Extent, const vk::SwapchainCreateFlagsKHR& Flags, bool bLimitFps = true);
+	vk::Result CreateSwapchain(const vk::Extent2D& Extent, bool bLimitFps = true, const vk::SwapchainCreateFlagsKHR& Flags = {});
 	vk::Result RecreateSwapchain();
-	vk::Result WaitIdle();
+	vk::Result SubmitCommandBufferToGraphics(const vk::SubmitInfo& SubmitInfo, const FVulkanFence& Fence = {}) const;
+	vk::Result SubmitCommandBufferToGraphics(const FVulkanCommandBuffer& Buffer, const FVulkanFence& Fence = {}) const;
+
+	vk::Result SubmitCommandBufferToGraphics(const FVulkanCommandBuffer& Buffer,
+											 const FVulkanSemaphore& WaitSemaphore = {},
+											 const FVulkanSemaphore& SignalSemaphore = {},
+											 const FVulkanFence& Fence = {},
+											 vk::PipelineStageFlags Flags = vk::PipelineStageFlagBits::eColorAttachmentOutput) const;
+
+	vk::Result SubmitCommandBufferToCompute(const vk::SubmitInfo& SubmitInfo, const FVulkanFence& Fence = {}) const;
+	vk::Result SubmitCommandBufferToCompute(const FVulkanCommandBuffer& Buffer, const FVulkanFence& Fence = {}) const;
+	vk::Result SwapImage(const FVulkanSemaphore& Semaphore);
+	vk::Result PresentImage(const vk::PresentInfoKHR& PresentInfo);
+	vk::Result PresentImage(const FVulkanSemaphore& Semaphore = {});
+	vk::Result WaitIdle() const;
+
+	void AddCreateSwapchainCallback(const std::function<void()>& Callback);
+	void AddDestroySwapchainCallback(const std::function<void()>& Callback);
+	void AddCreateDeviceCallback(const std::function<void()>& Callback);
+	void AddDestroyDeviceCallback(const std::function<void()>& Callback);
 
 	const std::vector<const char*>& GetInstanceLayers() const;
 	const std::vector<const char*>& GetInstanceExtensions() const;
@@ -72,6 +92,7 @@ public:
 	std::uint32_t GetGraphicsQueueFamilyIndex() const;
 	std::uint32_t GetPresentQueueFamilyIndex() const;
 	std::uint32_t GetComputeQueueFamilyIndex() const;
+	std::uint32_t GetCurrentImageIndex() const;
 
 	std::uint32_t GetApiVersion() const;
 
@@ -130,6 +151,7 @@ private:
 	std::uint32_t                      _GraphicsQueueFamilyIndex;
 	std::uint32_t                      _PresentQueueFamilyIndex;
 	std::uint32_t                      _ComputeQueueFamilyIndex;
+	std::uint32_t                      _CurrentImageIndex;
 
 	std::uint32_t                      _ApiVersion;
 };

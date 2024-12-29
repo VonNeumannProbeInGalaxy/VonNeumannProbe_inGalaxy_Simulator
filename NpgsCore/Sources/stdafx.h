@@ -22,3 +22,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <stb_image.h>
+
+#ifdef _DEBUG
+#define ENABLE_CONSOLE_LOGGER
+#endif // _DEBUG
+#include "Engine/Utilities/Logger.h"

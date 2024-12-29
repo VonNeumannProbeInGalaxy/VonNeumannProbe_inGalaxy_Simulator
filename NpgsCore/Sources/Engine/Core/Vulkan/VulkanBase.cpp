@@ -5,12 +5,8 @@
 #include <string>
 
 #include "Engine/Core/Vulkan/VulkanExtFunctionsImpl.h"
-#include "Engine/Utilities/Utilities.h"
-
-#ifdef _DEBUG
-#define ENABLE_CONSOLE_LOGGER
-#endif // _DEBUG
 #include "Engine/Utilities/Logger.h"
+#include "Engine/Utilities/Utilities.h"
 
 _NPGS_BEGIN
 
@@ -151,7 +147,7 @@ vk::Result FVulkanBase::CreateInstance(const vk::InstanceCreateFlags& Flags)
 #endif // _DEBUG
 
 	vk::ApplicationInfo ApplicationInfo("Von-Neumann in Galaxy Simulator", VK_MAKE_VERSION(1, 0, 0),
-										"NpgsEngine", VK_MAKE_VERSION(1, 0, 0), _ApiVersion);
+										"No Engine", VK_MAKE_VERSION(1, 0, 0), _ApiVersion);
 	vk::InstanceCreateInfo InstanceCreateInfo(Flags, &ApplicationInfo, _InstanceLayers, _InstanceExtensions);
 
 	try
@@ -179,7 +175,7 @@ vk::Result FVulkanBase::CreateInstance(const vk::InstanceCreateFlags& Flags)
 	return vk::Result::eSuccess;
 }
 
-vk::Result FVulkanBase::CreateDevice(const vk::DeviceCreateFlags& Flags, std::uint32_t PhysicalDeviceIndex)
+vk::Result FVulkanBase::CreateDevice(std::uint32_t PhysicalDeviceIndex, const vk::DeviceCreateFlags& Flags)
 {
 	EnumeratePhysicalDevices();
 	DeterminePhysicalDevice(PhysicalDeviceIndex, true, true);
@@ -245,7 +241,7 @@ vk::Result FVulkanBase::CreateDevice(const vk::DeviceCreateFlags& Flags, std::ui
 	return vk::Result::eSuccess;
 }
 
-vk::Result FVulkanBase::RecreateDevice(const vk::DeviceCreateFlags& Flags, std::uint32_t PhysicalDeviceIndex)
+vk::Result FVulkanBase::RecreateDevice(std::uint32_t PhysicalDeviceIndex, const vk::DeviceCreateFlags& Flags)
 {
 	WaitIdle();
 
@@ -279,7 +275,7 @@ vk::Result FVulkanBase::RecreateDevice(const vk::DeviceCreateFlags& Flags, std::
 		_Device = vk::Device();
 	}
 
-	return CreateDevice(Flags, PhysicalDeviceIndex);
+	return CreateDevice(PhysicalDeviceIndex, Flags);
 }
 
 vk::Result FVulkanBase::SetSurfaceFormat(const vk::SurfaceFormatKHR& SurfaceFormat)
@@ -326,7 +322,7 @@ vk::Result FVulkanBase::SetSurfaceFormat(const vk::SurfaceFormatKHR& SurfaceForm
 	return vk::Result::eSuccess;
 }
 
-vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, const vk::SwapchainCreateFlagsKHR& Flags, bool bLimitFps)
+vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, bool bLimitFps, const vk::SwapchainCreateFlagsKHR& Flags)
 {
 	vk::SurfaceCapabilitiesKHR SurfaceCapabilities;
 	try
@@ -417,8 +413,8 @@ vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, const vk::Sw
 		if (SetSurfaceFormat({ vk::Format::eR8G8B8A8Unorm, vk::ColorSpaceKHR::eSrgbNonlinear }) != vk::Result::eSuccess &&
 			SetSurfaceFormat({ vk::Format::eB8G8R8A8Unorm, vk::ColorSpaceKHR::eSrgbNonlinear }) != vk::Result::eSuccess)
 		{
-			_SwapchainCreateInfo.imageFormat     = _AvailableSurfaceFormats[0].format;
-			_SwapchainCreateInfo.imageColorSpace = _AvailableSurfaceFormats[0].colorSpace;
+			_SwapchainCreateInfo.setImageFormat(_AvailableSurfaceFormats[0].format);
+			_SwapchainCreateInfo.setImageColorSpace(_AvailableSurfaceFormats[0].colorSpace);
 			NpgsCoreWarn("Warning: Failed to select a four-component unsigned normalized surface format.");
 		}
 	}
@@ -533,7 +529,138 @@ vk::Result FVulkanBase::RecreateSwapchain()
 	return Result;
 }
 
-vk::Result FVulkanBase::WaitIdle()
+vk::Result FVulkanBase::SubmitCommandBufferToGraphics(const vk::SubmitInfo& SubmitInfo, const FVulkanFence& Fence) const
+{
+	try
+	{
+		_GraphicsQueue.submit(SubmitInfo, Fence.GetFence());
+	}
+	catch (const vk::SystemError& Error)
+	{
+		NpgsCoreError("Error: Failed to submit command buffer to graphics queue: {}", Error.what());
+		return static_cast<vk::Result>(Error.code().value());
+	}
+	 
+	return vk::Result::eSuccess;
+}
+
+vk::Result FVulkanBase::SubmitCommandBufferToGraphics(const FVulkanCommandBuffer& Buffer, const FVulkanFence& Fence) const
+{
+	vk::SubmitInfo SubmitInfo(1, nullptr, nullptr, 1, &Buffer.GetCommandBuffer(), 0, nullptr);
+	return SubmitCommandBufferToGraphics(SubmitInfo, Fence);
+}
+
+vk::Result FVulkanBase::SubmitCommandBufferToGraphics(const FVulkanCommandBuffer& Buffer,
+													  const FVulkanSemaphore& WaitSemaphore,
+													  const FVulkanSemaphore& SignalSemaphore,
+													  const FVulkanFence& Fence,
+													  vk::PipelineStageFlags Flags) const
+{
+	vk::SubmitInfo SubmitInfo;
+	SubmitInfo.setCommandBufferCount(1);
+	SubmitInfo.setPCommandBuffers(&Buffer.GetCommandBuffer());
+
+	if (WaitSemaphore)
+	{
+		SubmitInfo.setWaitSemaphoreCount(1);
+		SubmitInfo.setPWaitSemaphores(&WaitSemaphore.GetSemaphore());
+		SubmitInfo.setPWaitDstStageMask(&Flags);
+	}
+
+	if (SignalSemaphore)
+	{
+		SubmitInfo.setSignalSemaphoreCount(1);
+		SubmitInfo.setPSignalSemaphores(&SignalSemaphore.GetSemaphore());
+	}
+
+	return SubmitCommandBufferToGraphics(SubmitInfo, Fence);
+}
+
+vk::Result FVulkanBase::SubmitCommandBufferToCompute(const vk::SubmitInfo& SubmitInfo, const FVulkanFence& Fence) const
+{
+	try
+	{
+		_ComputeQueue.submit(SubmitInfo, Fence.GetFence());
+	}
+	catch (const vk::SystemError& Error)
+	{
+		NpgsCoreError("Error: Failed to submit command buffer to compute queue: {}", Error.what());
+		return static_cast<vk::Result>(Error.code().value());
+	}
+
+	return vk::Result::eSuccess;
+}
+
+vk::Result FVulkanBase::SubmitCommandBufferToCompute(const FVulkanCommandBuffer& Buffer, const FVulkanFence& Fence) const
+{
+	vk::SubmitInfo SubmitInfo(1, nullptr, nullptr, 1, &Buffer.GetCommandBuffer(), 0, nullptr);
+	return SubmitCommandBufferToCompute(SubmitInfo, Fence);
+}
+
+vk::Result FVulkanBase::SwapImage(const FVulkanSemaphore& Semaphore)
+{
+	if (_SwapchainCreateInfo.oldSwapchain &&
+		_SwapchainCreateInfo.oldSwapchain != _Swapchain) // 如果 RecreateSwapchain 成功，oldSwapchain 不会等于当前的 _Swapchain
+	{
+		_Device.destroySwapchainKHR(_SwapchainCreateInfo.oldSwapchain);
+		_SwapchainCreateInfo.setOldSwapchain(vk::SwapchainKHR());
+	}
+
+	vk::Result Result;
+	while ((Result = _Device.acquireNextImageKHR(_Swapchain, std::numeric_limits<std::uint64_t>::max(),
+		   Semaphore.GetSemaphore(), vk::Fence(), &_CurrentImageIndex)) != vk::Result::eSuccess)
+	{
+		switch (Result)
+		{
+		case vk::Result::eSuboptimalKHR:
+		case vk::Result::eErrorOutOfDateKHR:
+			if ((Result = RecreateSwapchain()) != vk::Result::eSuccess)
+			{
+				return Result;
+			}
+			break;
+		default:
+			NpgsCoreError("Error: Failed to acquire next image: {}.", vk::to_string(Result));
+			return Result;
+		}
+	}
+
+	return vk::Result::eSuccess;
+}
+
+vk::Result FVulkanBase::PresentImage(const vk::PresentInfoKHR& PresentInfo)
+{
+	vk::Result Result = _PresentQueue.presentKHR(PresentInfo);
+	switch (Result)
+	{
+	case vk::Result::eSuccess:
+		return vk::Result::eSuccess;
+	case vk::Result::eSuboptimalKHR:
+	case vk::Result::eErrorOutOfDateKHR:
+		return RecreateSwapchain();
+	default:
+		NpgsCoreError("Error: Failed to present image: {}.", vk::to_string(Result));
+		return Result;
+	}
+}
+
+vk::Result FVulkanBase::PresentImage(const FVulkanSemaphore& Semaphore)
+{
+	vk::PresentInfoKHR PresentInfo;
+	PresentInfo.setSwapchainCount(1);
+	PresentInfo.setSwapchains(_Swapchain);
+	PresentInfo.setImageIndices(_CurrentImageIndex);
+
+	if (Semaphore)
+	{
+		PresentInfo.setWaitSemaphoreCount(1);
+		PresentInfo.setPWaitSemaphores(&Semaphore.GetSemaphore());
+	}
+
+	return PresentImage(PresentInfo);
+}
+
+vk::Result FVulkanBase::WaitIdle() const
 {
 	try
 	{
@@ -559,6 +686,7 @@ FVulkanBase::FVulkanBase()
 	_GraphicsQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED),
 	_PresentQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED),
 	_ComputeQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED),
+	_CurrentImageIndex(std::numeric_limits<std::uint32_t>::max()),
 	_ApiVersion(VK_API_VERSION_1_3)
 {
 	UseLatestApiVersion();
@@ -566,27 +694,69 @@ FVulkanBase::FVulkanBase()
 
 FVulkanBase::~FVulkanBase()
 {
+	if (!_Instance)
+	{
+		return;
+	}
+
+	if (_Device)
+	{
+		WaitIdle();
+		if (_Swapchain)
+		{
+			for (auto& Callback : _DestroySwapchainCallbacks)
+			{
+				Callback();
+			}
+			for (auto& ImageView : _SwapchainImageViews)
+			{
+				if (ImageView)
+				{
+					_Device.destroyImageView(ImageView);
+				}
+			}
+			NpgsCoreInfo("[INFO] Destroyed image views.");
+			_SwapchainImageViews.clear();
+			_Device.destroySwapchainKHR(_Swapchain);
+			NpgsCoreInfo("[INFO] Destroyed swapchain.");
+		}
+
+		for (auto& Callback : _DestroyDeviceCallbacks)
+		{
+			Callback();
+		}
+		_Device.destroy();
+		NpgsCoreInfo("[INFO] Destroyed logical device.");
+	}
+
+	if (_Surface)
+	{
+		_Instance.destroySurfaceKHR(_Surface);
+		NpgsCoreInfo("[INFO] Destroyed surface.");
+	}
+
+	if (_DebugMessenger)
+	{
+		_Instance.destroyDebugUtilsMessengerEXT(_DebugMessenger);
+		NpgsCoreInfo("[INFO] Destroyed debug messenger.");
+	}
+
+	_Instance.destroy();
+	NpgsCoreInfo("[INFO] Destroyed Vulkan instance.");
 }
 
 vk::Result FVulkanBase::UseLatestApiVersion()
 {
-	// 首先检查vkEnumerateInstanceVersion函数是否存在
-	auto pfnVkEnumerateInstanceVersion =
-		reinterpret_cast<PFN_vkEnumerateInstanceVersion>(
-			vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion"));
-
-	if (pfnVkEnumerateInstanceVersion)
+	if (reinterpret_cast<PFN_vkEnumerateInstanceVersion>(vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion")))
 	{
-		// 如果函数存在(Vulkan 1.1+),使用它获取最新版本
-		uint32_t apiVersion;
-		if (pfnVkEnumerateInstanceVersion(&apiVersion) == VK_SUCCESS)
+		try
 		{
-			_ApiVersion = apiVersion;
+			_ApiVersion = vk::enumerateInstanceVersion();
 		}
-		else
+		catch (const vk::SystemError& Error)
 		{
-			NpgsCoreError("Error: Failed to get the latest Vulkan API version");
-			return vk::Result::eErrorInitializationFailed;
+			NpgsCoreError("Error: Failed to get the latest Vulkan API version: {}", Error.what());
+			return static_cast<vk::Result>(Error.code().value());
 		}
 	}
 	else

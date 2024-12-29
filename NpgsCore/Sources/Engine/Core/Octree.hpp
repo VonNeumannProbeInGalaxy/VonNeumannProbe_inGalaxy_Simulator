@@ -251,7 +251,7 @@ private:
 			Node->GetNextMutable(i) = std::make_unique<FNodeType>(Node->GetCenter() + Offset, NextRadius, Node);
 			if (Depth == static_cast<int>(std::ceil(std::log2(_Root->GetRadius() / LeafRadius))))
 			{
-				Futures.emplace_back(_ThreadPool->Commit(
+				Futures.emplace_back(_ThreadPool->Submit(
 					&TOctree::BuildEmptyTreeImpl, this, Node->GetNextMutable(i).get(), LeafRadius, Depth - 1));
 			}
 			else

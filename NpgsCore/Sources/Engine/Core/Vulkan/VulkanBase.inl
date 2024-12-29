@@ -39,6 +39,26 @@ NPGS_INLINE void FVulkanBase::SetSurface(const vk::SurfaceKHR& Surface)
 	_Surface = Surface;
 }
 
+NPGS_INLINE void FVulkanBase::AddCreateSwapchainCallback(const std::function<void()>& Callback)
+{
+	_CreateSwapchainCallbacks.emplace_back(Callback);
+}
+
+NPGS_INLINE void FVulkanBase::AddDestroySwapchainCallback(const std::function<void()>& Callback)
+{
+	_DestroySwapchainCallbacks.emplace_back(Callback);
+}
+
+NPGS_INLINE void FVulkanBase::AddCreateDeviceCallback(const std::function<void()>& Callback)
+{
+	_CreateDeviceCallbacks.emplace_back(Callback);
+}
+
+NPGS_INLINE void FVulkanBase::AddDestroyDeviceCallback(const std::function<void()>& Callback)
+{
+	_DestroyDeviceCallbacks.emplace_back(Callback);
+}
+
 NPGS_INLINE const std::vector<const char*>& FVulkanBase::GetInstanceLayers() const
 {
 	return _InstanceLayers;
@@ -167,6 +187,11 @@ NPGS_INLINE std::uint32_t FVulkanBase::GetPresentQueueFamilyIndex() const
 NPGS_INLINE std::uint32_t FVulkanBase::GetComputeQueueFamilyIndex() const
 {
 	return _ComputeQueueFamilyIndex;
+}
+
+NPGS_INLINE std::uint32_t FVulkanBase::GetCurrentImageIndex() const
+{
+	return _CurrentImageIndex;
 }
 
 NPGS_INLINE std::uint32_t FVulkanBase::GetApiVersion() const

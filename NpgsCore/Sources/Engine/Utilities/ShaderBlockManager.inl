@@ -98,7 +98,7 @@ inline void FStorageBlockManager::UpdateArray(const std::string& BlockName, cons
 											  const std::vector<DataType>& Data, std::size_t BeginIndex)
 {
 	auto Updater = GetBlockUpdater<DataType>(BlockName, ArrayName);
-	Updater.CommitRange(Data.data(), BeginIndex, Data.size());
+	Updater.SubmitRange(Data.data(), BeginIndex, Data.size());
 }
 
 NPGS_INLINE GLuint FStorageBlockManager::GetBlockIndex(const std::string& BlockName, GLuint Program) const

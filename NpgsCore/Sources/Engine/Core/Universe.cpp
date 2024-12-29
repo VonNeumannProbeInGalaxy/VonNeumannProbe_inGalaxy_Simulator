@@ -826,7 +826,7 @@ std::vector<Astro::AStar> FUniverse::InterpolateStars(int MaxThread, std::vector
 
 	for (int i = 0; i != MaxThread; ++i)
 	{
-		_ThreadPool->Commit([&, i]() -> void
+		_ThreadPool->Submit([&, i]() -> void
 		{
 			std::vector<Astro::AStar> Stars;
 			for (auto& Properties : PropertyLists[i])

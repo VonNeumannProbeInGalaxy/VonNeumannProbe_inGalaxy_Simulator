@@ -5,7 +5,7 @@
 _NPGS_BEGIN
 
 template <typename Func, typename... Args>
-inline auto FThreadPool::Commit(Func&& Pred, Args&&... Params)
+inline auto FThreadPool::Submit(Func&& Pred, Args&&... Params)
 {
 	using ReturnType = std::invoke_result_t<Func, Args...>;
 	auto Task = std::make_shared<std::packaged_task<ReturnType()>>(

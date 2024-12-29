@@ -7,7 +7,7 @@ int main()
 {
 	FLogger::Init();
 	
-	FApplication App({ 1280, 960 }, "Npgs FPS:", true, false);
+	FApplication App({ 1280, 960 }, "Von-Neumann Probe in Galaxy Simulator FPS:", true, false);
 	App.ExecuteMainRender();
 	return 0;
 }

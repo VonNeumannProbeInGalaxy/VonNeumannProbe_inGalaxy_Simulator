@@ -185,6 +185,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Utilities\ShaderBlockManager.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanWrappers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.h" />
@@ -223,6 +224,7 @@
     <ClInclude Include="Sources\Npgs.h" />
     <ClInclude Include="Sources\stdafx.h" />
     <ClInclude Include="Sources\Engine\Utilities\ShaderBlockManager.h" />
+    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanWrappers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Advanced.frag" />
@@ -255,11 +257,15 @@
     <None Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.inl" />
     <None Include="Sources\Engine\Core\ThreadPool.inl" />
     <None Include="Sources\Engine\Core\Vulkan\VulkanBase.inl" />
+    <None Include="Sources\Engine\Core\Vulkan\VulkanWrappers.inl" />
     <None Include="Sources\Engine\Utilities\Logger.inl" />
     <None Include="Sources\Engine\Utilities\StellarClass.inl" />
     <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />
     <None Include="Sources\Engine\Utilities\ShaderBlockManager.inl" />
     <None Include="Sources\Engine\Utilities\Utilities.inl" />
+    <None Include="Sources\Shaders\CompileToSpv.bat" />
+    <None Include="Sources\Shaders\Triangle.vert" />
+    <None Include="Sources\Shaders\Triangle.frag" />
     <None Include="Sources\Vertices.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

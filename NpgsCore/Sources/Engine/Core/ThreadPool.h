@@ -19,7 +19,7 @@ class FThreadPool
 {
 public:
 	template <typename Func, typename... Args>
-	auto Commit(Func&& Pred, Args&&... Params);
+	auto Submit(Func&& Pred, Args&&... Params);
 
 	void Terminate();
 	void ChangeHyperThread();

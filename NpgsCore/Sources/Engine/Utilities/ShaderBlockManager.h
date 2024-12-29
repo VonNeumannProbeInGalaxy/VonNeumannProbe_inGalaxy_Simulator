@@ -76,11 +76,11 @@ public:
 
 		TUpdater& operator<<(const DataType& Data)
 		{
-			Commit(Data);
+			Submit(Data);
 			return *this;
 		}
 
-		void Commit(const DataType& Data) const
+		void Submit(const DataType& Data) const
 		{
 			if constexpr (glm::type<DataType>::is_vec || glm::type<DataType>::is_mat)
 			{
@@ -169,7 +169,7 @@ public:
 			}
 		}
 
-		void CommitRange(const std::vector<DataType>& Data, std::size_t BeginIndex) const
+		void SubmitRange(const std::vector<DataType>& Data, std::size_t BeginIndex) const
 		{
 			std::size_t Count = Data.size();
 			if (!_bIsDynamicArray && BeginIndex + Count > GetSize())
@@ -193,7 +193,7 @@ public:
 			return static_cast<std::size_t>((BufferSize - _Offset) / _ArrayStride);
 		}
 
-		void CommitAt(const DataType& Data, GLint ArrayIndex) const
+		void SubmitAt(const DataType& Data, GLint ArrayIndex) const
 		{
 			GLint ElementOffset = _Offset;
 			if (_ArrayStride > 0)
