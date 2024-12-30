@@ -7,8 +7,52 @@
 
 _NPGS_BEGIN
 
+struct FGraphicsPipelineCreateInfoPack
+{
+	std::vector<vk::PipelineShaderStageCreateInfo>     ShaderStages;
+	std::vector<vk::VertexInputBindingDescription>     VertexInputBindings;
+	std::vector<vk::VertexInputAttributeDescription>   VertexInputAttributes;
+	std::vector<vk::Viewport>                          Viewports;
+	std::vector<vk::Rect2D>                            Scissors;
+	std::vector<vk::PipelineColorBlendAttachmentState> ColorBlendAttachmentStates;
+	std::vector<vk::DynamicState>                      DynamicStates;
+
+	vk::PipelineVertexInputStateCreateInfo             VertexInputStateCreateInfo;
+	vk::PipelineInputAssemblyStateCreateInfo           InputAssemblyStateCreateInfo;
+	vk::PipelineTessellationStateCreateInfo            TessellationStateCreateInfo;
+	vk::PipelineViewportStateCreateInfo                ViewportStateCreateInfo;
+	vk::PipelineRasterizationStateCreateInfo           RasterizationStateCreateInfo;
+	vk::PipelineMultisampleStateCreateInfo             MultisampleStateCreateInfo;
+	vk::PipelineDepthStencilStateCreateInfo            DepthStencilStateCreateInfo;
+	vk::PipelineColorBlendStateCreateInfo              ColorBlendStateCreateInfo;
+	vk::PipelineDynamicStateCreateInfo                 DynamicStateCreateInfo;
+
+	vk::GraphicsPipelineCreateInfo                     GraphicsPipelineCreateInfo;
+
+	std::uint32_t                                      DynamicViewportCount = 1;
+	std::uint32_t                                      DynamicScissorCount  = 1;
+
+public:
+	FGraphicsPipelineCreateInfoPack();
+	FGraphicsPipelineCreateInfoPack(const FGraphicsPipelineCreateInfoPack&) = default;
+	FGraphicsPipelineCreateInfoPack(FGraphicsPipelineCreateInfoPack&& Other) noexcept;
+	~FGraphicsPipelineCreateInfoPack() = default;
+
+	FGraphicsPipelineCreateInfoPack& operator=(const FGraphicsPipelineCreateInfoPack&) = default;
+	FGraphicsPipelineCreateInfoPack& operator=(FGraphicsPipelineCreateInfoPack&& Other) noexcept;
+
+	operator vk::GraphicsPipelineCreateInfo&();
+
+	void UpdateAllArrays();
+
+private:
+	void LinkToGraphicsPipelineCreateInfo();
+	void UpdateAllArrayAddresses();
+};
+
 // Wrapper for vk::CommandBuffer
 // -----------------------------
+class FVulkanPipeline;
 class FVulkanCommandBuffer
 {
 public:
@@ -23,6 +67,9 @@ public:
 	vk::Result Begin(const vk::CommandBufferInheritanceInfo& InheritanceInfo, const vk::CommandBufferUsageFlags& Flags = {});
 	vk::Result Begin(const vk::CommandBufferUsageFlags& Flags = {});
 	vk::Result End();
+
+	void BindPipeline(vk::PipelineBindPoint PipelineBindPoint, const FVulkanPipeline& Pipeline);
+	void Draw(std::uint32_t VertexCount, std::uint32_t InstanceCount, std::uint32_t FirstVertex, std::uint32_t FirstInstance);
 
 	vk::CommandBuffer& GetCommandBufferMutable();
 	const vk::CommandBuffer& GetCommandBuffer() const;

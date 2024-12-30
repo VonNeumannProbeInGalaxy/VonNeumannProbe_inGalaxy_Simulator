@@ -6,6 +6,132 @@
 
 _NPGS_BEGIN
 
+FGraphicsPipelineCreateInfoPack::FGraphicsPipelineCreateInfoPack()
+{
+	LinkToGraphicsPipelineCreateInfo();
+	GraphicsPipelineCreateInfo.setBasePipelineIndex(-1);
+}
+
+FGraphicsPipelineCreateInfoPack::FGraphicsPipelineCreateInfoPack(FGraphicsPipelineCreateInfoPack&& Other) noexcept
+	:
+	ShaderStages(std::move(Other.ShaderStages)),
+	VertexInputBindings(std::move(Other.VertexInputBindings)),
+	VertexInputAttributes(std::move(Other.VertexInputAttributes)),
+	Viewports(std::move(Other.Viewports)),
+	Scissors(std::move(Other.Scissors)),
+	ColorBlendAttachmentStates(std::move(Other.ColorBlendAttachmentStates)),
+	DynamicStates(std::move(Other.DynamicStates)),
+	VertexInputStateCreateInfo(std::move(Other.VertexInputStateCreateInfo)),
+	InputAssemblyStateCreateInfo(std::move(Other.InputAssemblyStateCreateInfo)),
+	TessellationStateCreateInfo(std::move(Other.TessellationStateCreateInfo)),
+	ViewportStateCreateInfo(std::move(Other.ViewportStateCreateInfo)),
+	RasterizationStateCreateInfo(std::move(Other.RasterizationStateCreateInfo)),
+	MultisampleStateCreateInfo(std::move(Other.MultisampleStateCreateInfo)),
+	DepthStencilStateCreateInfo(std::move(Other.DepthStencilStateCreateInfo)),
+	ColorBlendStateCreateInfo(std::move(Other.ColorBlendStateCreateInfo)),
+	DynamicStateCreateInfo(std::move(Other.DynamicStateCreateInfo)),
+	GraphicsPipelineCreateInfo(std::move(Other.GraphicsPipelineCreateInfo)),
+	DynamicViewportCount(Other.DynamicViewportCount),
+	DynamicScissorCount(Other.DynamicScissorCount)
+{
+	Other.VertexInputStateCreateInfo   = vk::PipelineVertexInputStateCreateInfo();
+	Other.InputAssemblyStateCreateInfo = vk::PipelineInputAssemblyStateCreateInfo();
+	Other.TessellationStateCreateInfo  = vk::PipelineTessellationStateCreateInfo();
+	Other.ViewportStateCreateInfo      = vk::PipelineViewportStateCreateInfo();
+	Other.RasterizationStateCreateInfo = vk::PipelineRasterizationStateCreateInfo();
+	Other.MultisampleStateCreateInfo   = vk::PipelineMultisampleStateCreateInfo();
+	Other.DepthStencilStateCreateInfo  = vk::PipelineDepthStencilStateCreateInfo();
+	Other.ColorBlendStateCreateInfo    = vk::PipelineColorBlendStateCreateInfo();
+	Other.DynamicStateCreateInfo       = vk::PipelineDynamicStateCreateInfo();
+	Other.GraphicsPipelineCreateInfo   = vk::GraphicsPipelineCreateInfo();
+	Other.DynamicViewportCount         = 1;
+	Other.DynamicScissorCount          = 1;
+
+	LinkToGraphicsPipelineCreateInfo();
+	UpdateAllArrayAddresses();
+}
+
+FGraphicsPipelineCreateInfoPack& FGraphicsPipelineCreateInfoPack::operator=(FGraphicsPipelineCreateInfoPack&& Other) noexcept
+{
+	if (this != &Other)
+	{
+		ShaderStages                       = std::move(Other.ShaderStages);
+		VertexInputBindings                = std::move(Other.VertexInputBindings);
+		VertexInputAttributes              = std::move(Other.VertexInputAttributes);
+		Viewports                          = std::move(Other.Viewports);
+		Scissors                           = std::move(Other.Scissors);
+		ColorBlendAttachmentStates         = std::move(Other.ColorBlendAttachmentStates);
+		DynamicStates                      = std::move(Other.DynamicStates);
+		VertexInputStateCreateInfo         = std::move(Other.VertexInputStateCreateInfo);
+		InputAssemblyStateCreateInfo       = std::move(Other.InputAssemblyStateCreateInfo);
+		TessellationStateCreateInfo        = std::move(Other.TessellationStateCreateInfo);
+		ViewportStateCreateInfo            = std::move(Other.ViewportStateCreateInfo);
+		RasterizationStateCreateInfo       = std::move(Other.RasterizationStateCreateInfo);
+		MultisampleStateCreateInfo         = std::move(Other.MultisampleStateCreateInfo);
+		DepthStencilStateCreateInfo        = std::move(Other.DepthStencilStateCreateInfo);
+		ColorBlendStateCreateInfo          = std::move(Other.ColorBlendStateCreateInfo);
+		DynamicStateCreateInfo             = std::move(Other.DynamicStateCreateInfo);
+		GraphicsPipelineCreateInfo         = std::move(Other.GraphicsPipelineCreateInfo);
+		DynamicViewportCount               = Other.DynamicViewportCount;
+		DynamicScissorCount                = Other.DynamicScissorCount;
+
+		Other.VertexInputStateCreateInfo   = vk::PipelineVertexInputStateCreateInfo();
+		Other.InputAssemblyStateCreateInfo = vk::PipelineInputAssemblyStateCreateInfo();
+		Other.TessellationStateCreateInfo  = vk::PipelineTessellationStateCreateInfo();
+		Other.ViewportStateCreateInfo      = vk::PipelineViewportStateCreateInfo();
+		Other.RasterizationStateCreateInfo = vk::PipelineRasterizationStateCreateInfo();
+		Other.MultisampleStateCreateInfo   = vk::PipelineMultisampleStateCreateInfo();
+		Other.DepthStencilStateCreateInfo  = vk::PipelineDepthStencilStateCreateInfo();
+		Other.ColorBlendStateCreateInfo    = vk::PipelineColorBlendStateCreateInfo();
+		Other.DynamicStateCreateInfo       = vk::PipelineDynamicStateCreateInfo();
+		Other.GraphicsPipelineCreateInfo   = vk::GraphicsPipelineCreateInfo();
+		Other.DynamicViewportCount         = 1;
+		Other.DynamicScissorCount          = 1;
+
+		LinkToGraphicsPipelineCreateInfo();
+		UpdateAllArrayAddresses();
+	}
+
+	return *this;
+}
+
+void FGraphicsPipelineCreateInfoPack::UpdateAllArrays()
+{
+	GraphicsPipelineCreateInfo.setStageCount(static_cast<std::uint32_t>(ShaderStages.size()));
+	VertexInputStateCreateInfo.setVertexBindingDescriptionCount(static_cast<std::uint32_t>(VertexInputBindings.size()));
+	VertexInputStateCreateInfo.setVertexAttributeDescriptionCount(static_cast<std::uint32_t>(VertexInputAttributes.size()));
+	ViewportStateCreateInfo.setViewportCount(Viewports.size() ? static_cast<std::uint32_t>(Viewports.size()) : DynamicViewportCount);
+	ViewportStateCreateInfo.setScissorCount(Scissors.size() ? static_cast<std::uint32_t>(Scissors.size()) : DynamicScissorCount);
+	ColorBlendStateCreateInfo.setAttachmentCount(static_cast<std::uint32_t>(ColorBlendAttachmentStates.size()));
+	DynamicStateCreateInfo.setDynamicStateCount(static_cast<std::uint32_t>(DynamicStates.size()));
+	UpdateAllArrayAddresses();
+}
+
+void FGraphicsPipelineCreateInfoPack::LinkToGraphicsPipelineCreateInfo()
+{
+	GraphicsPipelineCreateInfo
+		.setPVertexInputState(&VertexInputStateCreateInfo)
+		.setPInputAssemblyState(&InputAssemblyStateCreateInfo)
+		.setPTessellationState(&TessellationStateCreateInfo)
+		.setPViewportState(&ViewportStateCreateInfo)
+		.setPRasterizationState(&RasterizationStateCreateInfo)
+		.setPMultisampleState(&MultisampleStateCreateInfo)
+		.setPDepthStencilState(&DepthStencilStateCreateInfo)
+		.setPColorBlendState(&ColorBlendStateCreateInfo)
+		.setPDynamicState(&DynamicStateCreateInfo);
+}
+
+void FGraphicsPipelineCreateInfoPack::UpdateAllArrayAddresses()
+{
+	GraphicsPipelineCreateInfo.setPStages(ShaderStages.data());
+	VertexInputStateCreateInfo.setPVertexBindingDescriptions(VertexInputBindings.data());
+	VertexInputStateCreateInfo.setPVertexAttributeDescriptions(VertexInputAttributes.data());
+	ViewportStateCreateInfo.setPViewports(Viewports.data());
+	ViewportStateCreateInfo.setPScissors(Scissors.data());
+	ColorBlendStateCreateInfo.setPAttachments(ColorBlendAttachmentStates.data());
+	DynamicStateCreateInfo.setPDynamicStates(DynamicStates.data());
+}
+
 // Wrapper for vk::CommandBuffer
 // -----------------------------
 FVulkanCommandBuffer::FVulkanCommandBuffer(FVulkanCommandBuffer&& Other) noexcept
@@ -715,7 +841,7 @@ FVulkanShaderModule::FVulkanShaderModule(const vk::Device& Device, const std::st
 }
 
 FVulkanShaderModule::FVulkanShaderModule(FVulkanShaderModule& Other) noexcept
-	: _Device(std::move(Other._Device)), _ShaderModule(std::move(Other._ShaderModule))
+	: _Device(Other._Device), _ShaderModule(std::move(Other._ShaderModule))
 {
 	Other._Device       = nullptr;
 	Other._ShaderModule = vk::ShaderModule();

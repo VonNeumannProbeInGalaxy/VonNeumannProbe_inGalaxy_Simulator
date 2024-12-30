@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <limits>
-#include <string>
 
 #include "Engine/Core/Vulkan/VulkanExtFunctionsImpl.h"
 #include "Engine/Utilities/Logger.h"
@@ -235,7 +234,7 @@ vk::Result FVulkanBase::CreateDevice(std::uint32_t PhysicalDeviceIndex, const vk
 
 	for (auto& Callback : _CreateDeviceCallbacks)
 	{
-		Callback();
+		Callback.second();
 	}
 
 	return vk::Result::eSuccess;
@@ -249,7 +248,7 @@ vk::Result FVulkanBase::RecreateDevice(std::uint32_t PhysicalDeviceIndex, const 
 	{
 		for (auto& Callback : _DestroySwapchainCallbacks)
 		{
-			Callback();
+			Callback.second();
 		}
 		for (auto& ImageView : _SwapchainImageViews)
 		{
@@ -267,7 +266,7 @@ vk::Result FVulkanBase::RecreateDevice(std::uint32_t PhysicalDeviceIndex, const 
 
 	for (auto& Callback : _DestroyDeviceCallbacks)
 	{
-		Callback();
+		Callback.second();
 	}
 	if (_Device)
 	{
@@ -450,7 +449,7 @@ vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, bool bLimitF
 
 	for (auto& Callback : _CreateSwapchainCallbacks)
 	{
-		Callback();
+		Callback.second();
 	}
 
 	NpgsCoreInfo("[INFO] Swapchain created successfully.");
@@ -503,7 +502,7 @@ vk::Result FVulkanBase::RecreateSwapchain()
 
 	for (auto& Callback : _DestroySwapchainCallbacks)
 	{
-		Callback();
+		Callback.second();
 	}
 
 	for (auto& ImageView : _SwapchainImageViews)
@@ -523,7 +522,7 @@ vk::Result FVulkanBase::RecreateSwapchain()
 
 	for (auto& Callback : _CreateSwapchainCallbacks)
 	{
-		Callback();
+		Callback.second();
 	}
 
 	return Result;
@@ -630,17 +629,31 @@ vk::Result FVulkanBase::SwapImage(const FVulkanSemaphore& Semaphore)
 
 vk::Result FVulkanBase::PresentImage(const vk::PresentInfoKHR& PresentInfo)
 {
-	vk::Result Result = _PresentQueue.presentKHR(PresentInfo);
-	switch (Result)
+	try
 	{
-	case vk::Result::eSuccess:
-		return vk::Result::eSuccess;
-	case vk::Result::eSuboptimalKHR:
-	case vk::Result::eErrorOutOfDateKHR:
-		return RecreateSwapchain();
-	default:
-		NpgsCoreError("Error: Failed to present image: {}.", vk::to_string(Result));
-		return Result;
+		vk::Result Result = _PresentQueue.presentKHR(PresentInfo);
+		switch (Result)
+		{
+		case vk::Result::eSuccess:
+			return vk::Result::eSuccess;
+		case vk::Result::eSuboptimalKHR:
+			return RecreateSwapchain();
+		default:
+			NpgsCoreError("Error: Failed to present image: {}.", vk::to_string(Result));
+			return Result;
+		}
+	}
+	catch (const vk::SystemError& Error)
+	{
+		vk::Result ErrorResult = static_cast<vk::Result>(Error.code().value());
+		switch (ErrorResult)
+		{
+		case vk::Result::eErrorOutOfDateKHR:
+			return RecreateSwapchain();
+		default:
+			NpgsCoreError("Error: Failed to present image: {}", Error.what());
+			return ErrorResult;
+		}
 	}
 }
 
@@ -653,8 +666,7 @@ vk::Result FVulkanBase::PresentImage(const FVulkanSemaphore& Semaphore)
 
 	if (Semaphore)
 	{
-		PresentInfo.setWaitSemaphoreCount(1);
-		PresentInfo.setPWaitSemaphores(&Semaphore.GetSemaphore());
+		PresentInfo.setWaitSemaphores(Semaphore.GetSemaphore());
 	}
 
 	return PresentImage(PresentInfo);
@@ -706,7 +718,7 @@ FVulkanBase::~FVulkanBase()
 		{
 			for (auto& Callback : _DestroySwapchainCallbacks)
 			{
-				Callback();
+				Callback.second();
 			}
 			for (auto& ImageView : _SwapchainImageViews)
 			{
@@ -723,7 +735,7 @@ FVulkanBase::~FVulkanBase()
 
 		for (auto& Callback : _DestroyDeviceCallbacks)
 		{
-			Callback();
+			Callback.second();
 		}
 		_Device.destroy();
 		NpgsCoreInfo("[INFO] Destroyed logical device.");

@@ -4,6 +4,7 @@
 #include <array>
 #include <functional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <vulkan/vulkan.hpp>
@@ -57,10 +58,14 @@ public:
 	vk::Result PresentImage(const FVulkanSemaphore& Semaphore = {});
 	vk::Result WaitIdle() const;
 
-	void AddCreateSwapchainCallback(const std::function<void()>& Callback);
-	void AddDestroySwapchainCallback(const std::function<void()>& Callback);
-	void AddCreateDeviceCallback(const std::function<void()>& Callback);
-	void AddDestroyDeviceCallback(const std::function<void()>& Callback);
+	void AddCreateSwapchainCallback(const std::string& Name, const std::function<void()>& Callback);
+	void AddDestroySwapchainCallback(const std::string& Name, const std::function<void()>& Callback);
+	void AddCreateDeviceCallback(const std::string& Name, const std::function<void()>& Callback);
+	void AddDestroyDeviceCallback(const std::string& Name, const std::function<void()>& Callback);
+	void RemoveCreateSwapchainCallback(const std::string& Name);
+	void RemoveDestroySwapchainCallback(const std::string& Name);
+	void RemoveCreateDeviceCallback(const std::string& Name);
+	void RemoveDestroyDeviceCallback(const std::string& Name);
 
 	const std::vector<const char*>& GetInstanceLayers() const;
 	const std::vector<const char*>& GetInstanceExtensions() const;
@@ -129,10 +134,10 @@ private:
 	std::vector<vk::SurfaceFormatKHR>  _AvailableSurfaceFormats;
 	std::vector<vk::Image>             _SwapchainImages;
 	std::vector<vk::ImageView>         _SwapchainImageViews;
-	std::vector<std::function<void()>> _CreateSwapchainCallbacks;
-	std::vector<std::function<void()>> _DestroySwapchainCallbacks;
-	std::vector<std::function<void()>> _CreateDeviceCallbacks;
-	std::vector<std::function<void()>> _DestroyDeviceCallbacks;
+	std::vector<std::pair<std::string, std::function<void()>>> _CreateSwapchainCallbacks;
+	std::vector<std::pair<std::string, std::function<void()>>> _DestroySwapchainCallbacks;
+	std::vector<std::pair<std::string, std::function<void()>>> _CreateDeviceCallbacks;
+	std::vector<std::pair<std::string, std::function<void()>>> _DestroyDeviceCallbacks;
 
 	vk::Instance                       _Instance;
 	vk::DebugUtilsMessengerEXT         _DebugMessenger;

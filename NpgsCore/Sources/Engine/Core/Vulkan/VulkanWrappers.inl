@@ -4,8 +4,24 @@
 
 _NPGS_BEGIN
 
+NPGS_INLINE FGraphicsPipelineCreateInfoPack::operator vk::GraphicsPipelineCreateInfo& ()
+{
+	return GraphicsPipelineCreateInfo;
+}
+
 // Wrapper for vk::CommandBuffer
 // -----------------------------
+NPGS_INLINE void FVulkanCommandBuffer::BindPipeline(vk::PipelineBindPoint PipelineBindPoint, const FVulkanPipeline& Pipeline)
+{
+	_CommandBuffer.bindPipeline(PipelineBindPoint, Pipeline.GetPipeline());
+}
+
+NPGS_INLINE void FVulkanCommandBuffer::Draw(std::uint32_t VertexCount, std::uint32_t InstanceCount,
+											std::uint32_t FirstVertex, std::uint32_t FirstInstance)
+{
+	_CommandBuffer.draw(VertexCount, InstanceCount, FirstVertex, FirstInstance);
+}
+
 NPGS_INLINE vk::CommandBuffer& FVulkanCommandBuffer::GetCommandBufferMutable()
 {
 	return _CommandBuffer;

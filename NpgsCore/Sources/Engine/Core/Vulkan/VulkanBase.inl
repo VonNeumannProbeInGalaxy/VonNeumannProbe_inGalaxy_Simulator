@@ -2,6 +2,13 @@
 
 #include "VulkanBase.h"
 
+#include <algorithm>
+
+#define CompareCallback [&Name](const auto& Callback) -> bool \
+{                                                             \
+	return Name == Callback.first;                            \
+}
+
 _NPGS_BEGIN
 
 NPGS_INLINE void FVulkanBase::AddInstanceLayer(const char* Layer)
@@ -39,24 +46,56 @@ NPGS_INLINE void FVulkanBase::SetSurface(const vk::SurfaceKHR& Surface)
 	_Surface = Surface;
 }
 
-NPGS_INLINE void FVulkanBase::AddCreateSwapchainCallback(const std::function<void()>& Callback)
+NPGS_INLINE void FVulkanBase::AddCreateSwapchainCallback(const std::string& Name, const std::function<void()>& Callback)
 {
-	_CreateSwapchainCallbacks.emplace_back(Callback);
+	_CreateSwapchainCallbacks.emplace_back(Name, Callback);
 }
 
-NPGS_INLINE void FVulkanBase::AddDestroySwapchainCallback(const std::function<void()>& Callback)
+NPGS_INLINE void FVulkanBase::AddDestroySwapchainCallback(const std::string& Name, const std::function<void()>& Callback)
 {
-	_DestroySwapchainCallbacks.emplace_back(Callback);
+	_DestroySwapchainCallbacks.emplace_back(Name, Callback);
 }
 
-NPGS_INLINE void FVulkanBase::AddCreateDeviceCallback(const std::function<void()>& Callback)
+NPGS_INLINE void FVulkanBase::AddCreateDeviceCallback(const std::string& Name, const std::function<void()>& Callback)
 {
-	_CreateDeviceCallbacks.emplace_back(Callback);
+	_CreateDeviceCallbacks.emplace_back(Name, Callback);
 }
 
-NPGS_INLINE void FVulkanBase::AddDestroyDeviceCallback(const std::function<void()>& Callback)
+NPGS_INLINE void FVulkanBase::AddDestroyDeviceCallback(const std::string& Name, const std::function<void()>& Callback)
 {
-	_DestroyDeviceCallbacks.emplace_back(Callback);
+	_DestroyDeviceCallbacks.emplace_back(Name, Callback);
+}
+
+NPGS_INLINE void FVulkanBase::RemoveCreateSwapchainCallback(const std::string& Name)
+{
+	_CreateSwapchainCallbacks.erase(
+		std::remove_if(_CreateSwapchainCallbacks.begin(), _CreateSwapchainCallbacks.end(), CompareCallback),
+		_CreateSwapchainCallbacks.end()
+	);
+}
+
+NPGS_INLINE void FVulkanBase::RemoveDestroySwapchainCallback(const std::string& Name)
+{
+	_DestroySwapchainCallbacks.erase(
+		std::remove_if(_DestroySwapchainCallbacks.begin(), _DestroySwapchainCallbacks.end(), CompareCallback),
+		_DestroySwapchainCallbacks.end()
+	);
+}
+
+NPGS_INLINE void FVulkanBase::RemoveCreateDeviceCallback(const std::string& Name)
+{
+	_CreateDeviceCallbacks.erase(
+		std::remove_if(_CreateDeviceCallbacks.begin(), _CreateDeviceCallbacks.end(), CompareCallback),
+		_CreateDeviceCallbacks.end()
+	);
+}
+
+NPGS_INLINE void FVulkanBase::RemoveDestroyDeviceCallback(const std::string& Name)
+{
+	_DestroyDeviceCallbacks.erase(
+		std::remove_if(_DestroyDeviceCallbacks.begin(), _DestroyDeviceCallbacks.end(), CompareCallback),
+		_DestroyDeviceCallbacks.end()
+	);
 }
 
 NPGS_INLINE const std::vector<const char*>& FVulkanBase::GetInstanceLayers() const
@@ -200,3 +239,5 @@ NPGS_INLINE std::uint32_t FVulkanBase::GetApiVersion() const
 }
 
 _NPGS_END
+
+#undef CompareCallback

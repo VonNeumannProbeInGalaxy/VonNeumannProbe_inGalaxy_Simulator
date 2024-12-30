@@ -1,8 +1,7 @@
 #include "Application.h"
 
 #include <cstdint>
-
-#include "Engine/Core/Vulkan/VulkanBase.h"
+#include <utility>
 #include "Engine/Utilities/Logger.h"
 
 _NPGS_BEGIN
@@ -13,6 +12,8 @@ FApplication::FApplication(const vk::Extent2D& WindowSize, const std::string& Wi
 	_WindowTitle(WindowTitle),
 	_WindowSize(WindowSize),
 	_Window(nullptr),
+	_VulkanBase(FVulkanBase::GetVulkanBaseInstance()),
+	_IsValid(true),
 	_bEnableVSync(bEnableVSync),
 	_bEnableFullscreen(bEnableFullscreen)
 {
@@ -24,24 +25,24 @@ FApplication::FApplication(const vk::Extent2D& WindowSize, const std::string& Wi
 
 FApplication::~FApplication()
 {
-	Terminate();
+	_IsValid = false;
 }
 
 void FApplication::ExecuteMainRender()
 {
 	CreateScreenRender();
-	const auto& [Framebuffers, RenderPass] = _Renderer;
 	CreateLayout();
 	CreatePipeline();
 
+	const auto& [Framebuffers, RenderPass] = _Renderer;
+
 	vk::FenceCreateFlags FenceCreateFlags{ vk::FenceCreateFlagBits::eSignaled };
-	FVulkanBase* VulkanBase = FVulkanBase::GetVulkanBaseInstance();
-	FVulkanFence VulkanFence(VulkanBase->GetDevice(), FenceCreateFlags);
-	FVulkanSemaphore VulkanSemaphore_ImageAvailable(VulkanBase->GetDevice());
-	FVulkanSemaphore VulkanSemaphore_RenderFinished(VulkanBase->GetDevice());
+	FVulkanFence VulkanFence(_VulkanBase->GetDevice(), FenceCreateFlags);
+	FVulkanSemaphore VulkanSemaphore_ImageAvailable(_VulkanBase->GetDevice());
+	FVulkanSemaphore VulkanSemaphore_RenderFinished(_VulkanBase->GetDevice());
 
 	FVulkanCommandBuffer CommandBuffer;
-	FVulkanCommandPool CommandPool(VulkanBase->GetDevice(), VulkanBase->GetGraphicsQueueFamilyIndex(),
+	FVulkanCommandPool CommandPool(_VulkanBase->GetDevice(), _VulkanBase->GetGraphicsQueueFamilyIndex(),
 								   vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 	CommandPool.AllocateBuffer(vk::CommandBufferLevel::ePrimary, CommandBuffer);
 
@@ -56,19 +57,19 @@ void FApplication::ExecuteMainRender()
 
 		VulkanFence.WaitAndReset();
 
-		VulkanBase->SwapImage(VulkanSemaphore_ImageAvailable);
-		std::uint32_t ImageIndex = VulkanBase->GetCurrentImageIndex();
+		_VulkanBase->SwapImage(VulkanSemaphore_ImageAvailable);
+		std::uint32_t ImageIndex = _VulkanBase->GetCurrentImageIndex();
 
 		CommandBuffer.Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
 		RenderPass.CommandBegin(CommandBuffer, Framebuffers[ImageIndex], { {}, _WindowSize }, { ColorValue });
-		CommandBuffer.GetCommandBuffer().bindPipeline(vk::PipelineBindPoint::eGraphics, _Pipeline.GetPipeline());
-		CommandBuffer.GetCommandBuffer().draw(3, 1, 0, 0);
+		CommandBuffer.BindPipeline(vk::PipelineBindPoint::eGraphics, _Pipeline);
+		CommandBuffer.Draw(3, 1, 0, 0);
 		RenderPass.CommandEnd(CommandBuffer);
 		CommandBuffer.End();
 
-		VulkanBase->SubmitCommandBufferToGraphics(CommandBuffer, VulkanSemaphore_ImageAvailable,
-												  VulkanSemaphore_RenderFinished, VulkanFence);
-		VulkanBase->PresentImage(VulkanSemaphore_RenderFinished);
+		_VulkanBase->SubmitCommandBufferToGraphics(CommandBuffer, VulkanSemaphore_ImageAvailable,
+												   VulkanSemaphore_RenderFinished, VulkanFence);
+		_VulkanBase->PresentImage(VulkanSemaphore_RenderFinished);
 
 		ProcessInput();
 		glfwPollEvents();
@@ -80,7 +81,8 @@ void FApplication::ExecuteMainRender()
 
 void FApplication::Terminate()
 {
-	FVulkanBase::GetVulkanBaseInstance()->WaitIdle();
+	_VulkanBase->WaitIdle();
+	glfwDestroyWindow(_Window);
 	glfwTerminate();
 }
 
@@ -103,6 +105,9 @@ bool FApplication::InitWindow()
 		return false;
 	}
 
+	glfwSetWindowUserPointer(_Window, this);
+	glfwSetFramebufferSizeCallback(_Window, &FApplication::FramebufferSizeCallback);
+
 	std::uint32_t ExtensionCount = 0;
 	const char** Extensions = glfwGetRequiredInstanceExtensions(&ExtensionCount);
 	if (Extensions == nullptr)
@@ -113,16 +118,15 @@ bool FApplication::InitWindow()
 		return false;
 	}
 
-	FVulkanBase* VulkanBase = FVulkanBase::GetVulkanBaseInstance();
 	for (std::uint32_t i = 0; i != ExtensionCount; ++i)
 	{
-		VulkanBase->AddInstanceExtension(Extensions[i]);
+		_VulkanBase->AddInstanceExtension(Extensions[i]);
 	}
 
-	VulkanBase->AddDeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+	_VulkanBase->AddDeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 	vk::Result Result;
-	if ((Result = VulkanBase->CreateInstance()) != vk::Result::eSuccess)
+	if ((Result = _VulkanBase->CreateInstance()) != vk::Result::eSuccess)
 	{
 		glfwDestroyWindow(_Window);
 		glfwTerminate();
@@ -130,17 +134,17 @@ bool FApplication::InitWindow()
 	}
 
 	vk::SurfaceKHR Surface;
-	if (glfwCreateWindowSurface(VulkanBase->GetInstance(), _Window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&Surface)) != VK_SUCCESS)
+	if (glfwCreateWindowSurface(_VulkanBase->GetInstance(), _Window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&Surface)) != VK_SUCCESS)
 	{
 		NpgsCoreError("Error: Failed to create window surface.");
 		glfwDestroyWindow(_Window);
 		glfwTerminate();
 		return false;
 	}
-	VulkanBase->SetSurface(Surface);
+	_VulkanBase->SetSurface(Surface);
 
-	if (VulkanBase->CreateDevice(0) != vk::Result::eSuccess ||
-		VulkanBase->CreateSwapchain(_WindowSize) != vk::Result::eSuccess)
+	if (_VulkanBase->CreateDevice(0) != vk::Result::eSuccess ||
+		_VulkanBase->CreateSwapchain(_WindowSize) != vk::Result::eSuccess)
 	{
 		return false;
 	}
@@ -150,11 +154,10 @@ bool FApplication::InitWindow()
 
 void FApplication::CreateScreenRender()
 {
-	static FRenderer Renderer;
-	FVulkanBase* VulkanBase = FVulkanBase::GetVulkanBaseInstance();
+	_Renderer = FRenderer();
 
 	vk::AttachmentDescription AttachmentDescription = vk::AttachmentDescription()
-		.setFormat(VulkanBase->GetSwapchainCreateInfo().imageFormat)
+		.setFormat(_VulkanBase->GetSwapchainCreateInfo().imageFormat)
 		.setSamples(vk::SampleCountFlagBits::e1)
 		.setLoadOp(vk::AttachmentLoadOp::eClear)
 		.setStoreOp(vk::AttachmentStoreOp::eStore)
@@ -178,12 +181,22 @@ void FApplication::CreateScreenRender()
 		.setDependencyFlags(vk::DependencyFlagBits::eByRegion);
 
 	vk::RenderPassCreateInfo RenderPassCreateInfo({}, 1, &AttachmentDescription, 1, &SubpassDescription, 1, &SubpassDependency);
-	Renderer.RenderPass = FVulkanRenderPass(VulkanBase->GetDevice(), RenderPassCreateInfo);
+	_Renderer.RenderPass = FVulkanRenderPass(_VulkanBase->GetDevice(), RenderPassCreateInfo);
 
-	auto CreateFramebuffers = [&]() -> void
+	auto CreateFramebuffers = [this, VulkanBase = _VulkanBase, IsValid = &_IsValid]() -> void
 	{
+		if (!IsValid->load())
+		{
+			return;
+		}
+
+		VulkanBase->WaitIdle();
+		_Renderer.Framebuffers.clear();
+
+		_Renderer.Framebuffers.reserve(VulkanBase->GetSwapchainImageCount());
+
 		vk::FramebufferCreateInfo FramebufferCreateInfo = vk::FramebufferCreateInfo()
-			.setRenderPass(Renderer.RenderPass.GetRenderPass())
+			.setRenderPass(_Renderer.RenderPass.GetRenderPass())
 			.setAttachmentCount(1)
 			.setWidth(_WindowSize.width)
 			.setHeight(_WindowSize.height)
@@ -193,13 +206,19 @@ void FApplication::CreateScreenRender()
 		{
 			vk::ImageView Attachment = VulkanBase->GetSwapchainImageView(i);
 			FramebufferCreateInfo.setPAttachments(&Attachment);
-			Renderer.Framebuffers.emplace_back(VulkanBase->GetDevice(), FramebufferCreateInfo);
+			_Renderer.Framebuffers.emplace_back(VulkanBase->GetDevice(), FramebufferCreateInfo);
 		}
 	};
 
-	auto DestroyFramebuffers = []() -> void
+	auto DestroyFramebuffers = [this, VulkanBase = _VulkanBase, IsVaild = &_IsValid]() -> void
 	{
-		Renderer.Framebuffers.clear();
+		if (!IsVaild->load())
+		{
+			return;
+		}
+
+		VulkanBase->WaitIdle();
+		_Renderer.Framebuffers.clear();
 	};
 
 	CreateFramebuffers();
@@ -207,19 +226,17 @@ void FApplication::CreateScreenRender()
 	static bool bCallbackAdded = false;
 	if (!bCallbackAdded)
 	{
-		VulkanBase->AddCreateSwapchainCallback(CreateFramebuffers);
-		VulkanBase->AddDestroySwapchainCallback(DestroyFramebuffers);
+		_VulkanBase->AddCreateSwapchainCallback("CreateFramebuffers", CreateFramebuffers);
+		_VulkanBase->AddDestroySwapchainCallback("DestroyFramebuffers", DestroyFramebuffers);
 		bCallbackAdded = true;
 	}
-
-	_Renderer = Renderer;
 }
 
 void FApplication::CreatePipeline()
 {
-	FVulkanBase* VulkanBase = FVulkanBase::GetVulkanBaseInstance();
-	static FVulkanShaderModule VertShader(VulkanBase->GetDevice(), "Sources/Shaders/Triangle.vert.spv");
-	static FVulkanShaderModule FragShader(VulkanBase->GetDevice(), "Sources/Shaders/Triangle.frag.spv");
+	static FVulkanShaderModule VertShader(_VulkanBase->GetDevice(), "Sources/Shaders/Triangle.vert.spv");
+	static FVulkanShaderModule FragShader(_VulkanBase->GetDevice(), "Sources/Shaders/Triangle.frag.spv");
+
 	static vk::PipelineShaderStageCreateInfo VertShaderStage = vk::PipelineShaderStageCreateInfo()
 		.setStage(vk::ShaderStageFlagBits::eVertex)
 		.setModule(VertShader.GetShaderModule())
@@ -229,41 +246,77 @@ void FApplication::CreatePipeline()
 		.setModule(FragShader.GetShaderModule())
 		.setPName("main");
 
-	static vk::PipelineShaderStageCreateInfo shaderStageCreateInfos_triangle[2] = { VertShaderStage, FragShaderStage };
+	static std::vector<vk::PipelineShaderStageCreateInfo> ShaderStageCreateInfos = { VertShaderStage, FragShaderStage };
 
-	auto Create = [&]() -> void
+	auto Create = [this, VulkanBase = _VulkanBase, IsValid = &_IsValid]() -> void
 	{
-		GraphicsPipelineCreateInfoPack Pack;
-		Pack.createInfo.layout = _Layout.GetPipelineLayout();
-		Pack.createInfo.renderPass = _Renderer.RenderPass.GetRenderPass();
-		Pack.inputAssemblyStateCi.topology = vk::PrimitiveTopology::eTriangleList;
-		Pack.viewports.emplace_back(0.f, 0.f, float(_WindowSize.width), float(_WindowSize.height), 0.f, 1.f);
-		Pack.scissors.emplace_back(vk::Offset2D{}, _WindowSize);
-		Pack.multisampleStateCi.rasterizationSamples = vk::SampleCountFlagBits::e1;
+		if (!IsValid->load())
+		{
+			return;
+		}
+
+		// 先创建新管线，再销毁旧管线
+		FGraphicsPipelineCreateInfoPack Pack;
+		Pack.GraphicsPipelineCreateInfo.setLayout(_Layout.GetPipelineLayout());
+		Pack.GraphicsPipelineCreateInfo.setRenderPass(_Renderer.RenderPass.GetRenderPass());
+		Pack.InputAssemblyStateCreateInfo.setTopology(vk::PrimitiveTopology::eTriangleList);
+		Pack.Viewports.emplace_back(0.0f, 0.0f, static_cast<float>(_WindowSize.width),
+									static_cast<float>(_WindowSize.height), 0.0f, 1.0f);
+		Pack.Scissors.emplace_back(vk::Offset2D(), _WindowSize);
+		Pack.MultisampleStateCreateInfo.setRasterizationSamples(vk::SampleCountFlagBits::e1);
+
 		vk::PipelineColorBlendAttachmentState ColorBlendAttachmentState = vk::PipelineColorBlendAttachmentState()
-			.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
-		Pack.colorBlendAttachmentStates.push_back(ColorBlendAttachmentState);
+			.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+							   vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
+
+		Pack.ColorBlendAttachmentStates.emplace_back(ColorBlendAttachmentState);
+
 		Pack.UpdateAllArrays();
-		Pack.createInfo.stageCount = 2;
-		Pack.createInfo.pStages = shaderStageCreateInfos_triangle;
-		_Pipeline = FVulkanPipeline(VulkanBase->GetDevice(), Pack);
-	};
-	
-	auto Destroy = [this]() -> void
-	{
-		_Pipeline.~FVulkanPipeline();
+
+		Pack.GraphicsPipelineCreateInfo.setStages(ShaderStageCreateInfos);
+
+		// 创建新管线
+		FVulkanPipeline NewPipeline(_VulkanBase->GetDevice(), Pack);
+
+		// 等待设备空闲
+		_VulkanBase->WaitIdle();
+
+		// 交换新旧管线
+		if (_Pipeline)
+		{
+			FVulkanPipeline OldPipeline = std::move(_Pipeline);
+			_Pipeline = std::move(NewPipeline);
+		}
+		else
+		{
+			_Pipeline = std::move(NewPipeline);
+		}
 	};
 
-	VulkanBase->AddCreateSwapchainCallback(Create);
-	VulkanBase->AddDestroySwapchainCallback(Destroy);
+	auto Destroy = [this, VulkanBase = _VulkanBase, IsValid = &_IsValid]() -> void
+	{
+		if (!IsValid->load())
+		{
+			return;
+		}
+
+		if (_Pipeline)
+		{
+			VulkanBase->WaitIdle();
+			FVulkanPipeline OldPipeline = std::move(_Pipeline);
+		}
+	};
+
 	Create();
+
+	_VulkanBase->AddCreateSwapchainCallback("CreatePipeline", Create);
+	_VulkanBase->AddDestroySwapchainCallback("DestroyPipeline", Destroy);
 }
 
 void FApplication::CreateLayout()
 {
-	FVulkanBase* VulkanBase = FVulkanBase::GetVulkanBaseInstance();
 	vk::PipelineLayoutCreateInfo PipelineLayoutCreateInfo;
-	_Layout = FVulkanPipelineLayout(VulkanBase->GetDevice(), PipelineLayoutCreateInfo);
+	_Layout = FVulkanPipelineLayout(_VulkanBase->GetDevice(), PipelineLayoutCreateInfo);
 }
 
 void FApplication::ShowTitleFps()
@@ -281,7 +334,7 @@ void FApplication::ShowTitleFps()
 	if (CurrentTime - PreviousTime >= 1.0)
 	{
 		glfwSetWindowTitle(_Window, (std::string(_WindowTitle) + " " + std::to_string(FrameCount)).c_str());
-		FrameCount   = 0;
+		FrameCount = 0;
 		PreviousTime = CurrentTime;
 	}
 }
@@ -292,6 +345,15 @@ void FApplication::ProcessInput()
 	{
 		glfwSetWindowShouldClose(_Window, GL_TRUE);
 	}
+}
+
+void FApplication::FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height)
+{
+	auto App = reinterpret_cast<FApplication*>(glfwGetWindowUserPointer(Window));
+	App->_WindowSize.width  = Width;
+	App->_WindowSize.height = Height;
+	App->_VulkanBase->WaitIdle();
+	App->_VulkanBase->RecreateSwapchain();
 }
 
 _NPGS_END
