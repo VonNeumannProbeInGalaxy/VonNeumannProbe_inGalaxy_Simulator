@@ -9,6 +9,17 @@ _NPGS_BEGIN
 
 struct FGraphicsPipelineCreateInfoPack
 {
+	vk::GraphicsPipelineCreateInfo                     GraphicsPipelineCreateInfo;
+	vk::PipelineDepthStencilStateCreateInfo            DepthStencilStateCreateInfo;
+	vk::PipelineRasterizationStateCreateInfo           RasterizationStateCreateInfo;
+	vk::PipelineColorBlendStateCreateInfo              ColorBlendStateCreateInfo;
+	vk::PipelineVertexInputStateCreateInfo             VertexInputStateCreateInfo;
+	vk::PipelineViewportStateCreateInfo                ViewportStateCreateInfo;
+	vk::PipelineMultisampleStateCreateInfo             MultisampleStateCreateInfo;
+	vk::PipelineInputAssemblyStateCreateInfo           InputAssemblyStateCreateInfo;
+	vk::PipelineDynamicStateCreateInfo                 DynamicStateCreateInfo;
+	vk::PipelineTessellationStateCreateInfo            TessellationStateCreateInfo;
+
 	std::vector<vk::PipelineShaderStageCreateInfo>     ShaderStages;
 	std::vector<vk::VertexInputBindingDescription>     VertexInputBindings;
 	std::vector<vk::VertexInputAttributeDescription>   VertexInputAttributes;
@@ -16,18 +27,6 @@ struct FGraphicsPipelineCreateInfoPack
 	std::vector<vk::Rect2D>                            Scissors;
 	std::vector<vk::PipelineColorBlendAttachmentState> ColorBlendAttachmentStates;
 	std::vector<vk::DynamicState>                      DynamicStates;
-
-	vk::PipelineVertexInputStateCreateInfo             VertexInputStateCreateInfo;
-	vk::PipelineInputAssemblyStateCreateInfo           InputAssemblyStateCreateInfo;
-	vk::PipelineTessellationStateCreateInfo            TessellationStateCreateInfo;
-	vk::PipelineViewportStateCreateInfo                ViewportStateCreateInfo;
-	vk::PipelineRasterizationStateCreateInfo           RasterizationStateCreateInfo;
-	vk::PipelineMultisampleStateCreateInfo             MultisampleStateCreateInfo;
-	vk::PipelineDepthStencilStateCreateInfo            DepthStencilStateCreateInfo;
-	vk::PipelineColorBlendStateCreateInfo              ColorBlendStateCreateInfo;
-	vk::PipelineDynamicStateCreateInfo                 DynamicStateCreateInfo;
-
-	vk::GraphicsPipelineCreateInfo                     GraphicsPipelineCreateInfo;
 
 	std::uint32_t                                      DynamicViewportCount = 1;
 	std::uint32_t                                      DynamicScissorCount  = 1;
@@ -41,13 +40,13 @@ public:
 	FGraphicsPipelineCreateInfoPack& operator=(const FGraphicsPipelineCreateInfoPack&) = default;
 	FGraphicsPipelineCreateInfoPack& operator=(FGraphicsPipelineCreateInfoPack&& Other) noexcept;
 
-	operator vk::GraphicsPipelineCreateInfo&();
+	operator vk::GraphicsPipelineCreateInfo& ();
 
-	void UpdateAllArrays();
+	void Update();
 
 private:
 	void LinkToGraphicsPipelineCreateInfo();
-	void UpdateAllArrayAddresses();
+	void UpdateAllInfoData();
 };
 
 // Wrapper for vk::CommandBuffer
@@ -64,6 +63,8 @@ public:
 	FVulkanCommandBuffer& operator=(const FVulkanCommandBuffer&) = default;
 	FVulkanCommandBuffer& operator=(FVulkanCommandBuffer&& Other) noexcept;
 
+	explicit operator bool() const;
+
 	vk::Result Begin(const vk::CommandBufferInheritanceInfo& InheritanceInfo, const vk::CommandBufferUsageFlags& Flags = {});
 	vk::Result Begin(const vk::CommandBufferUsageFlags& Flags = {});
 	vk::Result End();
@@ -73,8 +74,6 @@ public:
 
 	vk::CommandBuffer& GetCommandBufferMutable();
 	const vk::CommandBuffer& GetCommandBuffer() const;
-
-	explicit operator bool() const;
 
 private:
 	vk::CommandBuffer _CommandBuffer;
@@ -95,6 +94,8 @@ public:
 	FVulkanCommandPool& operator=(const FVulkanCommandPool&) = default;
 	FVulkanCommandPool& operator=(FVulkanCommandPool&& Other) noexcept;
 
+	explicit operator bool() const;
+
 	vk::Result AllocateBuffer(vk::CommandBufferLevel Level, vk::CommandBuffer& Buffer);
 	vk::Result AllocateBuffer(vk::CommandBufferLevel Level, FVulkanCommandBuffer& Buffer);
 	vk::Result AllocateBuffers(vk::CommandBufferLevel Level, std::vector<vk::CommandBuffer>& Buffers);
@@ -106,8 +107,6 @@ public:
 
 	vk::CommandPool& GetCommandPoolMutable();
 	const vk::CommandPool& GetCommandPool() const;
-
-	explicit operator bool() const;
 
 private:
 	vk::Result CreateCommandPool(vk::CommandPoolCreateInfo& CreateInfo);
@@ -133,6 +132,8 @@ public:
 	FVulkanFence& operator=(const FVulkanFence&) = default;
 	FVulkanFence& operator=(FVulkanFence&& Other) noexcept;
 
+	explicit operator bool() const;
+
 	vk::Result Wait() const;
 	vk::Result Reset() const;
 	vk::Result WaitAndReset() const;
@@ -140,8 +141,6 @@ public:
 
 	vk::Fence& GetFenceMutable();
 	const vk::Fence& GetFence() const;
-
-	explicit operator bool() const;
 
 private:
 	vk::Result CreateFence(const vk::FenceCreateInfo& CreateInfo);
@@ -166,10 +165,10 @@ public:
 	FVulkanFramebuffer& operator=(const FVulkanFramebuffer&) = default;
 	FVulkanFramebuffer& operator=(FVulkanFramebuffer&& Other) noexcept;
 
+	explicit operator bool() const;
+
 	vk::Framebuffer& GetFramebufferMutable();
 	const vk::Framebuffer& GetFramebuffer() const;
-
-	explicit operator bool() const;
 
 private:
 	vk::Result CreateFramebuffer(const vk::FramebufferCreateInfo& CreateInfo);
@@ -194,10 +193,10 @@ public:
 	FVulkanPipeline& operator=(const FVulkanPipeline&) = default;
 	FVulkanPipeline& operator=(FVulkanPipeline&& Other) noexcept;
 
+	explicit operator bool() const;
+
 	vk::Pipeline& GetPipelineMutable();
 	const vk::Pipeline& GetPipeline() const;
-
-	explicit operator bool() const;
 
 private:
 	vk::Result CreateGraphicsPipeline(const vk::GraphicsPipelineCreateInfo& CreateInfo);
@@ -222,10 +221,10 @@ public:
 	FVulkanPipelineLayout& operator=(const FVulkanPipelineLayout&) = default;
 	FVulkanPipelineLayout& operator=(FVulkanPipelineLayout&& Other) noexcept;
 
+	explicit operator bool() const;
+
 	vk::PipelineLayout& GetPipelineLayoutMutable();
 	const vk::PipelineLayout& GetPipelineLayout() const;
-
-	explicit operator bool() const;
 
 private:
 	vk::Result CreatePipelineLayout(const vk::PipelineLayoutCreateInfo& CreateInfo);
@@ -249,6 +248,8 @@ public:
 	FVulkanRenderPass& operator=(const FVulkanRenderPass&) = default;
 	FVulkanRenderPass& operator=(FVulkanRenderPass&& Other) noexcept;
 
+	explicit operator bool() const;
+
 	void CommandBegin(const FVulkanCommandBuffer& CommandBuffer, const vk::RenderPassBeginInfo& BeginInfo,
 					  const vk::SubpassContents& SubpassContents = vk::SubpassContents::eInline) const;
 
@@ -263,8 +264,6 @@ public:
 
 	vk::RenderPass& GetRenderPassMutable();
 	const vk::RenderPass& GetRenderPass() const;
-
-	explicit operator bool() const;
 
 private:
 	vk::Result CreateRenderPass(const vk::RenderPassCreateInfo& CreateInfo);
@@ -289,10 +288,10 @@ public:
 	FVulkanSemaphore& operator=(const FVulkanSemaphore&) = default;
 	FVulkanSemaphore& operator=(FVulkanSemaphore&& Other) noexcept;
 
+	explicit operator bool() const;
+
 	vk::Semaphore& GetSemaphoreMutable();
 	const vk::Semaphore& GetSemaphore() const;
-
-	explicit operator bool() const;
 
 private:
 	vk::Result CreateSemaphore(const vk::SemaphoreCreateInfo& CreateInfo);
@@ -318,10 +317,10 @@ public:
 	FVulkanShaderModule& operator=(const FVulkanShaderModule&) = default;
 	FVulkanShaderModule& operator=(FVulkanShaderModule&& Other) noexcept;
 
+	explicit operator bool() const;
+
 	vk::ShaderModule& GetShaderModuleMutable();
 	const vk::ShaderModule& GetShaderModule() const;
-
-	explicit operator bool() const;
 
 private:
 	vk::Result CreateShaderModule(const vk::ShaderModuleCreateInfo& CreateInfo);

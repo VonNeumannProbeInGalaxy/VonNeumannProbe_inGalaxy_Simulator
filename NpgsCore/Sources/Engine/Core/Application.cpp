@@ -4,6 +4,8 @@
 #include <utility>
 #include "Engine/Utilities/Logger.h"
 
+#include "Engine/Core/Vulkan/VulkanWrapper.hpp"
+
 _NPGS_BEGIN
 
 FApplication::FApplication(const vk::Extent2D& WindowSize, const std::string& WindowTitle,
@@ -19,7 +21,7 @@ FApplication::FApplication(const vk::Extent2D& WindowSize, const std::string& Wi
 {
 	if (!InitWindow())
 	{
-		NpgsCoreError("Error: Failed to create window.");
+		NpgsCoreError("Failed to create window.");
 	}
 }
 
@@ -37,13 +39,23 @@ void FApplication::ExecuteMainRender()
 	const auto& [Framebuffers, RenderPass] = _Renderer;
 
 	vk::FenceCreateFlags FenceCreateFlags{ vk::FenceCreateFlagBits::eSignaled };
-	FVulkanFence VulkanFence(_VulkanBase->GetDevice(), FenceCreateFlags);
-	FVulkanSemaphore VulkanSemaphore_ImageAvailable(_VulkanBase->GetDevice());
-	FVulkanSemaphore VulkanSemaphore_RenderFinished(_VulkanBase->GetDevice());
+	//FVulkanFence VulkanFence(_VulkanBase->GetDevice(), FenceCreateFlags);
+	//FVulkanSemaphore VulkanSemaphore_ImageAvailable(_VulkanBase->GetDevice());
+	//FVulkanSemaphore VulkanSemaphore_RenderFinished(_VulkanBase->GetDevice());
 
-	FVulkanCommandBuffer CommandBuffer;
-	FVulkanCommandPool CommandPool(_VulkanBase->GetDevice(), _VulkanBase->GetGraphicsQueueFamilyIndex(),
-								   vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+	//FVulkanCommandBuffer CommandBuffer;
+	//FVulkanCommandPool CommandPool(_VulkanBase->GetDevice(), _VulkanBase->GetGraphicsQueueFamilyIndex(),
+	//							   vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+	//CommandPool.AllocateBuffer(vk::CommandBufferLevel::ePrimary, CommandBuffer);
+
+	// Test
+	TVulkanWrapper<vk::Fence> Fence(_VulkanBase->GetDevice(), FenceCreateFlags);
+	TVulkanWrapper<vk::Semaphore> Semaphore_ImageAvailable(_VulkanBase->GetDevice());
+	TVulkanWrapper<vk::Semaphore> Semaphore_RenderFinished(_VulkanBase->GetDevice());
+
+	TVulkanWrapper<vk::CommandBuffer> CommandBuffer;
+	TVulkanWrapper<vk::CommandPool> CommandPool(_VulkanBase->GetDevice(), _VulkanBase->GetGraphicsQueueFamilyIndex(),
+												vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 	CommandPool.AllocateBuffer(vk::CommandBufferLevel::ePrimary, CommandBuffer);
 
 	vk::ClearValue ColorValue({ 0.0f, 0.0f, 0.0f, 1.0f });
@@ -55,21 +67,21 @@ void FApplication::ExecuteMainRender()
 			glfwWaitEvents();
 		}
 
-		VulkanFence.WaitAndReset();
+		Fence.WaitAndReset();
 
-		_VulkanBase->SwapImage(VulkanSemaphore_ImageAvailable);
-		std::uint32_t ImageIndex = _VulkanBase->GetCurrentImageIndex();
+		//_VulkanBase->SwapImage(*Semaphore_ImageAvailable);
+		//std::uint32_t ImageIndex = _VulkanBase->GetCurrentImageIndex();
 
-		CommandBuffer.Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-		RenderPass.CommandBegin(CommandBuffer, Framebuffers[ImageIndex], { {}, _WindowSize }, { ColorValue });
-		CommandBuffer.BindPipeline(vk::PipelineBindPoint::eGraphics, _Pipeline);
-		CommandBuffer.Draw(3, 1, 0, 0);
-		RenderPass.CommandEnd(CommandBuffer);
-		CommandBuffer.End();
+		//CommandBuffer.Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+		//RenderPass.CommandBegin(CommandBuffer, Framebuffers[ImageIndex], { {}, _WindowSize }, { ColorValue });
+		////CommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _Pipeline);
+		////CommandBuffer.draw(3, 1, 0, 0);
+		//RenderPass.CommandEnd(CommandBuffer);
+		//CommandBuffer.End();
 
-		_VulkanBase->SubmitCommandBufferToGraphics(CommandBuffer, VulkanSemaphore_ImageAvailable,
-												   VulkanSemaphore_RenderFinished, VulkanFence);
-		_VulkanBase->PresentImage(VulkanSemaphore_RenderFinished);
+		//_VulkanBase->SubmitCommandBufferToGraphics(CommandBuffer, Semaphore_ImageAvailable,
+		//										   Semaphore_RenderFinished, VulkanFence);
+		//_VulkanBase->PresentImage(Semaphore_RenderFinished);
 
 		ProcessInput();
 		glfwPollEvents();
@@ -90,7 +102,7 @@ bool FApplication::InitWindow()
 {
 	if (glfwInit() == GLFW_FALSE)
 	{
-		NpgsCoreError("Error: Failed to initialize GLFW.");
+		NpgsCoreError("Failed to initialize GLFW.");
 		return false;
 	};
 
@@ -100,7 +112,7 @@ bool FApplication::InitWindow()
 	_Window = glfwCreateWindow(_WindowSize.width, _WindowSize.height, _WindowTitle.c_str(), nullptr, nullptr);
 	if (_Window == nullptr)
 	{
-		NpgsCoreError("Error: Failed to create GLFW window.");
+		NpgsCoreError("Failed to create GLFW window.");
 		glfwTerminate();
 		return false;
 	}
@@ -112,7 +124,7 @@ bool FApplication::InitWindow()
 	const char** Extensions = glfwGetRequiredInstanceExtensions(&ExtensionCount);
 	if (Extensions == nullptr)
 	{
-		NpgsCoreError("Error: Failed to get required instance extensions.");
+		NpgsCoreError("Failed to get required instance extensions.");
 		glfwDestroyWindow(_Window);
 		glfwTerminate();
 		return false;
@@ -136,7 +148,7 @@ bool FApplication::InitWindow()
 	vk::SurfaceKHR Surface;
 	if (glfwCreateWindowSurface(_VulkanBase->GetInstance(), _Window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&Surface)) != VK_SUCCESS)
 	{
-		NpgsCoreError("Error: Failed to create window surface.");
+		NpgsCoreError("Failed to create window surface.");
 		glfwDestroyWindow(_Window);
 		glfwTerminate();
 		return false;
@@ -168,8 +180,7 @@ void FApplication::CreateScreenRender()
 
 	vk::SubpassDescription SubpassDescription = vk::SubpassDescription()
 		.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
-		.setColorAttachmentCount(1)
-		.setPColorAttachments(&AttachmentReference);
+		.setColorAttachments(AttachmentReference);
 
 	vk::SubpassDependency SubpassDependency = vk::SubpassDependency()
 		.setSrcSubpass(vk::SubpassExternal)
@@ -180,10 +191,11 @@ void FApplication::CreateScreenRender()
 		.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
 		.setDependencyFlags(vk::DependencyFlagBits::eByRegion);
 
-	vk::RenderPassCreateInfo RenderPassCreateInfo({}, 1, &AttachmentDescription, 1, &SubpassDescription, 1, &SubpassDependency);
+	vk::RenderPassCreateInfo RenderPassCreateInfo({}, AttachmentDescription, SubpassDescription, SubpassDependency);
 	_Renderer.RenderPass = FVulkanRenderPass(_VulkanBase->GetDevice(), RenderPassCreateInfo);
 
-	auto CreateFramebuffers = [this, VulkanBase = _VulkanBase, IsValid = &_IsValid]() -> void
+	auto CreateFramebuffers =
+	[VulkanBase = _VulkanBase, Renderer = &_Renderer, WindowSize = &_WindowSize, IsValid = &_IsValid]() -> void
 	{
 		if (!IsValid->load())
 		{
@@ -191,34 +203,34 @@ void FApplication::CreateScreenRender()
 		}
 
 		VulkanBase->WaitIdle();
-		_Renderer.Framebuffers.clear();
+		Renderer->Framebuffers.clear();
 
-		_Renderer.Framebuffers.reserve(VulkanBase->GetSwapchainImageCount());
+		Renderer->Framebuffers.reserve(VulkanBase->GetSwapchainImageCount());
 
 		vk::FramebufferCreateInfo FramebufferCreateInfo = vk::FramebufferCreateInfo()
-			.setRenderPass(_Renderer.RenderPass.GetRenderPass())
+			.setRenderPass(Renderer->RenderPass.GetRenderPass())
 			.setAttachmentCount(1)
-			.setWidth(_WindowSize.width)
-			.setHeight(_WindowSize.height)
+			.setWidth(WindowSize->width)
+			.setHeight(WindowSize->height)
 			.setLayers(1);
 
 		for (std::uint32_t i = 0; i != VulkanBase->GetSwapchainImageCount(); ++i)
 		{
 			vk::ImageView Attachment = VulkanBase->GetSwapchainImageView(i);
 			FramebufferCreateInfo.setPAttachments(&Attachment);
-			_Renderer.Framebuffers.emplace_back(VulkanBase->GetDevice(), FramebufferCreateInfo);
+			Renderer->Framebuffers.emplace_back(VulkanBase->GetDevice(), FramebufferCreateInfo);
 		}
 	};
 
-	auto DestroyFramebuffers = [this, VulkanBase = _VulkanBase, IsVaild = &_IsValid]() -> void
+	auto DestroyFramebuffers = [VulkanBase = _VulkanBase, Renderer = &_Renderer, IsValid = &_IsValid]() -> void
 	{
-		if (!IsVaild->load())
+		if (!IsValid->load())
 		{
 			return;
 		}
 
 		VulkanBase->WaitIdle();
-		_Renderer.Framebuffers.clear();
+		Renderer->Framebuffers.clear();
 	};
 
 	CreateFramebuffers();
@@ -234,19 +246,19 @@ void FApplication::CreateScreenRender()
 
 void FApplication::CreatePipeline()
 {
-	static FVulkanShaderModule VertShader(_VulkanBase->GetDevice(), "Sources/Shaders/Triangle.vert.spv");
-	static FVulkanShaderModule FragShader(_VulkanBase->GetDevice(), "Sources/Shaders/Triangle.frag.spv");
+	static FVulkanShaderModule VertShaderModule(_VulkanBase->GetDevice(), "Sources/Shaders/Triangle.vert.spv");
+	static FVulkanShaderModule FragShaderModule(_VulkanBase->GetDevice(), "Sources/Shaders/Triangle.frag.spv");
 
 	static vk::PipelineShaderStageCreateInfo VertShaderStage = vk::PipelineShaderStageCreateInfo()
 		.setStage(vk::ShaderStageFlagBits::eVertex)
-		.setModule(VertShader.GetShaderModule())
+		.setModule(VertShaderModule.GetShaderModule())
 		.setPName("main");
 	static vk::PipelineShaderStageCreateInfo FragShaderStage = vk::PipelineShaderStageCreateInfo()
 		.setStage(vk::ShaderStageFlagBits::eFragment)
-		.setModule(FragShader.GetShaderModule())
+		.setModule(FragShaderModule.GetShaderModule())
 		.setPName("main");
 
-	static std::vector<vk::PipelineShaderStageCreateInfo> ShaderStageCreateInfos = { VertShaderStage, FragShaderStage };
+	static std::vector<vk::PipelineShaderStageCreateInfo> ShaderStageCreateInfos{ VertShaderStage, FragShaderStage };
 
 	auto Create = [this, VulkanBase = _VulkanBase, IsValid = &_IsValid]() -> void
 	{
@@ -260,28 +272,26 @@ void FApplication::CreatePipeline()
 		Pack.GraphicsPipelineCreateInfo.setLayout(_Layout.GetPipelineLayout());
 		Pack.GraphicsPipelineCreateInfo.setRenderPass(_Renderer.RenderPass.GetRenderPass());
 		Pack.InputAssemblyStateCreateInfo.setTopology(vk::PrimitiveTopology::eTriangleList);
-		Pack.Viewports.emplace_back(0.0f, 0.0f, static_cast<float>(_WindowSize.width),
-									static_cast<float>(_WindowSize.height), 0.0f, 1.0f);
-		Pack.Scissors.emplace_back(vk::Offset2D(), _WindowSize);
 		Pack.MultisampleStateCreateInfo.setRasterizationSamples(vk::SampleCountFlagBits::e1);
+
+		Pack.ShaderStages = ShaderStageCreateInfos;
 
 		vk::PipelineColorBlendAttachmentState ColorBlendAttachmentState = vk::PipelineColorBlendAttachmentState()
 			.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
 							   vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
 
+		Pack.DynamicStates.emplace_back(vk::DynamicState::eViewport);
+		Pack.DynamicStates.emplace_back(vk::DynamicState::eScissor);
+
+		//Pack.Viewports.emplace_back(0.0f, 0.0f, static_cast<float>(_WindowSize.width),
+		//							static_cast<float>(_WindowSize.height), 0.0f, 1.0f);
+		//Pack.Scissors.emplace_back(vk::Offset2D(), _WindowSize);
 		Pack.ColorBlendAttachmentStates.emplace_back(ColorBlendAttachmentState);
 
-		Pack.UpdateAllArrays();
+		Pack.Update();
 
-		Pack.GraphicsPipelineCreateInfo.setStages(ShaderStageCreateInfos);
-
-		// 创建新管线
 		FVulkanPipeline NewPipeline(_VulkanBase->GetDevice(), Pack);
-
-		// 等待设备空闲
 		_VulkanBase->WaitIdle();
-
-		// 交换新旧管线
 		if (_Pipeline)
 		{
 			FVulkanPipeline OldPipeline = std::move(_Pipeline);
@@ -349,7 +359,13 @@ void FApplication::ProcessInput()
 
 void FApplication::FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height)
 {
-	auto App = reinterpret_cast<FApplication*>(glfwGetWindowUserPointer(Window));
+	auto* App = reinterpret_cast<FApplication*>(glfwGetWindowUserPointer(Window));
+
+	if (Width == 0 || Height == 0)
+	{
+		return;
+	}
+
 	App->_WindowSize.width  = Width;
 	App->_WindowSize.height = Height;
 	App->_VulkanBase->WaitIdle();

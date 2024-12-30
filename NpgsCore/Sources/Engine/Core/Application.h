@@ -40,16 +40,16 @@ private:
 	static void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height);
 
 private:
-	std::string           _WindowTitle;
-    FRenderer             _Renderer;
-	FVulkanPipeline       _Pipeline;
-	FVulkanPipelineLayout _Layout;
-	vk::Extent2D          _WindowSize;
-	GLFWwindow*           _Window;
-	FVulkanBase*          _VulkanBase;
-	std::atomic<bool>     _IsValid;
-	bool                  _bEnableVSync;
-	bool                  _bEnableFullscreen;
+	std::string             _WindowTitle;
+    FRenderer               _Renderer;
+	FVulkanPipeline         _Pipeline;
+	FVulkanPipelineLayout   _Layout;
+	vk::Extent2D            _WindowSize;
+	GLFWwindow*             _Window;
+	FVulkanBase*            _VulkanBase;
+	std::atomic<bool>       _IsValid;
+	bool                    _bEnableVSync;
+	bool                    _bEnableFullscreen;
 };
 
 _NPGS_END

@@ -224,6 +224,9 @@
     <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanWrappers.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanWrapper.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\Astro\CelestialObject.inl">
@@ -304,9 +307,6 @@
     </None>
     <None Include="Sources\Shaders\Triangle.vert" />
     <None Include="Sources\Shaders\Triangle.frag" />
-    <None Include="Sources\Shaders\CompileToSpv.bat">
-      <Filter>源文件</Filter>
-    </None>
     <None Include="Sources\Engine\Core\Vulkan\VulkanWrappers.inl">
       <Filter>头文件</Filter>
     </None>

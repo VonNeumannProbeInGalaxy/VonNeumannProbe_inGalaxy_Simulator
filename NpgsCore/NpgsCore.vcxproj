@@ -71,14 +71,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)\$(ProjectName)\Sources;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(VULKAN_SDK)\Include;$(SolutionDir)\$(ProjectName)\Externals;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(VULKAN_SDK)\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Sources;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)\$(ProjectName)\Sources;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(VULKAN_SDK)\Include;$(SolutionDir)\$(ProjectName)\Externals;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(VULKAN_SDK)\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Sources;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -125,6 +125,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -149,6 +150,7 @@
       <Profile>true</Profile>
       <AdditionalDependencies>vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.cpp" />
@@ -211,6 +213,7 @@
     <ClInclude Include="Sources\Engine\Core\Application.h" />
     <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanBase.h" />
     <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanExtFunctionsImpl.h" />
+    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanWrapper.hpp" />
     <ClInclude Include="Sources\Engine\Math\NumericConstants.h" />
     <ClInclude Include="Sources\Engine\Utilities\Logger.h" />
     <ClInclude Include="Sources\Engine\Modules\Generators\CivilizationGenerator.h" />
@@ -263,7 +266,6 @@
     <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />
     <None Include="Sources\Engine\Utilities\ShaderBlockManager.inl" />
     <None Include="Sources\Engine\Utilities\Utilities.inl" />
-    <None Include="Sources\Shaders\CompileToSpv.bat" />
     <None Include="Sources\Shaders\Triangle.vert" />
     <None Include="Sources\Shaders\Triangle.frag" />
     <None Include="Sources\Vertices.inc" />

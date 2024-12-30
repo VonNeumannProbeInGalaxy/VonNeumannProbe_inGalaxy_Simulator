@@ -14,6 +14,17 @@ FGraphicsPipelineCreateInfoPack::FGraphicsPipelineCreateInfoPack()
 
 FGraphicsPipelineCreateInfoPack::FGraphicsPipelineCreateInfoPack(FGraphicsPipelineCreateInfoPack&& Other) noexcept
 	:
+	GraphicsPipelineCreateInfo(std::move(Other.GraphicsPipelineCreateInfo)),
+	DepthStencilStateCreateInfo(std::move(Other.DepthStencilStateCreateInfo)),
+	RasterizationStateCreateInfo(std::move(Other.RasterizationStateCreateInfo)),
+	ColorBlendStateCreateInfo(std::move(Other.ColorBlendStateCreateInfo)),
+	VertexInputStateCreateInfo(std::move(Other.VertexInputStateCreateInfo)),
+	ViewportStateCreateInfo(std::move(Other.ViewportStateCreateInfo)),
+	MultisampleStateCreateInfo(std::move(Other.MultisampleStateCreateInfo)),
+	InputAssemblyStateCreateInfo(std::move(Other.InputAssemblyStateCreateInfo)),
+	DynamicStateCreateInfo(std::move(Other.DynamicStateCreateInfo)),
+	TessellationStateCreateInfo(std::move(Other.TessellationStateCreateInfo)),
+
 	ShaderStages(std::move(Other.ShaderStages)),
 	VertexInputBindings(std::move(Other.VertexInputBindings)),
 	VertexInputAttributes(std::move(Other.VertexInputAttributes)),
@@ -21,40 +32,43 @@ FGraphicsPipelineCreateInfoPack::FGraphicsPipelineCreateInfoPack(FGraphicsPipeli
 	Scissors(std::move(Other.Scissors)),
 	ColorBlendAttachmentStates(std::move(Other.ColorBlendAttachmentStates)),
 	DynamicStates(std::move(Other.DynamicStates)),
-	VertexInputStateCreateInfo(std::move(Other.VertexInputStateCreateInfo)),
-	InputAssemblyStateCreateInfo(std::move(Other.InputAssemblyStateCreateInfo)),
-	TessellationStateCreateInfo(std::move(Other.TessellationStateCreateInfo)),
-	ViewportStateCreateInfo(std::move(Other.ViewportStateCreateInfo)),
-	RasterizationStateCreateInfo(std::move(Other.RasterizationStateCreateInfo)),
-	MultisampleStateCreateInfo(std::move(Other.MultisampleStateCreateInfo)),
-	DepthStencilStateCreateInfo(std::move(Other.DepthStencilStateCreateInfo)),
-	ColorBlendStateCreateInfo(std::move(Other.ColorBlendStateCreateInfo)),
-	DynamicStateCreateInfo(std::move(Other.DynamicStateCreateInfo)),
-	GraphicsPipelineCreateInfo(std::move(Other.GraphicsPipelineCreateInfo)),
+
 	DynamicViewportCount(Other.DynamicViewportCount),
 	DynamicScissorCount(Other.DynamicScissorCount)
 {
-	Other.VertexInputStateCreateInfo   = vk::PipelineVertexInputStateCreateInfo();
-	Other.InputAssemblyStateCreateInfo = vk::PipelineInputAssemblyStateCreateInfo();
-	Other.TessellationStateCreateInfo  = vk::PipelineTessellationStateCreateInfo();
-	Other.ViewportStateCreateInfo      = vk::PipelineViewportStateCreateInfo();
-	Other.RasterizationStateCreateInfo = vk::PipelineRasterizationStateCreateInfo();
-	Other.MultisampleStateCreateInfo   = vk::PipelineMultisampleStateCreateInfo();
-	Other.DepthStencilStateCreateInfo  = vk::PipelineDepthStencilStateCreateInfo();
-	Other.ColorBlendStateCreateInfo    = vk::PipelineColorBlendStateCreateInfo();
-	Other.DynamicStateCreateInfo       = vk::PipelineDynamicStateCreateInfo();
 	Other.GraphicsPipelineCreateInfo   = vk::GraphicsPipelineCreateInfo();
+	Other.DepthStencilStateCreateInfo  = vk::PipelineDepthStencilStateCreateInfo();
+	Other.RasterizationStateCreateInfo = vk::PipelineRasterizationStateCreateInfo();
+	Other.ColorBlendStateCreateInfo    = vk::PipelineColorBlendStateCreateInfo();
+	Other.VertexInputStateCreateInfo   = vk::PipelineVertexInputStateCreateInfo();
+	Other.ViewportStateCreateInfo      = vk::PipelineViewportStateCreateInfo();
+	Other.MultisampleStateCreateInfo   = vk::PipelineMultisampleStateCreateInfo();
+	Other.InputAssemblyStateCreateInfo = vk::PipelineInputAssemblyStateCreateInfo();
+	Other.DynamicStateCreateInfo       = vk::PipelineDynamicStateCreateInfo();
+	Other.TessellationStateCreateInfo  = vk::PipelineTessellationStateCreateInfo();
+
 	Other.DynamicViewportCount         = 1;
 	Other.DynamicScissorCount          = 1;
 
 	LinkToGraphicsPipelineCreateInfo();
-	UpdateAllArrayAddresses();
+	UpdateAllInfoData();
 }
 
 FGraphicsPipelineCreateInfoPack& FGraphicsPipelineCreateInfoPack::operator=(FGraphicsPipelineCreateInfoPack&& Other) noexcept
 {
 	if (this != &Other)
 	{
+		GraphicsPipelineCreateInfo         = std::move(Other.GraphicsPipelineCreateInfo);
+		DepthStencilStateCreateInfo        = std::move(Other.DepthStencilStateCreateInfo);
+		RasterizationStateCreateInfo       = std::move(Other.RasterizationStateCreateInfo);
+		ColorBlendStateCreateInfo          = std::move(Other.ColorBlendStateCreateInfo);
+		VertexInputStateCreateInfo         = std::move(Other.VertexInputStateCreateInfo);
+		ViewportStateCreateInfo            = std::move(Other.ViewportStateCreateInfo);
+		MultisampleStateCreateInfo         = std::move(Other.MultisampleStateCreateInfo);
+		InputAssemblyStateCreateInfo       = std::move(Other.InputAssemblyStateCreateInfo);
+		DynamicStateCreateInfo             = std::move(Other.DynamicStateCreateInfo);
+		TessellationStateCreateInfo        = std::move(Other.TessellationStateCreateInfo);
+
 		ShaderStages                       = std::move(Other.ShaderStages);
 		VertexInputBindings                = std::move(Other.VertexInputBindings);
 		VertexInputAttributes              = std::move(Other.VertexInputAttributes);
@@ -62,49 +76,38 @@ FGraphicsPipelineCreateInfoPack& FGraphicsPipelineCreateInfoPack::operator=(FGra
 		Scissors                           = std::move(Other.Scissors);
 		ColorBlendAttachmentStates         = std::move(Other.ColorBlendAttachmentStates);
 		DynamicStates                      = std::move(Other.DynamicStates);
-		VertexInputStateCreateInfo         = std::move(Other.VertexInputStateCreateInfo);
-		InputAssemblyStateCreateInfo       = std::move(Other.InputAssemblyStateCreateInfo);
-		TessellationStateCreateInfo        = std::move(Other.TessellationStateCreateInfo);
-		ViewportStateCreateInfo            = std::move(Other.ViewportStateCreateInfo);
-		RasterizationStateCreateInfo       = std::move(Other.RasterizationStateCreateInfo);
-		MultisampleStateCreateInfo         = std::move(Other.MultisampleStateCreateInfo);
-		DepthStencilStateCreateInfo        = std::move(Other.DepthStencilStateCreateInfo);
-		ColorBlendStateCreateInfo          = std::move(Other.ColorBlendStateCreateInfo);
-		DynamicStateCreateInfo             = std::move(Other.DynamicStateCreateInfo);
-		GraphicsPipelineCreateInfo         = std::move(Other.GraphicsPipelineCreateInfo);
+
 		DynamicViewportCount               = Other.DynamicViewportCount;
 		DynamicScissorCount                = Other.DynamicScissorCount;
 
-		Other.VertexInputStateCreateInfo   = vk::PipelineVertexInputStateCreateInfo();
-		Other.InputAssemblyStateCreateInfo = vk::PipelineInputAssemblyStateCreateInfo();
-		Other.TessellationStateCreateInfo  = vk::PipelineTessellationStateCreateInfo();
-		Other.ViewportStateCreateInfo      = vk::PipelineViewportStateCreateInfo();
-		Other.RasterizationStateCreateInfo = vk::PipelineRasterizationStateCreateInfo();
-		Other.MultisampleStateCreateInfo   = vk::PipelineMultisampleStateCreateInfo();
-		Other.DepthStencilStateCreateInfo  = vk::PipelineDepthStencilStateCreateInfo();
-		Other.ColorBlendStateCreateInfo    = vk::PipelineColorBlendStateCreateInfo();
-		Other.DynamicStateCreateInfo       = vk::PipelineDynamicStateCreateInfo();
 		Other.GraphicsPipelineCreateInfo   = vk::GraphicsPipelineCreateInfo();
+		Other.DepthStencilStateCreateInfo  = vk::PipelineDepthStencilStateCreateInfo();
+		Other.RasterizationStateCreateInfo = vk::PipelineRasterizationStateCreateInfo();
+		Other.ColorBlendStateCreateInfo    = vk::PipelineColorBlendStateCreateInfo();
+		Other.VertexInputStateCreateInfo   = vk::PipelineVertexInputStateCreateInfo();
+		Other.ViewportStateCreateInfo      = vk::PipelineViewportStateCreateInfo();
+		Other.MultisampleStateCreateInfo   = vk::PipelineMultisampleStateCreateInfo();
+		Other.InputAssemblyStateCreateInfo = vk::PipelineInputAssemblyStateCreateInfo();
+		Other.DynamicStateCreateInfo       = vk::PipelineDynamicStateCreateInfo();
+		Other.TessellationStateCreateInfo  = vk::PipelineTessellationStateCreateInfo();
 		Other.DynamicViewportCount         = 1;
 		Other.DynamicScissorCount          = 1;
 
 		LinkToGraphicsPipelineCreateInfo();
-		UpdateAllArrayAddresses();
+		UpdateAllInfoData();
 	}
 
 	return *this;
 }
 
-void FGraphicsPipelineCreateInfoPack::UpdateAllArrays()
+void FGraphicsPipelineCreateInfoPack::Update()
 {
-	GraphicsPipelineCreateInfo.setStageCount(static_cast<std::uint32_t>(ShaderStages.size()));
-	VertexInputStateCreateInfo.setVertexBindingDescriptionCount(static_cast<std::uint32_t>(VertexInputBindings.size()));
-	VertexInputStateCreateInfo.setVertexAttributeDescriptionCount(static_cast<std::uint32_t>(VertexInputAttributes.size()));
-	ViewportStateCreateInfo.setViewportCount(Viewports.size() ? static_cast<std::uint32_t>(Viewports.size()) : DynamicViewportCount);
-	ViewportStateCreateInfo.setScissorCount(Scissors.size() ? static_cast<std::uint32_t>(Scissors.size()) : DynamicScissorCount);
-	ColorBlendStateCreateInfo.setAttachmentCount(static_cast<std::uint32_t>(ColorBlendAttachmentStates.size()));
-	DynamicStateCreateInfo.setDynamicStateCount(static_cast<std::uint32_t>(DynamicStates.size()));
-	UpdateAllArrayAddresses();
+	ViewportStateCreateInfo.setViewportCount(
+		Viewports.size() ? static_cast<std::uint32_t>(Viewports.size()) : DynamicViewportCount);
+	ViewportStateCreateInfo.setScissorCount(
+		Scissors.size() ? static_cast<std::uint32_t>(Scissors.size()) : DynamicScissorCount);
+
+	UpdateAllInfoData();
 }
 
 void FGraphicsPipelineCreateInfoPack::LinkToGraphicsPipelineCreateInfo()
@@ -121,15 +124,31 @@ void FGraphicsPipelineCreateInfoPack::LinkToGraphicsPipelineCreateInfo()
 		.setPDynamicState(&DynamicStateCreateInfo);
 }
 
-void FGraphicsPipelineCreateInfoPack::UpdateAllArrayAddresses()
+void FGraphicsPipelineCreateInfoPack::UpdateAllInfoData()
 {
-	GraphicsPipelineCreateInfo.setPStages(ShaderStages.data());
-	VertexInputStateCreateInfo.setPVertexBindingDescriptions(VertexInputBindings.data());
-	VertexInputStateCreateInfo.setPVertexAttributeDescriptions(VertexInputAttributes.data());
-	ViewportStateCreateInfo.setPViewports(Viewports.data());
-	ViewportStateCreateInfo.setPScissors(Scissors.data());
-	ColorBlendStateCreateInfo.setPAttachments(ColorBlendAttachmentStates.data());
-	DynamicStateCreateInfo.setPDynamicStates(DynamicStates.data());
+	if (Viewports.empty())
+	{
+		ViewportStateCreateInfo.setPViewports(nullptr);
+	}
+	else
+	{
+		ViewportStateCreateInfo.setViewports(Viewports);
+	}
+
+	if (Scissors.empty())
+	{
+		ViewportStateCreateInfo.setPScissors(nullptr);
+	}
+	else
+	{
+		ViewportStateCreateInfo.setScissors(Scissors);
+	}
+
+	GraphicsPipelineCreateInfo.setStages(ShaderStages);
+	VertexInputStateCreateInfo.setVertexBindingDescriptions(VertexInputBindings);
+	VertexInputStateCreateInfo.setVertexAttributeDescriptions(VertexInputAttributes);
+	ColorBlendStateCreateInfo.setAttachments(ColorBlendAttachmentStates);
+	DynamicStateCreateInfo.setDynamicStates(DynamicStates);
 }
 
 // Wrapper for vk::CommandBuffer
@@ -161,7 +180,7 @@ vk::Result FVulkanCommandBuffer::Begin(const vk::CommandBufferInheritanceInfo& I
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to begin command buffer: {}", Error.what());
+		NpgsCoreError("Failed to begin command buffer: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -177,7 +196,7 @@ vk::Result FVulkanCommandBuffer::Begin(const vk::CommandBufferUsageFlags& Flags)
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to begin command buffer: {}", Error.what());
+		NpgsCoreError("Failed to begin command buffer: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -192,7 +211,7 @@ vk::Result FVulkanCommandBuffer::End()
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to end command buffer: {}", Error.what());
+		NpgsCoreError("Failed to end command buffer: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -254,11 +273,11 @@ vk::Result FVulkanCommandPool::AllocateBuffer(vk::CommandBufferLevel Level, vk::
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to allocate command buffer: {}", Error.what());
+		NpgsCoreError("Failed to allocate command buffer: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Command buffer allocated successfully.");
+	NpgsCoreInfo("Command buffer allocated successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -271,11 +290,11 @@ vk::Result FVulkanCommandPool::AllocateBuffer(vk::CommandBufferLevel Level, FVul
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to allocate command buffer: {}", Error.what());
+		NpgsCoreError("Failed to allocate command buffer: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Command buffer allocated successfully.");
+	NpgsCoreInfo("Command buffer allocated successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -288,11 +307,11 @@ vk::Result FVulkanCommandPool::AllocateBuffers(vk::CommandBufferLevel Level, std
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to allocate command buffers: {}", Error.what());
+		NpgsCoreError("Failed to allocate command buffers: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Command buffers allocated successfully.");
+	NpgsCoreInfo("Command buffers allocated successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -306,7 +325,7 @@ vk::Result FVulkanCommandPool::AllocateBuffers(vk::CommandBufferLevel Level, std
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to allocate command buffers: {}", Error.what());
+		NpgsCoreError("Failed to allocate command buffers: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -316,7 +335,7 @@ vk::Result FVulkanCommandPool::AllocateBuffers(vk::CommandBufferLevel Level, std
 		Buffers[i].GetCommandBufferMutable() = CommandBuffers[i];
 	}
 
-	NpgsCoreInfo("[INFO] Command buffers allocated successfully.");
+	NpgsCoreInfo("Command buffers allocated successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -324,7 +343,7 @@ vk::Result FVulkanCommandPool::FreeBuffer(vk::CommandBufferLevel Level, vk::Comm
 {
 	_Device->freeCommandBuffers(_CommandPool, Buffer);
 	Buffer = vk::CommandBuffer();
-	NpgsCoreInfo("[INFO] Command buffer freed successfully.");
+	NpgsCoreInfo("Command buffer freed successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -337,7 +356,7 @@ vk::Result FVulkanCommandPool::FreeBuffers(vk::CommandBufferLevel Level, std::ve
 {
 	_Device->freeCommandBuffers(_CommandPool, Buffers);
 	Buffers.clear();
-	NpgsCoreInfo("[INFO] Command buffers freed successfully.");
+	NpgsCoreInfo("Command buffers freed successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -354,7 +373,7 @@ vk::Result FVulkanCommandPool::FreeBuffers(vk::CommandBufferLevel Level, std::ve
 	_Device->freeCommandBuffers(_CommandPool, CommandBuffers);
 	Buffers.clear();
 
-	NpgsCoreInfo("[INFO] Command buffers freed successfully.");
+	NpgsCoreInfo("Command buffers freed successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -366,11 +385,11 @@ vk::Result FVulkanCommandPool::CreateCommandPool(vk::CommandPoolCreateInfo& Crea
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to create command pool: {}", Error.what());
+		NpgsCoreError("Failed to create command pool: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Command pool created successfully.");
+	NpgsCoreInfo("Command pool created successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -435,7 +454,7 @@ vk::Result FVulkanFence::Wait() const
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to wait for fence: {}", Error.what());
+		NpgsCoreError("Failed to wait for fence: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -450,7 +469,7 @@ vk::Result FVulkanFence::Reset() const
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to reset fence: {}", Error.what());
+		NpgsCoreError("Failed to reset fence: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -474,7 +493,7 @@ vk::Result FVulkanFence::GetStatus() const
 	vk::Result Result = _Device->getFenceStatus(_Fence);
 	if (Result != vk::Result::eSuccess)
 	{
-		NpgsCoreError("Error: Failed to get fence status: {}.", vk::to_string(Result));
+		NpgsCoreError("Failed to get fence status: {}.", vk::to_string(Result));
 		return Result;
 	}
 
@@ -489,11 +508,11 @@ vk::Result FVulkanFence::CreateFence(const vk::FenceCreateInfo& CreateInfo)
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to create fence: {}", Error.what());
+		NpgsCoreError("Failed to create fence: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Fence created successfully.");
+	NpgsCoreInfo("Fence created successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -551,11 +570,11 @@ vk::Result FVulkanFramebuffer::CreateFramebuffer(const vk::FramebufferCreateInfo
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to create framebuffer: {}.", Error.what());
+		NpgsCoreError("Failed to create framebuffer: {}.", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Framebuffer created successfully.");
+	NpgsCoreInfo("Framebuffer created successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -617,7 +636,7 @@ vk::Result FVulkanPipeline::CreateGraphicsPipeline(const vk::GraphicsPipelineCre
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Graphics pipeline created successfully");
+	NpgsCoreInfo("Graphics pipeline created successfully");
 	return vk::Result::eSuccess;
 }
 
@@ -633,7 +652,7 @@ vk::Result FVulkanPipeline::CreateComputePipeline(const vk::ComputePipelineCreat
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Compute pipeline created successfully");
+	NpgsCoreInfo("Compute pipeline created successfully");
 	return vk::Result::eSuccess;
 }
 
@@ -690,7 +709,7 @@ vk::Result FVulkanPipelineLayout::CreatePipelineLayout(const vk::PipelineLayoutC
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Pipeline layout created successfully");
+	NpgsCoreInfo("Pipeline layout created successfully");
 	return vk::Result::eSuccess;
 }
 
@@ -750,11 +769,11 @@ vk::Result FVulkanRenderPass::CreateRenderPass(const vk::RenderPassCreateInfo& C
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to create render pass: {}.", Error.what());
+		NpgsCoreError("Failed to create render pass: {}.", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Render pass created successfully.");
+	NpgsCoreInfo("Render pass created successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -812,11 +831,11 @@ vk::Result FVulkanSemaphore::CreateSemaphore(const vk::SemaphoreCreateInfo& Crea
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to create semaphore: {}", Error.what());
+		NpgsCoreError("Failed to create semaphore: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Semaphore created successfully.");
+	NpgsCoreInfo("Semaphore created successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -884,7 +903,7 @@ vk::Result FVulkanShaderModule::CreateShaderModule(const vk::ShaderModuleCreateI
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Shader module created successfully.");
+	NpgsCoreInfo("Shader module created successfully.");
 	return vk::Result::eSuccess;
 }
 

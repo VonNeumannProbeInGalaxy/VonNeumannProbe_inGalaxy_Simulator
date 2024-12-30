@@ -18,7 +18,7 @@ vk::Result FVulkanBase::CheckInstanceLayers()
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to enumerate instance layer properties: {}", Error.what());
+		NpgsCoreError("Failed to enumerate instance layer properties: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -61,7 +61,7 @@ vk::Result FVulkanBase::CheckInstanceExtensions(const std::string& LayerName)
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to enumerate instance extension properties: {}", Error.what());
+		NpgsCoreError("Failed to enumerate instance extension properties: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -104,7 +104,7 @@ vk::Result FVulkanBase::CheckDeviceExtensions()
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to enumerate device extension properties: {}", Error.what());
+		NpgsCoreError("Failed to enumerate device extension properties: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -155,7 +155,7 @@ vk::Result FVulkanBase::CreateInstance(const vk::InstanceCreateFlags& Flags)
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to create Vulkan instance: {}", Error.what());
+		NpgsCoreError("Failed to create Vulkan instance: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -167,8 +167,8 @@ vk::Result FVulkanBase::CreateInstance(const vk::InstanceCreateFlags& Flags)
 	}
 #endif // _DEBUG
 
-	NpgsCoreInfo("[INFO] Vulkan instance created successfully.");
-	NpgsCoreInfo("[INFO] Vulkan API version: {}.{}.{}",
+	NpgsCoreInfo("Vulkan instance created successfully.");
+	NpgsCoreInfo("Vulkan API version: {}.{}.{}",
 				 VK_VERSION_MAJOR(_ApiVersion), VK_VERSION_MINOR(_ApiVersion), VK_VERSION_PATCH(_ApiVersion));
 
 	return vk::Result::eSuccess;
@@ -208,7 +208,7 @@ vk::Result FVulkanBase::CreateDevice(std::uint32_t PhysicalDeviceIndex, const vk
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to create logical device: {}", Error.what());
+		NpgsCoreError("Failed to create logical device: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -226,11 +226,11 @@ vk::Result FVulkanBase::CreateDevice(std::uint32_t PhysicalDeviceIndex, const vk
 		_ComputeQueue = _Device.getQueue(_ComputeQueueFamilyIndex, 0);
 	}
 
-	NpgsCoreInfo("[INFO] Logical device created successfully.");
+	NpgsCoreInfo("Logical device created successfully.");
 
 	_PhysicalDeviceProperties       = _PhysicalDevice.getProperties();
 	_PhysicalDeviceMemoryProperties = _PhysicalDevice.getMemoryProperties();
-	NpgsCoreInfo("[INFO] Renderer: {}", _PhysicalDeviceProperties.deviceName.data());
+	NpgsCoreInfo("Renderer: {}", _PhysicalDeviceProperties.deviceName.data());
 
 	for (auto& Callback : _CreateDeviceCallbacks)
 	{
@@ -323,6 +323,8 @@ vk::Result FVulkanBase::SetSurfaceFormat(const vk::SurfaceFormatKHR& SurfaceForm
 
 vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, bool bLimitFps, const vk::SwapchainCreateFlagsKHR& Flags)
 {
+	// Swapchain 需要的信息：
+	// 1.基本 Surface 能力（Swapchain 中图像的最小/最大数量，图像的最小/最大宽度和高度）
 	vk::SurfaceCapabilitiesKHR SurfaceCapabilities;
 	try
 	{
@@ -330,7 +332,7 @@ vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, bool bLimitF
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to get surface capabilities: {}", Error.what());
+		NpgsCoreError("Failed to get surface capabilities: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -339,6 +341,7 @@ vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, bool bLimitF
 	{
 		SwapchainExtent = vk::Extent2D
 		{
+			// 限制 Swapchain 的大小在支持的范围内
 			glm::clamp(Extent.width,  SurfaceCapabilities.minImageExtent.width,  SurfaceCapabilities.maxImageExtent.width),
 			glm::clamp(Extent.height, SurfaceCapabilities.minImageExtent.height, SurfaceCapabilities.maxImageExtent.height)
 		};
@@ -357,8 +360,9 @@ vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, bool bLimitF
 	_SwapchainCreateInfo.setImageArrayLayers(1);
 	_SwapchainCreateInfo.setImageSharingMode(vk::SharingMode::eExclusive);
 	_SwapchainCreateInfo.setPreTransform(SurfaceCapabilities.currentTransform);
-	_SwapchainCreateInfo.setClipped(VK_TRUE);
+	_SwapchainCreateInfo.setClipped(vk::True);
 
+	// 设置图像格式
 	if (SurfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::eInherit) // 优先使用继承模式
 	{
 		_SwapchainCreateInfo.setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eInherit);
@@ -394,10 +398,11 @@ vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, bool bLimitF
 	}
 	else
 	{
-		NpgsCoreError("Error: Failed to get supported usage flags.");
+		NpgsCoreError("Failed to get supported usage flags.");
 		return static_cast<vk::Result>(VK_RESULT_MAX_ENUM);
 	}
 
+	// 2.设置 Swapchain 像素格式和色彩空间
 	vk::Result Result;
 	if (_AvailableSurfaceFormats.empty())
 	{
@@ -414,10 +419,11 @@ vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, bool bLimitF
 		{
 			_SwapchainCreateInfo.setImageFormat(_AvailableSurfaceFormats[0].format);
 			_SwapchainCreateInfo.setImageColorSpace(_AvailableSurfaceFormats[0].colorSpace);
-			NpgsCoreWarn("Warning: Failed to select a four-component unsigned normalized surface format.");
+			NpgsCoreWarn("Failed to select a four-component unsigned normalized surface format.");
 		}
 	}
 
+	// 3.设置 Swapchain 呈现模式
 	std::vector<vk::PresentModeKHR> SurfacePresentModes;
 	try
 	{
@@ -425,12 +431,15 @@ vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, bool bLimitF
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to get surface present modes: {}", Error.what());
+		NpgsCoreError("Failed to get surface present modes: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	_SwapchainCreateInfo.setPresentMode(vk::PresentModeKHR::eMailbox);
-	if (!bLimitFps)
+	if (bLimitFps)
+	{
+		_SwapchainCreateInfo.setPresentMode(vk::PresentModeKHR::eFifo);
+	}
+	else
 	{
 		for (const auto& SurfacePresentMode : SurfacePresentModes)
 		{
@@ -452,7 +461,7 @@ vk::Result FVulkanBase::CreateSwapchain(const vk::Extent2D& Extent, bool bLimitF
 		Callback.second();
 	}
 
-	NpgsCoreInfo("[INFO] Swapchain created successfully.");
+	NpgsCoreInfo("Swapchain created successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -465,7 +474,7 @@ vk::Result FVulkanBase::RecreateSwapchain()
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to get surface capabilities: {}", Error.what());
+		NpgsCoreError("Failed to get surface capabilities: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -473,8 +482,12 @@ vk::Result FVulkanBase::RecreateSwapchain()
 	{
 		return vk::Result::eSuboptimalKHR;
 	}
-
 	_SwapchainCreateInfo.setImageExtent(SurfaceCapabilities.currentExtent);
+	
+	if (_SwapchainCreateInfo.oldSwapchain)
+	{
+		_Device.destroySwapchainKHR(_SwapchainCreateInfo.oldSwapchain);
+	}
 	_SwapchainCreateInfo.setOldSwapchain(_Swapchain);
 
 	try
@@ -483,7 +496,7 @@ vk::Result FVulkanBase::RecreateSwapchain()
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to wait for graphics queue to be idle: {}", Error.what());
+		NpgsCoreError("Failed to wait for graphics queue to be idle: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -495,7 +508,7 @@ vk::Result FVulkanBase::RecreateSwapchain()
 		}
 		catch (const vk::SystemError& Error)
 		{
-			NpgsCoreError("Error: Failed to wait for present queue to be idle: {}", Error.what());
+			NpgsCoreError("Failed to wait for present queue to be idle: {}", Error.what());
 			return static_cast<vk::Result>(Error.code().value());
 		}
 	}
@@ -536,7 +549,7 @@ vk::Result FVulkanBase::SubmitCommandBufferToGraphics(const vk::SubmitInfo& Subm
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to submit command buffer to graphics queue: {}", Error.what());
+		NpgsCoreError("Failed to submit command buffer to graphics queue: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 	 
@@ -583,7 +596,7 @@ vk::Result FVulkanBase::SubmitCommandBufferToCompute(const vk::SubmitInfo& Submi
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to submit command buffer to compute queue: {}", Error.what());
+		NpgsCoreError("Failed to submit command buffer to compute queue: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -599,7 +612,7 @@ vk::Result FVulkanBase::SubmitCommandBufferToCompute(const FVulkanCommandBuffer&
 vk::Result FVulkanBase::SwapImage(const FVulkanSemaphore& Semaphore)
 {
 	if (_SwapchainCreateInfo.oldSwapchain &&
-		_SwapchainCreateInfo.oldSwapchain != _Swapchain) // 如果 RecreateSwapchain 成功，oldSwapchain 不会等于当前的 _Swapchain
+		_SwapchainCreateInfo.oldSwapchain != _Swapchain) [[unlikely]]
 	{
 		_Device.destroySwapchainKHR(_SwapchainCreateInfo.oldSwapchain);
 		_SwapchainCreateInfo.setOldSwapchain(vk::SwapchainKHR());
@@ -619,7 +632,7 @@ vk::Result FVulkanBase::SwapImage(const FVulkanSemaphore& Semaphore)
 			}
 			break;
 		default:
-			NpgsCoreError("Error: Failed to acquire next image: {}.", vk::to_string(Result));
+			NpgsCoreError("Failed to acquire next image: {}.", vk::to_string(Result));
 			return Result;
 		}
 	}
@@ -639,7 +652,7 @@ vk::Result FVulkanBase::PresentImage(const vk::PresentInfoKHR& PresentInfo)
 		case vk::Result::eSuboptimalKHR:
 			return RecreateSwapchain();
 		default:
-			NpgsCoreError("Error: Failed to present image: {}.", vk::to_string(Result));
+			NpgsCoreError("Failed to present image: {}.", vk::to_string(Result));
 			return Result;
 		}
 	}
@@ -651,7 +664,7 @@ vk::Result FVulkanBase::PresentImage(const vk::PresentInfoKHR& PresentInfo)
 		case vk::Result::eErrorOutOfDateKHR:
 			return RecreateSwapchain();
 		default:
-			NpgsCoreError("Error: Failed to present image: {}", Error.what());
+			NpgsCoreError("Failed to present image: {}", Error.what());
 			return ErrorResult;
 		}
 	}
@@ -680,7 +693,7 @@ vk::Result FVulkanBase::WaitIdle() const
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to wait for device to be idle: {}", Error.what());
+		NpgsCoreError("Failed to wait for device to be idle: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -727,10 +740,10 @@ FVulkanBase::~FVulkanBase()
 					_Device.destroyImageView(ImageView);
 				}
 			}
-			NpgsCoreInfo("[INFO] Destroyed image views.");
+			NpgsCoreInfo("Destroyed image views.");
 			_SwapchainImageViews.clear();
 			_Device.destroySwapchainKHR(_Swapchain);
-			NpgsCoreInfo("[INFO] Destroyed swapchain.");
+			NpgsCoreInfo("Destroyed swapchain.");
 		}
 
 		for (auto& Callback : _DestroyDeviceCallbacks)
@@ -738,23 +751,23 @@ FVulkanBase::~FVulkanBase()
 			Callback.second();
 		}
 		_Device.destroy();
-		NpgsCoreInfo("[INFO] Destroyed logical device.");
+		NpgsCoreInfo("Destroyed logical device.");
 	}
 
 	if (_Surface)
 	{
 		_Instance.destroySurfaceKHR(_Surface);
-		NpgsCoreInfo("[INFO] Destroyed surface.");
+		NpgsCoreInfo("Destroyed surface.");
 	}
 
 	if (_DebugMessenger)
 	{
 		_Instance.destroyDebugUtilsMessengerEXT(_DebugMessenger);
-		NpgsCoreInfo("[INFO] Destroyed debug messenger.");
+		NpgsCoreInfo("Destroyed debug messenger.");
 	}
 
 	_Instance.destroy();
-	NpgsCoreInfo("[INFO] Destroyed Vulkan instance.");
+	NpgsCoreInfo("Destroyed Vulkan instance.");
 }
 
 vk::Result FVulkanBase::UseLatestApiVersion()
@@ -767,7 +780,7 @@ vk::Result FVulkanBase::UseLatestApiVersion()
 		}
 		catch (const vk::SystemError& Error)
 		{
-			NpgsCoreError("Error: Failed to get the latest Vulkan API version: {}", Error.what());
+			NpgsCoreError("Failed to get the latest Vulkan API version: {}", Error.what());
 			return static_cast<vk::Result>(Error.code().value());
 		}
 	}
@@ -809,13 +822,13 @@ vk::Result FVulkanBase::CreateDebugMessenger()
 		if (MessageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)   Severity = "ERROR";
 
 		if (Severity == "VERBOSE")
-			NpgsCoreTrace("[{}] Validation layer: {}", Severity, CallbackData->pMessage);
+			NpgsCoreTrace("Validation layer: {}", CallbackData->pMessage);
 		else if (Severity == "INFO")
-			NpgsCoreInfo("[{}] Validation layer: {}", Severity, CallbackData->pMessage);
+			NpgsCoreInfo("Validation layer: {}", CallbackData->pMessage);
 		else if (Severity == "ERROR")
-			NpgsCoreError("[{}] Validation layer: {}", Severity, CallbackData->pMessage);
+			NpgsCoreError("Validation layer: {}", CallbackData->pMessage);
 		else if (Severity == "WARNING")
-			NpgsCoreWarn("[{}] Validation layer: {}", Severity, CallbackData->pMessage);
+			NpgsCoreWarn("Validation layer: {}", CallbackData->pMessage);
 
 		// if (CallbackData->queueLabelCount > 0)
 		// 	NpgsCoreTrace("Queue Labels: {}", CallbackData->queueLabelCount);
@@ -841,7 +854,7 @@ vk::Result FVulkanBase::CreateDebugMessenger()
 		reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(_Instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
 	if (vkCreateDebugUtilsMessengerEXT == nullptr)
 	{
-		NpgsCoreError("Error: Failed to get vkCreateDebugUtilsMessengerEXT function pointer.");
+		NpgsCoreError("Failed to get vkCreateDebugUtilsMessengerEXT function pointer.");
 		return static_cast<vk::Result>(VK_RESULT_MAX_ENUM);
 	}
 
@@ -849,7 +862,7 @@ vk::Result FVulkanBase::CreateDebugMessenger()
 		reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(_Instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
 	if (vkDestroyDebugUtilsMessengerEXT == nullptr)
 	{
-		NpgsCoreError("Error: Failed to get vkDestroyDebugUtilsMessengerEXT function pointer.");
+		NpgsCoreError("Failed to get vkDestroyDebugUtilsMessengerEXT function pointer.");
 		return static_cast<vk::Result>(VK_RESULT_MAX_ENUM);
 	}
 
@@ -859,11 +872,11 @@ vk::Result FVulkanBase::CreateDebugMessenger()
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to create debug messenger: {}", Error.what());
+		NpgsCoreError("Failed to create debug messenger: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Debug messenger created successfully.");
+	NpgsCoreInfo("Debug messenger created successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -875,11 +888,11 @@ vk::Result FVulkanBase::EnumeratePhysicalDevices()
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to enumerate physical devices: {}", Error.what());
+		NpgsCoreError("Failed to enumerate physical devices: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Physical devices enumerated successfully.");
+	NpgsCoreInfo("Physical devices enumerated successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -950,11 +963,11 @@ vk::Result FVulkanBase::ObtainPhysicalDeviceSurfaceFormats()
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to obtain surface formats: {}", Error.what());
+		NpgsCoreError("Failed to obtain surface formats: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
-	NpgsCoreInfo("[INFO] Surface formats obtained successfully.");
+	NpgsCoreInfo("Surface formats obtained successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -964,7 +977,7 @@ vk::Result FVulkanBase::ObtainQueueFamilyIndices(const vk::PhysicalDevice& Physi
 	std::vector<vk::QueueFamilyProperties> QueueFamilyProperties = PhysicalDevice.getQueueFamilyProperties();
 	if (QueueFamilyProperties.empty())
 	{
-		NpgsCoreError("Error: Failed to get queue family properties.");
+		NpgsCoreError("Failed to get queue family properties.");
 		return static_cast<vk::Result>(VK_RESULT_MAX_ENUM);
 	}
 
@@ -986,7 +999,7 @@ vk::Result FVulkanBase::ObtainQueueFamilyIndices(const vk::PhysicalDevice& Physi
 			}
 			catch (const vk::SystemError& Error)
 			{
-				NpgsCoreError("Error: Failed to determine if the queue family supports presentation: {}", Error.what());
+				NpgsCoreError("Failed to determine if the queue family supports presentation: {}", Error.what());
 				return static_cast<vk::Result>(Error.code().value());
 			}
 		}
@@ -1028,11 +1041,11 @@ vk::Result FVulkanBase::ObtainQueueFamilyIndices(const vk::PhysicalDevice& Physi
 		(PresentIndex  == VK_QUEUE_FAMILY_IGNORED && _Surface) ||
 		(ComputeIndex  == VK_QUEUE_FAMILY_IGNORED && bEnableComputeQueue))
 	{
-		NpgsCoreError("Error: Failed to obtain queue family indices.");
+		NpgsCoreError("Failed to obtain queue family indices.");
 		return static_cast<vk::Result>(VK_RESULT_MAX_ENUM);
 	}
 
-	NpgsCoreInfo("[INFO] Queue family indices obtained successfully.");
+	NpgsCoreInfo("Queue family indices obtained successfully.");
 	return vk::Result::eSuccess;
 }
 
@@ -1044,7 +1057,7 @@ vk::Result FVulkanBase::CreateSwapchainInternal()
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to create swapchain: {}", Error.what());
+		NpgsCoreError("Failed to create swapchain: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -1054,7 +1067,7 @@ vk::Result FVulkanBase::CreateSwapchainInternal()
 	}
 	catch (const vk::SystemError& Error)
 	{
-		NpgsCoreError("Error: Failed to get swapchain images: {}", Error.what());
+		NpgsCoreError("Failed to get swapchain images: {}", Error.what());
 		return static_cast<vk::Result>(Error.code().value());
 	}
 
@@ -1073,7 +1086,7 @@ vk::Result FVulkanBase::CreateSwapchainInternal()
 		}
 		catch (const vk::SystemError& Error)
 		{
-			NpgsCoreError("Error: Failed to create image view: {}", Error.what());
+			NpgsCoreError("Failed to create image view: {}", Error.what());
 			return static_cast<vk::Result>(Error.code().value());
 		}
 
