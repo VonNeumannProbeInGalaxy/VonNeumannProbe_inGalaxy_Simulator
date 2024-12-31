@@ -82,7 +82,7 @@ private:
 class FVulkanCommandPool
 {
 public:
-	FVulkanCommandPool() = default;
+	FVulkanCommandPool();
 	FVulkanCommandPool(const vk::Device& Device, vk::CommandPoolCreateInfo& CreateInfo);
 	FVulkanCommandPool(const vk::Device& Device, std::uint32_t QueueFamilyIndex, vk::CommandPoolCreateFlags Flags = {});
 	FVulkanCommandPool(const FVulkanCommandPool&) = default;
@@ -121,7 +121,7 @@ private:
 class FVulkanFence
 {
 public:
-	FVulkanFence() = default;
+	FVulkanFence();
 	FVulkanFence(const vk::Device& Device, const vk::FenceCreateInfo& CreateInfo);
 	FVulkanFence(const vk::Device& Device, const vk::FenceCreateFlags& Flags = {});
 	FVulkanFence(const FVulkanFence&) = default;
@@ -156,7 +156,7 @@ private:
 class FVulkanFramebuffer
 {
 public:
-	FVulkanFramebuffer() = default;
+	FVulkanFramebuffer();
 	FVulkanFramebuffer(const vk::Device& Device, const vk::FramebufferCreateInfo& CreateInfo);
 	FVulkanFramebuffer(const FVulkanFramebuffer&) = default;
 	FVulkanFramebuffer(FVulkanFramebuffer&& Other) noexcept;
@@ -184,7 +184,7 @@ private:
 class FVulkanPipeline
 {
 public:
-	FVulkanPipeline() = default;
+	FVulkanPipeline();
 	FVulkanPipeline(const vk::Device& Device, const vk::GraphicsPipelineCreateInfo& CreateInfo);
 	FVulkanPipeline(const vk::Device& Device, const vk::ComputePipelineCreateInfo& CreateInfo);
 	FVulkanPipeline(const FVulkanPipeline&) = default;
@@ -214,7 +214,7 @@ private:
 class FVulkanPipelineLayout
 {
 public:
-	FVulkanPipelineLayout() = default;
+	FVulkanPipelineLayout();
 	FVulkanPipelineLayout(const vk::Device& Device, const vk::PipelineLayoutCreateInfo& CreateInfo);
 	FVulkanPipelineLayout(const FVulkanPipelineLayout&) = default;
 	FVulkanPipelineLayout(FVulkanPipelineLayout& Other) noexcept;
@@ -242,7 +242,7 @@ private:
 class FVulkanRenderPass
 {
 public:
-	FVulkanRenderPass() = default;
+	FVulkanRenderPass();
 	FVulkanRenderPass(const vk::Device& Device, const vk::RenderPassCreateInfo& CreateInfo);
 	FVulkanRenderPass(const FVulkanRenderPass&) = default;
 	FVulkanRenderPass(FVulkanRenderPass&& Other) noexcept;
@@ -282,7 +282,7 @@ private:
 class FVulkanSemaphore
 {
 public:
-	FVulkanSemaphore() = default;
+	FVulkanSemaphore();
 	FVulkanSemaphore(const vk::Device& Device, const vk::SemaphoreCreateInfo& CreateInfo);
 	FVulkanSemaphore(const vk::Device& Device, const vk::SemaphoreCreateFlags& Flags = {});
 	FVulkanSemaphore(const FVulkanSemaphore&) = default;
@@ -312,7 +312,7 @@ private:
 class FVulkanShaderModule
 {
 public:
-	FVulkanShaderModule() = default;
+	FVulkanShaderModule();
 	FVulkanShaderModule(const vk::Device& Device, const vk::ShaderModuleCreateInfo& CreateInfo);
 	FVulkanShaderModule(const vk::Device& Device, const std::string& Filename);
 	FVulkanShaderModule(const FVulkanShaderModule&) = default;

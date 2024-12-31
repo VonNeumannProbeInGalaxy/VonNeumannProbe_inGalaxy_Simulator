@@ -191,6 +191,11 @@ vk::Result FVulkanCommandBuffer::End()
 
 // Wrapper for vk::CommandPool
 // ---------------------------
+FVulkanCommandPool::FVulkanCommandPool()
+	: _Device(nullptr)
+{
+}
+
 FVulkanCommandPool::FVulkanCommandPool(const vk::Device& Device, vk::CommandPoolCreateInfo& CreateInfo)
 	: _Device(&Device)
 {
@@ -370,6 +375,11 @@ vk::Result FVulkanCommandPool::CreateCommandPool(std::uint32_t QueueFamilyIndex,
 
 // Wrapper for vk::Fence
 // ---------------------
+FVulkanFence::FVulkanFence()
+	: _Device(nullptr)
+{
+}
+
 FVulkanFence::FVulkanFence(const vk::Device& Device, const vk::FenceCreateInfo& CreateInfo)
 	: _Device(&Device)
 {
@@ -491,6 +501,11 @@ vk::Result FVulkanFence::CreateFence(const vk::FenceCreateFlags& Flags)
 
 // Wrapper for vk::Framebuffer
 // ---------------------------
+FVulkanFramebuffer::FVulkanFramebuffer()
+	: _Device(nullptr)
+{
+}
+
 FVulkanFramebuffer::FVulkanFramebuffer(const vk::Device& Device, const vk::FramebufferCreateInfo& CreateInfo)
 	: _Device(&Device)
 {
@@ -545,6 +560,11 @@ vk::Result FVulkanFramebuffer::CreateFramebuffer(const vk::FramebufferCreateInfo
 
 // Wrapper for vk::Pipeline
 // ------------------------
+FVulkanPipeline::FVulkanPipeline()
+	: _Device(nullptr)
+{
+}
+
 FVulkanPipeline::FVulkanPipeline(const vk::Device& Device, const vk::GraphicsPipelineCreateInfo& CreateInfo)
 	: _Device(&Device)
 {
@@ -621,6 +641,11 @@ vk::Result FVulkanPipeline::CreateComputePipeline(const vk::ComputePipelineCreat
 
 // Wrapper for vk::PipelineLayout
 // ------------------------------
+FVulkanPipelineLayout::FVulkanPipelineLayout()
+	: _Device(nullptr)
+{
+}
+
 FVulkanPipelineLayout::FVulkanPipelineLayout(const vk::Device& Device, const vk::PipelineLayoutCreateInfo& CreateInfo)
 	: _Device(&Device)
 {
@@ -676,6 +701,11 @@ vk::Result FVulkanPipelineLayout::CreatePipelineLayout(const vk::PipelineLayoutC
 
 // Wrapper for vk::RenderPass
 // --------------------------
+FVulkanRenderPass::FVulkanRenderPass()
+	: _Device(nullptr)
+{
+}
+
 FVulkanRenderPass::FVulkanRenderPass(const vk::Device& Device, const vk::RenderPassCreateInfo& CreateInfo)
 	: _Device(&Device)
 {
@@ -738,6 +768,11 @@ vk::Result FVulkanRenderPass::CreateRenderPass(const vk::RenderPassCreateInfo& C
 
 // Wrapper for vk::Semaphore
 // -------------------------
+FVulkanSemaphore::FVulkanSemaphore()
+	: _Device(nullptr)
+{
+}
+
 FVulkanSemaphore::FVulkanSemaphore(const vk::Device& Device, const vk::SemaphoreCreateInfo& CreateInfo)
 	: _Device(&Device)
 {
@@ -804,6 +839,11 @@ vk::Result FVulkanSemaphore::CreateSemaphore(const vk::SemaphoreCreateFlags& Fla
 
 // Wrapper for vk::ShaderModule
 // ----------------------------
+FVulkanShaderModule::FVulkanShaderModule()
+	: _Device(nullptr)
+{
+}
+
 FVulkanShaderModule::FVulkanShaderModule(const vk::Device& Device, const vk::ShaderModuleCreateInfo& CreateInfo)
 	: _Device(&Device)
 {
