@@ -4,8 +4,6 @@
 #include <utility>
 #include "Engine/Utilities/Logger.h"
 
-#include "Engine/Core/Vulkan/VulkanWrapper.hpp"
-
 _NPGS_BEGIN
 
 FApplication::FApplication(const vk::Extent2D& WindowSize, const std::string& WindowTitle,
@@ -15,7 +13,6 @@ FApplication::FApplication(const vk::Extent2D& WindowSize, const std::string& Wi
 	_WindowSize(WindowSize),
 	_Window(nullptr),
 	_VulkanBase(FVulkanBase::GetVulkanBaseInstance()),
-	_IsValid(true),
 	_bEnableVSync(bEnableVSync),
 	_bEnableFullscreen(bEnableFullscreen)
 {
@@ -27,7 +24,8 @@ FApplication::FApplication(const vk::Extent2D& WindowSize, const std::string& Wi
 
 FApplication::~FApplication()
 {
-	_IsValid = false;
+	_VulkanBase->RemoveDestroySwapchainCallback("DestroyFramebuffers");
+	_VulkanBase->RemoveDestroySwapchainCallback("DestroyPipeline");
 }
 
 void FApplication::ExecuteMainRender()
@@ -39,23 +37,13 @@ void FApplication::ExecuteMainRender()
 	const auto& [Framebuffers, RenderPass] = _Renderer;
 
 	vk::FenceCreateFlags FenceCreateFlags{ vk::FenceCreateFlagBits::eSignaled };
-	//FVulkanFence VulkanFence(_VulkanBase->GetDevice(), FenceCreateFlags);
-	//FVulkanSemaphore VulkanSemaphore_ImageAvailable(_VulkanBase->GetDevice());
-	//FVulkanSemaphore VulkanSemaphore_RenderFinished(_VulkanBase->GetDevice());
+	FVulkanFence Fence(_VulkanBase->GetDevice(), FenceCreateFlags);
+	FVulkanSemaphore Semaphore_ImageAvailable(_VulkanBase->GetDevice());
+	FVulkanSemaphore Semaphore_RenderFinished(_VulkanBase->GetDevice());
 
-	//FVulkanCommandBuffer CommandBuffer;
-	//FVulkanCommandPool CommandPool(_VulkanBase->GetDevice(), _VulkanBase->GetGraphicsQueueFamilyIndex(),
-	//							   vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
-	//CommandPool.AllocateBuffer(vk::CommandBufferLevel::ePrimary, CommandBuffer);
-
-	// Test
-	TVulkanWrapper<vk::Fence> Fence(_VulkanBase->GetDevice(), FenceCreateFlags);
-	TVulkanWrapper<vk::Semaphore> Semaphore_ImageAvailable(_VulkanBase->GetDevice());
-	TVulkanWrapper<vk::Semaphore> Semaphore_RenderFinished(_VulkanBase->GetDevice());
-
-	TVulkanWrapper<vk::CommandBuffer> CommandBuffer;
-	TVulkanWrapper<vk::CommandPool> CommandPool(_VulkanBase->GetDevice(), _VulkanBase->GetGraphicsQueueFamilyIndex(),
-												vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+	FVulkanCommandBuffer CommandBuffer;
+	FVulkanCommandPool CommandPool(_VulkanBase->GetDevice(), _VulkanBase->GetGraphicsQueueFamilyIndex(),
+								   vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 	CommandPool.AllocateBuffer(vk::CommandBufferLevel::ePrimary, CommandBuffer);
 
 	vk::ClearValue ColorValue({ 0.0f, 0.0f, 0.0f, 1.0f });
@@ -69,19 +57,18 @@ void FApplication::ExecuteMainRender()
 
 		Fence.WaitAndReset();
 
-		//_VulkanBase->SwapImage(*Semaphore_ImageAvailable);
-		//std::uint32_t ImageIndex = _VulkanBase->GetCurrentImageIndex();
+		_VulkanBase->SwapImage(Semaphore_ImageAvailable);
+		std::uint32_t ImageIndex = _VulkanBase->GetCurrentImageIndex();
 
-		//CommandBuffer.Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-		//RenderPass.CommandBegin(CommandBuffer, Framebuffers[ImageIndex], { {}, _WindowSize }, { ColorValue });
-		////CommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _Pipeline);
-		////CommandBuffer.draw(3, 1, 0, 0);
-		//RenderPass.CommandEnd(CommandBuffer);
-		//CommandBuffer.End();
+		CommandBuffer.Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+		RenderPass.CommandBegin(CommandBuffer, Framebuffers[ImageIndex], { {}, _WindowSize }, { ColorValue });
+		CommandBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, *_Pipeline);
+		CommandBuffer->draw(3, 1, 0, 0);
+		RenderPass.CommandEnd(CommandBuffer);
+		CommandBuffer.End();
 
-		//_VulkanBase->SubmitCommandBufferToGraphics(CommandBuffer, Semaphore_ImageAvailable,
-		//										   Semaphore_RenderFinished, VulkanFence);
-		//_VulkanBase->PresentImage(Semaphore_RenderFinished);
+		_VulkanBase->SubmitCommandBufferToGraphics(CommandBuffer, Semaphore_ImageAvailable, Semaphore_RenderFinished, Fence);
+		_VulkanBase->PresentImage(Semaphore_RenderFinished);
 
 		ProcessInput();
 		glfwPollEvents();
@@ -195,20 +182,15 @@ void FApplication::CreateScreenRender()
 	_Renderer.RenderPass = FVulkanRenderPass(_VulkanBase->GetDevice(), RenderPassCreateInfo);
 
 	auto CreateFramebuffers =
-	[VulkanBase = _VulkanBase, Renderer = &_Renderer, WindowSize = &_WindowSize, IsValid = &_IsValid]() -> void
+	[VulkanBase = _VulkanBase, Renderer = &_Renderer, WindowSize = &_WindowSize]() -> void
 	{
-		if (!IsValid->load())
-		{
-			return;
-		}
-
 		VulkanBase->WaitIdle();
 		Renderer->Framebuffers.clear();
 
 		Renderer->Framebuffers.reserve(VulkanBase->GetSwapchainImageCount());
 
 		vk::FramebufferCreateInfo FramebufferCreateInfo = vk::FramebufferCreateInfo()
-			.setRenderPass(Renderer->RenderPass.GetRenderPass())
+			.setRenderPass(*Renderer->RenderPass)
 			.setAttachmentCount(1)
 			.setWidth(WindowSize->width)
 			.setHeight(WindowSize->height)
@@ -217,18 +199,13 @@ void FApplication::CreateScreenRender()
 		for (std::uint32_t i = 0; i != VulkanBase->GetSwapchainImageCount(); ++i)
 		{
 			vk::ImageView Attachment = VulkanBase->GetSwapchainImageView(i);
-			FramebufferCreateInfo.setPAttachments(&Attachment);
+			FramebufferCreateInfo.setAttachments(Attachment);
 			Renderer->Framebuffers.emplace_back(VulkanBase->GetDevice(), FramebufferCreateInfo);
 		}
 	};
 
-	auto DestroyFramebuffers = [VulkanBase = _VulkanBase, Renderer = &_Renderer, IsValid = &_IsValid]() -> void
+	auto DestroyFramebuffers = [VulkanBase = _VulkanBase, Renderer = &_Renderer]() -> void
 	{
-		if (!IsValid->load())
-		{
-			return;
-		}
-
 		VulkanBase->WaitIdle();
 		Renderer->Framebuffers.clear();
 	};
@@ -251,26 +228,21 @@ void FApplication::CreatePipeline()
 
 	static vk::PipelineShaderStageCreateInfo VertShaderStage = vk::PipelineShaderStageCreateInfo()
 		.setStage(vk::ShaderStageFlagBits::eVertex)
-		.setModule(VertShaderModule.GetShaderModule())
+		.setModule(*VertShaderModule)
 		.setPName("main");
 	static vk::PipelineShaderStageCreateInfo FragShaderStage = vk::PipelineShaderStageCreateInfo()
 		.setStage(vk::ShaderStageFlagBits::eFragment)
-		.setModule(FragShaderModule.GetShaderModule())
+		.setModule(*FragShaderModule)
 		.setPName("main");
 
 	static std::vector<vk::PipelineShaderStageCreateInfo> ShaderStageCreateInfos{ VertShaderStage, FragShaderStage };
 
-	auto Create = [this, VulkanBase = _VulkanBase, IsValid = &_IsValid]() -> void
+	auto Create = [this, VulkanBase = _VulkanBase]() -> void
 	{
-		if (!IsValid->load())
-		{
-			return;
-		}
-
 		// 先创建新管线，再销毁旧管线
 		FGraphicsPipelineCreateInfoPack Pack;
-		Pack.GraphicsPipelineCreateInfo.setLayout(_Layout.GetPipelineLayout());
-		Pack.GraphicsPipelineCreateInfo.setRenderPass(_Renderer.RenderPass.GetRenderPass());
+		Pack.GraphicsPipelineCreateInfo.setLayout(*_Layout);
+		Pack.GraphicsPipelineCreateInfo.setRenderPass(*_Renderer.RenderPass);
 		Pack.InputAssemblyStateCreateInfo.setTopology(vk::PrimitiveTopology::eTriangleList);
 		Pack.MultisampleStateCreateInfo.setRasterizationSamples(vk::SampleCountFlagBits::e1);
 
@@ -280,12 +252,12 @@ void FApplication::CreatePipeline()
 			.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
 							   vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
 
-		Pack.DynamicStates.emplace_back(vk::DynamicState::eViewport);
-		Pack.DynamicStates.emplace_back(vk::DynamicState::eScissor);
+		//Pack.DynamicStates.emplace_back(vk::DynamicState::eViewport);
+		//Pack.DynamicStates.emplace_back(vk::DynamicState::eScissor);
 
-		//Pack.Viewports.emplace_back(0.0f, 0.0f, static_cast<float>(_WindowSize.width),
-		//							static_cast<float>(_WindowSize.height), 0.0f, 1.0f);
-		//Pack.Scissors.emplace_back(vk::Offset2D(), _WindowSize);
+		Pack.Viewports.emplace_back(0.0f, 0.0f, static_cast<float>(_WindowSize.width),
+									static_cast<float>(_WindowSize.height), 0.0f, 1.0f);
+		Pack.Scissors.emplace_back(vk::Offset2D(), _WindowSize);
 		Pack.ColorBlendAttachmentStates.emplace_back(ColorBlendAttachmentState);
 
 		Pack.Update();
@@ -303,13 +275,8 @@ void FApplication::CreatePipeline()
 		}
 	};
 
-	auto Destroy = [this, VulkanBase = _VulkanBase, IsValid = &_IsValid]() -> void
+	auto Destroy = [this, VulkanBase = _VulkanBase]() -> void
 	{
-		if (!IsValid->load())
-		{
-			return;
-		}
-
 		if (_Pipeline)
 		{
 			VulkanBase->WaitIdle();

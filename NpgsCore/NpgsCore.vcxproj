@@ -173,6 +173,7 @@
     <ClCompile Include="Sources\Engine\Core\Application.cpp" />
     <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanBase.cpp" />
     <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanExtFunctionsImpl.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanWrappers.cpp" />
     <ClCompile Include="Sources\Engine\Utilities\Logger.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\CivilizationGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\OrbitalGenerator.cpp" />
@@ -187,7 +188,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Utilities\ShaderBlockManager.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanWrappers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.h" />
@@ -213,7 +213,7 @@
     <ClInclude Include="Sources\Engine\Core\Application.h" />
     <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanBase.h" />
     <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanExtFunctionsImpl.h" />
-    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanWrapper.hpp" />
+    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanWrappers.h" />
     <ClInclude Include="Sources\Engine\Math\NumericConstants.h" />
     <ClInclude Include="Sources\Engine\Utilities\Logger.h" />
     <ClInclude Include="Sources\Engine\Modules\Generators\CivilizationGenerator.h" />
@@ -227,7 +227,6 @@
     <ClInclude Include="Sources\Npgs.h" />
     <ClInclude Include="Sources\stdafx.h" />
     <ClInclude Include="Sources\Engine\Utilities\ShaderBlockManager.h" />
-    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanWrappers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Advanced.frag" />

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <atomic>
 #include <string>
 #include <vector>
 
@@ -47,7 +46,6 @@ private:
 	vk::Extent2D            _WindowSize;
 	GLFWwindow*             _Window;
 	FVulkanBase*            _VulkanBase;
-	std::atomic<bool>       _IsValid;
 	bool                    _bEnableVSync;
 	bool                    _bEnableFullscreen;
 };

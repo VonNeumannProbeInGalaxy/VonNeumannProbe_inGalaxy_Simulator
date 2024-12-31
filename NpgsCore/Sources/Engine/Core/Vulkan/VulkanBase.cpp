@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <utility>
 
 #include "Engine/Core/Vulkan/VulkanExtFunctionsImpl.h"
 #include "Engine/Utilities/Logger.h"
@@ -545,7 +546,7 @@ vk::Result FVulkanBase::SubmitCommandBufferToGraphics(const vk::SubmitInfo& Subm
 {
 	try
 	{
-		_GraphicsQueue.submit(SubmitInfo, Fence.GetFence());
+		_GraphicsQueue.submit(SubmitInfo, *Fence);
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -558,7 +559,7 @@ vk::Result FVulkanBase::SubmitCommandBufferToGraphics(const vk::SubmitInfo& Subm
 
 vk::Result FVulkanBase::SubmitCommandBufferToGraphics(const FVulkanCommandBuffer& Buffer, const FVulkanFence& Fence) const
 {
-	vk::SubmitInfo SubmitInfo(1, nullptr, nullptr, 1, &Buffer.GetCommandBuffer(), 0, nullptr);
+	vk::SubmitInfo SubmitInfo(1, nullptr, nullptr, 1, &(*Buffer), 0, nullptr);
 	return SubmitCommandBufferToGraphics(SubmitInfo, Fence);
 }
 
@@ -569,20 +570,17 @@ vk::Result FVulkanBase::SubmitCommandBufferToGraphics(const FVulkanCommandBuffer
 													  vk::PipelineStageFlags Flags) const
 {
 	vk::SubmitInfo SubmitInfo;
-	SubmitInfo.setCommandBufferCount(1);
-	SubmitInfo.setPCommandBuffers(&Buffer.GetCommandBuffer());
+	SubmitInfo.setCommandBuffers(*Buffer);
 
 	if (WaitSemaphore)
 	{
-		SubmitInfo.setWaitSemaphoreCount(1);
-		SubmitInfo.setPWaitSemaphores(&WaitSemaphore.GetSemaphore());
-		SubmitInfo.setPWaitDstStageMask(&Flags);
+		SubmitInfo.setWaitSemaphores(*WaitSemaphore);
+		SubmitInfo.setWaitDstStageMask(Flags);
 	}
 
 	if (SignalSemaphore)
 	{
-		SubmitInfo.setSignalSemaphoreCount(1);
-		SubmitInfo.setPSignalSemaphores(&SignalSemaphore.GetSemaphore());
+		SubmitInfo.setSignalSemaphores(*SignalSemaphore);
 	}
 
 	return SubmitCommandBufferToGraphics(SubmitInfo, Fence);
@@ -592,7 +590,7 @@ vk::Result FVulkanBase::SubmitCommandBufferToCompute(const vk::SubmitInfo& Submi
 {
 	try
 	{
-		_ComputeQueue.submit(SubmitInfo, Fence.GetFence());
+		_ComputeQueue.submit(SubmitInfo, *Fence);
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -605,7 +603,7 @@ vk::Result FVulkanBase::SubmitCommandBufferToCompute(const vk::SubmitInfo& Submi
 
 vk::Result FVulkanBase::SubmitCommandBufferToCompute(const FVulkanCommandBuffer& Buffer, const FVulkanFence& Fence) const
 {
-	vk::SubmitInfo SubmitInfo(1, nullptr, nullptr, 1, &Buffer.GetCommandBuffer(), 0, nullptr);
+	vk::SubmitInfo SubmitInfo(1, nullptr, nullptr, 1, &(*Buffer), 0, nullptr);
 	return SubmitCommandBufferToCompute(SubmitInfo, Fence);
 }
 
@@ -620,7 +618,7 @@ vk::Result FVulkanBase::SwapImage(const FVulkanSemaphore& Semaphore)
 
 	vk::Result Result;
 	while ((Result = _Device.acquireNextImageKHR(_Swapchain, std::numeric_limits<std::uint64_t>::max(),
-		   Semaphore.GetSemaphore(), vk::Fence(), &_CurrentImageIndex)) != vk::Result::eSuccess)
+		   *Semaphore, vk::Fence(), &_CurrentImageIndex)) != vk::Result::eSuccess)
 	{
 		switch (Result)
 		{
@@ -679,7 +677,7 @@ vk::Result FVulkanBase::PresentImage(const FVulkanSemaphore& Semaphore)
 
 	if (Semaphore)
 	{
-		PresentInfo.setWaitSemaphores(Semaphore.GetSemaphore());
+		PresentInfo.setWaitSemaphores(*Semaphore);
 	}
 
 	return PresentImage(PresentInfo);

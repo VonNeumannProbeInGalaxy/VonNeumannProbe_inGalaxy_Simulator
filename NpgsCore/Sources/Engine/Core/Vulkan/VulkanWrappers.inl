@@ -11,115 +11,164 @@ NPGS_INLINE FGraphicsPipelineCreateInfoPack::operator vk::GraphicsPipelineCreate
 
 // Wrapper for vk::CommandBuffer
 // -----------------------------
+NPGS_INLINE vk::CommandBuffer* FVulkanCommandBuffer::operator->()
+{
+	return &_Handle;
+}
+
+NPGS_INLINE const vk::CommandBuffer* FVulkanCommandBuffer::operator->() const
+{
+	return &_Handle;
+}
+
+NPGS_INLINE vk::CommandBuffer& FVulkanCommandBuffer::operator*()
+{
+	return _Handle;
+}
+
+NPGS_INLINE const vk::CommandBuffer& FVulkanCommandBuffer::operator*() const
+{
+	return _Handle;
+}
+
 NPGS_INLINE FVulkanCommandBuffer::operator bool() const
 {
-	return static_cast<bool>(_CommandBuffer);
-}
-
-NPGS_INLINE void FVulkanCommandBuffer::BindPipeline(vk::PipelineBindPoint PipelineBindPoint, const FVulkanPipeline& Pipeline)
-{
-	_CommandBuffer.bindPipeline(PipelineBindPoint, Pipeline.GetPipeline());
-}
-
-NPGS_INLINE void FVulkanCommandBuffer::Draw(std::uint32_t VertexCount, std::uint32_t InstanceCount,
-											std::uint32_t FirstVertex, std::uint32_t FirstInstance)
-{
-	_CommandBuffer.draw(VertexCount, InstanceCount, FirstVertex, FirstInstance);
-}
-
-NPGS_INLINE vk::CommandBuffer& FVulkanCommandBuffer::GetCommandBufferMutable()
-{
-	return _CommandBuffer;
-}
-
-NPGS_INLINE const vk::CommandBuffer& FVulkanCommandBuffer::GetCommandBuffer() const
-{
-	return _CommandBuffer;
+	return static_cast<bool>(_Handle);
 }
 
 // Wrapper for vk::CommandPool
 // ---------------------------
+NPGS_INLINE vk::CommandPool* FVulkanCommandPool::operator->()
+{
+	return &_Handle;
+}
+
+NPGS_INLINE const vk::CommandPool* FVulkanCommandPool::operator->() const
+{
+	return &_Handle;
+}
+
+NPGS_INLINE vk::CommandPool& FVulkanCommandPool::operator*()
+{
+	return _Handle;
+}
+
+NPGS_INLINE const vk::CommandPool& FVulkanCommandPool::operator*() const
+{
+	return _Handle;
+}
+
 NPGS_INLINE FVulkanCommandPool::operator bool() const
 {
-	return static_cast<bool>(_CommandPool);
-}
-
-NPGS_INLINE vk::CommandPool& FVulkanCommandPool::GetCommandPoolMutable()
-{
-	return _CommandPool;
-}
-
-NPGS_INLINE const vk::CommandPool& FVulkanCommandPool::GetCommandPool() const
-{
-	return _CommandPool;
+	return static_cast<bool>(_Handle);
 }
 
 // Wrapper for vk::Fence
 // ---------------------
+NPGS_INLINE vk::Fence* FVulkanFence::operator->()
+{
+	return &_Handle;
+}
+
+NPGS_INLINE const vk::Fence* FVulkanFence::operator->() const
+{
+	return &_Handle;
+}
+
+NPGS_INLINE vk::Fence& FVulkanFence::operator*()
+{
+	return _Handle;
+}
+
+NPGS_INLINE const vk::Fence& FVulkanFence::operator*() const
+{
+	return _Handle;
+}
+
 NPGS_INLINE FVulkanFence::operator bool() const
 {
-	return static_cast<bool>(_Fence);
-}
-
-NPGS_INLINE vk::Fence& FVulkanFence::GetFenceMutable()
-{
-	return _Fence;
-}
-
-NPGS_INLINE const vk::Fence& FVulkanFence::GetFence() const
-{
-	return _Fence;
+	return static_cast<bool>(_Handle);
 }
 
 // Wrapper for vk::Framebuffer
 // ---------------------------
+NPGS_INLINE vk::Framebuffer* FVulkanFramebuffer::operator->()
+{
+	return &_Handle;
+}
+
+NPGS_INLINE const vk::Framebuffer* FVulkanFramebuffer::operator->() const
+{
+	return &_Handle;
+}
+
+NPGS_INLINE vk::Framebuffer& FVulkanFramebuffer::operator*()
+{
+	return _Handle;
+}
+
+NPGS_INLINE const vk::Framebuffer& FVulkanFramebuffer::operator*() const
+{
+	return _Handle;
+}
+
 NPGS_INLINE FVulkanFramebuffer::operator bool() const
 {
-	return static_cast<bool>(_Framebuffer);
-}
-
-NPGS_INLINE vk::Framebuffer& FVulkanFramebuffer::GetFramebufferMutable()
-{
-	return _Framebuffer;
-}
-
-NPGS_INLINE const vk::Framebuffer& FVulkanFramebuffer::GetFramebuffer() const
-{
-	return _Framebuffer;
+	return static_cast<bool>(_Handle);
 }
 
 // Wrapper for vk::Pipeline
 // ------------------------
+NPGS_INLINE vk::Pipeline* FVulkanPipeline::operator->()
+{
+	return &_Handle;
+}
+
+NPGS_INLINE const vk::Pipeline* FVulkanPipeline::operator->() const
+{
+	return &_Handle;
+}
+
+NPGS_INLINE vk::Pipeline& FVulkanPipeline::operator*()
+{
+	return _Handle;
+}
+
+NPGS_INLINE const vk::Pipeline& FVulkanPipeline::operator*() const
+{
+	return _Handle;
+}
+
 NPGS_INLINE FVulkanPipeline::operator bool() const
 {
-	return static_cast<bool>(_Pipeline);
-}
-
-NPGS_INLINE vk::Pipeline& FVulkanPipeline::GetPipelineMutable()
-{
-	return _Pipeline;
-}
-
-NPGS_INLINE const vk::Pipeline& FVulkanPipeline::GetPipeline() const
-{
-	return _Pipeline;
+	return static_cast<bool>(_Handle);
 }
 
 // Wrapper for vk::PipelineLayout
 // ------------------------------
+NPGS_INLINE vk::PipelineLayout* FVulkanPipelineLayout::operator->()
+{
+	return &_Handle;
+}
+
+NPGS_INLINE const vk::PipelineLayout* FVulkanPipelineLayout::operator->() const
+{
+	return &_Handle;
+}
+
+NPGS_INLINE vk::PipelineLayout& FVulkanPipelineLayout::operator*()
+{
+	return _Handle;
+}
+
+NPGS_INLINE const vk::PipelineLayout& FVulkanPipelineLayout::operator*() const
+{
+	return _Handle;
+}
+
 NPGS_INLINE FVulkanPipelineLayout::operator bool() const
 {
-	return static_cast<bool>(_PipelineLayout);
-}
-
-NPGS_INLINE vk::PipelineLayout& FVulkanPipelineLayout::GetPipelineLayoutMutable()
-{
-	return _PipelineLayout;
-}
-
-NPGS_INLINE const vk::PipelineLayout& FVulkanPipelineLayout::GetPipelineLayout() const
-{
-	return _PipelineLayout;
+	return static_cast<bool>(_Handle);
 }
 
 // Wrapper for vk::RenderPass
@@ -128,67 +177,97 @@ NPGS_INLINE void FVulkanRenderPass::CommandBegin(const FVulkanCommandBuffer& Com
 												 const vk::RenderPassBeginInfo& BeginInfo,
 												 const vk::SubpassContents& SubpassContents) const
 {
-	CommandBuffer.GetCommandBuffer().beginRenderPass(BeginInfo, SubpassContents);
+	CommandBuffer->beginRenderPass(BeginInfo, SubpassContents);
 }
 
 NPGS_INLINE void FVulkanRenderPass::CommandNext(const FVulkanCommandBuffer& CommandBuffer,
 												const vk::SubpassContents& SubpassContents) const
 {
-	CommandBuffer.GetCommandBuffer().nextSubpass(SubpassContents);
+	CommandBuffer->nextSubpass(SubpassContents);
 }
 
 NPGS_INLINE void FVulkanRenderPass::CommandEnd(const FVulkanCommandBuffer& CommandBuffer) const
 {
-	CommandBuffer.GetCommandBuffer().endRenderPass();
+	CommandBuffer->endRenderPass();
+}
+
+NPGS_INLINE vk::RenderPass* FVulkanRenderPass::operator->()
+{
+	return &_Handle;
+}
+
+NPGS_INLINE const vk::RenderPass* FVulkanRenderPass::operator->() const
+{
+	return &_Handle;
+}
+
+NPGS_INLINE vk::RenderPass& FVulkanRenderPass::operator*()
+{
+	return _Handle;
+}
+
+NPGS_INLINE const vk::RenderPass& FVulkanRenderPass::operator*() const
+{
+	return _Handle;
 }
 
 NPGS_INLINE FVulkanRenderPass::operator bool() const
 {
-	return static_cast<bool>(_RenderPass);
-}
-
-NPGS_INLINE vk::RenderPass& FVulkanRenderPass::GetRenderPassMutable()
-{
-	return _RenderPass;
-}
-
-NPGS_INLINE const vk::RenderPass& FVulkanRenderPass::GetRenderPass() const
-{
-	return _RenderPass;
+	return static_cast<bool>(_Handle);
 }
 
 // Wrapper for vk::Semaphore
 // -------------------------
+NPGS_INLINE vk::Semaphore* FVulkanSemaphore::operator->()
+{
+	return &_Handle;
+}
+
+NPGS_INLINE const vk::Semaphore* FVulkanSemaphore::operator->() const
+{
+	return &_Handle;
+}
+
+NPGS_INLINE vk::Semaphore& FVulkanSemaphore::operator*()
+{
+	return _Handle;
+}
+
+NPGS_INLINE const vk::Semaphore& FVulkanSemaphore::operator*() const
+{
+	return _Handle;
+}
+
 NPGS_INLINE FVulkanSemaphore::operator bool() const
 {
-	return static_cast<bool>(_Semaphore);
-}
-
-NPGS_INLINE vk::Semaphore& FVulkanSemaphore::GetSemaphoreMutable()
-{
-	return _Semaphore;
-}
-
-NPGS_INLINE const vk::Semaphore& FVulkanSemaphore::GetSemaphore() const
-{
-	return _Semaphore;
+	return static_cast<bool>(_Handle);
 }
 
 // Wrapper for vk::ShaderModule
 // ----------------------------
+NPGS_INLINE vk::ShaderModule* FVulkanShaderModule::operator->()
+{
+	return &_Handle;
+}
+
+NPGS_INLINE const vk::ShaderModule* FVulkanShaderModule::operator->() const
+{
+	return &_Handle;
+}
+
+NPGS_INLINE vk::ShaderModule& FVulkanShaderModule::operator*()
+{
+	return _Handle;
+}
+
+NPGS_INLINE const vk::ShaderModule& FVulkanShaderModule::operator*() const
+{
+	return _Handle;
+}
+
 NPGS_INLINE FVulkanShaderModule::operator bool() const
 {
-	return static_cast<bool>(_ShaderModule);
-}
-
-NPGS_INLINE vk::ShaderModule& FVulkanShaderModule::GetShaderModuleMutable()
-{
-	return _ShaderModule;
-}
-
-NPGS_INLINE const vk::ShaderModule& FVulkanShaderModule::GetShaderModule() const
-{
-	return _ShaderModule;
+	return static_cast<bool>(_Handle);
 }
 
 _NPGS_END

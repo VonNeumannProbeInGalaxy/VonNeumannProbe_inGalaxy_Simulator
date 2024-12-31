@@ -14,42 +14,27 @@ FGraphicsPipelineCreateInfoPack::FGraphicsPipelineCreateInfoPack()
 
 FGraphicsPipelineCreateInfoPack::FGraphicsPipelineCreateInfoPack(FGraphicsPipelineCreateInfoPack&& Other) noexcept
 	:
-	GraphicsPipelineCreateInfo(std::move(Other.GraphicsPipelineCreateInfo)),
-	DepthStencilStateCreateInfo(std::move(Other.DepthStencilStateCreateInfo)),
-	RasterizationStateCreateInfo(std::move(Other.RasterizationStateCreateInfo)),
-	ColorBlendStateCreateInfo(std::move(Other.ColorBlendStateCreateInfo)),
-	VertexInputStateCreateInfo(std::move(Other.VertexInputStateCreateInfo)),
-	ViewportStateCreateInfo(std::move(Other.ViewportStateCreateInfo)),
-	MultisampleStateCreateInfo(std::move(Other.MultisampleStateCreateInfo)),
-	InputAssemblyStateCreateInfo(std::move(Other.InputAssemblyStateCreateInfo)),
-	DynamicStateCreateInfo(std::move(Other.DynamicStateCreateInfo)),
-	TessellationStateCreateInfo(std::move(Other.TessellationStateCreateInfo)),
+	GraphicsPipelineCreateInfo(std::exchange(Other.GraphicsPipelineCreateInfo, {})),
+	DepthStencilStateCreateInfo(std::exchange(Other.DepthStencilStateCreateInfo, {})),
+	RasterizationStateCreateInfo(std::exchange(Other.RasterizationStateCreateInfo, {})),
+	ColorBlendStateCreateInfo(std::exchange(Other.ColorBlendStateCreateInfo, {})),
+	VertexInputStateCreateInfo(std::exchange(Other.VertexInputStateCreateInfo, {})),
+	ViewportStateCreateInfo(std::exchange(Other.ViewportStateCreateInfo, {})),
+	MultisampleStateCreateInfo(std::exchange(Other.MultisampleStateCreateInfo, {})),
+	InputAssemblyStateCreateInfo(std::exchange(Other.InputAssemblyStateCreateInfo, {})),
+	DynamicStateCreateInfo(std::exchange(Other.DynamicStateCreateInfo, {})),
+	TessellationStateCreateInfo(std::exchange(Other.TessellationStateCreateInfo, {})),
 
-	ShaderStages(std::move(Other.ShaderStages)),
-	VertexInputBindings(std::move(Other.VertexInputBindings)),
-	VertexInputAttributes(std::move(Other.VertexInputAttributes)),
-	Viewports(std::move(Other.Viewports)),
-	Scissors(std::move(Other.Scissors)),
-	ColorBlendAttachmentStates(std::move(Other.ColorBlendAttachmentStates)),
-	DynamicStates(std::move(Other.DynamicStates)),
-
-	DynamicViewportCount(Other.DynamicViewportCount),
-	DynamicScissorCount(Other.DynamicScissorCount)
+	ShaderStages(std::exchange(Other.ShaderStages, {})),
+	VertexInputBindings(std::exchange(Other.VertexInputBindings, {})),
+	VertexInputAttributes(std::exchange(Other.VertexInputAttributes, {})),
+	Viewports(std::exchange(Other.Viewports, {})),
+	Scissors(std::exchange(Other.Scissors, {})),
+	ColorBlendAttachmentStates(std::exchange(Other.ColorBlendAttachmentStates, {})),
+	DynamicStates(std::exchange(Other.DynamicStates, {})),
+	DynamicViewportCount(std::exchange(Other.DynamicViewportCount, 1)),
+	DynamicScissorCount(std::exchange(Other.DynamicScissorCount, 1))
 {
-	Other.GraphicsPipelineCreateInfo   = vk::GraphicsPipelineCreateInfo();
-	Other.DepthStencilStateCreateInfo  = vk::PipelineDepthStencilStateCreateInfo();
-	Other.RasterizationStateCreateInfo = vk::PipelineRasterizationStateCreateInfo();
-	Other.ColorBlendStateCreateInfo    = vk::PipelineColorBlendStateCreateInfo();
-	Other.VertexInputStateCreateInfo   = vk::PipelineVertexInputStateCreateInfo();
-	Other.ViewportStateCreateInfo      = vk::PipelineViewportStateCreateInfo();
-	Other.MultisampleStateCreateInfo   = vk::PipelineMultisampleStateCreateInfo();
-	Other.InputAssemblyStateCreateInfo = vk::PipelineInputAssemblyStateCreateInfo();
-	Other.DynamicStateCreateInfo       = vk::PipelineDynamicStateCreateInfo();
-	Other.TessellationStateCreateInfo  = vk::PipelineTessellationStateCreateInfo();
-
-	Other.DynamicViewportCount         = 1;
-	Other.DynamicScissorCount          = 1;
-
 	LinkToGraphicsPipelineCreateInfo();
 	UpdateAllInfoData();
 }
@@ -58,40 +43,27 @@ FGraphicsPipelineCreateInfoPack& FGraphicsPipelineCreateInfoPack::operator=(FGra
 {
 	if (this != &Other)
 	{
-		GraphicsPipelineCreateInfo         = std::move(Other.GraphicsPipelineCreateInfo);
-		DepthStencilStateCreateInfo        = std::move(Other.DepthStencilStateCreateInfo);
-		RasterizationStateCreateInfo       = std::move(Other.RasterizationStateCreateInfo);
-		ColorBlendStateCreateInfo          = std::move(Other.ColorBlendStateCreateInfo);
-		VertexInputStateCreateInfo         = std::move(Other.VertexInputStateCreateInfo);
-		ViewportStateCreateInfo            = std::move(Other.ViewportStateCreateInfo);
-		MultisampleStateCreateInfo         = std::move(Other.MultisampleStateCreateInfo);
-		InputAssemblyStateCreateInfo       = std::move(Other.InputAssemblyStateCreateInfo);
-		DynamicStateCreateInfo             = std::move(Other.DynamicStateCreateInfo);
-		TessellationStateCreateInfo        = std::move(Other.TessellationStateCreateInfo);
+		GraphicsPipelineCreateInfo   = std::exchange(Other.GraphicsPipelineCreateInfo, {});
+		DepthStencilStateCreateInfo  = std::exchange(Other.DepthStencilStateCreateInfo, {});
+		RasterizationStateCreateInfo = std::exchange(Other.RasterizationStateCreateInfo, {});
+		ColorBlendStateCreateInfo    = std::exchange(Other.ColorBlendStateCreateInfo, {});
+		VertexInputStateCreateInfo   = std::exchange(Other.VertexInputStateCreateInfo, {});
+		ViewportStateCreateInfo      = std::exchange(Other.ViewportStateCreateInfo, {});
+		MultisampleStateCreateInfo   = std::exchange(Other.MultisampleStateCreateInfo, {});
+		InputAssemblyStateCreateInfo = std::exchange(Other.InputAssemblyStateCreateInfo, {});
+		DynamicStateCreateInfo       = std::exchange(Other.DynamicStateCreateInfo, {});
+		TessellationStateCreateInfo  = std::exchange(Other.TessellationStateCreateInfo, {});
 
-		ShaderStages                       = std::move(Other.ShaderStages);
-		VertexInputBindings                = std::move(Other.VertexInputBindings);
-		VertexInputAttributes              = std::move(Other.VertexInputAttributes);
-		Viewports                          = std::move(Other.Viewports);
-		Scissors                           = std::move(Other.Scissors);
-		ColorBlendAttachmentStates         = std::move(Other.ColorBlendAttachmentStates);
-		DynamicStates                      = std::move(Other.DynamicStates);
+		ShaderStages                 = std::exchange(Other.ShaderStages, {});
+		VertexInputBindings          = std::exchange(Other.VertexInputBindings, {});
+		VertexInputAttributes        = std::exchange(Other.VertexInputAttributes, {});
+		Viewports                    = std::exchange(Other.Viewports, {});
+		Scissors                     = std::exchange(Other.Scissors, {});
+		ColorBlendAttachmentStates   = std::exchange(Other.ColorBlendAttachmentStates, {});
+		DynamicStates                = std::exchange(Other.DynamicStates, {});
 
-		DynamicViewportCount               = Other.DynamicViewportCount;
-		DynamicScissorCount                = Other.DynamicScissorCount;
-
-		Other.GraphicsPipelineCreateInfo   = vk::GraphicsPipelineCreateInfo();
-		Other.DepthStencilStateCreateInfo  = vk::PipelineDepthStencilStateCreateInfo();
-		Other.RasterizationStateCreateInfo = vk::PipelineRasterizationStateCreateInfo();
-		Other.ColorBlendStateCreateInfo    = vk::PipelineColorBlendStateCreateInfo();
-		Other.VertexInputStateCreateInfo   = vk::PipelineVertexInputStateCreateInfo();
-		Other.ViewportStateCreateInfo      = vk::PipelineViewportStateCreateInfo();
-		Other.MultisampleStateCreateInfo   = vk::PipelineMultisampleStateCreateInfo();
-		Other.InputAssemblyStateCreateInfo = vk::PipelineInputAssemblyStateCreateInfo();
-		Other.DynamicStateCreateInfo       = vk::PipelineDynamicStateCreateInfo();
-		Other.TessellationStateCreateInfo  = vk::PipelineTessellationStateCreateInfo();
-		Other.DynamicViewportCount         = 1;
-		Other.DynamicScissorCount          = 1;
+		DynamicViewportCount         = std::exchange(Other.DynamicViewportCount, 1);
+		DynamicScissorCount          = std::exchange(Other.DynamicScissorCount, 1);
 
 		LinkToGraphicsPipelineCreateInfo();
 		UpdateAllInfoData();
@@ -154,17 +126,16 @@ void FGraphicsPipelineCreateInfoPack::UpdateAllInfoData()
 // Wrapper for vk::CommandBuffer
 // -----------------------------
 FVulkanCommandBuffer::FVulkanCommandBuffer(FVulkanCommandBuffer&& Other) noexcept
-	: _CommandBuffer(std::move(Other._CommandBuffer))
+	: _Handle(std::exchange(Other._Handle, {}))
 {
-	Other._CommandBuffer = vk::CommandBuffer();
+	Other._Handle = vk::CommandBuffer();
 }
 
 FVulkanCommandBuffer& FVulkanCommandBuffer::operator=(FVulkanCommandBuffer&& Other) noexcept
 {
 	if (this != &Other)
 	{
-		_CommandBuffer = std::move(Other._CommandBuffer);
-		Other._CommandBuffer = vk::CommandBuffer();
+		_Handle = std::exchange(Other._Handle, {});
 	}
 
 	return *this;
@@ -176,7 +147,7 @@ vk::Result FVulkanCommandBuffer::Begin(const vk::CommandBufferInheritanceInfo& I
 	vk::CommandBufferBeginInfo CommandBufferBeginInfo(Flags, &InheritanceInfo);
 	try
 	{
-		_CommandBuffer.begin(CommandBufferBeginInfo);
+		_Handle.begin(CommandBufferBeginInfo);
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -192,7 +163,7 @@ vk::Result FVulkanCommandBuffer::Begin(const vk::CommandBufferUsageFlags& Flags)
 	vk::CommandBufferBeginInfo CommandBufferBeginInfo(Flags);
 	try
 	{
-		_CommandBuffer.begin(CommandBufferBeginInfo);
+		_Handle.begin(CommandBufferBeginInfo);
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -207,7 +178,7 @@ vk::Result FVulkanCommandBuffer::End()
 {
 	try
 	{
-		_CommandBuffer.end();
+		_Handle.end();
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -233,17 +204,17 @@ FVulkanCommandPool::FVulkanCommandPool(const vk::Device& Device, std::uint32_t Q
 }
 
 FVulkanCommandPool::FVulkanCommandPool(FVulkanCommandPool&& Other) noexcept
-	: _Device(Other._Device), _CommandPool(std::move(Other._CommandPool))
+	:
+	_Device(std::exchange(Other._Device, nullptr)),
+	_Handle(std::exchange(Other._Handle, {}))
 {
-	Other._Device      = nullptr;
-	Other._CommandPool = vk::CommandPool();
 }
 
 FVulkanCommandPool::~FVulkanCommandPool()
 {
-	if (_CommandPool)
+	if (_Handle)
 	{
-		_Device->destroyCommandPool(_CommandPool);
+		_Device->destroyCommandPool(_Handle);
 	}
 }
 
@@ -251,14 +222,12 @@ FVulkanCommandPool& FVulkanCommandPool::operator=(FVulkanCommandPool&& Other) no
 {
 	if (this != &Other)
 	{
-		if (_CommandPool)
+		if (_Handle)
 		{
-			_Device->destroyCommandPool(_CommandPool);
+			_Device->destroyCommandPool(_Handle);
 		}
-		_Device            = Other._Device;
-		_CommandPool       = std::move(Other._CommandPool);
-		Other._Device      = nullptr;
-		Other._CommandPool = vk::CommandPool();
+		_Device = std::exchange(Other._Device, nullptr);
+		_Handle = std::exchange(Other._Handle, {});
 	}
 
 	return *this;
@@ -266,7 +235,7 @@ FVulkanCommandPool& FVulkanCommandPool::operator=(FVulkanCommandPool&& Other) no
 
 vk::Result FVulkanCommandPool::AllocateBuffer(vk::CommandBufferLevel Level, vk::CommandBuffer& Buffer)
 {
-	vk::CommandBufferAllocateInfo CommandBufferAllocateInfo(_CommandPool, Level, 1);
+	vk::CommandBufferAllocateInfo CommandBufferAllocateInfo(_Handle, Level, 1);
 	try
 	{
 		Buffer = _Device->allocateCommandBuffers(CommandBufferAllocateInfo)[0];
@@ -283,10 +252,10 @@ vk::Result FVulkanCommandPool::AllocateBuffer(vk::CommandBufferLevel Level, vk::
 
 vk::Result FVulkanCommandPool::AllocateBuffer(vk::CommandBufferLevel Level, FVulkanCommandBuffer& Buffer)
 {
-	vk::CommandBufferAllocateInfo CommandBufferAllocateInfo(_CommandPool, Level, 1);
+	vk::CommandBufferAllocateInfo CommandBufferAllocateInfo(_Handle, Level, 1);
 	try
 	{
-		Buffer.GetCommandBufferMutable() = _Device->allocateCommandBuffers(CommandBufferAllocateInfo)[0];
+		*Buffer = _Device->allocateCommandBuffers(CommandBufferAllocateInfo)[0];
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -300,7 +269,7 @@ vk::Result FVulkanCommandPool::AllocateBuffer(vk::CommandBufferLevel Level, FVul
 
 vk::Result FVulkanCommandPool::AllocateBuffers(vk::CommandBufferLevel Level, std::vector<vk::CommandBuffer>& Buffers)
 {
-	vk::CommandBufferAllocateInfo CommandBufferAllocateInfo(_CommandPool, Level, static_cast<std::uint32_t>(Buffers.size()));
+	vk::CommandBufferAllocateInfo CommandBufferAllocateInfo(_Handle, Level, static_cast<std::uint32_t>(Buffers.size()));
 	try
 	{
 		Buffers = _Device->allocateCommandBuffers(CommandBufferAllocateInfo);
@@ -317,7 +286,7 @@ vk::Result FVulkanCommandPool::AllocateBuffers(vk::CommandBufferLevel Level, std
 
 vk::Result FVulkanCommandPool::AllocateBuffers(vk::CommandBufferLevel Level, std::vector<FVulkanCommandBuffer>& Buffers)
 {
-	vk::CommandBufferAllocateInfo CommandBufferAllocateInfo(_CommandPool, Level, static_cast<std::uint32_t>(Buffers.size()));
+	vk::CommandBufferAllocateInfo CommandBufferAllocateInfo(_Handle, Level, static_cast<std::uint32_t>(Buffers.size()));
 	std::vector<vk::CommandBuffer> CommandBuffers;
 	try
 	{
@@ -332,7 +301,7 @@ vk::Result FVulkanCommandPool::AllocateBuffers(vk::CommandBufferLevel Level, std
 	Buffers.resize(CommandBuffers.size());
 	for (std::size_t i = 0; i != CommandBuffers.size(); ++i)
 	{
-		Buffers[i].GetCommandBufferMutable() = CommandBuffers[i];
+		*Buffers[i] = CommandBuffers[i];
 	}
 
 	NpgsCoreInfo("Command buffers allocated successfully.");
@@ -341,7 +310,7 @@ vk::Result FVulkanCommandPool::AllocateBuffers(vk::CommandBufferLevel Level, std
 
 vk::Result FVulkanCommandPool::FreeBuffer(vk::CommandBufferLevel Level, vk::CommandBuffer& Buffer)
 {
-	_Device->freeCommandBuffers(_CommandPool, Buffer);
+	_Device->freeCommandBuffers(_Handle, Buffer);
 	Buffer = vk::CommandBuffer();
 	NpgsCoreInfo("Command buffer freed successfully.");
 	return vk::Result::eSuccess;
@@ -349,12 +318,12 @@ vk::Result FVulkanCommandPool::FreeBuffer(vk::CommandBufferLevel Level, vk::Comm
 
 vk::Result FVulkanCommandPool::FreeBuffer(vk::CommandBufferLevel Level, FVulkanCommandBuffer& Buffer)
 {
-	return FreeBuffer(Level, Buffer.GetCommandBufferMutable());
+	return FreeBuffer(Level, *Buffer);
 }
 
 vk::Result FVulkanCommandPool::FreeBuffers(vk::CommandBufferLevel Level, std::vector<vk::CommandBuffer>& Buffers)
 {
-	_Device->freeCommandBuffers(_CommandPool, Buffers);
+	_Device->freeCommandBuffers(_Handle, Buffers);
 	Buffers.clear();
 	NpgsCoreInfo("Command buffers freed successfully.");
 	return vk::Result::eSuccess;
@@ -367,10 +336,10 @@ vk::Result FVulkanCommandPool::FreeBuffers(vk::CommandBufferLevel Level, std::ve
 
 	for (auto& Buffer : Buffers)
 	{
-		CommandBuffers.emplace_back(Buffer.GetCommandBuffer());
+		CommandBuffers.emplace_back(*Buffer);
 	}
 
-	_Device->freeCommandBuffers(_CommandPool, CommandBuffers);
+	_Device->freeCommandBuffers(_Handle, CommandBuffers);
 	Buffers.clear();
 
 	NpgsCoreInfo("Command buffers freed successfully.");
@@ -381,7 +350,7 @@ vk::Result FVulkanCommandPool::CreateCommandPool(vk::CommandPoolCreateInfo& Crea
 {
 	try
 	{
-		_CommandPool = _Device->createCommandPool(CreateInfo);
+		_Handle = _Device->createCommandPool(CreateInfo);
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -414,17 +383,17 @@ FVulkanFence::FVulkanFence(const vk::Device& Device, const vk::FenceCreateFlags&
 }
 
 FVulkanFence::FVulkanFence(FVulkanFence&& Other) noexcept
-	: _Device(Other._Device), _Fence(std::move(Other._Fence))
+	:
+	_Device(std::exchange(Other._Device, nullptr)),
+	_Handle(std::exchange(Other._Handle, {}))
 {
-	Other._Device = nullptr;
-	Other._Fence  = vk::Fence();
 }
 
 FVulkanFence::~FVulkanFence()
 {
-	if (_Fence)
+	if (_Handle)
 	{
-		_Device->destroyFence(_Fence);
+		_Device->destroyFence(_Handle);
 	}
 }
 
@@ -432,14 +401,12 @@ FVulkanFence& FVulkanFence::operator=(FVulkanFence&& Other) noexcept
 {
 	if (this != &Other)
 	{
-		if (_Fence)
+		if (_Handle)
 		{
-			_Device->destroyFence(_Fence);
+			_Device->destroyFence(_Handle);
 		}
-		_Device       = Other._Device;
-		_Fence        = std::move(Other._Fence);
-		Other._Device = nullptr;
-		Other._Fence  = vk::Fence();
+		_Device = std::exchange(Other._Device, nullptr);
+		_Handle = std::exchange(Other._Handle, {});
 	}
 
 	return *this;
@@ -450,7 +417,7 @@ vk::Result FVulkanFence::Wait() const
 	vk::Result Result;
 	try
 	{
-		Result = _Device->waitForFences(_Fence, vk::True, std::numeric_limits<std::uint64_t>::max());
+		Result = _Device->waitForFences(_Handle, vk::True, std::numeric_limits<std::uint64_t>::max());
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -465,7 +432,7 @@ vk::Result FVulkanFence::Reset() const
 {
 	try
 	{
-		_Device->resetFences(_Fence);
+		_Device->resetFences(_Handle);
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -490,7 +457,7 @@ vk::Result FVulkanFence::WaitAndReset() const
 
 vk::Result FVulkanFence::GetStatus() const
 {
-	vk::Result Result = _Device->getFenceStatus(_Fence);
+	vk::Result Result = _Device->getFenceStatus(_Handle);
 	if (Result != vk::Result::eSuccess)
 	{
 		NpgsCoreError("Failed to get fence status: {}.", vk::to_string(Result));
@@ -504,7 +471,7 @@ vk::Result FVulkanFence::CreateFence(const vk::FenceCreateInfo& CreateInfo)
 {
 	try
 	{
-		_Fence = _Device->createFence(CreateInfo);
+		_Handle = _Device->createFence(CreateInfo);
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -531,17 +498,17 @@ FVulkanFramebuffer::FVulkanFramebuffer(const vk::Device& Device, const vk::Frame
 }
 
 FVulkanFramebuffer::FVulkanFramebuffer(FVulkanFramebuffer&& Other) noexcept
-	: _Device(Other._Device), _Framebuffer(std::move(Other._Framebuffer))
+	:
+	_Device(std::exchange(Other._Device, nullptr)),
+	_Handle(std::exchange(Other._Handle, {}))
 {
-	Other._Device      = nullptr;
-	Other._Framebuffer = vk::Framebuffer();
 }
 
 FVulkanFramebuffer::~FVulkanFramebuffer()
 {
-	if (_Framebuffer)
+	if (_Handle)
 	{
-		_Device->destroyFramebuffer(_Framebuffer);
+		_Device->destroyFramebuffer(_Handle);
 	}
 }
 
@@ -549,14 +516,12 @@ FVulkanFramebuffer& FVulkanFramebuffer::operator=(FVulkanFramebuffer&& Other) no
 {
 	if (this != &Other)
 	{
-		if (_Framebuffer)
+		if (_Handle)
 		{
-			_Device->destroyFramebuffer(_Framebuffer);
+			_Device->destroyFramebuffer(_Handle);
 		}
-		_Device            = std::move(Other._Device);
-		_Framebuffer       = std::move(Other._Framebuffer);
-		Other._Device      = nullptr;
-		Other._Framebuffer = vk::Framebuffer();
+		_Device = std::exchange(Other._Device, nullptr);
+		_Handle = std::exchange(Other._Handle, {});
 	}
 
 	return *this;
@@ -566,7 +531,7 @@ vk::Result FVulkanFramebuffer::CreateFramebuffer(const vk::FramebufferCreateInfo
 {
 	try
 	{
-		_Framebuffer = _Device->createFramebuffer(CreateInfo);
+		_Handle = _Device->createFramebuffer(CreateInfo);
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -593,17 +558,17 @@ FVulkanPipeline::FVulkanPipeline(const vk::Device& Device, const vk::ComputePipe
 }
 
 FVulkanPipeline::FVulkanPipeline(FVulkanPipeline&& Other) noexcept
-	: _Device(Other._Device), _Pipeline(std::move(Other._Pipeline))
+	:
+	_Device(std::exchange(Other._Device, nullptr)),
+	_Handle(std::exchange(Other._Handle, {}))
 {
-	Other._Device   = nullptr;
-	Other._Pipeline = vk::Pipeline();
 }
 
 FVulkanPipeline::~FVulkanPipeline()
 {
-	if (_Pipeline)
+	if (_Handle)
 	{
-		_Device->destroyPipeline(_Pipeline);
+		_Device->destroyPipeline(_Handle);
 	}
 }
 
@@ -611,14 +576,12 @@ FVulkanPipeline& FVulkanPipeline::operator=(FVulkanPipeline&& Other) noexcept
 {
 	if (this != &Other)
 	{
-		if (_Pipeline)
+		if (_Handle)
 		{
-			_Device->destroyPipeline(_Pipeline);
+			_Device->destroyPipeline(_Handle);
 		}
-		_Device         = Other._Device;
-		_Pipeline       = std::move(Other._Pipeline);
-		Other._Device   = nullptr;
-		Other._Pipeline = vk::Pipeline();
+		_Device = std::exchange(Other._Device, nullptr);
+		_Handle = std::exchange(Other._Handle, {});
 	}
 
 	return *this;
@@ -628,7 +591,7 @@ vk::Result FVulkanPipeline::CreateGraphicsPipeline(const vk::GraphicsPipelineCre
 {
 	try
 	{
-		_Pipeline = _Device->createGraphicsPipeline(vk::PipelineCache(), CreateInfo).value;
+		_Handle = _Device->createGraphicsPipeline(vk::PipelineCache(), CreateInfo).value;
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -644,7 +607,7 @@ vk::Result FVulkanPipeline::CreateComputePipeline(const vk::ComputePipelineCreat
 {
 	try
 	{
-		_Pipeline = _Device->createComputePipeline(vk::PipelineCache(), CreateInfo).value;
+		_Handle = _Device->createComputePipeline(vk::PipelineCache(), CreateInfo).value;
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -665,17 +628,17 @@ FVulkanPipelineLayout::FVulkanPipelineLayout(const vk::Device& Device, const vk:
 }
 
 FVulkanPipelineLayout::FVulkanPipelineLayout(FVulkanPipelineLayout& Other) noexcept
-	: _Device(Other._Device), _PipelineLayout(std::move(Other._PipelineLayout))
+	:
+	_Device(std::exchange(Other._Device, nullptr)),
+	_Handle(std::exchange(Other._Handle, {}))
 {
-	Other._Device         = nullptr;
-	Other._PipelineLayout = vk::PipelineLayout();
 }
 
 FVulkanPipelineLayout::~FVulkanPipelineLayout()
 {
-	if (_PipelineLayout)
+	if (_Handle)
 	{
-		_Device->destroyPipelineLayout(_PipelineLayout);
+		_Device->destroyPipelineLayout(_Handle);
 	}
 }
 
@@ -683,14 +646,12 @@ FVulkanPipelineLayout& FVulkanPipelineLayout::operator=(FVulkanPipelineLayout&& 
 {
 	if (this != &Other)
 	{
-		if (_PipelineLayout)
+		if (_Handle)
 		{
-			_Device->destroyPipelineLayout(_PipelineLayout);
+			_Device->destroyPipelineLayout(_Handle);
 		}
-		_Device               = Other._Device;
-		_PipelineLayout       = std::move(Other._PipelineLayout);
-		Other._Device         = nullptr;
-		Other._PipelineLayout = vk::PipelineLayout();
+		_Device = std::exchange(Other._Device, nullptr);
+		_Handle = std::exchange(Other._Handle, {});
 	}
 
 	return *this;
@@ -700,7 +661,7 @@ vk::Result FVulkanPipelineLayout::CreatePipelineLayout(const vk::PipelineLayoutC
 {
 	try
 	{
-		_PipelineLayout = _Device->createPipelineLayout(CreateInfo);
+		_Handle = _Device->createPipelineLayout(CreateInfo);
 		return vk::Result::eSuccess;
 	}
 	catch (const vk::SystemError& Error)
@@ -722,17 +683,17 @@ FVulkanRenderPass::FVulkanRenderPass(const vk::Device& Device, const vk::RenderP
 }
 
 FVulkanRenderPass::FVulkanRenderPass(FVulkanRenderPass&& Other) noexcept
-	: _Device(Other._Device), _RenderPass(std::move(Other._RenderPass))
+	:
+	_Device(std::exchange(Other._Device, nullptr)),
+	_Handle(std::exchange(Other._Handle, {}))
 {
-	Other._Device     = nullptr;
-	Other._RenderPass = vk::RenderPass();
 }
 
 FVulkanRenderPass::~FVulkanRenderPass()
 {
-	if (_RenderPass)
+	if (_Handle)
 	{
-		_Device->destroyRenderPass(_RenderPass);
+		_Device->destroyRenderPass(_Handle);
 	}
 }
 
@@ -740,14 +701,12 @@ FVulkanRenderPass& FVulkanRenderPass::operator=(FVulkanRenderPass&& Other) noexc
 {
 	if (this != &Other)
 	{
-		if (_RenderPass)
+		if (_Handle)
 		{
-			_Device->destroyRenderPass(_RenderPass);
+			_Device->destroyRenderPass(_Handle);
 		}
-		_Device           = Other._Device;
-		_RenderPass       = std::move(Other._RenderPass);
-		Other._Device     = nullptr;
-		Other._RenderPass = vk::RenderPass();
+		_Device = std::exchange(Other._Device, nullptr);
+		_Handle = std::exchange(Other._Handle, {});
 	}
 
 	return *this;
@@ -757,7 +716,7 @@ void FVulkanRenderPass::CommandBegin(const FVulkanCommandBuffer& CommandBuffer, 
 									 const vk::Rect2D& RenderArea, const std::vector<vk::ClearValue>& ClearValues,
 									 const vk::SubpassContents& SubpassContents) const
 {
-	vk::RenderPassBeginInfo RenderPassBeginInfo(_RenderPass, Framebuffer.GetFramebuffer(), RenderArea, ClearValues);
+	vk::RenderPassBeginInfo RenderPassBeginInfo(_Handle, *Framebuffer, RenderArea, ClearValues);
 	CommandBegin(CommandBuffer, RenderPassBeginInfo, SubpassContents);
 }
 
@@ -765,7 +724,7 @@ vk::Result FVulkanRenderPass::CreateRenderPass(const vk::RenderPassCreateInfo& C
 {
 	try
 	{
-		_RenderPass = _Device->createRenderPass(CreateInfo);
+		_Handle = _Device->createRenderPass(CreateInfo);
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -792,17 +751,17 @@ FVulkanSemaphore::FVulkanSemaphore(const vk::Device& Device, const vk::Semaphore
 }
 
 FVulkanSemaphore::FVulkanSemaphore(FVulkanSemaphore&& Other) noexcept
-	: _Device(Other._Device), _Semaphore(std::move(Other._Semaphore))
+	:
+	_Device(std::exchange(Other._Device, nullptr)),
+	_Handle(std::exchange(Other._Handle, {}))
 {
-	Other._Device    = nullptr;
-	Other._Semaphore = vk::Semaphore();
 }
 
 FVulkanSemaphore::~FVulkanSemaphore()
 {
-	if (_Semaphore)
+	if (_Handle)
 	{
-		_Device->destroySemaphore(_Semaphore);
+		_Device->destroySemaphore(_Handle);
 	}
 }
 
@@ -810,14 +769,12 @@ FVulkanSemaphore& FVulkanSemaphore::operator=(FVulkanSemaphore&& Other) noexcept
 {
 	if (this != &Other)
 	{
-		if (_Semaphore)
+		if (_Handle)
 		{
-			_Device->destroySemaphore(_Semaphore);
+			_Device->destroySemaphore(_Handle);
 		}
-		_Device          = std::move(Other._Device);
-		_Semaphore       = std::move(Other._Semaphore);
-		Other._Device    = nullptr;
-		Other._Semaphore = vk::Semaphore();
+		_Device = std::exchange(Other._Device, nullptr);
+		_Handle = std::exchange(Other._Handle, {});
 	}
 
 	return *this;
@@ -827,7 +784,7 @@ vk::Result FVulkanSemaphore::CreateSemaphore(const vk::SemaphoreCreateInfo& Crea
 {
 	try
 	{
-		_Semaphore = _Device->createSemaphore(CreateInfo);
+		_Handle = _Device->createSemaphore(CreateInfo);
 	}
 	catch (const vk::SystemError& Error)
 	{
@@ -860,17 +817,17 @@ FVulkanShaderModule::FVulkanShaderModule(const vk::Device& Device, const std::st
 }
 
 FVulkanShaderModule::FVulkanShaderModule(FVulkanShaderModule& Other) noexcept
-	: _Device(Other._Device), _ShaderModule(std::move(Other._ShaderModule))
+	:
+	_Device(std::exchange(Other._Device, nullptr)),
+	_Handle(std::exchange(Other._Handle, {}))
 {
-	Other._Device       = nullptr;
-	Other._ShaderModule = vk::ShaderModule();
 }
 
 FVulkanShaderModule::~FVulkanShaderModule()
 {
-	if (_ShaderModule)
+	if (_Handle)
 	{
-		_Device->destroyShaderModule(_ShaderModule);
+		_Device->destroyShaderModule(_Handle);
 	}
 }
 
@@ -878,14 +835,12 @@ FVulkanShaderModule& FVulkanShaderModule::operator=(FVulkanShaderModule&& Other)
 {
 	if (this != &Other)
 	{
-		if (_ShaderModule)
+		if (_Handle)
 		{
-			_Device->destroyShaderModule(_ShaderModule);
+			_Device->destroyShaderModule(_Handle);
 		}
-		_Device             = std::move(Other._Device);
-		_ShaderModule       = std::move(Other._ShaderModule);
-		Other._Device       = nullptr;
-		Other._ShaderModule = vk::ShaderModule();
+		_Device = std::exchange(Other._Device, nullptr);
+		_Handle = std::exchange(Other._Handle, {});
 	}
 
 	return *this;
@@ -895,7 +850,7 @@ vk::Result FVulkanShaderModule::CreateShaderModule(const vk::ShaderModuleCreateI
 {
 	try
 	{
-		_ShaderModule = _Device->createShaderModule(CreateInfo);
+		_Handle = _Device->createShaderModule(CreateInfo);
 	}
 	catch (const vk::SystemError& Error)
 	{

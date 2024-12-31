@@ -224,9 +224,6 @@
     <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanWrappers.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanWrapper.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\Astro\CelestialObject.inl">

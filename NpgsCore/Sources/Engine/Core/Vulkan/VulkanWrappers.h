@@ -29,7 +29,7 @@ struct FGraphicsPipelineCreateInfoPack
 	std::vector<vk::DynamicState>                      DynamicStates;
 
 	std::uint32_t                                      DynamicViewportCount = 1;
-	std::uint32_t                                      DynamicScissorCount  = 1;
+	std::uint32_t                                      DynamicScissorCount = 1;
 
 public:
 	FGraphicsPipelineCreateInfoPack();
@@ -63,20 +63,18 @@ public:
 	FVulkanCommandBuffer& operator=(const FVulkanCommandBuffer&) = default;
 	FVulkanCommandBuffer& operator=(FVulkanCommandBuffer&& Other) noexcept;
 
+	vk::CommandBuffer* operator->();
+	const vk::CommandBuffer* operator->() const;
+	vk::CommandBuffer& operator*();
+	const vk::CommandBuffer& operator*() const;
 	explicit operator bool() const;
 
 	vk::Result Begin(const vk::CommandBufferInheritanceInfo& InheritanceInfo, const vk::CommandBufferUsageFlags& Flags = {});
 	vk::Result Begin(const vk::CommandBufferUsageFlags& Flags = {});
 	vk::Result End();
 
-	void BindPipeline(vk::PipelineBindPoint PipelineBindPoint, const FVulkanPipeline& Pipeline);
-	void Draw(std::uint32_t VertexCount, std::uint32_t InstanceCount, std::uint32_t FirstVertex, std::uint32_t FirstInstance);
-
-	vk::CommandBuffer& GetCommandBufferMutable();
-	const vk::CommandBuffer& GetCommandBuffer() const;
-
 private:
-	vk::CommandBuffer _CommandBuffer;
+	vk::CommandBuffer _Handle;
 };
 
 // Wrapper for vk::CommandPool
@@ -94,6 +92,10 @@ public:
 	FVulkanCommandPool& operator=(const FVulkanCommandPool&) = default;
 	FVulkanCommandPool& operator=(FVulkanCommandPool&& Other) noexcept;
 
+	vk::CommandPool* operator->();
+	const vk::CommandPool* operator->() const;
+	vk::CommandPool& operator*();
+	const vk::CommandPool& operator*() const;
 	explicit operator bool() const;
 
 	vk::Result AllocateBuffer(vk::CommandBufferLevel Level, vk::CommandBuffer& Buffer);
@@ -105,16 +107,13 @@ public:
 	vk::Result FreeBuffers(vk::CommandBufferLevel Level, std::vector<vk::CommandBuffer>& Buffers);
 	vk::Result FreeBuffers(vk::CommandBufferLevel Level, std::vector<FVulkanCommandBuffer>& Buffers);
 
-	vk::CommandPool& GetCommandPoolMutable();
-	const vk::CommandPool& GetCommandPool() const;
-
 private:
 	vk::Result CreateCommandPool(vk::CommandPoolCreateInfo& CreateInfo);
 	vk::Result CreateCommandPool(std::uint32_t QueueFamilyIndex, vk::CommandPoolCreateFlags Flags);
 
 private:
 	const vk::Device* _Device;
-	vk::CommandPool   _CommandPool;
+	vk::CommandPool   _Handle;
 };
 
 // Wrapper for vk::Fence
@@ -132,6 +131,10 @@ public:
 	FVulkanFence& operator=(const FVulkanFence&) = default;
 	FVulkanFence& operator=(FVulkanFence&& Other) noexcept;
 
+	vk::Fence* operator->();
+	const vk::Fence* operator->() const;
+	vk::Fence& operator*();
+	const vk::Fence& operator*() const;
 	explicit operator bool() const;
 
 	vk::Result Wait() const;
@@ -139,16 +142,13 @@ public:
 	vk::Result WaitAndReset() const;
 	vk::Result GetStatus() const;
 
-	vk::Fence& GetFenceMutable();
-	const vk::Fence& GetFence() const;
-
 private:
 	vk::Result CreateFence(const vk::FenceCreateInfo& CreateInfo);
 	vk::Result CreateFence(const vk::FenceCreateFlags& Flags);
 
 private:
 	const vk::Device* _Device;
-	vk::Fence         _Fence;
+	vk::Fence         _Handle;
 };
 
 // Wrapper for vk::Framebuffer
@@ -165,17 +165,18 @@ public:
 	FVulkanFramebuffer& operator=(const FVulkanFramebuffer&) = default;
 	FVulkanFramebuffer& operator=(FVulkanFramebuffer&& Other) noexcept;
 
+	vk::Framebuffer* operator->();
+	const vk::Framebuffer* operator->() const;
+	vk::Framebuffer& operator*();
+	const vk::Framebuffer& operator*() const;
 	explicit operator bool() const;
-
-	vk::Framebuffer& GetFramebufferMutable();
-	const vk::Framebuffer& GetFramebuffer() const;
 
 private:
 	vk::Result CreateFramebuffer(const vk::FramebufferCreateInfo& CreateInfo);
 
 private:
 	const vk::Device* _Device;
-	vk::Framebuffer   _Framebuffer;
+	vk::Framebuffer   _Handle;
 };
 
 // Wrapper for vk::Pipeline
@@ -193,10 +194,11 @@ public:
 	FVulkanPipeline& operator=(const FVulkanPipeline&) = default;
 	FVulkanPipeline& operator=(FVulkanPipeline&& Other) noexcept;
 
+	vk::Pipeline* operator->();
+	const vk::Pipeline* operator->() const;
+	vk::Pipeline& operator*();
+	const vk::Pipeline& operator*() const;
 	explicit operator bool() const;
-
-	vk::Pipeline& GetPipelineMutable();
-	const vk::Pipeline& GetPipeline() const;
 
 private:
 	vk::Result CreateGraphicsPipeline(const vk::GraphicsPipelineCreateInfo& CreateInfo);
@@ -204,7 +206,7 @@ private:
 
 private:
 	const vk::Device* _Device;
-	vk::Pipeline      _Pipeline;
+	vk::Pipeline      _Handle;
 };
 
 // Wrapper for vk::PipelineLayout
@@ -221,17 +223,18 @@ public:
 	FVulkanPipelineLayout& operator=(const FVulkanPipelineLayout&) = default;
 	FVulkanPipelineLayout& operator=(FVulkanPipelineLayout&& Other) noexcept;
 
+	vk::PipelineLayout* operator->();
+	const vk::PipelineLayout* operator->() const;
+	vk::PipelineLayout& operator*();
+	const vk::PipelineLayout& operator*() const;
 	explicit operator bool() const;
-
-	vk::PipelineLayout& GetPipelineLayoutMutable();
-	const vk::PipelineLayout& GetPipelineLayout() const;
 
 private:
 	vk::Result CreatePipelineLayout(const vk::PipelineLayoutCreateInfo& CreateInfo);
 
 private:
 	const vk::Device*  _Device;
-	vk::PipelineLayout _PipelineLayout;
+	vk::PipelineLayout _Handle;
 };
 
 // Wrapper for vk::RenderPass
@@ -248,6 +251,10 @@ public:
 	FVulkanRenderPass& operator=(const FVulkanRenderPass&) = default;
 	FVulkanRenderPass& operator=(FVulkanRenderPass&& Other) noexcept;
 
+	vk::RenderPass* operator->();
+	const vk::RenderPass* operator->() const;
+	vk::RenderPass& operator*();
+	const vk::RenderPass& operator*() const;
 	explicit operator bool() const;
 
 	void CommandBegin(const FVulkanCommandBuffer& CommandBuffer, const vk::RenderPassBeginInfo& BeginInfo,
@@ -262,15 +269,12 @@ public:
 
 	void CommandEnd(const FVulkanCommandBuffer& CommandBuffer) const;
 
-	vk::RenderPass& GetRenderPassMutable();
-	const vk::RenderPass& GetRenderPass() const;
-
 private:
 	vk::Result CreateRenderPass(const vk::RenderPassCreateInfo& CreateInfo);
 
 private:
 	const vk::Device* _Device;
-	vk::RenderPass    _RenderPass;
+	vk::RenderPass    _Handle;
 };
 
 // Wrapper for vk::Semaphore
@@ -288,10 +292,11 @@ public:
 	FVulkanSemaphore& operator=(const FVulkanSemaphore&) = default;
 	FVulkanSemaphore& operator=(FVulkanSemaphore&& Other) noexcept;
 
+	vk::Semaphore* operator->();
+	const vk::Semaphore* operator->() const;
+	vk::Semaphore& operator*();
+	const vk::Semaphore& operator*() const;
 	explicit operator bool() const;
-
-	vk::Semaphore& GetSemaphoreMutable();
-	const vk::Semaphore& GetSemaphore() const;
 
 private:
 	vk::Result CreateSemaphore(const vk::SemaphoreCreateInfo& CreateInfo);
@@ -299,7 +304,7 @@ private:
 
 private:
 	const vk::Device* _Device;
-	vk::Semaphore     _Semaphore;
+	vk::Semaphore     _Handle;
 };
 
 // Wrapper for vk::ShaderModule
@@ -317,10 +322,11 @@ public:
 	FVulkanShaderModule& operator=(const FVulkanShaderModule&) = default;
 	FVulkanShaderModule& operator=(FVulkanShaderModule&& Other) noexcept;
 
+	vk::ShaderModule* operator->();
+	const vk::ShaderModule* operator->() const;
+	vk::ShaderModule& operator*();
+	const vk::ShaderModule& operator*() const;
 	explicit operator bool() const;
-
-	vk::ShaderModule& GetShaderModuleMutable();
-	const vk::ShaderModule& GetShaderModule() const;
 
 private:
 	vk::Result CreateShaderModule(const vk::ShaderModuleCreateInfo& CreateInfo);
@@ -328,7 +334,7 @@ private:
 
 private:
 	const vk::Device* _Device;
-	vk::ShaderModule  _ShaderModule;
+	vk::ShaderModule  _Handle;
 };
 
 _NPGS_END
