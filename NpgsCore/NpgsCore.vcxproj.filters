@@ -99,18 +99,6 @@
     <ClCompile Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Application.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanBase.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanExtFunctionsImpl.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanWrappers.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Engine\Core\Assert.h">
@@ -212,18 +200,6 @@
     <ClInclude Include="Sources\Engine\Math\NumericConstants.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Application.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanBase.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanExtFunctionsImpl.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanWrappers.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\Engine\Base\Astro\CelestialObject.inl">
@@ -299,13 +275,5 @@
     <None Include="Assets\Shaders\Shadow.vert" />
     <None Include="Assets\Shaders\Shadow.frag" />
     <None Include="Assets\Shaders\Common\NumericConstants.glsl" />
-    <None Include="Sources\Engine\Core\Vulkan\VulkanBase.inl">
-      <Filter>头文件</Filter>
-    </None>
-    <None Include="Sources\Shaders\Triangle.vert" />
-    <None Include="Sources\Shaders\Triangle.frag" />
-    <None Include="Sources\Engine\Core\Vulkan\VulkanWrappers.inl">
-      <Filter>头文件</Filter>
-    </None>
   </ItemGroup>
 </Project>

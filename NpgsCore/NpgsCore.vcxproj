@@ -170,10 +170,6 @@
     <ClCompile Include="Sources\Engine\Base\NpgsObject.cpp" />
     <ClCompile Include="Sources\Engine\Core\Camera.cpp" />
     <ClCompile Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Application.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanBase.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanExtFunctionsImpl.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Vulkan\VulkanWrappers.cpp" />
     <ClCompile Include="Sources\Engine\Utilities\Logger.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\CivilizationGenerator.cpp" />
     <ClCompile Include="Sources\Engine\Modules\Generators\OrbitalGenerator.cpp" />
@@ -210,10 +206,6 @@
     <ClInclude Include="Sources\Engine\AssetLoader\CommaSeparatedValues.hpp" />
     <ClInclude Include="Sources\Engine\Core\Base.h" />
     <ClInclude Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.h" />
-    <ClInclude Include="Sources\Engine\Core\Application.h" />
-    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanBase.h" />
-    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanExtFunctionsImpl.h" />
-    <ClInclude Include="Sources\Engine\Core\Vulkan\VulkanWrappers.h" />
     <ClInclude Include="Sources\Engine\Math\NumericConstants.h" />
     <ClInclude Include="Sources\Engine\Utilities\Logger.h" />
     <ClInclude Include="Sources\Engine\Modules\Generators\CivilizationGenerator.h" />
@@ -258,15 +250,11 @@
     <None Include="Sources\Engine\Core\Camera.inl" />
     <None Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.inl" />
     <None Include="Sources\Engine\Core\ThreadPool.inl" />
-    <None Include="Sources\Engine\Core\Vulkan\VulkanBase.inl" />
-    <None Include="Sources\Engine\Core\Vulkan\VulkanWrappers.inl" />
     <None Include="Sources\Engine\Utilities\Logger.inl" />
     <None Include="Sources\Engine\Utilities\StellarClass.inl" />
     <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />
     <None Include="Sources\Engine\Utilities\ShaderBlockManager.inl" />
     <None Include="Sources\Engine\Utilities\Utilities.inl" />
-    <None Include="Sources\Shaders\Triangle.vert" />
-    <None Include="Sources\Shaders\Triangle.frag" />
     <None Include="Sources\Vertices.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
