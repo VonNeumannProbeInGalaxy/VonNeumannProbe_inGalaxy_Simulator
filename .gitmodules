@@ -1,3 +1,0 @@
-[submodule "NpgsCore/Externals/volk"]
-	path = NpgsCore/Externals/volk
-	url = https://github.com/zeux/volk.git
