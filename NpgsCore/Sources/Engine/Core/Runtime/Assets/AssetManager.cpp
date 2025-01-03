@@ -4,18 +4,20 @@
 #include "Engine/Core/Base/Assert.h"
 
 _NPGS_BEGIN
+_RUNTIME_BEGIN
 _ASSET_BEGIN
 
 FAssetManager* FAssetManager::GetInstance()
 {
-	static FAssetManager Instance;
-	return &Instance;
+    static FAssetManager Instance;
+    return &Instance;
 }
 
 FAssetManager::~FAssetManager()
 {
-	ClearAssets();
+    ClearAssets();
 }
 
 _ASSET_END
+_RUNTIME_END
 _NPGS_END

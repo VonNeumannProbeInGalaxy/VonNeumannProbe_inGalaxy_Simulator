@@ -8,15 +8,16 @@
 #include <utility>
 #include <vector>
 
+#include "Engine/Core/Base/Base.h"
 #include "Engine/Core/Runtime/Assets/CommaSeparatedValues.hpp"
 #include "Engine/Core/Runtime/Assets/GetAssetFullPath.h"
 #include "Engine/Core/Runtime/Assets/Mesh.h"
 #include "Engine/Core/Runtime/Assets/Model.h"
 #include "Engine/Core/Runtime/Assets/Shader.h"
 #include "Engine/Core/Runtime/Assets/Texture.h"
-#include "Engine/Core/Base/Base.h"
 
 _NPGS_BEGIN
+_RUNTIME_BEGIN
 _ASSET_BEGIN
 
 class FTypeErasedDeleter
@@ -75,6 +76,7 @@ private:
 };
 
 _ASSET_END
+_RUNTIME_END
 _NPGS_END
 
 #include "AssetManager.inl"
