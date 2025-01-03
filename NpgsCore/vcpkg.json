@@ -1,0 +1,17 @@
+{
+    "name": "npgs-core",
+    "version": "1.0.0",
+    "description": "Von-Neumann Probe simulator core",
+    "dependencies": [
+        "assimp",
+        "boost-multiprecision",
+        "fast-cpp-csv-parser",
+        "freetype",
+        "glfw3",
+        "gli",
+        "glm",
+        "spdlog",
+        "stb"
+    ],
+    "builtin-baseline": "d033613d9021107e4a7b52c5fac1f87ae8a6fcc6"
+}

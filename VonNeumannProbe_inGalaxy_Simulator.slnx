@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="glad/glad.vcxproj" Id="1baba1a9-c081-4594-94ae-903941e65213" />
+  <Project Path="NpgsCore/NpgsCore.vcxproj" Id="a3a96004-fd3b-4d24-b61a-26dffce12120" />
+</Solution>

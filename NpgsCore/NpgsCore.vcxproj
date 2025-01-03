@@ -71,10 +71,17 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)Sources;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Sources;$(SolutionDir)glad\Sources\Include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>$(VULKAN_SDK)\Include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>$(VULKAN_SDK)\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)Sources;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Sources;$(SolutionDir)glad\Sources\Include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>$(VULKAN_SDK)\Include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>$(VULKAN_SDK)\Lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -119,6 +126,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
@@ -143,76 +151,87 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <Profile>true</Profile>
+      <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.cpp" />
-    <ClCompile Include="Sources\Engine\AssetLoader\GetAssetFullPath.cpp" />
-    <ClCompile Include="Sources\Engine\AssetLoader\Mesh.cpp" />
-    <ClCompile Include="Sources\Engine\AssetLoader\Model.cpp" />
-    <ClCompile Include="Sources\Engine\AssetLoader\Shader.cpp" />
-    <ClCompile Include="Sources\Engine\AssetLoader\stb_image.cpp" />
-    <ClCompile Include="Sources\Engine\AssetLoader\Texture.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Intelli\Artifact.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Astro\CelestialObject.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Astro\Planet.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Astro\Star.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Intelli\Civilization.cpp" />
-    <ClCompile Include="Sources\Engine\Base\Astro\StellarSystem.cpp" />
-    <ClCompile Include="Sources\Engine\AssetLoader\AssetManager.cpp" />
-    <ClCompile Include="Sources\Engine\Base\NpgsObject.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Camera.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.cpp" />
-    <ClCompile Include="Sources\Engine\Utilities\Logger.cpp" />
-    <ClCompile Include="Sources\Engine\Modules\Generators\CivilizationGenerator.cpp" />
-    <ClCompile Include="Sources\Engine\Modules\Generators\OrbitalGenerator.cpp" />
-    <ClCompile Include="Sources\Engine\Utilities\StellarClass.cpp" />
-    <ClCompile Include="Sources\Engine\Modules\Generators\StellarGenerator.cpp" />
-    <ClCompile Include="Sources\Engine\Core\ThreadPool.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Universe.cpp" />
-    <ClCompile Include="Sources\Engine\Utilities\Utilities.cpp" />
-    <ClCompile Include="Sources\main.cpp" />
-    <ClCompile Include="Sources\stdafx.cpp">
+    <ClCompile Include="Sources\Programs\Application.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ScreenQuadRenderer.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Assets\GetAssetFullPath.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Assets\Mesh.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Assets\Model.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Assets\Shader.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Assets\stb_image.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Assets\Texture.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Types\Properties\Intelli\Artifact.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Types\Entries\Astro\CelestialObject.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Types\Entries\Astro\Planet.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Types\Entries\Astro\Star.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Types\Properties\Intelli\Civilization.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Types\Entries\Astro\StellarSystem.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Assets\AssetManager.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Types\Entries\NpgsObject.cpp" />
+    <ClCompile Include="Sources\Engine\Core\System\Spatial\Camera.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Renderers\Buffers\Framebuffer.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanBase.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanCore.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanExtFunctionsImpl.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanWrappers.cpp" />
+    <ClCompile Include="Sources\Engine\Utils\Logger.cpp" />
+    <ClCompile Include="Sources\Engine\Core\System\Generators\CivilizationGenerator.cpp" />
+    <ClCompile Include="Sources\Engine\Core\System\Generators\OrbitalGenerator.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Types\Properties\StellarClass.cpp" />
+    <ClCompile Include="Sources\Engine\Core\System\Generators\StellarGenerator.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Threads\ThreadPool.cpp" />
+    <ClCompile Include="Sources\Programs\Universe.cpp" />
+    <ClCompile Include="Sources\Engine\Utils\Utils.cpp" />
+    <ClCompile Include="Sources\Programs\main.cpp" />
+    <ClCompile Include="Sources\Programs\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Utilities\ShaderBlockManager.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ShaderBlockManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Engine\Core\Renderers\ScreenQuadRenderer.h" />
-    <ClInclude Include="Sources\Engine\AssetLoader\GetAssetFullPath.h" />
-    <ClInclude Include="Sources\Engine\AssetLoader\Mesh.h" />
-    <ClInclude Include="Sources\Engine\AssetLoader\Model.h" />
-    <ClInclude Include="Sources\Engine\AssetLoader\Shader.h" />
-    <ClInclude Include="Sources\Engine\AssetLoader\Texture.h" />
-    <ClInclude Include="Sources\Engine\Base\Intelli\Artifact.h" />
-    <ClInclude Include="Sources\Engine\Base\Astro\CelestialObject.h" />
-    <ClInclude Include="Sources\Engine\Base\Astro\Planet.h" />
-    <ClInclude Include="Sources\Engine\Base\Astro\Star.h" />
-    <ClInclude Include="Sources\Engine\Base\Intelli\Civilization.h" />
-    <ClInclude Include="Sources\Engine\Base\NpgsObject.h" />
-    <ClInclude Include="Sources\Engine\Core\Camera.h" />
-    <ClInclude Include="Sources\Engine\Core\Octree.hpp" />
-    <ClInclude Include="Sources\Engine\Base\Astro\StellarSystem.h" />
-    <ClInclude Include="Sources\Engine\Core\Assert.h" />
-    <ClInclude Include="Sources\Engine\AssetLoader\AssetManager.h" />
-    <ClInclude Include="Sources\Engine\AssetLoader\CommaSeparatedValues.hpp" />
-    <ClInclude Include="Sources\Engine\Core\Base.h" />
-    <ClInclude Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.h" />
-    <ClInclude Include="Sources\Engine\Math\NumericConstants.h" />
-    <ClInclude Include="Sources\Engine\Utilities\Logger.h" />
-    <ClInclude Include="Sources\Engine\Modules\Generators\CivilizationGenerator.h" />
-    <ClInclude Include="Sources\Engine\Modules\Generators\OrbitalGenerator.h" />
-    <ClInclude Include="Sources\Engine\Utilities\StellarClass.h" />
-    <ClInclude Include="Sources\Engine\Modules\Generators\StellarGenerator.h" />
-    <ClInclude Include="Sources\Engine\Utilities\Random.hpp" />
-    <ClInclude Include="Sources\Engine\Core\ThreadPool.h" />
-    <ClInclude Include="Sources\Engine\Core\Universe.h" />
-    <ClInclude Include="Sources\Engine\Utilities\Utilities.h" />
-    <ClInclude Include="Sources\Npgs.h" />
-    <ClInclude Include="Sources\stdafx.h" />
-    <ClInclude Include="Sources\Engine\Utilities\ShaderBlockManager.h" />
+    <ClInclude Include="Sources\Programs\Application.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ScreenQuadRenderer.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Assets\GetAssetFullPath.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Assets\Mesh.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Assets\Model.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Assets\Shader.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Assets\Texture.h" />
+    <ClInclude Include="Sources\Engine\Core\Types\Properties\Intelli\Artifact.h" />
+    <ClInclude Include="Sources\Engine\Core\Types\Entries\Astro\CelestialObject.h" />
+    <ClInclude Include="Sources\Engine\Core\Types\Entries\Astro\Planet.h" />
+    <ClInclude Include="Sources\Engine\Core\Types\Entries\Astro\Star.h" />
+    <ClInclude Include="Sources\Engine\Core\Types\Properties\Intelli\Civilization.h" />
+    <ClInclude Include="Sources\Engine\Core\Types\Entries\NpgsObject.h" />
+    <ClInclude Include="Sources\Engine\Core\System\Spatial\Camera.h" />
+    <ClInclude Include="Sources\Engine\Core\System\Spatial\Octree.hpp" />
+    <ClInclude Include="Sources\Engine\Core\Types\Entries\Astro\StellarSystem.h" />
+    <ClInclude Include="Sources\Engine\Core\Base\Assert.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Assets\AssetManager.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Assets\CommaSeparatedValues.hpp" />
+    <ClInclude Include="Sources\Engine\Core\Base\Base.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Renderers\Buffers\Framebuffer.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanBase.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanCore.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanExtFunctionsImpl.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanWrappers.h" />
+    <ClInclude Include="Sources\Engine\Core\Math\NumericConstants.h" />
+    <ClInclude Include="Sources\Engine\Utils\Logger.h" />
+    <ClInclude Include="Sources\Engine\Core\System\Generators\CivilizationGenerator.h" />
+    <ClInclude Include="Sources\Engine\Core\System\Generators\OrbitalGenerator.h" />
+    <ClInclude Include="Sources\Engine\Core\Types\Properties\StellarClass.h" />
+    <ClInclude Include="Sources\Engine\Core\System\Generators\StellarGenerator.h" />
+    <ClInclude Include="Sources\Engine\Utils\Random.hpp" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Threads\ThreadPool.h" />
+    <ClInclude Include="Sources\Programs\Universe.h" />
+    <ClInclude Include="Sources\Engine\Utils\Utils.h" />
+    <ClInclude Include="Sources\Programs\Npgs.h" />
+    <ClInclude Include="Sources\Programs\stdafx.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ShaderBlockManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Advanced.frag" />
@@ -231,25 +250,33 @@
     <None Include="Assets\Shaders\Shadow.vert" />
     <None Include="Assets\Shaders\Triangle.frag" />
     <None Include="Assets\Shaders\Triangle.vert" />
-    <None Include="Sources\Engine\AssetLoader\AssetManager.inl" />
-    <None Include="Sources\Engine\AssetLoader\Mesh.inl" />
-    <None Include="Sources\Engine\AssetLoader\Model.inl" />
-    <None Include="Sources\Engine\AssetLoader\Shader.inl" />
-    <None Include="Sources\Engine\AssetLoader\Texture.inl" />
-    <None Include="Sources\Engine\Base\Astro\CelestialObject.inl" />
-    <None Include="Sources\Engine\Base\Astro\Planet.inl" />
-    <None Include="Sources\Engine\Base\Astro\Star.inl" />
-    <None Include="Sources\Engine\Base\Intelli\Civilization.inl" />
-    <None Include="Sources\Engine\Base\Astro\StellarSystem.inl" />
-    <None Include="Sources\Engine\Core\Camera.inl" />
-    <None Include="Sources\Engine\Core\Renderers\Buffers\Framebuffer.inl" />
-    <None Include="Sources\Engine\Core\ThreadPool.inl" />
-    <None Include="Sources\Engine\Utilities\Logger.inl" />
-    <None Include="Sources\Engine\Utilities\StellarClass.inl" />
-    <None Include="Sources\Engine\Modules\Generators\StellarGenerator.inl" />
-    <None Include="Sources\Engine\Utilities\ShaderBlockManager.inl" />
-    <None Include="Sources\Engine\Utilities\Utilities.inl" />
-    <None Include="Sources\Vertices.inc" />
+    <None Include="Sources\Engine\Core\Runtime\Assets\AssetManager.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Assets\Mesh.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Assets\Model.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Assets\Shader.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Assets\Texture.inl" />
+    <None Include="Sources\Engine\Core\Types\Entries\Astro\CelestialObject.inl" />
+    <None Include="Sources\Engine\Core\Types\Entries\Astro\Planet.inl" />
+    <None Include="Sources\Engine\Core\Types\Entries\Astro\Star.inl" />
+    <None Include="Sources\Engine\Core\Types\Properties\Intelli\Civilization.inl" />
+    <None Include="Sources\Engine\Core\Types\Entries\Astro\StellarSystem.inl" />
+    <None Include="Sources\Engine\Core\System\Spatial\Camera.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Graphics\Renderers\Buffers\Framebuffer.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Threads\ThreadPool.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanBase.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanCore.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanWrappers.inl" />
+    <None Include="Sources\Engine\Utils\Logger.inl" />
+    <None Include="Sources\Engine\Core\Types\Properties\StellarClass.inl" />
+    <None Include="Sources\Engine\Core\System\Generators\StellarGenerator.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ShaderBlockManager.inl" />
+    <None Include="Sources\Engine\Utils\Utils.inl" />
+    <None Include="Sources\Programs\Vertices.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\glad\glad.vcxproj">
+      <Project>{1baba1a9-c081-4594-94ae-903941e65213}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
