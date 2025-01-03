@@ -43,6 +43,10 @@
 #define _ASSET_END }
 #define _ASTRO_BEGIN namespace Astro {
 #define _ASTRO_END }
+#define _GENERATOR_BEGIN namespace Generator {
+#define _GENERATOR_END }
+#define _GRAPHICS_BEGIN namespace Graphics {
+#define _GRAPHICS_END }
 #define _INTELLI_BEGIN namespace Intelli {
 #define _INTELLI_END }
 #define _MATH_BEGIN namespace Math {
@@ -55,6 +59,8 @@
 #define _SPATIAL_END }
 #define _SYSTEM_BEGIN namespace System {
 #define _SYSTEM_END }
+#define _THREAD_BEGIN namespace Thread {
+#define _THREAD_END }
 #define _UTIL_BEGIN namespace Util {
 #define _UTIL_END }
 

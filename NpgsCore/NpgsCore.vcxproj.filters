@@ -87,10 +87,10 @@
     <ClCompile Include="Sources\Engine\Core\Types\Entries\NpgsObject.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ShaderBlockManager.cpp">
+    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\ShaderBlockManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Renderers\Buffers\Framebuffer.cpp">
+    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\Framebuffer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ScreenQuadRenderer.cpp">
@@ -200,10 +200,10 @@
     <ClInclude Include="Sources\Engine\Core\System\Spatial\Camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ShaderBlockManager.h">
+    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\ShaderBlockManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Renderers\Buffers\Framebuffer.h">
+    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\Framebuffer.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ScreenQuadRenderer.h">
@@ -285,7 +285,7 @@
     <None Include="Assets\Shaders\Advanced.frag" />
     <None Include="Assets\Shaders\Framebuffer.vert" />
     <None Include="Assets\Shaders\Framebuffer.frag" />
-    <None Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ShaderBlockManager.inl">
+    <None Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\ShaderBlockManager.inl">
       <Filter>头文件</Filter>
     </None>
     <None Include="Assets\Shaders\Point.vert" />
@@ -294,7 +294,7 @@
     <None Include="Sources\Engine\Utils\Utils.inl">
       <Filter>头文件</Filter>
     </None>
-    <None Include="Sources\Engine\Core\Runtime\Graphics\Renderers\Buffers\Framebuffer.inl">
+    <None Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\Framebuffer.inl">
       <Filter>头文件</Filter>
     </None>
     <None Include="Assets\Shaders\Advanced.geom" />

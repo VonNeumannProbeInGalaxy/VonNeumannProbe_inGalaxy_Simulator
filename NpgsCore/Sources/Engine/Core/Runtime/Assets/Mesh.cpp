@@ -33,7 +33,6 @@ FMesh& FMesh::operator=(FMesh&& Other) noexcept
         {
             glDeleteVertexArrays(1, &_VertexArray);
         }
-
         _Indices     = std::move(Other._Indices);
         _Textures    = std::move(Other._Textures);
         _VertexArray = std::exchange(Other._VertexArray, 0);

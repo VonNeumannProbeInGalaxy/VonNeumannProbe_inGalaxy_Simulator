@@ -7,12 +7,12 @@ _UTIL_BEGIN
 
 NPGS_INLINE std::shared_ptr<spdlog::logger>& FLogger::GetCoreLogger()
 {
-	return _kCoreLogger;
+    return _kCoreLogger;
 }
 
 NPGS_INLINE std::shared_ptr<spdlog::logger>& FLogger::GetClientLogger()
 {
-	return _kClientLogger;
+    return _kClientLogger;
 }
 
 _UTIL_END

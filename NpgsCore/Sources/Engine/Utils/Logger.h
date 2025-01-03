@@ -10,16 +10,16 @@ _UTIL_BEGIN
 class FLogger
 {
 public:
-	static void Init();
-	static std::shared_ptr<spdlog::logger>& GetCoreLogger();
-	static std::shared_ptr<spdlog::logger>& GetClientLogger();
+    static void Init();
+    static std::shared_ptr<spdlog::logger>& GetCoreLogger();
+    static std::shared_ptr<spdlog::logger>& GetClientLogger();
 
 private:
-	FLogger() {};
-	~FLogger() = default;
+    FLogger() {};
+    ~FLogger() = default;
 
-	static std::shared_ptr<spdlog::logger> _kCoreLogger;
-	static std::shared_ptr<spdlog::logger> _kClientLogger;
+    static std::shared_ptr<spdlog::logger> _kCoreLogger;
+    static std::shared_ptr<spdlog::logger> _kClientLogger;
 };
 
 _UTIL_END
@@ -27,7 +27,7 @@ _NPGS_END
 
 #include "Logger.inl"
 
-#ifdef ENABLE_CONSOLE_LOGGER
+#ifdef NPGS_ENABLE_CONSOLE_LOGGER
 // Core logger
 // -----------
 #define NpgsCoreCritical(...) ::Npgs::Util::FLogger::GetCoreLogger()->critical(__VA_ARGS__)
@@ -58,4 +58,4 @@ _NPGS_END
 #define NpgsTrace(...)        static_cast<void>(0)
 #define NpgsWarn(...)         static_cast<void>(0)
 
-#endif // !_DEBUG
+#endif // NPGS_ENABLE_CONSOLE_LOGGER

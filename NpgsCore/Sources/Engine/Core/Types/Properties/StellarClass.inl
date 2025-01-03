@@ -3,12 +3,12 @@
 #include "StellarClass.h"
 
 _NPGS_BEGIN
-_UTIL_BEGIN
+_ASTRO_BEGIN
 
 NPGS_INLINE FStellarClass::EStarType FStellarClass::GetStarType() const
 {
 	return _StarType;
 }
 
-_UTIL_END
+_ASTRO_END
 _NPGS_END

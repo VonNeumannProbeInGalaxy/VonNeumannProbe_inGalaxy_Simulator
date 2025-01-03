@@ -4,7 +4,7 @@
 
 _NPGS_BEGIN
 
-#ifdef ENABLE_ENUM_BIT_OPERATOR
+#ifdef NPGS_ENABLE_ENUM_BIT_OPERATOR
 template <typename EnumType>
 constexpr EnumType operator&(EnumType Lhs, EnumType Rhs);
 
@@ -25,7 +25,7 @@ constexpr EnumType operator|=(EnumType Lhs, EnumType Rhs);
 
 template <typename EnumType>
 constexpr EnumType operator^=(EnumType Lhs, EnumType Rhs);
-#endif // ENABLE_ENUM_BIT_OPERATOR
+#endif // NPGS_ENABLE_ENUM_BIT_OPERATOR
 
 _UTIL_BEGIN
 
@@ -36,4 +36,4 @@ bool Equal(double Lhs, double Rhs);
 _UTIL_END
 _NPGS_END
 
-#include "Utilities.inl"
+#include "Utils.inl"

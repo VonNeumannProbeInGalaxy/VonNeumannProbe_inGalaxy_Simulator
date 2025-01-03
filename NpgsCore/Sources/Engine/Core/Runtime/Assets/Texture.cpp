@@ -90,7 +90,6 @@ FTexture& FTexture::operator=(FTexture&& Other) noexcept
         {
             glDeleteTextures(1, &_Texture);
         }
-
         _Texture = std::exchange(Other._Texture, 0);
         _Type    = Other._Type;
     }

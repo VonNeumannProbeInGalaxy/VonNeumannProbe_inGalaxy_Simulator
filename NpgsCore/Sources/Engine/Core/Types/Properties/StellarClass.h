@@ -1,11 +1,12 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include "Engine/Core/Base/Base.h"
 
 _NPGS_BEGIN
-_UTIL_BEGIN
+_ASTRO_BEGIN
 
 class FStellarClass
 {
@@ -187,7 +188,7 @@ private:
 	EStarType     _StarType;
 };
 
-_UTIL_END
+_ASTRO_END
 _NPGS_END
 
 #include "StellarClass.inl"

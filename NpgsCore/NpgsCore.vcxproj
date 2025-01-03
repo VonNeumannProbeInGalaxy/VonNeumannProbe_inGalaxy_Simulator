@@ -172,7 +172,7 @@
     <ClCompile Include="Sources\Engine\Core\Runtime\Assets\AssetManager.cpp" />
     <ClCompile Include="Sources\Engine\Core\Types\Entries\NpgsObject.cpp" />
     <ClCompile Include="Sources\Engine\Core\System\Spatial\Camera.cpp" />
-    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Renderers\Buffers\Framebuffer.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\Framebuffer.cpp" />
     <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanBase.cpp" />
     <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanCore.cpp" />
     <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanExtFunctionsImpl.cpp" />
@@ -190,7 +190,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ShaderBlockManager.cpp" />
+    <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\ShaderBlockManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Programs\Application.h" />
@@ -213,7 +213,7 @@
     <ClInclude Include="Sources\Engine\Core\Runtime\Assets\AssetManager.h" />
     <ClInclude Include="Sources\Engine\Core\Runtime\Assets\CommaSeparatedValues.hpp" />
     <ClInclude Include="Sources\Engine\Core\Base\Base.h" />
-    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Renderers\Buffers\Framebuffer.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\Framebuffer.h" />
     <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanBase.h" />
     <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanCore.h" />
     <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanExtFunctionsImpl.h" />
@@ -230,7 +230,7 @@
     <ClInclude Include="Sources\Engine\Utils\Utils.h" />
     <ClInclude Include="Sources\Programs\Npgs.h" />
     <ClInclude Include="Sources\stdafx.h" />
-    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ShaderBlockManager.h" />
+    <ClInclude Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\ShaderBlockManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Advanced.frag" />
@@ -260,7 +260,7 @@
     <None Include="Sources\Engine\Core\Types\Properties\Intelli\Civilization.inl" />
     <None Include="Sources\Engine\Core\Types\Entries\Astro\StellarSystem.inl" />
     <None Include="Sources\Engine\Core\System\Spatial\Camera.inl" />
-    <None Include="Sources\Engine\Core\Runtime\Graphics\Renderers\Buffers\Framebuffer.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\Framebuffer.inl" />
     <None Include="Sources\Engine\Core\Runtime\Threads\ThreadPool.inl" />
     <None Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanBase.inl" />
     <None Include="Sources\Engine\Core\Runtime\Graphics\Vulkan\VulkanCore.inl" />
@@ -268,7 +268,7 @@
     <None Include="Sources\Engine\Utils\Logger.inl" />
     <None Include="Sources\Engine\Core\Types\Properties\StellarClass.inl" />
     <None Include="Sources\Engine\Core\System\Generators\StellarGenerator.inl" />
-    <None Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ShaderBlockManager.inl" />
+    <None Include="Sources\Engine\Core\Runtime\Graphics\OpenGL\ShaderBlockManager.inl" />
     <None Include="Sources\Engine\Utils\Utils.inl" />
     <None Include="Sources\Programs\Vertices.inc" />
   </ItemGroup>

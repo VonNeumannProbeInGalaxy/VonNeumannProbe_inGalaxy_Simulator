@@ -7,8 +7,8 @@ _NPGS_BEGIN
 class INpgsObject
 {
 public:
-	INpgsObject() = default;
-	virtual ~INpgsObject() = default;
+    INpgsObject()          = default;
+    virtual ~INpgsObject() = default;
 };
 
 _NPGS_END

@@ -9,7 +9,7 @@
 #include "Engine/Core/Base/Assert.h"
 
 _NPGS_BEGIN
-_UTIL_BEGIN
+_ASTRO_BEGIN
 
 // FStellarClass implementations
 // -----------------------------
@@ -705,5 +705,5 @@ std::string FStellarClass::SpecialMarkToString(FStellarClass::ESpecialMark Speci
 	}
 }
 
-_UTIL_END
+_ASTRO_END
 _NPGS_END

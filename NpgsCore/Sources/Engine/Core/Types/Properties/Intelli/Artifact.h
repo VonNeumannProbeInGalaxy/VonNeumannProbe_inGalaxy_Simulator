@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Engine/Base/NpgsObject.h"
 #include "Engine/Core/Base/Base.h"
+#include "Engine/Core/Types/Entries/NpgsObject.h"
 
 _NPGS_BEGIN
 _INTELLI_BEGIN

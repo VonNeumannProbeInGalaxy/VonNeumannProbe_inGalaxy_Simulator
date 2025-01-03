@@ -53,7 +53,6 @@ FShader& FShader::operator=(FShader&& Other) noexcept
         {
             glDeleteProgram(_Program);
         }
-
         _IncludedFiles         = std::move(Other._IncludedFiles);
         _UniformLocationsCache = std::move(Other._UniformLocationsCache);
         _ShaderTypes           = std::move(Other._ShaderTypes);

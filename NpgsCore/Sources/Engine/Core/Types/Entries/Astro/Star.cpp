@@ -4,7 +4,7 @@ _NPGS_BEGIN
 _ASTRO_BEGIN
 
 AStar::AStar(const FCelestialBody::FBasicProperties& BasicProperties, const FExtendedProperties& ExtraProperties)
-	: FCelestialBody(BasicProperties), _ExtraProperties(std::move(ExtraProperties))
+    : FCelestialBody(BasicProperties), _ExtraProperties(ExtraProperties)
 {
 }
 
@@ -25,47 +25,47 @@ const std::vector<std::pair<int, int>> AStar::_kSpectralSubclassMap_WNxh{ { 5000
 
 const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> AStar::_kInitialCommonMap
 {
-	{ 54000,  AStar::_kSpectralSubclassMap_O },
-	{ 33400,  AStar::_kSpectralSubclassMap_B },
-	{ 9900,   AStar::_kSpectralSubclassMap_A },
-	{ 7200,   AStar::_kSpectralSubclassMap_F },
-	{ 6100,   AStar::_kSpectralSubclassMap_G },
-	{ 5260,   AStar::_kSpectralSubclassMap_K },
-	{ 3850,   AStar::_kSpectralSubclassMap_M },
-	{ 2270,   AStar::_kSpectralSubclassMap_L },
-	{ 1255,   AStar::_kSpectralSubclassMap_T },
-	{ 450,    AStar::_kSpectralSubclassMap_Y },
-	{ 0, {} }
+    { 54000,  AStar::_kSpectralSubclassMap_O },
+    { 33400,  AStar::_kSpectralSubclassMap_B },
+    { 9900,   AStar::_kSpectralSubclassMap_A },
+    { 7200,   AStar::_kSpectralSubclassMap_F },
+    { 6100,   AStar::_kSpectralSubclassMap_G },
+    { 5260,   AStar::_kSpectralSubclassMap_K },
+    { 3850,   AStar::_kSpectralSubclassMap_M },
+    { 2270,   AStar::_kSpectralSubclassMap_L },
+    { 1255,   AStar::_kSpectralSubclassMap_T },
+    { 450,    AStar::_kSpectralSubclassMap_Y },
+    { 0, {} }
 };
 
 const std::vector<std::pair<int, std::vector<std::pair<int, int>>>> AStar::_kInitialWolfRayetMap
 {
-	{ 200000, AStar::_kSpectralSubclassMap_WO },
-	{ 141000, AStar::_kSpectralSubclassMap_WN },
-	{ 117000, AStar::_kSpectralSubclassMap_WC },
-	{ 0, {} }
+    { 200000, AStar::_kSpectralSubclassMap_WO },
+    { 141000, AStar::_kSpectralSubclassMap_WN },
+    { 117000, AStar::_kSpectralSubclassMap_WC },
+    { 0, {} }
 };
 
-const std::unordered_map<AStar::EEvolutionPhase, ::Npgs::Util::FStellarClass::ELuminosityClass> AStar::_kLuminosityMap
+const std::unordered_map<AStar::EEvolutionPhase, Astro::FStellarClass::ELuminosityClass> AStar::_kLuminosityMap
 {
-	{ AStar::EEvolutionPhase::kMainSequence,     ::Npgs::Util::FStellarClass::ELuminosityClass::kLuminosity_V   },
-	{ AStar::EEvolutionPhase::kRedGiant,         ::Npgs::Util::FStellarClass::ELuminosityClass::kLuminosity_III },
-	{ AStar::EEvolutionPhase::kCoreHeBurn,       ::Npgs::Util::FStellarClass::ELuminosityClass::kLuminosity_IV  },
-	{ AStar::EEvolutionPhase::kEarlyAgb,         ::Npgs::Util::FStellarClass::ELuminosityClass::kLuminosity_II  },
-	{ AStar::EEvolutionPhase::kThermalPulseAgb,  ::Npgs::Util::FStellarClass::ELuminosityClass::kLuminosity_I   },
-	{ AStar::EEvolutionPhase::kPostAgb,          ::Npgs::Util::FStellarClass::ELuminosityClass::kLuminosity_I   }
+    { AStar::EEvolutionPhase::kMainSequence,     Astro::FStellarClass::ELuminosityClass::kLuminosity_V   },
+    { AStar::EEvolutionPhase::kRedGiant,         Astro::FStellarClass::ELuminosityClass::kLuminosity_III },
+    { AStar::EEvolutionPhase::kCoreHeBurn,       Astro::FStellarClass::ELuminosityClass::kLuminosity_IV  },
+    { AStar::EEvolutionPhase::kEarlyAgb,         Astro::FStellarClass::ELuminosityClass::kLuminosity_II  },
+    { AStar::EEvolutionPhase::kThermalPulseAgb,  Astro::FStellarClass::ELuminosityClass::kLuminosity_I   },
+    { AStar::EEvolutionPhase::kPostAgb,          Astro::FStellarClass::ELuminosityClass::kLuminosity_I   }
 };
 
 const std::unordered_map<float, float> AStar::_kFeHSurfaceH1Map
 {
-	{ -4.0f, 0.75098f },
-	{ -3.0f, 0.75095f },
-	{ -2.0f, 0.75063f },
-	{ -1.5f, 0.74986f },
-	{ -1.0f, 0.74743f },
-	{ -0.5f, 0.73973f },
-	{  0.0f, 0.7154f  },
-	{  0.5f, 0.63846f }
+    { -4.0f, 0.75098f },
+    { -3.0f, 0.75095f },
+    { -2.0f, 0.75063f },
+    { -1.5f, 0.74986f },
+    { -1.0f, 0.74743f },
+    { -0.5f, 0.73973f },
+    {  0.0f, 0.7154f  },
+    {  0.5f, 0.63846f }
 };
 
 _ASTRO_END

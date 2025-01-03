@@ -196,6 +196,6 @@
 #include <stb_image.h>
 
 #ifdef _DEBUG
-#define ENABLE_CONSOLE_LOGGER
+#define NPGS_ENABLE_CONSOLE_LOGGER
 #endif // _DEBUG
 #include "Engine/Utils/Logger.h"

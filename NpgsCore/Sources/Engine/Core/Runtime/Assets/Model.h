@@ -7,9 +7,9 @@
 #include <assimp/material.h>
 #include <assimp/scene.h>
 
+#include "Engine/Core/Base/Base.h"
 #include "Engine/Core/Runtime/Assets/Mesh.h"
 #include "Engine/Core/Runtime/Assets/Shader.h"
-#include "Engine/Core/Base/Base.h"
 
 _NPGS_BEGIN
 _RUNTIME_BEGIN
