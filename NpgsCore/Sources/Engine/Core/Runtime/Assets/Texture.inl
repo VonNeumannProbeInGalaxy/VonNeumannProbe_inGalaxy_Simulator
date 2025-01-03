@@ -3,28 +3,30 @@
 #include "Texture.h"
 
 _NPGS_BEGIN
+_RUNTIME_BEGIN
 _ASSET_BEGIN
 
 NPGS_INLINE void FTexture::BindTextureUnit(GLuint Unit) const
 {
-	glBindTextureUnit(Unit, _Texture);
+    glBindTextureUnit(Unit, _Texture);
 }
 
 NPGS_INLINE void FTexture::BindTextureUnit(const FShader& DrawShader, const std::string& UniformName, GLuint Unit) const
 {
-	glBindTextureUnit(Unit, _Texture);
-	DrawShader.SetUniform1i(UniformName, static_cast<GLint>(Unit));
+    glBindTextureUnit(Unit, _Texture);
+    DrawShader.SetUniform1i(UniformName, static_cast<GLint>(Unit));
 }
 
 NPGS_INLINE GLuint FTexture::GetTexture() const
 {
-	return _Texture;
+    return _Texture;
 }
 
 NPGS_INLINE FTexture::ETextureType FTexture::GetTextureType() const
 {
-	return _Type;
+    return _Type;
 }
 
 _ASSET_END
+_RUNTIME_END
 _NPGS_END

@@ -54,7 +54,7 @@
     <ClCompile Include="Sources\Engine\Core\Runtime\Assets\AssetManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Programs\stdafx.cpp">
+    <ClCompile Include="Sources\stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Utils\Utils.cpp">
@@ -85,9 +85,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Core\Types\Entries\NpgsObject.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Sources\Engine\Core\Runtime\Assets\stb_image.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Engine\Core\Runtime\Graphics\Renderers\ShaderBlockManager.cpp">
@@ -176,7 +173,7 @@
     <ClInclude Include="Sources\Programs\Npgs.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Programs\stdafx.h">
+    <ClInclude Include="Sources\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Engine\Utils\Utils.h">
