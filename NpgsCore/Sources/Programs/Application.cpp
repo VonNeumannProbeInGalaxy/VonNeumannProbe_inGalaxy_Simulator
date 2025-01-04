@@ -243,8 +243,8 @@ void FApplication::CreatePipelineLayout()
 
 void FApplication::CreatePipeline()
 {
-    static Runtime::Graphics::FVulkanShaderModule VertShaderModule(_VulkanCore->GetDevice(), "Sources/Shaders/Triangle.vert.spv");
-    static Runtime::Graphics::FVulkanShaderModule FragShaderModule(_VulkanCore->GetDevice(), "Sources/Shaders/Triangle.frag.spv");
+    static Runtime::Graphics::FVulkanShaderModule VertShaderModule(_VulkanCore->GetDevice(), "Sources/Engine/Shaders/Triangle.vert.spv");
+    static Runtime::Graphics::FVulkanShaderModule FragShaderModule(_VulkanCore->GetDevice(), "Sources/Engine/Shaders/Triangle.frag.spv");
 
     static vk::PipelineShaderStageCreateInfo VertShaderStage = vk::PipelineShaderStageCreateInfo()
         .setStage(vk::ShaderStageFlagBits::eVertex)

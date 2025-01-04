@@ -1,13 +1,14 @@
 #pragma warning(disable : 4251)
 
-#include <xstdafx.h>
-#define ENABLE_CONSOLE_LOGGER
+#define NPGS_ENABLE_CONSOLE_LOGGER
 #include "Npgs.h"
+#include "Universe.h"
 
 int main() {
     using namespace Npgs;
     using namespace Npgs::Astro;
-    using namespace Npgs::Module;
+    using namespace Npgs::Runtime::Thread;
+    using namespace Npgs::System::Generator;
     using namespace Npgs::Util;
 
     FLogger::Init();
@@ -25,7 +26,8 @@ int main() {
         FUniverse Space(Seed, StarCount);
         Space.FillUniverse();
         Space.CountStars();
-    } catch (std::exception& e) {
+    }
+    catch (std::exception& e) {
         std::cout << e.what() << std::endl;
     }
 

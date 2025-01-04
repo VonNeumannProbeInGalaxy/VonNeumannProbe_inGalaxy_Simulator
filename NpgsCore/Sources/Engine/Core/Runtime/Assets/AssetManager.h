@@ -9,12 +9,6 @@
 #include <vector>
 
 #include "Engine/Core/Base/Base.h"
-#include "Engine/Core/Runtime/Assets/CommaSeparatedValues.hpp"
-#include "Engine/Core/Runtime/Assets/GetAssetFullPath.h"
-#include "Engine/Core/Runtime/Assets/Mesh.h"
-#include "Engine/Core/Runtime/Assets/Model.h"
-#include "Engine/Core/Runtime/Assets/Shader.h"
-#include "Engine/Core/Runtime/Assets/Texture.h"
 
 _NPGS_BEGIN
 _RUNTIME_BEGIN
